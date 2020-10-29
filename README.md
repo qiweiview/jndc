@@ -2,8 +2,8 @@
 ![jdk12](https://img.shields.io/badge/jdk-12-orange.svg) 
 
 ## 介绍
-"j ndc" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。 
-
+* "j ndc" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。 
+* 应用核心由ndc私有协议支撑
 
 ## ndc私有协议
 * 协议设计为仅支持ipv4
@@ -41,4 +41,5 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```
 
 ## 开发计划
-
+* 支持websocket
+* 可视化操作页面
