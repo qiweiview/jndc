@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import jndc.client.JNDCClientConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.ServerPortProtector;
 import jndc.core.UniqueBeanManage;
@@ -58,8 +59,9 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         innerHandlerCallBack.registerHandler(uniqueTag, this);
 
 
+
         NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), innerHandlerCallBack.getLocalPort(), NDCMessageProtocol.TCP_ACTIVE);
-        ndcMessageProtocol.setData("active".getBytes());
+        ndcMessageProtocol.setData(NDCMessageProtocol.ACTIVE_MESSAGE);
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
     }
 
@@ -67,7 +69,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
         byte[] bytes = ByteBufUtil.getBytes(byteBuf);
-        new String(bytes);
+
         Channel channel = ctx.channel();
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress)channel.localAddress();
@@ -83,16 +85,13 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
-
-
-
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress)channel.localAddress();
 
         LogPrint.log(remoteAddress+"断开");
 
         //发送消息
-        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), innerHandlerCallBack.getLocalPort(), NDCMessageProtocol.USER_ERROR);
+        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), innerHandlerCallBack.getLocalPort(), NDCMessageProtocol.CONNECTION_INTERRUPTED);
         ndcMessageProtocol.setData("connection lose".getBytes());
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
 
@@ -105,7 +104,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+       LogPrint.log("get a unCatchable error cause:"+cause);
     }
 
     public void close() {

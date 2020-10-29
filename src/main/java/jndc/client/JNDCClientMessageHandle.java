@@ -21,14 +21,14 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
-        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 777, 3306, NDCMessageProtocol.MAP_REGISTER);
+        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 777, 888, NDCMessageProtocol.MAP_REGISTER);
         tqs.setData(bytes);
         ctx.writeAndFlush(tqs);
 
-
-        NDCMessageProtocol tqs2 = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 778, 80, NDCMessageProtocol.MAP_REGISTER);
-        tqs2.setData(bytes);
-        ctx.writeAndFlush(tqs2);
+//
+//        NDCMessageProtocol tqs2 = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 778, 80, NDCMessageProtocol.MAP_REGISTER);
+//        tqs2.setData(bytes);
+//        ctx.writeAndFlush(tqs2);
     }
 
     @Override
@@ -67,6 +67,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
+
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.shutDownClientPortProtector(ndcMessageProtocol);
             }

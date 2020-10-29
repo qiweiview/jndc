@@ -2,10 +2,16 @@ package jndc.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
+import jndc.server.NDCServerConfigCenter;
+import jndc.utils.InetUtils;
+import jndc.utils.LogPrint;
+
+import java.net.InetSocketAddress;
 
 
 public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
@@ -32,7 +38,6 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
         //发送消息
         NDCMessageProtocol copy = messageModel.copy();
-        copy.inetSwap();
         copy.setType(NDCMessageProtocol.TCP_DATA);
         copy.setData(bytes);
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
@@ -40,16 +45,20 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), innerHandlerCallBack.getLocalPort(), NDCMessageProtocol.SYSTEM_ERROR);
-//        ndcMessageProtocol.setData("connection lose".getBytes());
-//        UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
+
+        //发送消息
+        NDCMessageProtocol copy = messageModel.copy();
+        copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
+        copy.setData("connection lose".getBytes());
+        
+        UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
 
         ctx.close();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        LogPrint.log("get a unCatchable error cause:"+cause);
     }
 
     public void close(){

@@ -98,4 +98,18 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
         this.channelHandlerContext = channelHandlerContext;
     }
+
+    public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
+        int serverPort = ndcMessageProtocol.getServerPort();
+
+        //需要解决
+        ServerPortProtector serverPortProtector = portProtectorMap.get(serverPort);
+        if (serverPortProtector == null) {
+           //do nothing
+            return;
+        } else {
+            serverPortProtector.shutDownTcpConnection(ndcMessageProtocol);
+        }
+
+    }
 }

@@ -13,14 +13,14 @@ import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientPortProtector implements PortProtector {
 
-    private NDCServerConfigCenter ndcServerConfigCenter;
 
-    private int port;
+    private int port;//this ClientPortProtector focus port
 
 
     private EventLoopGroup eventLoopGroup=NettyComponentConfig.getNioEventLoopGroup();
@@ -64,7 +64,6 @@ public class ClientPortProtector implements PortProtector {
 
         String clientTag = UniqueInetTagProducer.get4Client(ndcMessageProtocol.getRemoteInetAddress(),ndcMessageProtocol.getRemotePort());
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(clientTag);
-        LogPrint.log("当前客户端："+faceTCPMap);
 
         if (clientTCPDataHandle == null) {
             clientTCPDataHandle = startInnerBootstrap(ndcMessageProtocol);
@@ -74,7 +73,9 @@ public class ClientPortProtector implements PortProtector {
             }
             faceTCPMap.put(clientTag, clientTCPDataHandle);
         }
-        if ("active".equals(new String(ndcMessageProtocol.getData()))){
+
+        if (Arrays.compare(NDCMessageProtocol.ACTIVE_MESSAGE,ndcMessageProtocol.getData())==0){
+            //todo ignore active message
             return;
         }
         clientTCPDataHandle.writeMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));

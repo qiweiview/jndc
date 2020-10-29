@@ -1,13 +1,18 @@
 package jndc.core;
 
+import jndc.utils.ByteArrayUtils;
 import jndc.utils.HexUtils;
+import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * No Distance Connection Protocol
@@ -34,8 +39,11 @@ public class NDCMessageProtocol {
 
     /*--------------------- static variable ---------------------*/
 
+    public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;//the single package length
 
     public static final int FIX_LENGTH = 33;//the length of the fixed part of protocol
+
+    public static final byte[] ACTIVE_MESSAGE = "ACTIVE_MESSAGE".getBytes();//magic variable
 
     private static final byte[] MAGIC = "NDC".getBytes();//magic variable
 
@@ -116,39 +124,7 @@ public class NDCMessageProtocol {
                 ", dataSize=" + dataSize +
                 '}';
     }
-//    public static NDCMessageProtocol ofBeatMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage(data,sender,receiver,BEAT_DANCE);
-//    }
-//
-//    public static NDCMessageProtocol ofTcpActive( InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage("active".getBytes(),sender,receiver, TCP_ACTIVE);
-//    }
-//
-//    public static NDCMessageProtocol ofTcpDataMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage(data,sender,receiver, TCP_DATA);
-//    }
-//
-//
-//    public static NDCMessageProtocol ofRegisterMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage(data,sender,receiver,REGISTER);
-//    }
-//
-//    public static NDCMessageProtocol ofErrorMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage(data,sender,receiver,SYSTEM_ERROR);
-//    }
-//
-//    public static NDCMessageProtocol ofRespMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver) {
-//        return ofMessage(data,sender,receiver,SYSTEM_RESP);
-//    }
-//
-//    private static NDCMessageProtocol ofMessage(byte[] data, InetSocketAddress sender, InetSocketAddress receiver,int type) {
-//        NDCMessageProtocol NDCMessageProtocol = new NDCMessageProtocol();
-//        NDCMessageProtocol.setSender(sender);
-//        NDCMessageProtocol.setReceiver(receiver);
-//        NDCMessageProtocol.setData(data);
-//        NDCMessageProtocol.setType(type);
-//        return NDCMessageProtocol;
-//    }
+
 
     public static NDCMessageProtocol parseFixInfo(byte[] bytes) {
         if (bytes.length < FIX_LENGTH) {
@@ -208,6 +184,22 @@ public class NDCMessageProtocol {
         setData(bytes);
     }
 
+    /**
+     * auto unpack
+     * @return
+     */
+    public List<NDCMessageProtocol> autoUnpack() {
+        List<NDCMessageProtocol> ndcMessageProtocols = new ArrayList<>();
+        byte[] data = getData();
+        List<byte[]> list = ByteArrayUtils.bytesUnpack(data, AUTO_UNPACK_LENGTH);
+        list.forEach(x -> {
+            NDCMessageProtocol copy = copy();
+            copy.setData(x);
+            ndcMessageProtocols.add(copy);
+        });
+        return ndcMessageProtocols;
+    }
+
     public byte[] toByteArray() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
@@ -221,13 +213,17 @@ public class NDCMessageProtocol {
             byteArrayOutputStream.write(HexUtils.fillBlank(remotePort, 4).getBytes());//4 byte -->26
 
             dataSize = data.length;
+            if (dataSize > AUTO_UNPACK_LENGTH) {
+                throw new RuntimeException("too long data,need run autoUnpack()");
+            }
             byteArrayOutputStream.write(HexUtils.fillBlank(dataSize, 7).getBytes());//7 byte -->33
             byteArrayOutputStream.write(data);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return byteArrayOutputStream.toByteArray();
     }
+
 
     public <T> T getObject(Class<T> tClass) {
         byte[] data = getData();

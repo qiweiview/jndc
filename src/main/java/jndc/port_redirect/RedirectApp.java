@@ -23,8 +23,8 @@ public class RedirectApp {
 
         ServerBootstrap b = new ServerBootstrap();
         b.group(eventLoopGroup)
-                .channel(NioServerSocketChannel.class)////　❸ 指定所使用的NIO传输Channel
-                .localAddress(new InetSocketAddress(80))//　❹ 使用指定的端口设置套接字地址
+                .channel(NioServerSocketChannel.class)//
+                .localAddress(new InetSocketAddress(80))//
                 .childHandler(channelInitializer);
 
         ChannelFuture bind = b.bind().addListener(x->{

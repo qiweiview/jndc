@@ -1,6 +1,8 @@
 package jndc.test;
 
 
+import jndc.utils.LogPrint;
+
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +11,7 @@ public class EchoServer {
     public static void main(String[] args)  throws Exception {
 
         ServerSocket socket = new ServerSocket(888);
+        LogPrint.log("start echo server");
         while (true){
             Socket accept = socket.accept();
             OutputStream outputStream = accept.getOutputStream();

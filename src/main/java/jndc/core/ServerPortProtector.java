@@ -142,6 +142,18 @@ public class ServerPortProtector  implements PortProtector{
 
     }
 
+    public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
+        String s = UniqueInetTagProducer.get4Server(ndcMessageProtocol.getRemoteInetAddress(),ndcMessageProtocol.getRemotePort());
+        ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(s);
+        if (serverTCPDataHandle == null) {
+            //do nothing
+        } else {
+            faceTCPMap.remove(s);
+            serverTCPDataHandle.close();
+            LogPrint.log("close face connection cause local connection interrupted:"+s);
+        }
+    }
+
     public interface InnerHandlerCallBack {
         public void registerHandler(String uniqueTag, ServerTCPDataHandle serverTCPDataHandle);
 

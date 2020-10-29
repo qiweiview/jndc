@@ -34,7 +34,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 NDCMessageProtocol copy = ndcMessageProtocol.copy();
                 RegistrationMessage registrationMessage = new RegistrationMessage();
-                registrationMessage.setMessage(ndcMessageProtocol.getServerPort() + "register success");
+                registrationMessage.setMessage(ndcMessageProtocol.getServerPort() + " on server register success");
                 byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);
@@ -51,7 +51,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
-
+                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+                ndcServerConfigCenter.shutDownTcpConnection(ndcMessageProtocol);
             }
 
             if (type == NDCMessageProtocol.NO_ACCESS) {

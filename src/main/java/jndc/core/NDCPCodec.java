@@ -14,7 +14,12 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol NDCMessageProtocol, ByteBuf byteBuf) throws Exception {
-        byteBuf.writeBytes(NDCMessageProtocol.toByteArray());
+        //auto unpack
+        List<NDCMessageProtocol> list = NDCMessageProtocol.autoUnpack();
+        list.forEach(x->{
+            byteBuf.writeBytes(x.toByteArray());
+        });
+
     }
 
     @Override

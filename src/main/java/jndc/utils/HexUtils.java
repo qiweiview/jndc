@@ -59,6 +59,14 @@ public class HexUtils {
         return fillBytes;
     }
 
+    public static void main(String[] args) {
+        System.out.println(Integer.toHexString(0xff00000));
+        System.out.println(0xfffffff/(255*1024*1024));
+        System.out.println(0xfffffff);
+        System.out.println(0xff00000);
+        System.out.println(255*1024*1024);
+
+    }
 
     /**
      * some problem
@@ -68,7 +76,7 @@ public class HexUtils {
      */
     public static String fillBlank(int s, int limit) {
         if (limit > 8 || s > Integer.MAX_VALUE) {
-            throw new RuntimeException("unSupportNumber");
+            throw new RuntimeException("unSupportLength");
         }
         String s1 = Integer.toHexString(s);
         int i = limit - s1.length();

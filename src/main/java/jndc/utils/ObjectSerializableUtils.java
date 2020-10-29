@@ -3,7 +3,7 @@ package jndc.utils;
 
 import java.io.*;
 
-public final class ObjectSerializableUtils implements Serializable {
+public  class ObjectSerializableUtils implements Serializable {
 
 
     public static byte[] object2bytes(Object obj) {

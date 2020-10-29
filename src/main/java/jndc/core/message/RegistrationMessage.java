@@ -10,14 +10,12 @@ public class RegistrationMessage implements Serializable {
 
     private static final long serialVersionUID = 2323315614144754699L;
 
-    /* -------------------请求------------------- */
+
+    private String auth;
+
     private String equipmentId;
 
-
-    /* -------------------响应------------------- */
     private String message;
-
-
 
 
     public String getMessage() {

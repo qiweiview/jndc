@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * single bean init
+ * single bean init,can use spring or other tools replace
  */
 public class UniqueBeanManage {
+
     private static Map<Class, Object> map = new ConcurrentHashMap<>();
 
     public static <T> T getBean(Class<T> tClass) {
