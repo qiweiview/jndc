@@ -10,7 +10,7 @@ import jndc.utils.LogPrint;
 
 import java.net.InetSocketAddress;
 
-public class RemoteServer {
+public class JNDCServer {
     public static final Integer SERVER_PORT=81;
 
 

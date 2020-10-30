@@ -142,6 +142,26 @@ public class ServerPortProtector  implements PortProtector{
 
     }
 
+    public void sayGoodByeToEveryOne(){
+        eventLoopGroup.shutdownGracefully().addListener(x->{
+            LogPrint.log("shut down face port "+registerMessage.getServerPort());
+            registerMessage=null;
+            ndcServerConfigCenter=null;
+            serverBootstrap=null;
+            eventLoopGroup=null;
+            faceTCPMap=null;
+        });
+    }
+
+
+    public void shutDownAllTcpConnection() {
+        faceTCPMap.forEach((k,v)->{
+            LogPrint.log("interrupt face connection port:"+k);
+            faceTCPMap.remove(k);
+            v.close();
+        });
+    }
+
     public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
         String s = UniqueInetTagProducer.get4Server(ndcMessageProtocol.getRemoteInetAddress(),ndcMessageProtocol.getRemotePort());
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(s);

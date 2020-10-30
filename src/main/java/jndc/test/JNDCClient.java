@@ -13,7 +13,7 @@ import jndc.utils.LogPrint;
 import java.net.InetSocketAddress;
 
 
-public class ProtocolClient {
+public class JNDCClient {
 
     public static void main(String[] args) {
         EventLoopGroup group = NettyComponentConfig.getNioEventLoopGroup();
@@ -32,7 +32,7 @@ public class ProtocolClient {
                 .channel(NioSocketChannel.class)//
                 .handler(channelInitializer);
 
-        InetSocketAddress localInetAddress = InetUtils.getLocalInetAddress(RemoteServer.SERVER_PORT);
+        InetSocketAddress localInetAddress = InetUtils.getLocalInetAddress(JNDCServer.SERVER_PORT);
         ChannelFuture connect = b.connect(localInetAddress);
         connect.addListeners(x->{
             try {

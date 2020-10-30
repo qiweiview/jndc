@@ -1,13 +1,20 @@
 package jndc.server;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.core.message.RegistrationMessage;
+import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
 
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
@@ -33,20 +40,22 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
                 NDCMessageProtocol copy = ndcMessageProtocol.copy();
+
+
+                //register message channel,just focus on port is used or not
+                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+                ndcServerConfigCenter.registerMessageChannel(copy.getServerPort(), channelHandlerContext);
+
+                //start port monitor
+                ndcServerConfigCenter.startPortMonitoring(copy);
+
+                // send response
                 RegistrationMessage registrationMessage = new RegistrationMessage();
                 registrationMessage.setMessage(ndcMessageProtocol.getServerPort() + " on server register success");
                 byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);
 
-
-                //register message channel
-                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-                ndcServerConfigCenter.registerMessageChannel(channelHandlerContext);
-
-
-                //start port monitor
-                ndcServerConfigCenter.startPortMonitoring(copy);
             }
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
@@ -83,15 +92,29 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        LogPrint.log("connection closed");
+        Channel channel = ctx.channel();
+        InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
+        InetAddress address = socketAddress.getAddress();
+        LogPrint.log("client connection closed：" + address);
         ctx.close();
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ndcServerConfigCenter.unRegisterMessageChannel(ctx);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (cause instanceof SocketException) {
-            LogPrint.log("client close：" + cause.getMessage());
-        }
+        LogPrint.log("unCatchable error：" + cause.getMessage() + "/" + ctx.isRemoved());
+
+
+        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+
+        //for the client local is remote
+        NDCMessageProtocol of = NDCMessageProtocol.of(localAddress.getAddress(), remoteAddress.getAddress(), 0, localAddress.getPort(), remoteAddress.getPort(), NDCMessageProtocol.UN_CATCHABLE_ERROR);
+        of.setData(cause.toString().getBytes());
+        ctx.writeAndFlush(of).addListeners(ChannelFutureListener.CLOSE);
 
     }
+
+
 }

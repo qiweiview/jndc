@@ -8,9 +8,14 @@ public interface NDCConfigCenter {
 
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol);
 
-    public void registerMessageChannel(ChannelHandlerContext channelHandlerContext);
+    public void registerMessageChannel(int port,ChannelHandlerContext channelHandlerContext);
+
+    void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext);
 
     public void registerPortProtector(int port, PortProtector portProtector);
 
     public void unRegisterPortProtector(int port);
+
+
+
 }

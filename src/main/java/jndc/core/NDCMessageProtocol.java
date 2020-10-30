@@ -1,5 +1,6 @@
 package jndc.core;
 
+import io.netty.channel.ChannelHandlerContext;
 import jndc.utils.ByteArrayUtils;
 import jndc.utils.HexUtils;
 import jndc.utils.LogPrint;
@@ -8,6 +9,7 @@ import jndc.utils.ObjectSerializableUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,6 +99,7 @@ public class NDCMessageProtocol {
         remoteInetAddress = localInetAddress;
         localInetAddress = temp;
     }
+
 
 
     public static NDCMessageProtocol of(InetAddress remoteInetAddress, InetAddress localInetAddress, int remotePort, int serverPort, int localPort, int type) {

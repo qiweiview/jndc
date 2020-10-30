@@ -21,14 +21,10 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
-        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 777, 888, NDCMessageProtocol.MAP_REGISTER);
+        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 777, 80, NDCMessageProtocol.MAP_REGISTER);
         tqs.setData(bytes);
         ctx.writeAndFlush(tqs);
 
-//
-//        NDCMessageProtocol tqs2 = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 778, 80, NDCMessageProtocol.MAP_REGISTER);
-//        tqs2.setData(bytes);
-//        ctx.writeAndFlush(tqs2);
     }
 
     @Override
@@ -58,9 +54,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 LogPrint.log(object.getMessage());
 
 
-                //register channel
+                //register channel,client just hold one channelHandlerContext
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                bean.registerMessageChannel(channelHandlerContext);
+                bean.registerMessageChannel(0, channelHandlerContext);
 
 
             }
@@ -103,6 +99,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //todo 执行心跳重连
         LogPrint.log("服务端断开");
+
+
+
     }
 
 

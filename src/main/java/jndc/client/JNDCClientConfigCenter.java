@@ -20,7 +20,6 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     private ChannelHandlerContext channelHandlerContext;//single channel  ,expect a list  of channels
 
 
-
     @Override
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
         channelHandlerContext.writeAndFlush(ndcMessageProtocol);
@@ -31,28 +30,33 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
         int localPort = ndcMessageProtocol.getLocalPort();
         ClientPortProtector clientPortProtector = portProtectorMap.get(localPort);
-        if (clientPortProtector==null){
-            clientPortProtector=new ClientPortProtector(localPort);
+        if (clientPortProtector == null) {
+            clientPortProtector = new ClientPortProtector(localPort);
 
             //register port protector
-            registerPortProtector(localPort,clientPortProtector);
+            registerPortProtector(localPort, clientPortProtector);
         }
 
         clientPortProtector.receiveMessage(ndcMessageProtocol);
 
 
-
     }
 
     @Override
-    public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
-        this.channelHandlerContext=channelHandlerContext;
+    public void registerMessageChannel(int port, ChannelHandlerContext channelHandlerContext) {
+        this.channelHandlerContext = channelHandlerContext;
     }
+
+    @Override
+    public void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext) {
+        this.channelHandlerContext = null;
+    }
+
 
     @Override
     public void registerPortProtector(int port, PortProtector portProtector) {
-        ClientPortProtector clientPortProtector= (ClientPortProtector) portProtector;
-        portProtectorMap.put(port,clientPortProtector);
+        ClientPortProtector clientPortProtector = (ClientPortProtector) portProtector;
+        portProtectorMap.put(port, clientPortProtector);
     }
 
     @Override
@@ -63,8 +67,8 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     public void shutDownClientPortProtector(NDCMessageProtocol ndcMessageProtocol) {
         int localPort = ndcMessageProtocol.getLocalPort();
         ClientPortProtector clientPortProtector = portProtectorMap.get(localPort);
-        if (clientPortProtector==null){
-           //do nothing
+        if (clientPortProtector == null) {
+            //do nothing
         }
         clientPortProtector.shutDown(ndcMessageProtocol);
     }
