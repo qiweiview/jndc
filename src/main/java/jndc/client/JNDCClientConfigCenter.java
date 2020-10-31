@@ -64,6 +64,10 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     }
 
+    /**
+     *  be called when "the face tcp"  is interrupted,we need to interrupt local application at the same time
+     * @param ndcMessageProtocol
+     */
     public void shutDownClientPortProtector(NDCMessageProtocol ndcMessageProtocol) {
         int localPort = ndcMessageProtocol.getLocalPort();
         ClientPortProtector clientPortProtector = portProtectorMap.get(localPort);

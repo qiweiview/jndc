@@ -1,18 +1,25 @@
 package jndc.client;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.core.message.RegistrationMessage;
+import jndc.test.ClientTest;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 
 public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
 
+    private JNDCClient client;
+
     public static final String NAME = "NDC_CLIENT_HANDLE";
 
+    public JNDCClientMessageHandle(JNDCClient jndcClient) {
+        this.client = jndcClient;
+    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -97,12 +104,16 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        //todo 执行心跳重连
-        LogPrint.log("服务端断开");
-
-
-
+        LogPrint.log("client connection interrupted");
+        EventLoop eventExecutors = ctx.channel().eventLoop();
+        client.createClient(eventExecutors);
     }
 
+
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        LogPrint.err("unCatchable client error：" + cause.getMessage() );
+    }
 
 }

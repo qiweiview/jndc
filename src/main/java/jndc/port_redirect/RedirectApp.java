@@ -12,7 +12,7 @@ public class RedirectApp {
 
     public static void main(String[] args) {
         EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-        ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<>() {
+        ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
 
             @Override
             protected void initChannel(Channel channel) throws Exception {

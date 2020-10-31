@@ -136,6 +136,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     }
 
 
+    /**
+     * be called when the local application is interrupted,we need to interrupt "the face tcp" at the same time
+     * @param ndcMessageProtocol
+     */
     public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
         int serverPort = ndcMessageProtocol.getServerPort();
 

@@ -74,7 +74,9 @@ public class ClientPortProtector implements PortProtector {
             faceTCPMap.put(clientTag, clientTCPDataHandle);
         }
 
-        if (Arrays.compare(NDCMessageProtocol.ACTIVE_MESSAGE,ndcMessageProtocol.getData())==0){
+
+        //can replace with Arrays.compare in jdk 9
+        if ( Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE,ndcMessageProtocol.getData())){
             //todo ignore active message
             return;
         }

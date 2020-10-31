@@ -60,6 +60,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
+                LogPrint.log("accept client interrupted message");
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.shutDownTcpConnection(ndcMessageProtocol);
             }
@@ -103,7 +104,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LogPrint.log("unCatchable error：" + cause.getMessage() + "/" + ctx.isRemoved());
+        LogPrint.err("unCatchable server error：" + cause.getMessage());
+
 
 
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();

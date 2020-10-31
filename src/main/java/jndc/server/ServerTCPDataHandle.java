@@ -11,6 +11,7 @@ import jndc.client.JNDCClientConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.ServerPortProtector;
 import jndc.core.UniqueBeanManage;
+import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
@@ -68,7 +69,8 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
-        byte[] bytes = ByteBufUtil.getBytes(byteBuf);
+        byte[] bytes = ByteBufUtil4V.readWithRelease(byteBuf);
+
 
         Channel channel = ctx.channel();
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
@@ -104,7 +106,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-       LogPrint.log("get a unCatchable error cause:"+cause);
+       LogPrint.err("server face tcp get a unCatchable error cause:"+cause);
     }
 
     public void close() {

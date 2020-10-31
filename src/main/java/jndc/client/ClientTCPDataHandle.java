@@ -8,6 +8,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.server.NDCServerConfigCenter;
+import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 
@@ -27,14 +28,15 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        this.channelHandlerContext=ctx;
+        this.channelHandlerContext = ctx;
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
-        byte[] bytes = ByteBufUtil.getBytes(byteBuf);
-
+        byte[] bytes = ByteBufUtil4V.readWithRelease(byteBuf);
+        byteBuf.discardReadBytes();
+        byteBuf.release();
 
         //发送消息
         NDCMessageProtocol copy = messageModel.copy();
@@ -50,25 +52,24 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         NDCMessageProtocol copy = messageModel.copy();
         copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
         copy.setData("connection lose".getBytes());
-        
-        UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
 
+        UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
         ctx.close();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LogPrint.log("get a unCatchable error cause:"+cause);
+        LogPrint.err("client tcp get a unCatchable error, cause:" + cause);
     }
 
-    public void close(){
-        if (channelHandlerContext!=null){
+    public void close() {
+        if (channelHandlerContext != null) {
             channelHandlerContext.close();
         }
     }
 
 
-    public void writeMessage(ByteBuf byteBuf){
+    public void writeMessage(ByteBuf byteBuf) {
         channelHandlerContext.writeAndFlush(byteBuf);
     }
 

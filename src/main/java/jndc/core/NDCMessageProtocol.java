@@ -134,7 +134,9 @@ public class NDCMessageProtocol {
             throw new RuntimeException("unSupportFormat");
         }
 
-        if (Arrays.compare(MAGIC, Arrays.copyOfRange(bytes, 0, 3)) != 0) {
+
+                //replace with Arrays.compare in jdk 9
+        if (!Arrays.equals(MAGIC,Arrays.copyOfRange(bytes, 0, 3))) {
             throw new RuntimeException("unSupportProtocol");
         }
 
