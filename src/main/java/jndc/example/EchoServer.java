@@ -1,4 +1,4 @@
-package jndc.test;
+package jndc.example;
 
 
 import jndc.utils.LogPrint;

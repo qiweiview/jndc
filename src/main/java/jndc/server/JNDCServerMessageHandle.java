@@ -60,7 +60,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
-                LogPrint.log("accept client interrupted message");
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.shutDownTcpConnection(ndcMessageProtocol);
             }

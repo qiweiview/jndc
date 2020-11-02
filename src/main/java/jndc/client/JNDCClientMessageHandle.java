@@ -5,33 +5,63 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
+import jndc.core.config.ClientConfig;
+import jndc.core.config.ClientPortMapping;
+import jndc.core.config.UnifiedConfiguration;
 import jndc.core.message.RegistrationMessage;
-import jndc.test.ClientTest;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 
+import java.util.List;
+
 public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
+
 
     private JNDCClient client;
 
     public static final String NAME = "NDC_CLIENT_HANDLE";
 
+    private ChannelHandlerContext ctx;
+
     public JNDCClientMessageHandle(JNDCClient jndcClient) {
         this.client = jndcClient;
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void sendRegisterToServer(int localPort, int serverPort) {
         RegistrationMessage registrationMessage = new RegistrationMessage();
         registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
-        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, 777, 80, NDCMessageProtocol.MAP_REGISTER);
+        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, serverPort, localPort, NDCMessageProtocol.MAP_REGISTER);
         tqs.setData(bytes);
         ctx.writeAndFlush(tqs);
+    }
 
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        this.ctx = ctx;
+        RegistrationMessage registrationMessage = new RegistrationMessage();
+        registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
+        byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
+
+        UnifiedConfiguration unifiedConfiguration = UniqueBeanManage.getBean(UnifiedConfiguration.class);
+        ClientConfig clientConfig = unifiedConfiguration.getClientConfig();
+        if (clientConfig == null || clientConfig.getClientPortMappingList() == null) {
+            LogPrint.err("can not load mapping config");
+            return;
+        }
+
+
+        clientConfig.getClientPortMappingList().forEach(x -> {
+            int localPort = x.getLocalPort();
+            int serverPort = x.getServerPort();
+
+            NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, serverPort, localPort, NDCMessageProtocol.MAP_REGISTER);
+            tqs.setData(bytes);
+            ctx.writeAndFlush(tqs);
+        });
     }
 
     @Override
@@ -110,10 +140,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     }
 
 
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LogPrint.err("unCatchable client error：" + cause.getMessage() );
+        LogPrint.err("unCatchable client error：" + cause.getMessage());
     }
 
 }

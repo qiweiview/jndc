@@ -1,17 +1,13 @@
-package jndc.test;
+package jndc.example;
 
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import jndc.client.JNDCClientMessageHandle;
-import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 

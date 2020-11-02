@@ -29,7 +29,7 @@ public class UniqueBeanManage {
     }
 
 
-    private static void registerBean(Object o) {
+    public static void registerBean(Object o) {
         if (null == o) {
             return;
         }

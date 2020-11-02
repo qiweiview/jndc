@@ -1,0 +1,12 @@
+serverConfig:
+  adminPort: "81"
+  bindIp: "0.0.0.0"
+clientConfig:
+  remoteIp: "0.0.0.0"
+  remoteAdminPort: "81"
+  clientPortMappingList:
+    - name:
+      localPort: "80"
+      serverPort: "777"
+      configEnable: "true"
+

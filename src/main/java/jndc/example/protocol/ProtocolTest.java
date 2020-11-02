@@ -1,4 +1,4 @@
-package jndc.test.protocol;
+package jndc.example.protocol;
 
 import jndc.core.NDCMessageProtocol;
 import jndc.utils.InetUtils;

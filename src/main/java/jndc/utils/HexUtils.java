@@ -59,14 +59,7 @@ public class HexUtils {
         return fillBytes;
     }
 
-    public static void main(String[] args) {
-        System.out.println(Integer.toHexString(0xff00000));
-        System.out.println(0xfffffff/(255*1024*1024));
-        System.out.println(0xfffffff);
-        System.out.println(0xff00000);
-        System.out.println(255*1024*1024);
 
-    }
 
     /**
      * some problem

@@ -6,17 +6,18 @@ import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
-import jndc.test.ServerTest;
-import jndc.utils.InetUtils;
+import jndc.core.config.ClientPortMapping;
 import jndc.utils.LogPrint;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
 public class JNDCClient {
 
-    private String name;
+
+    private InetSocketAddress inetSocketAddress;
 
     private static int FAIL_LIMIT = 5;
 
@@ -25,6 +26,22 @@ public class JNDCClient {
     private int failTimes = 0;
 
     private EventLoopGroup group = NettyComponentConfig.getNioEventLoopGroup();
+
+    private JNDCClientMessageHandle jndcClientMessageHandle;
+
+
+    public JNDCClient(InetSocketAddress inetSocketAddress) {
+        this.inetSocketAddress = inetSocketAddress;
+    }
+
+    public void sendRegisterToServer(int localPort, int serverPort){
+        if (jndcClientMessageHandle==null){
+            LogPrint.err("The client has not connected to the server ");
+        }else {
+            jndcClientMessageHandle.sendRegisterToServer(localPort,serverPort);
+        }
+
+    }
 
 
     public void createClient() {
@@ -39,7 +56,8 @@ public class JNDCClient {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
                 pipeline.addFirst(NDCPCodec.NAME, new NDCPCodec());
-                pipeline.addAfter(NDCPCodec.NAME, JNDCClientMessageHandle.NAME, new JNDCClientMessageHandle(jndcClient));
+                jndcClientMessageHandle=new JNDCClientMessageHandle(jndcClient);
+                pipeline.addAfter(NDCPCodec.NAME, JNDCClientMessageHandle.NAME,jndcClientMessageHandle );
 
             }
         };
@@ -48,8 +66,8 @@ public class JNDCClient {
                 .channel(NioSocketChannel.class)//
                 .handler(channelInitializer);
 
-        InetSocketAddress localInetAddress = InetUtils.getLocalInetAddress(ServerTest.SERVER_PORT);
-        ChannelFuture connect = b.connect(localInetAddress);
+
+        ChannelFuture connect = b.connect(inetSocketAddress);
         connect.addListeners(x -> {
             if (!x.isSuccess()) {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
