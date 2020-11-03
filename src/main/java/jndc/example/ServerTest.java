@@ -4,6 +4,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.server.JNDCServer;
+import jndc.utils.ApplicationExit;
 import jndc.utils.LogPrint;
 import jndc.utils.YmlParser;
 import org.slf4j.Logger;
@@ -22,14 +23,13 @@ public class ServerTest {
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
             logger.error("config file:" + file + "parse fail：" + e);
-            System.exit(1);
+            ApplicationExit.exit();
         }
-        ServerConfig serverConfig = unifiedConfiguration.getServerConfig();
-
-        JNDCServer serverTest =new JNDCServer(serverConfig.getAdminPort());
+        JNDCServer serverTest =new JNDCServer();
 
         serverTest.createServer();//start
     }

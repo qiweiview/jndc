@@ -1,12 +1,32 @@
 package jndc.core.config;
 
-public class UnifiedConfiguration {
+import jndc.utils.AESUtils;
+import jndc.utils.ApplicationExit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class UnifiedConfiguration implements ParameterVerification {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private String secrete;
 
     private ServerConfig serverConfig;
 
     private ClientConfig clientConfig;
 
+
+    @Override
+    public void performParameterVerification() {
+        if (null == secrete) {
+            logger.error("the secrete not be found in config file");
+            ApplicationExit.exit();
+        } else {
+            AESUtils.setKey(secrete.getBytes());
+        }
+
+        serverConfig.performParameterVerification();
+        clientConfig.performParameterVerification();
+    }
 
     @Override
     public String toString() {

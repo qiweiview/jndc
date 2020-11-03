@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * server config center
+ * client config center
  */
 public class JNDCClientConfigCenter implements NDCConfigCenter {
 
@@ -31,38 +31,31 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         int localPort = ndcMessageProtocol.getLocalPort();
         ClientPortProtector clientPortProtector = portProtectorMap.get(localPort);
         if (clientPortProtector == null) {
+            //create port protector
             clientPortProtector = new ClientPortProtector(localPort);
-
             //register port protector
             registerPortProtector(localPort, clientPortProtector);
         }
 
+        //receive message
         clientPortProtector.receiveMessage(ndcMessageProtocol);
 
 
     }
 
-    @Override
-    public void registerMessageChannel(int port, ChannelHandlerContext channelHandlerContext) {
+
+    public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
         this.channelHandlerContext = channelHandlerContext;
     }
 
-    @Override
-    public void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext) {
-        this.channelHandlerContext = null;
-    }
 
 
-    @Override
     public void registerPortProtector(int port, PortProtector portProtector) {
         ClientPortProtector clientPortProtector = (ClientPortProtector) portProtector;
         portProtectorMap.put(port, clientPortProtector);
     }
 
-    @Override
-    public void unRegisterPortProtector(int port) {
 
-    }
 
     /**
      *  be called when "the face tcp"  is interrupted,we need to interrupt local application at the same time

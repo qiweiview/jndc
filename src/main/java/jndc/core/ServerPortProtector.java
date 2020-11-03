@@ -172,11 +172,11 @@ public class ServerPortProtector  implements PortProtector{
         String s = UniqueInetTagProducer.get4Server(ndcMessageProtocol.getRemoteInetAddress(),ndcMessageProtocol.getRemotePort());
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(s);
         if (serverTCPDataHandle == null) {
-            //do nothing
+            //todo do nothing
         } else {
             faceTCPMap.remove(s);
             serverTCPDataHandle.close();
-            logger.debug("close face connection cause local connection interrupted:"+s);
+            logger.info("close face connection cause local connection interrupted:"+s);
         }
     }
 

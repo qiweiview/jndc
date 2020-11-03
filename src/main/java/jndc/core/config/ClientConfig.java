@@ -1,15 +1,15 @@
 package jndc.core.config;
 
-import jndc.utils.LogPrint;
+import jndc.utils.ApplicationExit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
+import java.net.InetSocketAddress;
+import java.util.*;
 
-public class ClientConfig {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
+public class ClientConfig implements ParameterVerification {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String remoteIp;
 
@@ -17,18 +17,45 @@ public class ClientConfig {
 
     private List<ClientPortMapping> clientPortMappingList;
 
-    private InetAddress  remoteInetAddress;
+    private Map<Integer, InetSocketAddress> clientPortMappingMap;
 
-    public InetAddress getRemoteInetAddress(){
-        if (remoteInetAddress==null){
-            try {
-                remoteInetAddress=InetAddress.getByName(remoteIp);
-            } catch (UnknownHostException e) {
-                logger.error("unknown  remote host");
-                System.exit(1);
-            }
+    private InetAddress remoteInetAddress;
+
+    private InetSocketAddress inetSocketAddress;
+
+
+    @Override
+    public void performParameterVerification() {
+        try {
+            remoteInetAddress = InetAddress.getByName(remoteIp);
+            inetSocketAddress = new InetSocketAddress(remoteInetAddress, remoteAdminPort);
+        } catch (Exception e) {
+            logger.error("un know host ::" + remoteIp);
+            ApplicationExit.exit();
         }
-        return remoteInetAddress;
+
+        if (clientPortMappingList != null) {
+
+            clientPortMappingMap = new HashMap<>();
+            Set<Integer> serverPortSet = new HashSet<>();
+            clientPortMappingList.forEach(x -> {
+                if (x.getConfigEnable()) {
+
+                    if (serverPortSet.contains(x.getServerPort())) {
+                        logger.error("duplicate remote port:" + x.getServerPort());
+                        ApplicationExit.exit();
+                    }
+                    if (clientPortMappingMap.containsKey(x.getLocalPort())) {
+                        logger.error("duplicate local port:" + x.getServerPort());
+                        ApplicationExit.exit();
+                    }
+                    x.performParameterVerification();
+                    clientPortMappingMap.put(x.getLocalPort(), x.getInetSocketAddress());
+                    serverPortSet.add(x.getServerPort());
+                }
+            });
+        }
+
     }
 
 
@@ -39,6 +66,30 @@ public class ClientConfig {
                 ", remoteAdminPort='" + remoteAdminPort + '\'' +
                 ", clientPortMappingList=" + clientPortMappingList +
                 '}';
+    }
+
+    public Map<Integer, InetSocketAddress> getClientPortMappingMap() {
+        return clientPortMappingMap;
+    }
+
+    public void setClientPortMappingMap(Map<Integer, InetSocketAddress> clientPortMappingMap) {
+        this.clientPortMappingMap = clientPortMappingMap;
+    }
+
+    public InetAddress getRemoteInetAddress() {
+        return remoteInetAddress;
+    }
+
+    public void setRemoteInetAddress(InetAddress remoteInetAddress) {
+        this.remoteInetAddress = remoteInetAddress;
+    }
+
+    public InetSocketAddress getInetSocketAddress() {
+        return inetSocketAddress;
+    }
+
+    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
+        this.inetSocketAddress = inetSocketAddress;
     }
 
     public List<ClientPortMapping> getClientPortMappingList() {
@@ -66,4 +117,6 @@ public class ClientConfig {
     public void setRemoteAdminPort(int remoteAdminPort) {
         this.remoteAdminPort = remoteAdminPort;
     }
+
+
 }

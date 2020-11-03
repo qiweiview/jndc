@@ -5,6 +5,7 @@ import jndc.core.config.ClientConfig;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.server.JNDCServer;
+import jndc.utils.ApplicationExit;
 import jndc.utils.LogPrint;
 import jndc.utils.YmlParser;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class AppStart {
 
         if (args.length < 2) {
             logger.error("missing startup parameters");
-            System.exit(1);
+            ApplicationExit.exit();
         }
 
 
@@ -61,40 +62,39 @@ public class AppStart {
         File file = new File(configFile);
         if (!file.exists()) {
             logger.error("can not found:" + file );
-            System.exit(1);
+            ApplicationExit.exit();
         }
 
 
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
-            System.exit(1);
+            ApplicationExit.exit();
         }
+
+
+
+
 
         String type = args[1];
 
         if (SERVER_APP_TYPE.equals(type)){
-            ServerConfig serverConfig = unifiedConfiguration.getServerConfig();
-            JNDCServer serverTest =new JNDCServer(serverConfig.getAdminPort());
+            JNDCServer serverTest =new JNDCServer();
             serverTest.createServer();
             return;
         }
 
         if (CLIENT_APP_TYPE.equals(type)){
-            ClientConfig clientConfig = unifiedConfiguration.getClientConfig();
-            int adminPort = clientConfig.getRemoteAdminPort();
-
-            InetAddress ip = clientConfig.getRemoteInetAddress();
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(ip, adminPort);
-            JNDCClient clientTest = new JNDCClient(inetSocketAddress);
+            JNDCClient clientTest = new JNDCClient();
             clientTest.createClient();
             return;
         }
         logger.error("unSupport type");
-        System.exit(1);
+        ApplicationExit.exit();
 
     }
 }

@@ -3,7 +3,6 @@ package jndc.core;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ResourceLeakDetector;
 
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.List;
 public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
 
     public static final String NAME="NDC";
+
     private NDCMessageProtocol ndcMessageProtocol;
 
 

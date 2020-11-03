@@ -94,11 +94,6 @@ public class NDCMessageProtocol {
     }
 
 
-    public void inetSwap() {
-        InetAddress temp = remoteInetAddress;
-        remoteInetAddress = localInetAddress;
-        localInetAddress = temp;
-    }
 
 
 

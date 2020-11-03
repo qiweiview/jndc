@@ -2,16 +2,16 @@ package jndc.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.*;
-import jndc.utils.LogPrint;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 
 /**
  * server config center ,heart of this app
@@ -45,7 +45,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @param port
      * @param portProtector
      */
-    @Override
     public void registerPortProtector(int port, PortProtector portProtector) {
         ChannelHandlerContextHolder channelHandlerContextHolder = contextHolderMap.get(port);
         if (channelHandlerContextHolder == null) {
@@ -71,7 +70,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      *
      * @param port
      */
-    @Override
     public void unRegisterPortProtector(int port) {
         portProtectorMap.remove(port);
     }
@@ -112,7 +110,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      *
      * @param channelHandlerContext
      */
-    @Override
     public void registerMessageChannel(int port, ChannelHandlerContext channelHandlerContext) {
         ChannelHandlerContextHolder channelHandlerContextHolder = contextHolderMap.get(port);
         if (channelHandlerContextHolder != null) {
@@ -122,7 +119,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         contextHolderMap.put(port, channelHandlerContextHolder1);
     }
 
-    @Override
+    /**
+     * called when channel inactive
+     * @param channelHandlerContext
+     */
     public void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext) {
         contextHolderMap.forEach((k, v) -> {
             ChannelHandlerContext store = v.getChannelHandlerContext();
@@ -143,12 +143,12 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @param ndcMessageProtocol
      */
     public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
+
         int serverPort = ndcMessageProtocol.getServerPort();
 
-        //需要解决
         ServerPortProtector serverPortProtector = portProtectorMap.get(serverPort);
         if (serverPortProtector == null) {
-            //do nothing
+            //todo do nothing
             return;
         } else {
             serverPortProtector.shutDownTcpConnection(ndcMessageProtocol);

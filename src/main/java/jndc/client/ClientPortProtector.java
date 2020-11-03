@@ -7,9 +7,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.NettyComponentConfig;
 import jndc.core.PortProtector;
+import jndc.core.UniqueBeanManage;
+import jndc.core.config.ClientConfig;
+import jndc.core.config.UnifiedConfiguration;
+import jndc.exception.ConnectionOpenFailException;
 import jndc.server.NDCServerConfigCenter;
 import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClientPortProtector implements PortProtector {
 
@@ -57,7 +61,7 @@ public class ClientPortProtector implements PortProtector {
         }else {
             faceTCPMap.remove(clientTag);
             clientTCPDataHandle.close();
-            logger.debug("local ClientPortProtector closed:"+clientTag);
+            logger.info("local ClientPortProtector closed:"+clientTag);
         }
     }
 
@@ -70,9 +74,9 @@ public class ClientPortProtector implements PortProtector {
 
         if (clientTCPDataHandle == null) {
             clientTCPDataHandle = startInnerBootstrap(ndcMessageProtocol);
-            if (clientTCPDataHandle==null){
+            if (clientTCPDataHandle ==null){
                 //todo start fail
-                return;
+                throw new ConnectionOpenFailException();
             }
             faceTCPMap.put(clientTag, clientTCPDataHandle);
         }
@@ -107,16 +111,25 @@ public class ClientPortProtector implements PortProtector {
         };
 
         b.group(eventLoopGroup)
-                .channel(NioSocketChannel.class)////　❸ 指定所使用的NIO传输Channel
+                .channel(NioSocketChannel.class)//
                 .handler(channelInitializer);
 
-        InetSocketAddress localInetAddress = InetUtils.getLocalInetAddress(ndcMessageProtocol.getLocalPort());
-        ChannelFuture connect = b.connect(localInetAddress);
+
+        UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
+        ClientConfig clientConfig = bean.getClientConfig();
+        Map<Integer, InetSocketAddress> clientPortMappingMap = clientConfig.getClientPortMappingMap();
+        InetSocketAddress inetSocketAddress = clientPortMappingMap.get(ndcMessageProtocol.getLocalPort());
+        if (inetSocketAddress==null){
+            //todo empty port mapping
+            return null;
+        }
+
+        ChannelFuture connect = b.connect(inetSocketAddress);
         try {
             connect.sync();//block
             logger.debug("local app connect success");
             return clientTCPDataHandle;
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             //todo connect error
             return null;
         }

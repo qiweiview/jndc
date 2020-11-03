@@ -3,17 +3,14 @@ package jndc.example;
 
 import jndc.client.JNDCClient;
 import jndc.core.UniqueBeanManage;
-import jndc.core.config.ClientConfig;
 import jndc.core.config.UnifiedConfiguration;
-import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
+import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+
 
 
 public class ClientTest {
@@ -25,19 +22,15 @@ public class ClientTest {
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
             logger.error("config file:" + file + "parse fail：" + e);
-            System.exit(1);
+            ApplicationExit.exit();
         }
 
-        ClientConfig clientConfig = unifiedConfiguration.getClientConfig();
-        int adminPort = clientConfig.getRemoteAdminPort();
 
-        InetAddress ip = clientConfig.getRemoteInetAddress();
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(ip, adminPort);
-
-        JNDCClient clientTest = new JNDCClient(inetSocketAddress);
+        JNDCClient clientTest = new JNDCClient();
         clientTest.createClient();
 
 

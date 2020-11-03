@@ -6,20 +6,20 @@ import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
-import jndc.core.config.ClientPortMapping;
-import jndc.utils.LogPrint;
+import jndc.core.SecreteCodec;
+import jndc.core.UniqueBeanManage;
+import jndc.core.config.ClientConfig;
+import jndc.core.config.ServerConfig;
+import jndc.core.config.UnifiedConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.List;
+
 import java.util.concurrent.TimeUnit;
 
 
 public class JNDCClient {
     private   final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private InetSocketAddress inetSocketAddress;
 
     private static int FAIL_LIMIT = 5;
 
@@ -32,8 +32,7 @@ public class JNDCClient {
     private JNDCClientMessageHandle jndcClientMessageHandle;
 
 
-    public JNDCClient(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
+    public JNDCClient() {
     }
 
     public void sendRegisterToServer(int localPort, int serverPort){
@@ -58,8 +57,10 @@ public class JNDCClient {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
                 pipeline.addFirst(NDCPCodec.NAME, new NDCPCodec());
+
+                pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME,new SecreteCodec());
                 jndcClientMessageHandle=new JNDCClientMessageHandle(jndcClient);
-                pipeline.addAfter(NDCPCodec.NAME, JNDCClientMessageHandle.NAME,jndcClientMessageHandle );
+                pipeline.addAfter(SecreteCodec.NAME, JNDCClientMessageHandle.NAME,jndcClientMessageHandle );
 
             }
         };
@@ -69,7 +70,10 @@ public class JNDCClient {
                 .handler(channelInitializer);
 
 
-        ChannelFuture connect = b.connect(inetSocketAddress);
+        UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
+        ClientConfig clientConfig = bean.getClientConfig();
+
+        ChannelFuture connect = b.connect(clientConfig.getInetSocketAddress());
         connect.addListeners(x -> {
             if (!x.isSuccess()) {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
@@ -80,11 +84,11 @@ public class JNDCClient {
                         group.shutdownGracefully();
                         return;
                     }
-                    logger.debug("connect fail , try re connect");
+                    logger.info("connect fail , try re connect");
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
             } else {
-                logger.debug("connect success to "+inetSocketAddress);
+                logger.info("connect success to "+clientConfig.getInetSocketAddress());
             }
 
         });
