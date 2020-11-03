@@ -6,10 +6,13 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
 public class JNDCServer {
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
     private int serverPort;
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
@@ -40,12 +43,14 @@ public class JNDCServer {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                LogPrint.log("bind admin port:" + serverPort + "success");
+                logger.debug("bind admin port:" + serverPort + " success");
             } else {
-                LogPrint.log("bind admin port:" + serverPort + "fail");
+                logger.debug("bind admin port:" + serverPort + " fail");
             }
 
         });
+
+
 
     }
 

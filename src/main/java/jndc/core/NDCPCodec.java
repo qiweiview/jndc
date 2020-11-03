@@ -31,25 +31,34 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         int i = byteBuf.readableBytes();
-        if (i >= NDCMessageProtocol.FIX_LENGTH ) {
-            if ( ndcMessageProtocol == null){
+        if ( ndcMessageProtocol == null){
+            //no fix data
+            if (i >= NDCMessageProtocol.FIX_LENGTH ){
+                //fix enough
                 byte[] bytes = new byte[NDCMessageProtocol.FIX_LENGTH];
                 byteBuf.readBytes(bytes);
                 ndcMessageProtocol = NDCMessageProtocol.parseFixInfo(bytes);//解析定长信息
-            }else {
-                int dataSize = ndcMessageProtocol.getDataSize();//获取变长报文长度
-                if (i >= dataSize) {
-                    byte[] bytes = new byte[dataSize];
-                    byteBuf.readBytes(bytes);
-                    ndcMessageProtocol.setDataWithVerification(bytes);
+                if (ndcMessageProtocol.getDataSize()==0){
                     list.add(ndcMessageProtocol);
                     ndcMessageProtocol=null;
-                    byteBuf.discardReadBytes();//丢弃已读字节
-                } else {
-                    //todo not enough bytes
+                    byteBuf.discardReadBytes();
                 }
+            }else {
+                //fix not enough
             }
-
+        }else {
+            //has  fix data
+            int dataSize = ndcMessageProtocol.getDataSize();//获取变长报文长度
+            if (i >= dataSize) {
+                byte[] bytes = new byte[dataSize];
+                byteBuf.readBytes(bytes);
+                ndcMessageProtocol.setDataWithVerification(bytes);
+                list.add(ndcMessageProtocol);
+                ndcMessageProtocol=null;
+                byteBuf.discardReadBytes();//丢弃已读字节
+            }else {
+                //dynamic data not enough
+            }
         }
 
 

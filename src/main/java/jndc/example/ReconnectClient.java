@@ -7,13 +7,16 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 
 public class ReconnectClient {
-
+    private  static final Logger logger = LoggerFactory.getLogger(ReconnectClient.class);
+    
     public static final Integer SERVER_PORT=81;
 
     public static void main(String[] args) {
@@ -41,12 +44,12 @@ public class ReconnectClient {
         connect.addListeners(x -> {
             if (!x.isSuccess()) {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
-                LogPrint.log("connect fail , retry connect");
+                logger.debug("connect fail , retry connect");
                 eventExecutors.schedule(() -> {
                     createNewOne(eventExecutors);
                 }, 1L, TimeUnit.SECONDS);
             }else {
-                LogPrint.log("connect success");
+                logger.debug("connect success");
             }
 
         });
@@ -58,7 +61,7 @@ public class ReconnectClient {
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             EventLoop eventExecutors = ctx.channel().eventLoop();
             eventExecutors.schedule(() -> {
-                LogPrint.log("connection interrupted retry connect");
+                logger.debug("connection interrupted retry connect");
                 createNewOne(eventExecutors);
             }, 1L, TimeUnit.SECONDS);
 
@@ -68,7 +71,7 @@ public class ReconnectClient {
 //        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 //            if (cause instanceof IOException){
 //                ctx.writeAndFlush(Unpooled.EMPTY_BUFFER);
-//                LogPrint.log("throw error"+cause);
+//                logger.debug("throw error"+cause);
 //            }
 //        }
     }

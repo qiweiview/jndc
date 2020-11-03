@@ -1,12 +1,14 @@
+secrete: "view"
 serverConfig:
   adminPort: "81"
-  bindIp: "0.0.0.0"
+  bindIp: "127.0.0.1"
 clientConfig:
-  remoteIp: "0.0.0.0"
+  remoteIp: "127.0.0.1"
   remoteAdminPort: "81"
   clientPortMappingList:
     - name:
-      localPort: "80"
+      localIp: "192.168.216.131"
+      localPort: "3306"
       serverPort: "777"
       configEnable: "true"
 

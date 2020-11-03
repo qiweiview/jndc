@@ -12,9 +12,7 @@ public class UniqueInetTagProducer {
     }
 
     public static String get4Server(InetSocketAddress inetSocketAddress){
-        if (null==inetSocketAddress
-                ||inetSocketAddress.getAddress()==null
-                ||inetSocketAddress.getAddress().getAddress()==null){
+        if (null==inetSocketAddress ||inetSocketAddress.getAddress()==null ||inetSocketAddress.getAddress().getAddress()==null){
             throw new RuntimeException("not support for null");
         }
         int port = inetSocketAddress.getPort();

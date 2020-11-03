@@ -8,6 +8,8 @@ import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.config.ClientPortMapping;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class JNDCClient {
-
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
 
     private InetSocketAddress inetSocketAddress;
 
@@ -36,7 +38,7 @@ public class JNDCClient {
 
     public void sendRegisterToServer(int localPort, int serverPort){
         if (jndcClientMessageHandle==null){
-            LogPrint.err("The client has not connected to the server ");
+            logger.debug("The client has not connected to the server ");
         }else {
             jndcClientMessageHandle.sendRegisterToServer(localPort,serverPort);
         }
@@ -74,15 +76,15 @@ public class JNDCClient {
                 eventExecutors.schedule(() -> {
                     failTimes++;
                     if (failTimes > FAIL_LIMIT) {
-                        LogPrint.log("exceeded the failure limit");
+                        logger.debug("exceeded the failure limit");
                         group.shutdownGracefully();
                         return;
                     }
-                    LogPrint.log("connect fail , try re connect");
+                    logger.debug("connect fail , try re connect");
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
             } else {
-                LogPrint.log("connect success");
+                logger.debug("connect success to "+inetSocketAddress);
             }
 
         });

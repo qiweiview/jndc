@@ -1,13 +1,35 @@
 package jndc.core.config;
 
+import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 public class ClientConfig {
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
+
     private String remoteIp;
 
     private int remoteAdminPort;
 
     private List<ClientPortMapping> clientPortMappingList;
+
+    private InetAddress  remoteInetAddress;
+
+    public InetAddress getRemoteInetAddress(){
+        if (remoteInetAddress==null){
+            try {
+                remoteInetAddress=InetAddress.getByName(remoteIp);
+            } catch (UnknownHostException e) {
+                logger.debug("unknown  remote host");
+                System.exit(1);
+            }
+        }
+        return remoteInetAddress;
+    }
 
 
     @Override

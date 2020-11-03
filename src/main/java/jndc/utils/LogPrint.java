@@ -1,13 +1,20 @@
 package jndc.utils;
 
-public class LogPrint {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@Deprecated
+public class LogPrint {
+    final static Logger logger = LoggerFactory.getLogger(LogPrint.class);
 
     public static  void log(Object msg, Object source){
         if (source!=null){
 
         }
-        System.out.println(msg);
+        if (msg==null){
+            msg="";
+        }
+        logger.info(msg.toString());
     }
 
     public static  void log(Object msg){
@@ -18,7 +25,10 @@ public class LogPrint {
         if (source!=null){
 
         }
-        System.err.println(msg);
+        if (msg==null){
+            msg="";
+        }
+        logger.error(msg.toString());
     }
 
     public static  void err(Object msg){

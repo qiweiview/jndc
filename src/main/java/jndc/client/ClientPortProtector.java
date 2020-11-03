@@ -11,6 +11,8 @@ import jndc.server.NDCServerConfigCenter;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -19,7 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientPortProtector implements PortProtector {
 
-
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    
     private int port;//this ClientPortProtector focus port
 
 
@@ -54,7 +57,7 @@ public class ClientPortProtector implements PortProtector {
         }else {
             faceTCPMap.remove(clientTag);
             clientTCPDataHandle.close();
-            LogPrint.log("local ClientPortProtector closed:"+clientTag);
+            logger.debug("local ClientPortProtector closed:"+clientTag);
         }
     }
 
@@ -111,6 +114,7 @@ public class ClientPortProtector implements PortProtector {
         ChannelFuture connect = b.connect(localInetAddress);
         try {
             connect.sync();//block
+            logger.debug("connect success");
             return clientTCPDataHandle;
         } catch (InterruptedException e) {
             //todo connect error

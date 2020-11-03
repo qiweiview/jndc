@@ -3,6 +3,8 @@ package jndc.core.config;
 public class ClientPortMapping {
     private String name;
 
+    private String localIp;
+
     private int localPort;
 
     private int serverPort;
@@ -13,10 +15,19 @@ public class ClientPortMapping {
     public String toString() {
         return "ClientPortMapping{" +
                 "name='" + name + '\'' +
+                ", localIp='" + localIp + '\'' +
                 ", localPort=" + localPort +
-                ", remotePort=" + serverPort +
+                ", serverPort=" + serverPort +
                 ", configEnable=" + configEnable +
                 '}';
+    }
+
+    public String getLocalIp() {
+        return localIp;
+    }
+
+    public void setLocalIp(String localIp) {
+        this.localIp = localIp;
     }
 
     public String getName() {

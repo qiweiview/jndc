@@ -8,10 +8,14 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
 public class LocalInHandle extends ChannelInboundHandlerAdapter {
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    
     private ProxyClient proxyClient;
 
     @Override
@@ -27,7 +31,7 @@ public class LocalInHandle extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         EventLoop eventExecutors = ctx.channel().eventLoop();
         eventExecutors.shutdownGracefully().addListener(x -> {
-            LogPrint.log("stop");
+            logger.debug("stop");
         });
 
     }

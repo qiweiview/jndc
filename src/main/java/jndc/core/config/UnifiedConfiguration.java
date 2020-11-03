@@ -1,6 +1,8 @@
 package jndc.core.config;
 
 public class UnifiedConfiguration {
+    private String secrete;
+
     private ServerConfig serverConfig;
 
     private ClientConfig clientConfig;
@@ -12,6 +14,14 @@ public class UnifiedConfiguration {
                 "serverConfig=" + serverConfig +
                 ", clientConfig=" + clientConfig +
                 '}';
+    }
+
+    public String getSecrete() {
+        return secrete;
+    }
+
+    public void setSecrete(String secrete) {
+        this.secrete = secrete;
     }
 
     public ServerConfig getServerConfig() {

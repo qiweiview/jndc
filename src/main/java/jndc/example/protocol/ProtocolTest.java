@@ -1,10 +1,13 @@
 package jndc.example.protocol;
 
 import jndc.core.NDCMessageProtocol;
+import jndc.port_redirect.RedirectApp;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -12,12 +15,14 @@ import java.util.List;
 
 public class ProtocolTest {
 
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    
     @Test
     public void encode() {
         NDCMessageProtocol of = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 80, 81, 82, NDCMessageProtocol.TCP_DATA);
         of.setData("this is a test data".getBytes());
         byte[] bytes = of.toByteArray();
-        LogPrint.log(of + "\r\n" + Arrays.toString(bytes));
+       logger.debug(of + "\r\n" + Arrays.toString(bytes));
     }
 
     @Test

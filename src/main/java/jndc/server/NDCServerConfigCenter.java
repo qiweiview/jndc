@@ -3,6 +3,8 @@ package jndc.server;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.*;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * server config center ,heart of this app
  */
 public class NDCServerConfigCenter implements NDCConfigCenter {
-
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Integer, ServerPortProtector> portProtectorMap = new ConcurrentHashMap<>();
     private Map<Integer, ChannelHandlerContextHolder> contextHolderMap = new ConcurrentHashMap<>();//a client use one tcp connection
 
@@ -27,7 +29,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         int serverPort = copy.getServerPort();
 
         if (portProtectorMap.containsKey(serverPort)) {
-            LogPrint.log("port has been monitored");
+            logger.debug("port has been monitored");
             return;
         }
 
@@ -97,6 +99,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         ServerPortProtector serverPortProtector = portProtectorMap.get(serverPort);
         if (serverPortProtector == null) {
             //todo drop message
+            logger.debug("drop message with port"+serverPort);
             return;
         } else {
             serverPortProtector.receiveMessage(ndcMessageProtocol);
@@ -132,7 +135,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
                 contextHolderMap.remove(k);
             }
         });
-        LogPrint.log("now channelHandlerContext Map:" + contextHolderMap);
     }
 
 

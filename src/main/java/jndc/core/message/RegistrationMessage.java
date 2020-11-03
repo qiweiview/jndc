@@ -18,6 +18,18 @@ public class RegistrationMessage implements Serializable {
     private String message;
 
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getAuth() {
+        return auth;
+    }
+
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
+
     public String getMessage() {
         return message;
     }

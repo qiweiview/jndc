@@ -9,6 +9,8 @@ import jndc.server.NDCServerConfigCenter;
 import jndc.server.ServerTCPDataHandle;
 import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerPortProtector  implements PortProtector{
 
+    private  final  Logger logger = LoggerFactory.getLogger(getClass());
+    
     private NDCMessageProtocol registerMessage;
 
     private NDCServerConfigCenter ndcServerConfigCenter;
@@ -103,12 +107,12 @@ public class ServerPortProtector  implements PortProtector{
         ChannelFuture bind = serverBootstrap.bind().addListener(x -> {
             try{
                 Object object = x.get();
-                LogPrint.log("bind map port:" + serverPort);
+                logger.debug("bind map port:" + serverPort);
                 appRunnable = true;
                 ndcServerConfigCenter.registerPortProtector(serverPort, this);
             }catch (Exception e){
                 e.printStackTrace();
-                LogPrint.log("port listen fail cause："+e);
+                logger.debug("port listen fail cause："+e);
             }
         });
     }
@@ -122,7 +126,7 @@ public class ServerPortProtector  implements PortProtector{
         int serverPort = this.registerMessage.getServerPort();
         ndcServerConfigCenter.unRegisterPortProtector(serverPort);
         eventLoopGroup.shutdownGracefully().addListener(x -> {
-            LogPrint.log("shut down  local port:" + serverPort);
+            logger.debug("shut down  local port:" + serverPort);
             appRunnable = false;
         });
     }
@@ -130,10 +134,12 @@ public class ServerPortProtector  implements PortProtector{
     @Override
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
 
+
         String s = UniqueInetTagProducer.get4Server(ndcMessageProtocol.getRemoteInetAddress(),ndcMessageProtocol.getRemotePort());
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(s);
         if (serverTCPDataHandle == null) {
             //todo drop message
+            logger.debug("drop message with tag "+s);
         } else {
             byte[] data = ndcMessageProtocol.getData();
             ByteBuf byteBuf = Unpooled.copiedBuffer(data);
@@ -144,7 +150,7 @@ public class ServerPortProtector  implements PortProtector{
 
     public void sayGoodByeToEveryOne(){
         eventLoopGroup.shutdownGracefully().addListener(x->{
-            LogPrint.log("shut down face port "+registerMessage.getServerPort());
+            logger.debug("shut down face port "+registerMessage.getServerPort());
             registerMessage=null;
             ndcServerConfigCenter=null;
             serverBootstrap=null;
@@ -156,7 +162,7 @@ public class ServerPortProtector  implements PortProtector{
 
     public void shutDownAllTcpConnection() {
         faceTCPMap.forEach((k,v)->{
-            LogPrint.log("interrupt face connection port:"+k);
+            logger.debug("interrupt face connection port:"+k);
             faceTCPMap.remove(k);
             v.close();
         });
@@ -170,7 +176,7 @@ public class ServerPortProtector  implements PortProtector{
         } else {
             faceTCPMap.remove(s);
             serverTCPDataHandle.close();
-            LogPrint.log("close face connection cause local connection interrupted:"+s);
+            logger.debug("close face connection cause local connection interrupted:"+s);
         }
     }
 
