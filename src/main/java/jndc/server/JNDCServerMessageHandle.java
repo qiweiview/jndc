@@ -54,13 +54,12 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 if (auth == null || !secrete.equals(auth)) {
                     //todo auth fail
-                    copy.setType(NDCMessageProtocol.USER_ERROR);
+                    copy.setType(NDCMessageProtocol.NO_ACCESS);
                     UserError userError = new UserError();
-                    userError.setCode(UserError.AUTH_ERROR);
                     byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
                     copy.setData(bytes);
                     channelHandlerContext.writeAndFlush(copy);
-                    logger.debug("auth fail with:"+auth);
+                    logger.error("auth fail with:"+auth);
                     return;
                 }
 
@@ -94,18 +93,18 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.USER_ERROR) {
                 //todo USER_ERROR
-                logger.debug(new String(ndcMessageProtocol.getData()));
+                logger.error(new String(ndcMessageProtocol.getData()));
 
             }
 
             if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
                 //todo UN_CATCHABLE_ERROR
-                logger.debug(new String(ndcMessageProtocol.getData()));
+                logger.error(new String(ndcMessageProtocol.getData()));
             }
 
         } catch (Exception e) {
 
-            logger.debug("unCatchableError:"+e);
+            logger.error("unCatchableError:"+e);
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
             UserError userError = new UserError();
             userError.setCode(UserError.SERVER_ERROR);
@@ -130,7 +129,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.debug("unCatchable server error：" + cause.getMessage());
+        logger.error("unCatchable server error：" + cause.getMessage());
 
 
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();

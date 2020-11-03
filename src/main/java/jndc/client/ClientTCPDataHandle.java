@@ -9,12 +9,9 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
 
 import jndc.utils.LogPrint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String NAME = "NDC_CLIENT_TCP_DATA_HANDLE";
 
@@ -57,7 +54,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.debug("client tcp get a unCatchable error, cause:" + cause);
+        LogPrint.err("client tcp get a unCatchable error, cause:" + cause);
     }
 
     public void close() {

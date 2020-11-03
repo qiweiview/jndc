@@ -24,7 +24,7 @@ public class ClientConfig {
             try {
                 remoteInetAddress=InetAddress.getByName(remoteIp);
             } catch (UnknownHostException e) {
-                logger.debug("unknown  remote host");
+                logger.error("unknown  remote host");
                 System.exit(1);
             }
         }

@@ -24,7 +24,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private ChannelHandlerContext channelHandlerContext;
 
@@ -52,12 +51,12 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         byte[] address1 = address.getAddress();
 
         if (address1.length > 8) {
-            logger.debug("unSupport ipv6");
+            LogPrint.err("unSupport ipv6");
             ctx.writeAndFlush(Unpooled.copiedBuffer("unSupport ipv6".getBytes())).addListeners(ChannelFutureListener.CLOSE);
             return;
         }
 
-        logger.debug(remoteAddress + "接入");
+        LogPrint.debug(remoteAddress + "connect...");
 
         uniqueTag = UniqueInetTagProducer.get4Server(remoteAddress);
 
@@ -93,7 +92,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
 
-        logger.debug(remoteAddress + "断开");
+        LogPrint.debug(remoteAddress + "close...");
 
         //发送消息
         NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), innerHandlerCallBack.getLocalPort(), NDCMessageProtocol.CONNECTION_INTERRUPTED);
@@ -109,7 +108,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.debug("server face tcp get a unCatchable error cause:" + cause);
+        LogPrint.err("server face tcp get a unCatchable error cause:" + cause);
     }
 
     public void close() {

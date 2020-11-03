@@ -49,7 +49,7 @@ public class AppStart {
 
 
         if (args.length < 2) {
-            logger.debug("启动参数缺失");
+            logger.error("missing startup parameters");
             System.exit(1);
         }
 
@@ -60,7 +60,7 @@ public class AppStart {
 
         File file = new File(configFile);
         if (!file.exists()) {
-            logger.debug("配置文件:" + file + "不存在");
+            logger.error("can not found:" + file );
             System.exit(1);
         }
 
@@ -70,7 +70,7 @@ public class AppStart {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
-            logger.debug("配置文件:" + file + "解析异常：" + e);
+            logger.error("parse config file:" + file + "fail" + e);
             System.exit(1);
         }
 
@@ -93,7 +93,7 @@ public class AppStart {
             clientTest.createClient();
             return;
         }
-        logger.debug("unSupport type");
+        logger.error("unSupport type");
         System.exit(1);
 
     }

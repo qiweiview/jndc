@@ -54,7 +54,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         RegistrationMessage registrationMessage = new RegistrationMessage();
         registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
-        registrationMessage.setAuth(unifiedConfiguration.getSecrete() + "1");
+        registrationMessage.setAuth(unifiedConfiguration.getSecrete());
 
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
@@ -63,7 +63,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
         if (clientConfig == null || clientConfig.getClientPortMappingList() == null) {
-            logger.debug("can not load mapping config");
+            logger.error("can not load mapping config");
             return;
         }
 
@@ -76,7 +76,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             try {
                 appAddress = InetAddress.getByName(localIp);
             } catch (UnknownHostException e) {
-                logger.debug("UnknownHostException:" + localIp);
+                logger.error("UnknownHostException:" + localIp);
             }
             if (appAddress != null) {
                 NDCMessageProtocol tqs = NDCMessageProtocol.of(remoteInetAddress, appAddress, 0, serverPort, localPort, NDCMessageProtocol.MAP_REGISTER);
@@ -113,7 +113,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 //print msg
                 RegistrationMessage object = ndcMessageProtocol.getObject(RegistrationMessage.class);
-                logger.debug(object.getMessage());
+                logger.info(object.getMessage());
 
 
                 //register channel,client just hold one channelHandlerContext
@@ -133,39 +133,33 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.NO_ACCESS) {
                 //todo NO_ACCESS
-                logger.debug(new String(ndcMessageProtocol.getData()));
+                reConnectTag = false;//not restart
+                channelHandlerContext.close();
+                channelHandlerContext.channel().eventLoop().shutdownGracefully().addListener(x -> {
+                    if (x.isSuccess()) {
+                        logger.error("register auth fail, the client will close later...");
+                    } else {
+                        logger.error("shutdown fail");
+                    }
+                });
                 return;
             }
 
             if (type == NDCMessageProtocol.USER_ERROR) {
                 //todo USER_ERROR
                 UserError userError = ndcMessageProtocol.getObject(UserError.class);
-                if (userError.isAuthFail()) {
-                    reConnectTag = false;//not restart
-                    channelHandlerContext.close();
-                    channelHandlerContext.channel().eventLoop().shutdownGracefully().addListener(x -> {
-                        if (x.isSuccess()) {
-                            logger.debug("register auth fail, the client will close later...");
-                        } else {
-                            logger.debug("shutdown fail");
-                        }
-                    });
-
-                }
+                logger.error(userError.toString());
                 return;
             }
 
             if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
                 //todo UN_CATCHABLE_ERROR
-                logger.debug(new String(ndcMessageProtocol.getData()));
+                logger.error(new String(ndcMessageProtocol.getData()));
                 return;
             }
 
         } catch (Exception e) {
-            logger.debug("unCatchableError" + e);
-//            NDCMessageProtocol copy = ndcMessageProtocol.copy();
-//            copy.setType(NDCMessageProtocol.UN_CATCHABLE_ERROR);
-//            channelHandlerContext.writeAndFlush(copy);
+            logger.error("client get a unCatchable Error:" + e);
         }
 
 
@@ -186,7 +180,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.debug("unCatchable client error：" + cause.getMessage());
+        logger.error("unCatchable client error：" + cause.getMessage());
     }
 
 }

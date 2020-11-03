@@ -38,7 +38,7 @@ public class JNDCClient {
 
     public void sendRegisterToServer(int localPort, int serverPort){
         if (jndcClientMessageHandle==null){
-            logger.debug("The client has not connected to the server ");
+            logger.error("The client has not connected to the server ");
         }else {
             jndcClientMessageHandle.sendRegisterToServer(localPort,serverPort);
         }
@@ -76,7 +76,7 @@ public class JNDCClient {
                 eventExecutors.schedule(() -> {
                     failTimes++;
                     if (failTimes > FAIL_LIMIT) {
-                        logger.debug("exceeded the failure limit");
+                        logger.error("exceeded the failure limit");
                         group.shutdownGracefully();
                         return;
                     }

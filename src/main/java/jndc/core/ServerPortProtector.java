@@ -107,12 +107,12 @@ public class ServerPortProtector  implements PortProtector{
         ChannelFuture bind = serverBootstrap.bind().addListener(x -> {
             try{
                 Object object = x.get();
-                logger.debug("bind map port:" + serverPort);
+                logger.info("bind map port:" + serverPort);
                 appRunnable = true;
                 ndcServerConfigCenter.registerPortProtector(serverPort, this);
             }catch (Exception e){
                 e.printStackTrace();
-                logger.debug("port listen fail cause："+e);
+                logger.error("port listen fail cause："+e);
             }
         });
     }
@@ -126,7 +126,7 @@ public class ServerPortProtector  implements PortProtector{
         int serverPort = this.registerMessage.getServerPort();
         ndcServerConfigCenter.unRegisterPortProtector(serverPort);
         eventLoopGroup.shutdownGracefully().addListener(x -> {
-            logger.debug("shut down  local port:" + serverPort);
+            logger.info("shut down server port:" + serverPort);
             appRunnable = false;
         });
     }
@@ -150,7 +150,7 @@ public class ServerPortProtector  implements PortProtector{
 
     public void sayGoodByeToEveryOne(){
         eventLoopGroup.shutdownGracefully().addListener(x->{
-            logger.debug("shut down face port "+registerMessage.getServerPort());
+            logger.info("shut down face port "+registerMessage.getServerPort());
             registerMessage=null;
             ndcServerConfigCenter=null;
             serverBootstrap=null;

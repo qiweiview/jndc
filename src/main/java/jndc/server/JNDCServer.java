@@ -43,9 +43,9 @@ public class JNDCServer {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.debug("bind admin port:" + serverPort + " success");
+                logger.info("bind admin port:" + serverPort + " success");
             } else {
-                logger.debug("bind admin port:" + serverPort + " fail");
+                logger.error("bind admin port:" + serverPort + " fail");
             }
 
         });

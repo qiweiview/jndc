@@ -27,7 +27,7 @@ public class ClientTest {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
-            logger.debug("配置文件:" + file + "解析异常：" + e);
+            logger.error("config file:" + file + "parse fail：" + e);
             System.exit(1);
         }
 

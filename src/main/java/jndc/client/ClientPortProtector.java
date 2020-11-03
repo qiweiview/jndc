@@ -114,7 +114,7 @@ public class ClientPortProtector implements PortProtector {
         ChannelFuture connect = b.connect(localInetAddress);
         try {
             connect.sync();//block
-            logger.debug("connect success");
+            logger.debug("local app connect success");
             return clientTCPDataHandle;
         } catch (InterruptedException e) {
             //todo connect error
