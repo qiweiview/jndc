@@ -41,5 +41,8 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```
 
 ## 开发计划
+* 传输加密
+* IP黑白名单
+* 流量特征识别
 * 支持websocket
 * 可视化操作页面
