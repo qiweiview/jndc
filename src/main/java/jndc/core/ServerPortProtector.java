@@ -82,13 +82,12 @@ public class ServerPortProtector  implements PortProtector{
 
                 };
 
-
-
-
                 //the handle of tcp data from user client
                 ServerTCPDataHandle serverTCPDataHandle = new ServerTCPDataHandle(innerHandlerCallBack);
 
-                pipeline.addFirst(ServerTCPDataHandle.NAME, serverTCPDataHandle);
+
+                pipeline.addFirst(IPFilter.NAME, IPFilter.STATIC_INSTANCE);
+                pipeline.addAfter(IPFilter.NAME,ServerTCPDataHandle.NAME, serverTCPDataHandle);
             }
         };
 
@@ -104,9 +103,9 @@ public class ServerPortProtector  implements PortProtector{
                 .localAddress(new InetSocketAddress(serverPort))//　
                 .childHandler(channelInitializer);
 
-        ChannelFuture bind = serverBootstrap.bind().addListener(x -> {
+        serverBootstrap.bind().addListener(x -> {
             try{
-                Object object = x.get();
+                x.get();
                 logger.info("bind map port:" + serverPort);
                 appRunnable = true;
                 ndcServerConfigCenter.registerPortProtector(serverPort, this);
@@ -176,7 +175,7 @@ public class ServerPortProtector  implements PortProtector{
         } else {
             faceTCPMap.remove(s);
             serverTCPDataHandle.close();
-            logger.info("close face connection cause local connection interrupted:"+s);
+            logger.debug("close face connection cause local connection interrupted:"+s);
         }
     }
 

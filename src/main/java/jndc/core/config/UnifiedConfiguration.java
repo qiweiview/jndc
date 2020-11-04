@@ -1,9 +1,13 @@
 package jndc.core.config;
 
+import jndc.core.IpListChecker;
+import jndc.core.UniqueBeanManage;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class UnifiedConfiguration implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -13,6 +17,12 @@ public class UnifiedConfiguration implements ParameterVerification {
     private ServerConfig serverConfig;
 
     private ClientConfig clientConfig;
+
+    private String[] blackList;
+
+    private String[] whiteList;
+
+
 
 
     @Override
@@ -26,6 +36,18 @@ public class UnifiedConfiguration implements ParameterVerification {
 
         serverConfig.performParameterVerification();
         clientConfig.performParameterVerification();
+
+
+        IpListChecker ipListChecker = UniqueBeanManage.getBean(IpListChecker.class);
+        if (blackList==null){
+            blackList=new String[0];
+        }
+
+        if (whiteList==null){
+            whiteList=new String[0];
+        }
+
+        ipListChecker.loadRule(blackList,whiteList);
     }
 
     @Override
@@ -34,6 +56,27 @@ public class UnifiedConfiguration implements ParameterVerification {
                 "serverConfig=" + serverConfig +
                 ", clientConfig=" + clientConfig +
                 '}';
+    }
+
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public String[] getBlackList() {
+        return blackList;
+    }
+
+    public void setBlackList(String[] blackList) {
+        this.blackList = blackList;
+    }
+
+    public String[] getWhiteList() {
+        return whiteList;
+    }
+
+    public void setWhiteList(String[] whiteList) {
+        this.whiteList = whiteList;
     }
 
     public String getSecrete() {

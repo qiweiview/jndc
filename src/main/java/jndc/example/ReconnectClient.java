@@ -5,19 +5,19 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NettyComponentConfig;
-import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
 
 public class ReconnectClient {
-    private  static final Logger logger = LoggerFactory.getLogger(ReconnectClient.class);
-    
-    public static final Integer SERVER_PORT=81;
+    private static final Logger logger = LoggerFactory.getLogger(ReconnectClient.class);
+
+    public static final Integer SERVER_PORT = 81;
 
     public static void main(String[] args) {
         EventLoopGroup group = NettyComponentConfig.getNioEventLoopGroup();
@@ -39,7 +39,16 @@ public class ReconnectClient {
                 .channel(NioSocketChannel.class)//
                 .handler(channelInitializer);
 
-        InetSocketAddress localInetAddress = InetUtils.getLocalInetAddress(EchoServer.SERVER_PORT);
+
+        InetAddress localHost = null;
+        try {
+            localHost = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            logger.error("un know host");
+        }
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(localHost, EchoServer.SERVER_PORT);
+
+        InetSocketAddress localInetAddress = inetSocketAddress;
         ChannelFuture connect = b.connect(localInetAddress);
         connect.addListeners(x -> {
             if (!x.isSuccess()) {
@@ -48,7 +57,7 @@ public class ReconnectClient {
                 eventExecutors.schedule(() -> {
                     createNewOne(eventExecutors);
                 }, 1L, TimeUnit.SECONDS);
-            }else {
+            } else {
                 logger.debug("connect success");
             }
 

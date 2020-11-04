@@ -1,14 +1,31 @@
+# general config
 secrete: "view"
+
+blackList:
+  - "192.168.1.1"
+
+whiteList:
+  #- "127.0.0.2"
+
+# server config
 serverConfig:
   adminPort: "81"
   bindIp: "127.0.0.1"
+
+
+# client config
 clientConfig:
+  #remoteIp: "123.207.1.1"
   remoteIp: "127.0.0.1"
   remoteAdminPort: "81"
   clientPortMappingList:
-    - name:
+    - name: "desc"
       localIp: "192.168.216.131"
-      localPort: "3306"
+      localPort: "3389"
       serverPort: "777"
-      configEnable: "true"
-
+      configEnable: false
+    - name: "nginx"
+      localIp: "0.0.0.0"
+      localPort: "80"
+      serverPort: "778"
+      configEnable: true

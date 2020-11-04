@@ -1,6 +1,7 @@
 package jndc.core.config;
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +27,10 @@ public class ClientConfig implements ParameterVerification {
 
     @Override
     public void performParameterVerification() {
-        try {
-            remoteInetAddress = InetAddress.getByName(remoteIp);
-            inetSocketAddress = new InetSocketAddress(remoteInetAddress, remoteAdminPort);
-        } catch (Exception e) {
-            logger.error("un know host ::" + remoteIp);
-            ApplicationExit.exit();
-        }
+        remoteInetAddress = InetUtils.getByStringIpAddress(remoteIp);
+        inetSocketAddress=new InetSocketAddress(remoteInetAddress,remoteAdminPort);
+
+
 
         if (clientPortMappingList != null) {
 
@@ -45,11 +43,14 @@ public class ClientConfig implements ParameterVerification {
                         logger.error("duplicate remote port:" + x.getServerPort());
                         ApplicationExit.exit();
                     }
+
                     if (clientPortMappingMap.containsKey(x.getLocalPort())) {
                         logger.error("duplicate local port:" + x.getServerPort());
                         ApplicationExit.exit();
                     }
+
                     x.performParameterVerification();
+
                     clientPortMappingMap.put(x.getLocalPort(), x.getInetSocketAddress());
                     serverPortSet.add(x.getServerPort());
                 }

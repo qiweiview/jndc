@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 public class LogPrint {
     final static Logger logger = LoggerFactory.getLogger(LogPrint.class);
 
-    public static  void log(Object msg, Object source){
+    public static  void info(Object msg, Object source){
         if (source!=null){
 
         }
@@ -17,8 +17,8 @@ public class LogPrint {
         logger.info(msg.toString());
     }
 
-    public static  void log(Object msg){
-        log(msg,null);
+    public static  void info(Object msg){
+        info(msg,null);
     }
 
     public static  void err(Object msg, Object source){

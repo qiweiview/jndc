@@ -1,6 +1,7 @@
 package jndc.core.config;
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +27,8 @@ public class ClientPortMapping  implements ParameterVerification {
 
     @Override
     public void performParameterVerification() {
-        try {
-            localInetAddress = InetAddress.getByName(localIp);
-            inetSocketAddress=new InetSocketAddress(localInetAddress,localPort);
-        } catch (Exception e) {
-            logger.error("un know host :"+localIp);
-            ApplicationExit.exit();
-        }
+        localInetAddress = InetUtils.getByStringIpAddress(localIp);
+        inetSocketAddress=new InetSocketAddress(localInetAddress,localPort);
     }
 
     @Override

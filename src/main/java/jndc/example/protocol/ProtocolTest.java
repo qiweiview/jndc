@@ -1,9 +1,7 @@
 package jndc.example.protocol;
 
 import jndc.core.NDCMessageProtocol;
-import jndc.port_redirect.RedirectApp;
 import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

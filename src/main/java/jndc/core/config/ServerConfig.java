@@ -1,8 +1,10 @@
 package jndc.core.config;
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.net.util.IPAddressUtil;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -22,14 +24,8 @@ public class ServerConfig  implements ParameterVerification {
 
     @Override
     public void performParameterVerification() {
-        try {
-            inetAddress = InetAddress.getByName(bindIp);
-            inetSocketAddress=new InetSocketAddress(inetAddress,adminPort);
-        } catch (Exception e) {
-            logger.error("un know host :"+bindIp);
-            ApplicationExit.exit();
-        }
-
+        inetAddress = InetUtils.getByStringIpAddress(bindIp);
+        inetSocketAddress=new InetSocketAddress(inetAddress,adminPort);
     }
 
     @Override

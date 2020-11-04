@@ -1,6 +1,8 @@
 package jndc.utils;
 
 
+import jndc.exception.SecreteDecodeFailException;
+
 import java.security.MessageDigest;
 import java.util.Arrays;
 
@@ -52,7 +54,7 @@ public class AESUtils {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return cipher.doFinal(bytes);
         } catch (Exception e) {
-            throw new  RuntimeException("decode error:"+e);
+            throw new SecreteDecodeFailException();
         }
     }
 }

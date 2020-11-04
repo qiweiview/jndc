@@ -24,9 +24,7 @@ public class SecreteCodec extends MessageToMessageCodec<NDCMessageProtocol, NDCM
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol, List<Object> list) throws Exception {
         byte[] data = ndcMessageProtocol.getData();
-        new String(data);
         ndcMessageProtocol.setData(dataEncryption.decode(data));
-        new String(dataEncryption.decode(data));
         list.add(ndcMessageProtocol);
     }
 }

@@ -1,51 +1,65 @@
 package jndc.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.net.util.IPAddressUtil;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 
 public class InetUtils {
-    public static InetAddress localInetAddress;
+    private static final Logger logger = LoggerFactory.getLogger(InetUtils.class);
 
-    public static InetSocketAddress localTestInetScoket;
+    public static InetAddress localInetAddress;
 
     public static String uniqueInetTag;
 
     static {
-        loadLocalInetAddress();
         loadMacAddress();
-
-
+        loadLocalInetAddress();
     }
 
 
-    public static InetSocketAddress getLocalInetAddress(int port) {
+    public static InetAddress getByStringIpAddress(String ipAddress) {
+        InetAddress byAddress = null;
         try {
-            InetAddress localhost = InetAddress.getByName("127.0.0.1");
-          return new InetSocketAddress(localhost, port);
+            byte[] bytes = IPAddressUtil.textToNumericFormatV4(ipAddress);
+            if (bytes == null) {
+                logger.error("un support ip address:" + ipAddress);
+                ApplicationExit.exit();
+            }
+            byAddress = InetAddress.getByAddress(bytes);
+        } catch (Exception e) {
+            logger.error("un know host :" + ipAddress);
+            ApplicationExit.exit();
+        }
+        return byAddress;
+    }
+
+
+    /**
+     * get local address
+     */
+    private static void loadLocalInetAddress() {
+        try {
+            localInetAddress = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
+            logger.error("get local adress error");
+            ApplicationExit.exit();
+
         }
     }
 
-    public static void loadLocalInetAddress() {
-        try {
-            InetAddress localhost = InetAddress.getByName("127.0.0.1");
-            localTestInetScoket = new InetSocketAddress(localhost, 80);
-            localInetAddress=localTestInetScoket.getAddress();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-
-        }
-    }
-
-    public static void loadMacAddress() {
+    /**
+     * get local mac address
+     */
+    private static void loadMacAddress() {
         try {
             uniqueInetTag = GetNetworkAddress.GetAddress("ip") + "/" + GetNetworkAddress.GetAddress("mac");
         } catch (Exception e) {
             uniqueInetTag = "0.0.0.0/" + UUIDSimple.id();
-
         }
     }
 

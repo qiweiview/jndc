@@ -3,10 +3,7 @@ package jndc.server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import jndc.core.NDCPCodec;
-import jndc.core.NettyComponentConfig;
-import jndc.core.SecreteCodec;
-import jndc.core.UniqueBeanManage;
+import jndc.core.*;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.utils.LogPrint;
@@ -36,7 +33,9 @@ public class JNDCServer {
             @Override
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
-                pipeline.addFirst(NDCPCodec.NAME, new NDCPCodec());
+
+                pipeline.addFirst(IPFilter.NAME,IPFilter.STATIC_INSTANCE);
+                pipeline.addAfter(IPFilter.NAME,NDCPCodec.NAME, new NDCPCodec());
                 pipeline.addAfter(NDCPCodec.NAME,SecreteCodec.NAME,new SecreteCodec());
                 pipeline.addAfter(SecreteCodec.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
             }
@@ -50,9 +49,9 @@ public class JNDCServer {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.info("bind admin :" + serverConfig.getInetSocketAddress() + " success");
+                logger.info("bind admin : " + serverConfig.getInetSocketAddress() + " success");
             } else {
-                logger.error("bind admin :" + serverConfig.getInetSocketAddress() + " fail");
+                logger.error("bind admin : " + serverConfig.getInetSocketAddress() + " fail");
             }
 
         });

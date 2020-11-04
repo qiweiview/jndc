@@ -12,7 +12,6 @@ import jndc.core.config.ClientConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.exception.ConnectionOpenFailException;
 import jndc.server.NDCServerConfigCenter;
-import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class ClientPortProtector implements PortProtector {
 

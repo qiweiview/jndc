@@ -1,24 +1,18 @@
 package jndc.server;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.CharsetUtil;
-import jndc.client.JNDCClientConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.ServerPortProtector;
 import jndc.core.UniqueBeanManage;
-import jndc.example.ReconnectClient;
 import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UniqueInetTagProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -50,7 +44,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
         byte[] address1 = address.getAddress();
 
-        if (address1.length > 8) {
+        if (address1.length > 4) {
             LogPrint.err("unSupport ipv6");
             ctx.writeAndFlush(Unpooled.copiedBuffer("unSupport ipv6".getBytes())).addListeners(ChannelFutureListener.CLOSE);
             return;

@@ -6,21 +6,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
-import jndc.core.config.ClientConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
-import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
+
 
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
     private  final Logger logger = LoggerFactory.getLogger(getClass());
@@ -33,7 +29,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         Integer type = ndcMessageProtocol.getType();
 
         try {
-
 
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
@@ -73,7 +68,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 // send response
                 RegistrationMessage registrationMessage = new RegistrationMessage();
-                registrationMessage.setMessage(ndcMessageProtocol.getServerPort() + " on server register success");
+                registrationMessage.setMessage(  "server register success on "+ndcMessageProtocol.getServerPort());
                 byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);

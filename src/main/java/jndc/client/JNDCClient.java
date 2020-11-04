@@ -9,7 +9,6 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.ClientConfig;
-import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class JNDCClient {
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
             } else {
-                logger.info("connect success to "+clientConfig.getInetSocketAddress());
+                logger.info("connect success to the jndc server : "+clientConfig.getInetSocketAddress());
             }
 
         });

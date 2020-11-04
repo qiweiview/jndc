@@ -26,7 +26,8 @@ public class ServerTest {
             unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {
-            logger.error("config file:" + file + "parse fail：" + e);
+            e.printStackTrace();
+            logger.error("config file:" + file + " parse fail：" + e);
             ApplicationExit.exit();
         }
         JNDCServer serverTest =new JNDCServer();

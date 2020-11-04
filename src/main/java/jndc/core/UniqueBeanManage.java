@@ -26,6 +26,7 @@ public class UniqueBeanManage {
     static {
         registerBean(new NDCServerConfigCenter());
         registerBean(new JNDCClientConfigCenter());
+        registerBean(new IpListChecker());
     }
 
 
