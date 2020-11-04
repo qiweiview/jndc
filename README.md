@@ -1,8 +1,10 @@
-# J NDC✈️✈️✈️
-![jdk12](https://img.shields.io/badge/jdk-8-orange.svg) 
+![J NDC](https://s1.ax1x.com/2020/11/04/B6HETJ.png)
+![jdk12](https://img.shields.io/badge/jdk-8-orange.svg)
+
+
 
 ## 介绍
-* "j ndc" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。 
+* "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。 
 * 应用核心由ndc私有协议支撑
 
 ## 文档摘要
