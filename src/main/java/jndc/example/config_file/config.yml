@@ -9,12 +9,16 @@ whiteList:
 
 # server config
 serverConfig:
+  manageCenterEnable: true
+  manageCenterPort: "82"
   adminPort: "81"
   bindIp: "127.0.0.1"
 
 
 # client config
 clientConfig:
+  manageCenterEnable: true
+  manageCenterPort: "82"
   #remoteIp: "123.207.1.1"
   remoteIp: "127.0.0.1"
   remoteAdminPort: "81"

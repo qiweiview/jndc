@@ -9,6 +9,7 @@ import jndc.core.config.UnifiedConfiguration;
 import jndc.utils.LogPrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.core.WebServer;
 
 import java.net.InetSocketAddress;
 
@@ -26,6 +27,13 @@ public class JNDCServer {
 
         UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ServerConfig serverConfig = bean.getServerConfig();
+
+
+        if (serverConfig.isManageCenterEnable()){
+            //openManageCenter
+            WebServer serverTest =new WebServer();
+            serverTest.start();//start
+        }
 
 
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {

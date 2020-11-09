@@ -5,12 +5,17 @@ import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.net.util.IPAddressUtil;
+import web.core.WebServer;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class ServerConfig  implements ParameterVerification {
     private   final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private int manageCenterPort;
+
+    private boolean manageCenterEnable;
 
     private int adminPort;
 
@@ -36,6 +41,21 @@ public class ServerConfig  implements ParameterVerification {
                 '}';
     }
 
+    public boolean isManageCenterEnable() {
+        return manageCenterEnable;
+    }
+
+    public void setManageCenterEnable(boolean manageCenterEnable) {
+        this.manageCenterEnable = manageCenterEnable;
+    }
+
+    public int getManageCenterPort() {
+        return manageCenterPort;
+    }
+
+    public void setManageCenterPort(int manageCenterPort) {
+        this.manageCenterPort = manageCenterPort;
+    }
 
     public InetSocketAddress getInetSocketAddress() {
         return inetSocketAddress;

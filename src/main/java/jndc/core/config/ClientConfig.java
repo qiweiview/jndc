@@ -12,6 +12,10 @@ import java.util.*;
 public class ClientConfig implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private int manageCenterPort;
+
+    private boolean manageCenterEnable;
+
     private String remoteIp;
 
     private int remoteAdminPort;
@@ -67,6 +71,26 @@ public class ClientConfig implements ParameterVerification {
                 ", remoteAdminPort='" + remoteAdminPort + '\'' +
                 ", clientPortMappingList=" + clientPortMappingList +
                 '}';
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public int getManageCenterPort() {
+        return manageCenterPort;
+    }
+
+    public void setManageCenterPort(int manageCenterPort) {
+        this.manageCenterPort = manageCenterPort;
+    }
+
+    public boolean isManageCenterEnable() {
+        return manageCenterEnable;
+    }
+
+    public void setManageCenterEnable(boolean manageCenterEnable) {
+        this.manageCenterEnable = manageCenterEnable;
     }
 
     public Map<Integer, InetSocketAddress> getClientPortMappingMap() {

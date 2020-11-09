@@ -18,6 +18,8 @@ public class ServerTest {
 
     public static void main(String[] args) {
 
+
+
         File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\src\\main\\java\\jndc\\example\\config_file\\config.yml");
         YmlParser ymlParser = new YmlParser();
         UnifiedConfiguration unifiedConfiguration = null;

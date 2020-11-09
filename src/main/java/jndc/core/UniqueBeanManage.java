@@ -3,6 +3,7 @@ package jndc.core;
 
 import jndc.client.JNDCClientConfigCenter;
 import jndc.server.NDCServerConfigCenter;
+import web.core.MappingRegisterCenter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +28,7 @@ public class UniqueBeanManage {
         registerBean(new NDCServerConfigCenter());
         registerBean(new JNDCClientConfigCenter());
         registerBean(new IpListChecker());
+        registerBean(new MappingRegisterCenter());
     }
 
 
