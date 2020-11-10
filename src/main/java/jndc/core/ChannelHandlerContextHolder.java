@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ChannelHandlerContextHolder {
-    private List<Integer>  serverPorts=new CopyOnWriteArrayList();
+    private List<Integer>  serverPorts=new CopyOnWriteArrayList();//show which  face port  transfer data on this Context
+
     private ChannelHandlerContext channelHandlerContext;
-    private List<ServerPortProtector> serverPortProtectorList= new CopyOnWriteArrayList();
+
+    private List<ServerPortProtector> serverPortProtectorList= new CopyOnWriteArrayList();//face port protector
+
 
 
 
@@ -48,8 +51,7 @@ public class ChannelHandlerContextHolder {
 
     public void shutDownServerPortProtectors() {
         serverPortProtectorList.forEach(x->{
-            x.shutDownAllTcpConnection();
-            x.sayGoodByeToEveryOne();
+            x.releaseObject();
         });
 
     }

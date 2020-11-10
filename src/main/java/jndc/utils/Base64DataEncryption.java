@@ -2,6 +2,9 @@ package jndc.utils;
 
 import java.util.Base64;
 
+/**
+ * replace with aes
+ */
 public class Base64DataEncryption implements DataEncryption{
     private static  Base64.Decoder decoder = Base64.getDecoder();
     private static  Base64.Encoder encoder = Base64.getEncoder();

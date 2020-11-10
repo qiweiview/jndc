@@ -1,6 +1,7 @@
 package web.core;
 
 import jndc.core.UniqueBeanManage;
+import web.mapping.DevelopDebugMapping;
 import web.mapping.ServerManageMapping;
 import web.utils.JSONUtils;
 
@@ -26,6 +27,8 @@ public class MappingRegisterCenter {
      */
     private void doInit() {
         registerMapping(new ServerManageMapping());
+        registerMapping(new DevelopDebugMapping());
+
     }
 
 
@@ -83,6 +86,7 @@ public class MappingRegisterCenter {
                     return JSONUtils.object2JSON(invoke);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }

@@ -8,7 +8,7 @@ import jndc.server.NDCServerConfigCenter;
 public interface PortProtector {
     public void start(NDCMessageProtocol registerMessage, NDCServerConfigCenter ndcServerConfigCenter);
 
-    public void shutDown();
+    public void shutDownBeforeCreate();
 
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol);
 }

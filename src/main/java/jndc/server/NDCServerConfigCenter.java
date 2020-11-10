@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -17,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * server config center ,heart of this app
  */
 public class NDCServerConfigCenter implements NDCConfigCenter {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private Map<Integer, ServerPortProtector> portProtectorMap = new ConcurrentHashMap<>();
     private Map<Integer, ChannelHandlerContextHolder> contextHolderMap = new ConcurrentHashMap<>();//a client use one tcp connection
 
@@ -40,7 +42,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     /**
      * be called when ServerPortProtector created
-     * a serverPortProtector hold multiple tcp connection
+     * a serverPortProtector hold multiple face tcp connection
      *
      * @param port
      * @param portProtector
@@ -58,7 +60,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         if (serverPortProtector1 != null) {
             //impossible to this ,but just in case
             //in the server one port just create one portProtector，more than one PortProtector are not allowed
-            serverPortProtector1.shutDown();
+            serverPortProtector1.shutDownBeforeCreate();
         }
         portProtectorMap.put(port, serverPortProtector);//this map maybe store different serverPortProtector from different client
         channelHandlerContextHolder.addServerPortProtector(port, serverPortProtector);//this list just store one client serverPortProtector list
@@ -97,7 +99,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         ServerPortProtector serverPortProtector = portProtectorMap.get(serverPort);
         if (serverPortProtector == null) {
             //todo drop message
-            logger.debug("drop message with port"+serverPort);
+            logger.debug("drop message with port" + serverPort);
             return;
         } else {
             serverPortProtector.receiveMessage(ndcMessageProtocol);
@@ -105,9 +107,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     }
 
+
     /**
      * called when a new channel is discovered
-     *
+     * @param port server face port
      * @param channelHandlerContext
      */
     public void registerMessageChannel(int port, ChannelHandlerContext channelHandlerContext) {
@@ -121,25 +124,37 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     /**
      * called when channel inactive
+     *
      * @param channelHandlerContext
      */
     public void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext) {
-        contextHolderMap.forEach((k, v) -> {
-            ChannelHandlerContext store = v.getChannelHandlerContext();
+        Set<Map.Entry<Integer, ChannelHandlerContextHolder>> entries = contextHolderMap.entrySet();
+        Iterator<Map.Entry<Integer, ChannelHandlerContextHolder>> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, ChannelHandlerContextHolder> next = iterator.next();
+            ChannelHandlerContextHolder value = next.getValue();
+
+            ChannelHandlerContext store = value.getChannelHandlerContext();
             if (store == channelHandlerContext) {
-                List<Integer> serverPorts = v.getServerPorts();
+                List<Integer> serverPorts = value.getServerPorts();
                 serverPorts.forEach(x -> {
                     unRegisterPortProtector(x);
                 });
-                v.shutDownServerPortProtectors();//shut down all
-                contextHolderMap.remove(k);
+                value.shutDownServerPortProtectors();//shut down all
+                iterator.remove();
             }
+        }
+
+
+        contextHolderMap.forEach((k, v) -> {
+
         });
     }
 
 
     /**
      * be called when the local application is interrupted,we need to interrupt "the face tcp" at the same time
+     *
      * @param ndcMessageProtocol
      */
     public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
@@ -156,5 +171,11 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     }
 
+    public Map<Integer, ServerPortProtector> getPortProtectorMap() {
+        return portProtectorMap;
+    }
 
+    public Map<Integer, ChannelHandlerContextHolder> getContextHolderMap() {
+        return contextHolderMap;
+    }
 }

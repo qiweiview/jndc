@@ -1,18 +1,20 @@
 package web.core;
 
-import jndc.utils.LogPrint;
+
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 
 public class FrontProjectLoader {
+    private   final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static FrontProjectLoader jndcStaticProject;
 
@@ -20,18 +22,40 @@ public class FrontProjectLoader {
 
     private String rootPath;
 
-    private Map<String, InnerFileDescription> fileDescriptionMap = new HashMap<>();
+    private Map<String, InnerFileDescription> fileDescriptionMap=new HashMap<>() ;
 
 
-    static{
-        String web = FrontProjectLoader.class.getClassLoader().getResource("web_resource").getPath();
-        jndcStaticProject = loadProject(web);
+    private volatile  boolean reloadInterrupt=false;
+
+
+    public static FrontProjectLoader loadProject(String path) {
+        FrontProjectLoader frontProjectLoader = new FrontProjectLoader(path);
+        frontProjectLoader.reloadProject();
+        return frontProjectLoader;
+
     }
 
 
+    public void reloadProject(){
+        logger.info("load front project: "+rootPath);
+        destroyOldVersion();
+        recordFile(new File(rootPath), 0);
+        reloadInterrupt=false;
+    }
 
+    private void destroyOldVersion(){
+        reloadInterrupt=true;
+        Map<String, InnerFileDescription> fileDescriptionMap = this.fileDescriptionMap;
+        fileDescriptionMap.forEach((k,v)->{
+            v.release();
+        });
+        this.fileDescriptionMap=new HashMap<>();
+    }
 
    public InnerFileDescription findFile(String path){
+        if (reloadInterrupt){
+            return null;
+        }
        return fileDescriptionMap.get(path);
    }
 
@@ -39,12 +63,7 @@ public class FrontProjectLoader {
         this.rootPath = rootPath;
     }
 
-    public static FrontProjectLoader loadProject(String path) {
-        FrontProjectLoader frontProjectLoader = new FrontProjectLoader(path);
-        frontProjectLoader.recordFile(new File(path), 0);
-        return frontProjectLoader;
 
-    }
 
     private void recordFile(File file, Integer recursionDepth) {
         if (recursionDepth > DEEP_LIMIT) {
@@ -98,6 +117,12 @@ public class FrontProjectLoader {
             this.shortPath = this.fullPath.substring(rootPath.length()-1);
             this.fileType=file.getName().substring(file.getName().lastIndexOf(".")+1);
             loadFile();
+        }
+
+
+        public void release(){
+            this.file=null;
+            this.fileBytes=null;
         }
 
         private void loadFile() {

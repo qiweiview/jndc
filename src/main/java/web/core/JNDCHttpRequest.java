@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.AsciiString;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,8 @@ public class JNDCHttpRequest {
     private FullHttpRequest fullHttpRequest;
 
     private HttpMethod method;
+
+    private InetAddress remoteAddress;
 
     private HttpHeaders headers;
 
@@ -108,6 +111,14 @@ public class JNDCHttpRequest {
 
 
     /*getter setter*/
+
+    public InetAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(InetAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
 
     public byte[] getBody() {
         return body;

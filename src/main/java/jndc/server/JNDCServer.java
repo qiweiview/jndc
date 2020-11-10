@@ -9,6 +9,7 @@ import jndc.core.config.UnifiedConfiguration;
 import jndc.utils.LogPrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.core.FrontProjectLoader;
 import web.core.WebServer;
 
 import java.net.InetSocketAddress;
@@ -29,7 +30,14 @@ public class JNDCServer {
         ServerConfig serverConfig = bean.getServerConfig();
 
 
+
+
+        // confirm whether to open the manage center
         if (serverConfig.isManageCenterEnable()){
+            //load inner front file
+            String web = FrontProjectLoader.class.getClassLoader().getResource("web_resource").getPath();
+            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
+
             //openManageCenter
             WebServer serverTest =new WebServer();
             serverTest.start();//start

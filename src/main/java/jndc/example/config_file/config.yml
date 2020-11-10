@@ -17,8 +17,8 @@ serverConfig:
 
 # client config
 clientConfig:
-  manageCenterEnable: true
-  manageCenterPort: "82"
+  manageCenterEnable: false
+  manageCenterPort: "83"
   #remoteIp: "123.207.1.1"
   remoteIp: "127.0.0.1"
   remoteAdminPort: "81"
@@ -27,7 +27,7 @@ clientConfig:
       localIp: "192.168.216.131"
       localPort: "3389"
       serverPort: "777"
-      configEnable: false
+      configEnable: true
     - name: "nginx"
       localIp: "0.0.0.0"
       localPort: "80"

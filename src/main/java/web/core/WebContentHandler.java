@@ -9,7 +9,6 @@ import jndc.core.UniqueBeanManage;
 import web.utils.HttpResponseBuilder;
 
 import java.io.File;
-import java.util.Map;
 import java.util.regex.Matcher;
 
 
@@ -24,6 +23,8 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
             StringBuilder fullPath = jndcHttpRequest.getFullPath();
             String s = fullPath.toString().replaceAll("/", SEPARATOR);
+
+            //jndc inner front project
             FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;
             FrontProjectLoader.InnerFileDescription file = jndcStaticProject.findFile(s);
             FullHttpResponse fullHttpResponse;
@@ -46,7 +47,24 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
                 fullHttpResponse = HttpResponseBuilder.notFoundResponse();
             } else {
                 fullHttpResponse = HttpResponseBuilder.jsonResponse(data);
+
+                //configuration during development
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
             }
+            channelHandlerContext.writeAndFlush(fullHttpResponse);
+            return;
+        }
+
+        if (HttpMethod.OPTIONS.equals(jndcHttpRequest.getMethod())) {
+            //todo post
+            FullHttpResponse fullHttpResponse = HttpResponseBuilder.emptyResponse();
+
+            //configuration during development
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }

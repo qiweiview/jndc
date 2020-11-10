@@ -63,6 +63,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.registerMessageChannel(copy.getServerPort(), channelHandlerContext);
 
+
+
+
                 //start port monitor
                 ndcServerConfigCenter.startPortMonitoring(copy);
 

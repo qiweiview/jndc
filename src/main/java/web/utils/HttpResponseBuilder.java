@@ -51,7 +51,7 @@ public class HttpResponseBuilder {
 
     public static FullHttpResponse notFoundResponse() {
         ByteBuf byteBuf = Unpooled.copiedBuffer(notFoundModel);
-        FullHttpResponse defaultHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, byteBuf);
+        FullHttpResponse defaultHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, byteBuf);
         HttpHeaders headers = defaultHttpResponse.headers();
         headers.set(HttpHeaderNames.CONTENT_TYPE, HTML);
         headers.set(HttpHeaderNames.CONTENT_LENGTH, byteBuf.readableBytes());

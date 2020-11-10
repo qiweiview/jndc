@@ -45,7 +45,7 @@ public class ClientPortProtector implements PortProtector {
     }
 
     @Override
-    public void shutDown() {
+    public void shutDownBeforeCreate() {
 
     }
 

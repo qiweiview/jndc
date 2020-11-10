@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerPortProtector  implements PortProtector{
@@ -121,7 +123,7 @@ public class ServerPortProtector  implements PortProtector{
      * 关闭
      */
     @Override
-    public void shutDown() {
+    public void shutDownBeforeCreate() {
         int serverPort = this.registerMessage.getServerPort();
         ndcServerConfigCenter.unRegisterPortProtector(serverPort);
         eventLoopGroup.shutdownGracefully().addListener(x -> {
@@ -147,7 +149,14 @@ public class ServerPortProtector  implements PortProtector{
 
     }
 
-    public void sayGoodByeToEveryOne(){
+    public void releaseObject(){
+        shutDownAllTcpConnection();
+        sayGoodByeToEveryOne();
+    }
+
+    private void sayGoodByeToEveryOne(){
+        int serverPort = this.registerMessage.getServerPort();
+        ndcServerConfigCenter.unRegisterPortProtector(serverPort);
         eventLoopGroup.shutdownGracefully().addListener(x->{
             logger.info("shut down face port "+registerMessage.getServerPort());
             registerMessage=null;
@@ -159,12 +168,17 @@ public class ServerPortProtector  implements PortProtector{
     }
 
 
-    public void shutDownAllTcpConnection() {
-        faceTCPMap.forEach((k,v)->{
-            logger.debug("interrupt face connection port:"+k);
-            faceTCPMap.remove(k);
-            v.close();
-        });
+    private void shutDownAllTcpConnection() {
+
+        //remove safety
+        Set<Map.Entry<String, ServerTCPDataHandle>> entries = faceTCPMap.entrySet();
+        Iterator<Map.Entry<String, ServerTCPDataHandle>> iterator = entries.iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, ServerTCPDataHandle> next = iterator.next();
+            next.getValue().close();
+            iterator.remove();
+            logger.debug("interrupt face connection port:"+next.getKey());
+        }
     }
 
     public void shutDownTcpConnection(NDCMessageProtocol ndcMessageProtocol) {
@@ -185,5 +199,9 @@ public class ServerPortProtector  implements PortProtector{
         public void unRegisterHandler(String uniqueTag);
 
         public int getLocalPort();
+    }
+
+    public NDCMessageProtocol getRegisterMessage() {
+        return registerMessage;
     }
 }
