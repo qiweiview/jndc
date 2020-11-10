@@ -21,22 +21,36 @@ function serverChannelTableRoute(model) {
             return {
                 array: [],
                 portArray: [],
-                portSelect:''
+                portSelect: ''
             }
         },
         methods: {
-            shutDown(serverPort) {
-                axios.post('http://localhost:82/shutDownServerPort', {
-                    port: serverPort
-                }, {
-                    auth: static_token
-                })
-                    .then((response) => {
-                        this.getRemoteClientList()
+            closeChannelByServer(channelId, ports) {
+
+                let _this = this
+
+
+                this.$confirm('断开隧道后,与隧道相关联的端口："' + ports + '" 将不再监听，已建立的连接都将断开，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.post('http://localhost:82/closeChannelByServer', {
+                        channelId: channelId
+                    }, {
+                        auth: static_token
                     })
-                    .catch( (error) => {
-                        this.$parent.$message.error('请求失败:'+error)
-                    });
+                        .then((response) => {
+                            _this.getServerChannelTable()
+                        })
+                        .catch((error) => {
+                            _this.$parent.$message.error('请求失败:' + error)
+                        });
+                }).catch(() => {
+
+                });
+
+
             },
             getServerChannelTable() {
 
@@ -48,15 +62,15 @@ function serverChannelTableRoute(model) {
                 })
 
 
-                axios.post('http://localhost:82/getServerChannelTable', {serverPort:this.portSelect}, {
-                    auth: static_token
+                axios.post('http://localhost:82/getServerChannelTable', {serverPort: this.portSelect}, {
+                    auth_token: static_token
                 })
                     .then((response) => {
                         this.array = response.data
                         loading.close()
                     })
-                    .catch( (error) =>{
-                        this.$parent.$message.error('请求失败:'+error)
+                    .catch((error) => {
+                        this.$parent.$message.error('请求失败:' + error)
                         loading.close()
                     });
             },
@@ -68,13 +82,13 @@ function serverChannelTableRoute(model) {
                     .then((response) => {
                         this.portArray = response.data
                     })
-                    .catch( (error) =>{
-                        this.$parent.$message.error('请求失败:'+error)
+                    .catch((error) => {
+                        this.$parent.$message.error('请求失败:' + error)
                     });
             }
         },
         mounted() {
-            this.getServerPortList()
+            this.getServerChannelTable()
         },
         template: model
     }

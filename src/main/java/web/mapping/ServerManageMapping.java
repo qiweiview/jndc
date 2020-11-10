@@ -1,7 +1,6 @@
 package web.mapping;
 
 
-import io.netty.channel.ChannelHandlerContext;
 import jndc.core.ChannelHandlerContextHolder;
 import jndc.core.ServerPortProtector;
 import jndc.core.UniqueBeanManage;
@@ -56,8 +55,8 @@ public class ServerManageMapping {
         HashMap hashMap = JSONUtils.str2Object(s, HashMap.class);
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        List<FacePortVO> facePortVOS=new ArrayList<>();
-        bean.getPortProtectorMap().forEach((k,v)->{
+        List<FacePortVO> facePortVOS = new ArrayList<>();
+        bean.getPortProtectorMap().forEach((k, v) -> {
             facePortVOS.add(FacePortVO.of(v.getRegisterMessage()));
         });
 
@@ -75,7 +74,7 @@ public class ServerManageMapping {
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         ServerPortProtector serverPortProtector = bean.getPortProtectorMap().get(portDTO.getPort());
-        if (serverPortProtector!=null){
+        if (serverPortProtector != null) {
             serverPortProtector.releaseObject();
         }
 
@@ -88,13 +87,31 @@ public class ServerManageMapping {
     /* -----------------channelContext-------------- */
 
 
+    @WebMapping(path = "/closeChannelByServer")
+    public ResponseMessage closeChannelByServer(JNDCHttpRequest jndcHttpRequest) {
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        ChannelContextVO channelContextVO = JSONUtils.str2Object(s, ChannelContextVO.class);
+        String channelId = channelContextVO.getChannelId();
 
+        NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        Map<Integer, ChannelHandlerContextHolder> contextHolderMap = bean.getContextHolderMap();
+        contextHolderMap.forEach((k, v) -> {
+            if (channelId.equals(v.getId())) {
+                bean.shutDownChannelHandlerContextHolder(v);
+            }
+        });
+
+
+        return new ResponseMessage();
+
+    }
 
     @WebMapping(path = "/getServerPortList")
     public List<FacePortVO> getServerPortList(JNDCHttpRequest jndcHttpRequest) {
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        List<FacePortVO> contextVOS=new ArrayList<>();
-        bean.getContextHolderMap().keySet().forEach(x->{
+        List<FacePortVO> contextVOS = new ArrayList<>();
+        bean.getContextHolderMap().keySet().forEach(x -> {
             FacePortVO facePortVO = new FacePortVO();
             facePortVO.setServerPort(x);
             contextVOS.add(facePortVO);
@@ -106,22 +123,30 @@ public class ServerManageMapping {
 
     @WebMapping(path = "/getServerChannelTable")
     public List<ChannelContextVO> getServerChannelTable(JNDCHttpRequest jndcHttpRequest) {
-        byte[] body = jndcHttpRequest.getBody();
-        String s = new String(body);
-        FacePortVO portDTO = JSONUtils.str2Object(s, FacePortVO.class);
-        int serverPort = portDTO.getServerPort();
 
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        List<ChannelContextVO> contextVOS=new ArrayList<>();
-        bean.getContextHolderMap().forEach((k,v)->{
-            ChannelContextVO of = ChannelContextVO.of(k, v.getChannelHandlerContext());
-            if (serverPort!=0&&of.getUsedServerPort()!=serverPort){
-                //todo drop
-            }else {
-                contextVOS.add(of);
-            }
 
+
+        Map<String, ChannelContextVO> contextVOHashMap = new HashMap<>();
+        List<ChannelContextVO> contextVOS = new ArrayList<>();
+        Map<Integer, ChannelHandlerContextHolder> contextHolderMap = bean.getContextHolderMap();
+
+        contextHolderMap.forEach((k, v) -> {
+            String id = v.getId();
+
+            ChannelContextVO of = ChannelContextVO.of(k, v.getChannelHandlerContext());
+            of.setChannelId(id);
+
+
+            ChannelContextVO channelContextVO = contextVOHashMap.get(of.uniqueTag());
+            if (channelContextVO == null) {
+                channelContextVO = of;
+                contextVOHashMap.put(channelContextVO.uniqueTag(), channelContextVO);
+                contextVOS.add(channelContextVO);
+            } else {
+                channelContextVO.mergeUsedServerPort(of.getUsedServerPorts());
+            }
         });
         return contextVOS;
 

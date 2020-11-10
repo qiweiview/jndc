@@ -10,10 +10,22 @@ import java.net.SocketAddress;
 
 public class ChannelContextVO {
 
-    private int usedServerPort;
+    private String channelId;
+
+    private String usedServerPorts;
+
     private int channelClientPort;
+
     private String channelClientIp;
 
+
+    public String uniqueTag(){
+        return channelClientIp+channelClientPort;
+    }
+
+    public void mergeUsedServerPort(String port){
+        setUsedServerPorts(getUsedServerPorts()+","+port);
+    }
 
     public static ChannelContextVO of(int usedServerPort,ChannelHandlerContext channelHandlerContext) {
         ChannelContextVO facePortVO = new ChannelContextVO();
@@ -23,18 +35,25 @@ public class ChannelContextVO {
         InetAddress localInetAddress = socketAddress.getAddress();
         String hostAddress = localInetAddress.getHostAddress();
         facePortVO.setChannelClientIp(hostAddress);
-        facePortVO.setUsedServerPort(usedServerPort);
+        facePortVO.setUsedServerPorts(""+usedServerPort);
         return facePortVO;
 
     }
 
-
-    public int getUsedServerPort() {
-        return usedServerPort;
+    public String getChannelId() {
+        return channelId;
     }
 
-    public void setUsedServerPort(int usedServerPort) {
-        this.usedServerPort = usedServerPort;
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public String getUsedServerPorts() {
+        return usedServerPorts;
+    }
+
+    public void setUsedServerPorts(String usedServerPorts) {
+        this.usedServerPorts = usedServerPorts;
     }
 
     public int getChannelClientPort() {

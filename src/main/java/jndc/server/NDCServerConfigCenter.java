@@ -31,7 +31,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         int serverPort = copy.getServerPort();
 
         if (portProtectorMap.containsKey(serverPort)) {
-            logger.debug("port has been monitored");
+            logger.info("port has been monitored");
             return;
         }
 
@@ -62,7 +62,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             //in the server one port just create one portProtector，more than one PortProtector are not allowed
             serverPortProtector1.shutDownBeforeCreate();
         }
+
         portProtectorMap.put(port, serverPortProtector);//this map maybe store different serverPortProtector from different client
+
         channelHandlerContextHolder.addServerPortProtector(port, serverPortProtector);//this list just store one client serverPortProtector list
     }
 
@@ -128,29 +130,49 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @param channelHandlerContext
      */
     public void unRegisterMessageChannel(ChannelHandlerContext channelHandlerContext) {
+
+
         Set<Map.Entry<Integer, ChannelHandlerContextHolder>> entries = contextHolderMap.entrySet();
+
         Iterator<Map.Entry<Integer, ChannelHandlerContextHolder>> iterator = entries.iterator();
         while (iterator.hasNext()) {
             Map.Entry<Integer, ChannelHandlerContextHolder> next = iterator.next();
             ChannelHandlerContextHolder value = next.getValue();
-
             ChannelHandlerContext store = value.getChannelHandlerContext();
+
+            //find the ChannelHandlerContextHolder used inactive context
             if (store == channelHandlerContext) {
-                List<Integer> serverPorts = value.getServerPorts();
-                serverPorts.forEach(x -> {
-                    unRegisterPortProtector(x);
-                });
-                value.shutDownServerPortProtectors();//shut down all
+                //shutdown the  DownChannelHandlerContextHolder
+                shutDownChannelHandlerContextHolder(value);
+
+                //remove contextHolderMap record
                 iterator.remove();
             }
         }
 
 
-        contextHolderMap.forEach((k, v) -> {
-
-        });
     }
 
+    /**
+     * shut down the ChannelHandlerContextHolder
+     * @param value
+     */
+    public void shutDownChannelHandlerContextHolder(ChannelHandlerContextHolder value){
+        ChannelHandlerContext channelHandlerContext = value.getChannelHandlerContext();
+        channelHandlerContext.close();
+
+
+        //get context relation server port
+        List<Integer> serverPorts = value.getServerPorts();
+
+        //just remove the record
+        serverPorts.forEach(x -> {
+            unRegisterPortProtector(x);
+        });
+
+        //shutdown ChannelHandlerContextHolder
+        value.shutDownServerPortProtectors();//shut down all
+    }
 
     /**
      * be called when the local application is interrupted,we need to interrupt "the face tcp" at the same time

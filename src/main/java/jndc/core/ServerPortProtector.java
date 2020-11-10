@@ -158,12 +158,14 @@ public class ServerPortProtector  implements PortProtector{
         int serverPort = this.registerMessage.getServerPort();
         ndcServerConfigCenter.unRegisterPortProtector(serverPort);
         eventLoopGroup.shutdownGracefully().addListener(x->{
-            logger.info("shut down face port "+registerMessage.getServerPort());
-            registerMessage=null;
-            ndcServerConfigCenter=null;
-            serverBootstrap=null;
-            eventLoopGroup=null;
-            faceTCPMap=null;
+            if (registerMessage!=null){
+                logger.info("shut down face port "+registerMessage.getServerPort());
+                registerMessage=null;
+                ndcServerConfigCenter=null;
+                serverBootstrap=null;
+                eventLoopGroup=null;
+                faceTCPMap=null;
+            }
         });
     }
 
