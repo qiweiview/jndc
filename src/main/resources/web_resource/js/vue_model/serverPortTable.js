@@ -24,7 +24,7 @@ function createRoute(model) {
         },
         methods: {
             shutDown(serverPort) {
-                axios.post('http://localhost:82/shutDownServerPort', {
+                axios.post('/shutDownServerPort', {
                     port: serverPort
                 }, {
                     auth: static_token
@@ -46,7 +46,7 @@ function createRoute(model) {
                 });
 
 
-                axios.post('http://localhost:82/getServerMappingList', {}, {
+                axios.post('/getServerMappingList', {}, {
                     auth: static_token
                 })
                     .then((response) => {

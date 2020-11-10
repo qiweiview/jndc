@@ -51,7 +51,7 @@
 			},
 			methods: {
 				doLogin() {
-					axios.post('http://localhost:82/login', this.form)
+					axios.post('/login', this.form)
 						.then((response) => {
 							if (response.data.token == '403') {
 								this.$message.error('密码错误');

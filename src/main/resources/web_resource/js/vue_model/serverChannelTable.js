@@ -35,7 +35,7 @@ function serverChannelTableRoute(model) {
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    axios.post('http://localhost:82/closeChannelByServer', {
+                    axios.post('/closeChannelByServer', {
                         channelId: channelId
                     }, {
                         auth: static_token
@@ -62,7 +62,7 @@ function serverChannelTableRoute(model) {
                 })
 
 
-                axios.post('http://localhost:82/getServerChannelTable', {serverPort: this.portSelect}, {
+                axios.post('/getServerChannelTable', {serverPort: this.portSelect}, {
                     auth_token: static_token
                 })
                     .then((response) => {
@@ -76,7 +76,7 @@ function serverChannelTableRoute(model) {
             },
             getServerPortList() {
 
-                axios.post('http://localhost:82/getServerPortList', {}, {
+                axios.post('/getServerPortList', {}, {
                     auth: static_token
                 })
                     .then((response) => {
