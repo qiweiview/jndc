@@ -9,54 +9,50 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.*;
 
+
+/**
+ * JNDC client config
+ */
 public class ClientConfig implements ParameterVerification {
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private int manageCenterPort;
+    private String serverIp;
 
-    private boolean manageCenterEnable;
+    private int serverPort;
 
-    private String remoteIp;
+    private List<ClientServiceDescription> clientServiceDescriptions;//service list
 
-    private int remoteAdminPort;
+    private Map<String, ClientServiceDescription> clientServiceDescriptionMap;//service map
 
-    private List<ClientPortMapping> clientPortMappingList;
 
-    private Map<Integer, InetSocketAddress> clientPortMappingMap;
+    /* -----------------prepare file----------------- */
 
-    private InetAddress remoteInetAddress;
+    private InetAddress serverIpAddress;
 
-    private InetSocketAddress inetSocketAddress;
+    private InetSocketAddress serverIpSocketAddress;
 
 
     @Override
     public void performParameterVerification() {
-        remoteInetAddress = InetUtils.getByStringIpAddress(remoteIp);
-        inetSocketAddress=new InetSocketAddress(remoteInetAddress,remoteAdminPort);
+        serverIpAddress = InetUtils.getByStringIpAddress(serverIp);
+        serverIpSocketAddress = new InetSocketAddress(serverIpAddress, serverPort);
 
 
+        if (clientServiceDescriptions != null) {
 
-        if (clientPortMappingList != null) {
+            clientServiceDescriptionMap = new HashMap<>();
+            clientServiceDescriptions.forEach(x -> {
+                if (x.isServiceEnable()) {
 
-            clientPortMappingMap = new HashMap<>();
-            Set<Integer> serverPortSet = new HashSet<>();
-            clientPortMappingList.forEach(x -> {
-                if (x.getConfigEnable()) {
 
-                    if (serverPortSet.contains(x.getServerPort())) {
-                        logger.error("duplicate remote port:" + x.getServerPort());
+                    if (clientServiceDescriptionMap.containsKey(x.getUniqueTag())) {
+                        logger.error("duplicate service:" + x.getUniqueTag());
                         ApplicationExit.exit();
                     }
-
-                    if (clientPortMappingMap.containsKey(x.getLocalPort())) {
-                        logger.error("duplicate local port:" + x.getServerPort());
-                        ApplicationExit.exit();
-                    }
-
                     x.performParameterVerification();
+                    clientServiceDescriptionMap.put(x.getUniqueTag(), x);
 
-                    clientPortMappingMap.put(x.getLocalPort(), x.getInetSocketAddress());
-                    serverPortSet.add(x.getServerPort());
                 }
             });
         }
@@ -64,84 +60,55 @@ public class ClientConfig implements ParameterVerification {
     }
 
 
-    @Override
-    public String toString() {
-        return "ClientConfig{" +
-                "remoteIp='" + remoteIp + '\'' +
-                ", remoteAdminPort='" + remoteAdminPort + '\'' +
-                ", clientPortMappingList=" + clientPortMappingList +
-                '}';
-    }
-
     public Logger getLogger() {
         return logger;
     }
 
-    public int getManageCenterPort() {
-        return manageCenterPort;
+    public String getServerIp() {
+        return serverIp;
     }
 
-    public void setManageCenterPort(int manageCenterPort) {
-        this.manageCenterPort = manageCenterPort;
+    public void setServerIp(String serverIp) {
+        this.serverIp = serverIp;
     }
 
-    public boolean isManageCenterEnable() {
-        return manageCenterEnable;
+    public int getServerPort() {
+        return serverPort;
     }
 
-    public void setManageCenterEnable(boolean manageCenterEnable) {
-        this.manageCenterEnable = manageCenterEnable;
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
     }
 
-    public Map<Integer, InetSocketAddress> getClientPortMappingMap() {
-        return clientPortMappingMap;
+    public List<ClientServiceDescription> getClientServiceDescriptions() {
+        return clientServiceDescriptions;
     }
 
-    public void setClientPortMappingMap(Map<Integer, InetSocketAddress> clientPortMappingMap) {
-        this.clientPortMappingMap = clientPortMappingMap;
+    public void setClientServiceDescriptions(List<ClientServiceDescription> clientServiceDescriptions) {
+        this.clientServiceDescriptions = clientServiceDescriptions;
     }
 
-    public InetAddress getRemoteInetAddress() {
-        return remoteInetAddress;
+    public Map<String, ClientServiceDescription> getClientServiceDescriptionMap() {
+        return clientServiceDescriptionMap;
     }
 
-    public void setRemoteInetAddress(InetAddress remoteInetAddress) {
-        this.remoteInetAddress = remoteInetAddress;
+    public void setClientServiceDescriptionMap(Map<String, ClientServiceDescription> clientServiceDescriptionMap) {
+        this.clientServiceDescriptionMap = clientServiceDescriptionMap;
     }
 
-    public InetSocketAddress getInetSocketAddress() {
-        return inetSocketAddress;
+    public InetAddress getServerIpAddress() {
+        return serverIpAddress;
     }
 
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
+    public void setServerIpAddress(InetAddress serverIpAddress) {
+        this.serverIpAddress = serverIpAddress;
     }
 
-    public List<ClientPortMapping> getClientPortMappingList() {
-        return clientPortMappingList;
+    public InetSocketAddress getServerIpSocketAddress() {
+        return serverIpSocketAddress;
     }
 
-
-    public void setClientPortMappingList(List<ClientPortMapping> clientPortMappingList) {
-        this.clientPortMappingList = clientPortMappingList;
+    public void setServerIpSocketAddress(InetSocketAddress serverIpSocketAddress) {
+        this.serverIpSocketAddress = serverIpSocketAddress;
     }
-
-
-    public String getRemoteIp() {
-        return remoteIp;
-    }
-
-    public void setRemoteIp(String remoteIp) {
-        this.remoteIp = remoteIp;
-    }
-
-    public int getRemoteAdminPort() {
-        return remoteAdminPort;
-    }
-
-    public void setRemoteAdminPort(int remoteAdminPort) {
-        this.remoteAdminPort = remoteAdminPort;
-    }
-
-
 }

@@ -6,9 +6,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 
 import jndc.core.UniqueBeanManage;
+import jndc.utils.LogPrint;
 import web.utils.HttpResponseBuilder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 
 
@@ -26,6 +28,8 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
             //jndc inner front project
             FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;
+
+            //find static file
             FrontProjectLoader.InnerFileDescription file = jndcStaticProject.findFile(s);
             FullHttpResponse fullHttpResponse;
             if (file == null) {
@@ -45,13 +49,16 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
             FullHttpResponse fullHttpResponse;
             if (data == null) {
                 fullHttpResponse = HttpResponseBuilder.notFoundResponse();
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             } else {
                 fullHttpResponse = HttpResponseBuilder.jsonResponse(data);
 
                 //configuration during development
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             }
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
@@ -63,8 +70,8 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
             //configuration during development
             fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }
@@ -76,4 +83,10 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
     }
 
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        if (cause instanceof IOException){
+            LogPrint.debug("a manage connection interrupt ");
+        }
+    }
 }

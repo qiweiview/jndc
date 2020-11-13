@@ -5,6 +5,7 @@ import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
 import jndc.core.NDCMessageProtocol;
+import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.ClientConfig;
 import jndc.core.config.UnifiedConfiguration;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
@@ -37,7 +40,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     public void sendRegisterToServer(int localPort, int serverPort) {
         RegistrationMessage registrationMessage = new RegistrationMessage();
-        registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
+      //  registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
@@ -53,33 +56,34 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         ClientConfig clientConfig = unifiedConfiguration.getClientConfig();
 
 
-        RegistrationMessage registrationMessage = new RegistrationMessage();
-        registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
-        registrationMessage.setAuth(unifiedConfiguration.getSecrete());
-
-        byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
-
-
-        final InetAddress remoteInetAddress = clientConfig.getRemoteInetAddress();
-
-
-        if (clientConfig == null || clientConfig.getClientPortMappingList() == null) {
+        if (clientConfig == null || clientConfig.getClientServiceDescriptions() == null) {
             logger.error("can not load mapping config");
             return;
         }
 
 
-        clientConfig.getClientPortMappingList().forEach(x -> {
-            if (x.getConfigEnable()) {
-                int localPort = x.getLocalPort();
-                int serverPort = x.getServerPort();
-                NDCMessageProtocol tqs = NDCMessageProtocol.of(remoteInetAddress, x.getLocalInetAddress(), 0, serverPort, localPort, NDCMessageProtocol.MAP_REGISTER);
-                tqs.setData(bytes);
-                ctx.writeAndFlush(tqs);
+        RegistrationMessage registrationMessage = new RegistrationMessage();
+        registrationMessage.setAuth(unifiedConfiguration.getSecrete());
+
+        List<TcpServiceDescription> tcpServiceDescriptions=new ArrayList<>();
+
+        clientConfig.getClientServiceDescriptions().forEach(x -> {
+            if (x.isServiceEnable()) {
+                tcpServiceDescriptions.add(x.toTcpServiceDescription());
             } else {
-                logger.info("ignore the mapping:" + x.getName());
+                logger.info("ignore the mapping:" + x.getServiceName());
             }
         });
+
+        registrationMessage.setTcpServiceDescriptions(tcpServiceDescriptions);
+        byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
+
+
+        InetAddress unused = InetAddress.getLocalHost();
+        NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.MAP_REGISTER);
+
+        tqs.setData(bytes);
+        ctx.writeAndFlush(tqs);
     }
 
     @Override
@@ -105,6 +109,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.MAP_REGISTER) {
                 //todo MAP_REGISTER
+
+                //register response
+
 
                 //print msg
                 RegistrationMessage object = ndcMessageProtocol.getObject(RegistrationMessage.class);

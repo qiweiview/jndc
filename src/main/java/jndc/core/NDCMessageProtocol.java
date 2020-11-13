@@ -41,6 +41,8 @@ public class NDCMessageProtocol {
 
     /*--------------------- static variable ---------------------*/
 
+    public static final int UN_USED_PORT = 0;//the single package length
+
     public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;//the single package length
 
     public static final int FIX_LENGTH = 33;//the length of the fixed part of protocol

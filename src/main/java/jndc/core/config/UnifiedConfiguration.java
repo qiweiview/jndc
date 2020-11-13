@@ -12,6 +12,8 @@ import java.util.List;
 public class UnifiedConfiguration implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private String runtimeDir;
+
     private String secrete;
 
     private ServerConfig serverConfig;
@@ -58,6 +60,13 @@ public class UnifiedConfiguration implements ParameterVerification {
                 '}';
     }
 
+    public String getRuntimeDir() {
+        return runtimeDir;
+    }
+
+    public void setRuntimeDir(String runtimeDir) {
+        this.runtimeDir = runtimeDir;
+    }
 
     public Logger getLogger() {
         return logger;

@@ -1,8 +1,6 @@
 package jndc.core;
 
 import jndc.client.JNDCClient;
-import jndc.core.config.ClientConfig;
-import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.server.JNDCServer;
 import jndc.utils.ApplicationExit;
@@ -13,10 +11,6 @@ import org.slf4j.LoggerFactory;
 
 
 import java.io.File;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-
 
 
 public class AppStart {
@@ -29,6 +23,9 @@ public class AppStart {
     public static final YmlParser ymlParser = new YmlParser();
 
     public static void main(String[] args) {
+
+
+
         String tag = "\n" +
                 "                                                               \n" +
                 "         ,---._                   ,--.                         \n" +
@@ -70,7 +67,10 @@ public class AppStart {
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             unifiedConfiguration.performParameterVerification();
+            LogPrint.info(configFile);
+            unifiedConfiguration.setRuntimeDir(configFile.substring(0,configFile.lastIndexOf(File.separator)+1));
             UniqueBeanManage.registerBean(unifiedConfiguration);
+
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();

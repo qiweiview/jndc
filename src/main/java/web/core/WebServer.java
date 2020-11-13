@@ -29,7 +29,7 @@ public class WebServer {
     public void start() {
         UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ServerConfig serverConfig = bean.getServerConfig();
-        int manageCenterPort = serverConfig.getManageCenterPort();
+        int manageCenterPort = serverConfig.getManagementApiPort();
         InetAddress localInetAddress = InetUtils.localInetAddress;
         InetSocketAddress inetSocketAddress = new InetSocketAddress(localInetAddress, manageCenterPort);
 

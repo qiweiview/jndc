@@ -37,9 +37,13 @@ public class FrontProjectLoader {
 
 
     public void reloadProject(){
+
         logger.info("load front project: "+rootPath);
         destroyOldVersion();
+
+
         recordFile(new File(rootPath), 0);
+
         reloadInterrupt=false;
     }
 

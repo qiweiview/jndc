@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import web.core.FrontProjectLoader;
 import web.core.WebServer;
 
-import java.net.InetSocketAddress;
+import java.io.File;
+import java.net.URL;
 
 public class JNDCServer {
     private   final Logger logger = LoggerFactory.getLogger(getClass());
@@ -32,15 +33,17 @@ public class JNDCServer {
 
 
 
-        // confirm whether to open the manage center
-        if (serverConfig.isManageCenterEnable()){
-            //load inner front file
-            String web = FrontProjectLoader.class.getClassLoader().getResource("web_resource").getPath();
-            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
+        //deploy the server management api
+        WebServer serverTest =new WebServer();
+        serverTest.start();//start
 
-            //openManageCenter
-            WebServer serverTest =new WebServer();
-            serverTest.start();//start
+        // confirm whether to deploy default static project
+        // the management project will be deploy in managementApiPort
+        if (serverConfig.isDeployFrontProject()){
+            //load inner front file
+            String web = serverConfig.getFrontProjectPath();
+            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
+            LogPrint.info("deploy front management project");
         }
 
 

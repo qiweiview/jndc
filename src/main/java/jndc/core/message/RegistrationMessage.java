@@ -1,26 +1,24 @@
 package jndc.core.message;
 
+import jndc.core.TcpServiceDescription;
+
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 请求响应共体
  */
 public class RegistrationMessage implements Serializable {
-
-
     private static final long serialVersionUID = 2323315614144754699L;
 
 
     private String auth;
 
-    private String equipmentId;
+    private List<TcpServiceDescription> tcpServiceDescriptions;
+
 
     private String message;
 
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
 
     public String getAuth() {
         return auth;
@@ -28,6 +26,14 @@ public class RegistrationMessage implements Serializable {
 
     public void setAuth(String auth) {
         this.auth = auth;
+    }
+
+    public List<TcpServiceDescription> getTcpServiceDescriptions() {
+        return tcpServiceDescriptions;
+    }
+
+    public void setTcpServiceDescriptions(List<TcpServiceDescription> tcpServiceDescriptions) {
+        this.tcpServiceDescriptions = tcpServiceDescriptions;
     }
 
     public String getMessage() {
@@ -38,18 +44,13 @@ public class RegistrationMessage implements Serializable {
         this.message = message;
     }
 
-    public String getEquipmentId() {
-        return equipmentId;
-    }
-
-    public void setEquipmentId(String equipmentId) {
-        this.equipmentId = equipmentId;
-    }
 
     @Override
     public String toString() {
         return "RegistrationMessage{" +
-                "message='" + message + '\'' +
+                "auth='" + auth + '\'' +
+                ", tcpServiceDescriptions=" + tcpServiceDescriptions +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

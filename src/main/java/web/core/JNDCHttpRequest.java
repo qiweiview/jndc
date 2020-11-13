@@ -35,16 +35,16 @@ public class JNDCHttpRequest {
     private StringBuilder fullPath;
 
 
-    private Map<String, InnerQueryValue> queryMap ;
+    private Map<String, InnerQueryValue> queryMap;
 
 
     public JNDCHttpRequest(FullHttpRequest fullHttpRequest) {
         ByteBuf content = fullHttpRequest.content();
         this.body = ByteBufUtil.getBytes(content);
         this.method = fullHttpRequest.method();
-        this.pathList=new ArrayList<>();
-        this.queryMap= new HashMap<>();
-        this.fullPath=new StringBuilder();
+        this.pathList = new ArrayList<>();
+        this.queryMap = new HashMap<>();
+        this.fullPath = new StringBuilder();
         this.fullHttpRequest = fullHttpRequest;
         this.headers = fullHttpRequest.headers();
         parseRequest();
@@ -64,8 +64,9 @@ public class JNDCHttpRequest {
         char[] chars = this.uri.toCharArray();
         InnerQueryValue innerQueryValue = new InnerQueryValue();
         boolean overQuery = false;
+        boolean pathEnd = false;
         for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '/') {
+            if (chars[i] == '/' && !pathEnd) {
                 if (stringBuilder.length() != 0) {
                     crateLevelPath(stringBuilder);
                 }
@@ -73,6 +74,7 @@ public class JNDCHttpRequest {
             } else if (chars[i] == '?') {
                 crateLevelPath(stringBuilder);
                 overQuery = true;
+                pathEnd = true;
             } else if (chars[i] == '=') {
                 innerQueryValue.setKey(stringBuilder.toString());
                 stringBuilder.setLength(0);

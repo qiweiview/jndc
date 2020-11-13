@@ -1,11 +1,8 @@
 package jndc.core.config;
 
-import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.net.util.IPAddressUtil;
-import web.core.WebServer;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -13,9 +10,12 @@ import java.net.InetSocketAddress;
 public class ServerConfig  implements ParameterVerification {
     private   final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private int manageCenterPort;
 
-    private boolean manageCenterEnable;
+    private String frontProjectPath;
+
+    private int managementApiPort;
+
+    private boolean deployFrontProject;
 
     private int adminPort;
 
@@ -41,20 +41,28 @@ public class ServerConfig  implements ParameterVerification {
                 '}';
     }
 
-    public boolean isManageCenterEnable() {
-        return manageCenterEnable;
+    public String getFrontProjectPath() {
+        return frontProjectPath;
     }
 
-    public void setManageCenterEnable(boolean manageCenterEnable) {
-        this.manageCenterEnable = manageCenterEnable;
+    public void setFrontProjectPath(String frontProjectPath) {
+        this.frontProjectPath = frontProjectPath;
     }
 
-    public int getManageCenterPort() {
-        return manageCenterPort;
+    public boolean isDeployFrontProject() {
+        return deployFrontProject;
     }
 
-    public void setManageCenterPort(int manageCenterPort) {
-        this.manageCenterPort = manageCenterPort;
+    public void setDeployFrontProject(boolean deployFrontProject) {
+        this.deployFrontProject = deployFrontProject;
+    }
+
+    public int getManagementApiPort() {
+        return managementApiPort;
+    }
+
+    public void setManagementApiPort(int managementApiPort) {
+        this.managementApiPort = managementApiPort;
     }
 
     public InetSocketAddress getInetSocketAddress() {

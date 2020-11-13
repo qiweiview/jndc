@@ -1,36 +1,61 @@
 package jndc.server;
 
-import java.net.InetSocketAddress;
+import jndc.core.data_store.DSKey;
+import jndc.core.data_store.DSTable;
 
+
+@DSTable(name = "server_port_bind")
 public class ServerPortBind {
 
-    private InetSocketAddress bindInetSocketAddress;//服务端的ip和端口
+    @DSKey
+    private String id;
 
-    private String clientId;
+    private String name;
 
-    private InetSocketAddress clientInetSocketAddress;//本地的ip和端口
+    private int port;
 
-    public InetSocketAddress getBindInetSocketAddress() {
-        return bindInetSocketAddress;
+    private int portEnable;//1 enable 0 disable
+
+
+    @Override
+    public String toString() {
+        return "ServerPortBind{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", port=" + port +
+                ", portEnable=" + portEnable +
+                '}';
     }
 
-    public void setBindInetSocketAddress(InetSocketAddress bindInetSocketAddress) {
-        this.bindInetSocketAddress = bindInetSocketAddress;
+    public String getName() {
+        return name;
     }
 
-    public String getClientId() {
-        return clientId;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
+    public int getPort() {
+        return port;
     }
 
-    public InetSocketAddress getClientInetSocketAddress() {
-        return clientInetSocketAddress;
+    public void setPort(int port) {
+        this.port = port;
     }
 
-    public void setClientInetSocketAddress(InetSocketAddress clientInetSocketAddress) {
-        this.clientInetSocketAddress = clientInetSocketAddress;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getPortEnable() {
+        return portEnable;
+    }
+
+    public void setPortEnable(int portEnable) {
+        this.portEnable = portEnable;
     }
 }

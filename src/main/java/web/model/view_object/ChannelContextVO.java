@@ -1,59 +1,46 @@
 package web.model.view_object;
 
-import io.netty.channel.ChannelHandlerContext;
 import jndc.core.ChannelHandlerContextHolder;
-import jndc.core.NDCMessageProtocol;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 public class ChannelContextVO {
 
-    private String channelId;
+    private String id;
 
-    private String usedServerPorts;
+    private int supportServiceNum;
 
     private int channelClientPort;
 
     private String channelClientIp;
 
 
-    public String uniqueTag(){
-        return channelClientIp+channelClientPort;
-    }
 
-    public void mergeUsedServerPort(String port){
-        setUsedServerPorts(getUsedServerPorts()+","+port);
-    }
 
-    public static ChannelContextVO of(int usedServerPort,ChannelHandlerContext channelHandlerContext) {
+    public static ChannelContextVO of(ChannelHandlerContextHolder channelHandlerContextHolder) {
         ChannelContextVO facePortVO = new ChannelContextVO();
 
-        InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
-        facePortVO.setChannelClientPort(socketAddress.getPort());
-        InetAddress localInetAddress = socketAddress.getAddress();
-        String hostAddress = localInetAddress.getHostAddress();
-        facePortVO.setChannelClientIp(hostAddress);
-        facePortVO.setUsedServerPorts(""+usedServerPort);
+        facePortVO.setId(channelHandlerContextHolder.getId());
+        facePortVO.setSupportServiceNum(channelHandlerContextHolder.serviceNum());
+        facePortVO.setChannelClientIp(channelHandlerContextHolder.getContextIp());
+        facePortVO.setChannelClientPort(channelHandlerContextHolder.getContextPort());
+
         return facePortVO;
 
     }
 
-    public String getChannelId() {
-        return channelId;
+    public String getId() {
+        return id;
     }
 
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getUsedServerPorts() {
-        return usedServerPorts;
+    public int getSupportServiceNum() {
+        return supportServiceNum;
     }
 
-    public void setUsedServerPorts(String usedServerPorts) {
-        this.usedServerPorts = usedServerPorts;
+    public void setSupportServiceNum(int supportServiceNum) {
+        this.supportServiceNum = supportServiceNum;
     }
 
     public int getChannelClientPort() {

@@ -115,7 +115,7 @@ public class ClientPortProtector implements PortProtector {
 
         UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ClientConfig clientConfig = bean.getClientConfig();
-        Map<Integer, InetSocketAddress> clientPortMappingMap = clientConfig.getClientPortMappingMap();
+        Map<Integer, InetSocketAddress> clientPortMappingMap = null;
         InetSocketAddress inetSocketAddress = clientPortMappingMap.get(ndcMessageProtocol.getLocalPort());
         if (inetSocketAddress==null){
             //todo empty port mapping

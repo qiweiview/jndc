@@ -17,7 +17,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     //use port as key because the message from server  is not just sent to a port
     private Map<Integer, ClientPortProtector> portProtectorMap = new ConcurrentHashMap<>();
 
-    private ChannelHandlerContext channelHandlerContext;//single channel  ,expect a list  of channels
+    private ChannelHandlerContext channelHandlerContext;//A client temporarily holds only one tunnel
 
 
     @Override

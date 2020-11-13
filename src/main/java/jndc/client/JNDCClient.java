@@ -72,7 +72,7 @@ public class JNDCClient {
         UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ClientConfig clientConfig = bean.getClientConfig();
 
-        ChannelFuture connect = b.connect(clientConfig.getInetSocketAddress());
+        ChannelFuture connect = b.connect(clientConfig.getServerIpSocketAddress());
         connect.addListeners(x -> {
             if (!x.isSuccess()) {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
@@ -87,7 +87,7 @@ public class JNDCClient {
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
             } else {
-                logger.info("connect success to the jndc server : "+clientConfig.getInetSocketAddress());
+                logger.info("connect success to the jndc server : "+clientConfig.getServerIpSocketAddress());
             }
 
         });

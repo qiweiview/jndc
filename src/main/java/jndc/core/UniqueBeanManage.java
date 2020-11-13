@@ -2,6 +2,7 @@ package jndc.core;
 
 
 import jndc.client.JNDCClientConfigCenter;
+import jndc.core.data_store.DataStore;
 import jndc.server.NDCServerConfigCenter;
 import web.core.MappingRegisterCenter;
 
@@ -29,6 +30,8 @@ public class UniqueBeanManage {
         registerBean(new JNDCClientConfigCenter());
         registerBean(new IpListChecker());
         registerBean(new MappingRegisterCenter());
+        registerBean(new DataStore());
+
     }
 
 
