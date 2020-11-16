@@ -4,6 +4,9 @@ import jndc.core.data_store.DSKey;
 import jndc.core.data_store.DSTable;
 
 
+/**
+ * the description of the server port listening
+ */
 @DSTable(name = "server_port_bind")
 public class ServerPortBind {
 
@@ -16,6 +19,7 @@ public class ServerPortBind {
 
     private int portEnable;//1 enable 0 disable
 
+    private String routeTo;
 
     @Override
     public String toString() {
@@ -24,7 +28,16 @@ public class ServerPortBind {
                 ", name='" + name + '\'' +
                 ", port=" + port +
                 ", portEnable=" + portEnable +
+                ", routeTo='" + routeTo + '\'' +
                 '}';
+    }
+
+    public String getRouteTo() {
+        return routeTo;
+    }
+
+    public void setRouteTo(String routeTo) {
+        this.routeTo = routeTo;
     }
 
     public String getName() {

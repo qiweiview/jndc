@@ -6,6 +6,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import jndc.core.*;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
+import jndc.core.data_store.DBWrapper;
 import jndc.utils.LogPrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,9 @@ public class JNDCServer {
         ServerConfig serverConfig = bean.getServerConfig();
 
 
-
+        //reset service bind state
+        DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+        dbWrapper.customExecute("update server_port_bind set portEnable = 0",null);
 
         //deploy the server management api
         WebServer serverTest =new WebServer();

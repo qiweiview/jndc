@@ -3,7 +3,6 @@ package jndc.core.data_store;
 
 import jndc.core.UniqueBeanManage;
 import jndc.utils.JSONUtils;
-import jndc.utils.LogPrint;
 import jndc.utils.ReflectionCache;
 
 
@@ -28,6 +27,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     private String keyString = "";
 
+    private String keyString4Update = "";
+
     private String valueString = "";
 
 
@@ -36,6 +37,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     private List<String> keys = new ArrayList<>();
 
     private String insert;
+
+    private String update;
 
     private String delete;
 
@@ -53,6 +56,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         delete = "delete from " + tableName + " where " + primaryName + " = ?;";
 
         selectAll = "select " + keyString + " from " + tableName + ";";
+
+        update = "update " + tableName + " set " + keyString4Update + " where " + primaryName + " = ?;";
     }
 
     private void parseClass() {
@@ -78,6 +83,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
             isFile(x, annotation1);
         });
         keyString = keyString + primaryName;
+        keyString4Update = keyString4Update + primaryName + "=?";
         valueString = valueString + "?";
         keys.add(primaryName);
         filedMap.put(primaryName, primaryFile);
@@ -107,6 +113,9 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
             }
         }
         keyString += name + ",";
+
+        keyString4Update += name + "=?,";
+
         valueString += "?" + ",";
         filedMap.put(name, x);
         keys.add(name);
@@ -116,13 +125,24 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     @Override
     public void insert(T t) {
         DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
-
         List<String> keys = getKeys();
         Object[] objects = new Object[keys.size()];
         for (int i = 0; i < keys.size(); i++) {
             objects[i] = getFiledValue(keys.get(i), t);
         }
-        dataStore.execute(getDelete(), objects);
+        dataStore.execute(getInsert(), objects);
+    }
+
+    @Override
+    public void updateByPrimaryKey(T t) {
+        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        List<String> keys = getKeys();
+        Object[] objects = new Object[keys.size() + 1];
+        for (int i = 0; i < keys.size(); i++) {
+            objects[i] = getFiledValue(keys.get(i), t);
+        }
+        objects[keys.size()] = getFiledValue(primaryName, t);
+        dataStore.execute(getUpdate(), objects);
     }
 
 
@@ -138,6 +158,17 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
         List<Map> maps = dataStore.executeQuery(sql, params);
         return parseResult(maps);
+    }
+
+    @Override
+    public T customQuerySingle(String sql, Object... params) {
+        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        List<Map> maps = dataStore.executeQuery(sql, params);
+        List<T> list = parseResult(maps);
+        if (list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 
     @Override
@@ -195,16 +226,28 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         return selectAll;
     }
 
+    public String getUpdate() {
+        return update;
+    }
+
+    public static <T> DBWrapper<T> getDBWrapper(Class<? extends T> tClass) {
+        if (tClass == null) {
+            throw new RuntimeException("unSupport null");
+        }
+
+        DBWrapper dbWrapper = dBWrapperCache.get(tClass);
+        if (dbWrapper == null) {
+            dbWrapper = new DBWrapper(tClass);
+        }
+        return dbWrapper;
+    }
+
     public static <T> DBWrapper<T> getDBWrapper(T t) {
         if (t == null) {
             throw new RuntimeException("unSupport null");
         }
-        Class<?> aClass = t.getClass();
-        DBWrapper dbWrapper = dBWrapperCache.get(aClass);
-        if (dbWrapper == null) {
-            dbWrapper = new DBWrapper(t.getClass());
-        }
-        return dbWrapper;
+        Class<T> aClass = (Class<T>) t.getClass();
+        return getDBWrapper(aClass);
     }
 
 }

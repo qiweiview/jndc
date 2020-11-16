@@ -52,6 +52,9 @@ public class DataStore {
         init();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            if (objects == null) {
+                objects = new Object[0];
+            }
             for (int i = 0; i < objects.length; i++) {
                 preparedStatement.setObject(i + 1, objects[i]);
             }

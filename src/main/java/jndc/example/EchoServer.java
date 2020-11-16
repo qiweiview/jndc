@@ -6,9 +6,11 @@ import jndc.utils.LogPrint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 public class EchoServer {
     private  static final Logger logger = LoggerFactory.getLogger(RedirectApp.class);
@@ -20,8 +22,18 @@ public class EchoServer {
         while (true){
             Socket accept = socket.accept();
             OutputStream outputStream = accept.getOutputStream();
-            outputStream.write("hello word".getBytes());
-            outputStream.flush();
+          new Thread(()->{
+              while (true){
+                  try {
+                      outputStream.write("hello word".getBytes());
+                      outputStream.flush();
+                      TimeUnit.SECONDS.sleep(5);
+                  } catch (IOException | InterruptedException e) {
+                      e.printStackTrace();
+                  }
+              }
+
+          }).start();
         }
 
 

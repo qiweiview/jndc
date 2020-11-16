@@ -5,6 +5,12 @@ public class ResponseMessage {
 
     private String message="操作成功";
 
+
+
+    public void error(){
+        code=500;
+    }
+
     public int getCode() {
         return code;
     }

@@ -37,6 +37,11 @@ public class ChannelHandlerContextHolder {
         channelHandlerContext.close().addListeners(x -> {
             logger.info(contextIp + " unRegister " + serviceNum() + " service");
         });
+        tcpServiceDescriptions.forEach(x->{
+            x.releaseRelatedResources();
+        });
+
+
         channelHandlerContext = null;
         tcpServiceDescriptions = null;
     }
@@ -79,11 +84,13 @@ public class ChannelHandlerContextHolder {
     }
 
     public void setTcpServiceDescriptions(List<TcpServiceDescription> tcpServiceDescriptions) {
-        if (null != contextIp) {
-            tcpServiceDescriptions.forEach(x -> {
-                x.setBelongContextIp(contextIp);
-            });
-        }
+        tcpServiceDescriptions.forEach(x -> {
+            x.setBelongContextIp(contextIp);
+            x.setId(UUIDSimple.id());
+            x.setBelongContext(channelHandlerContext);
+        });
+
+
         this.tcpServiceDescriptions = tcpServiceDescriptions;
     }
 
@@ -97,65 +104,6 @@ public class ChannelHandlerContextHolder {
     }
 
 
-    /* ------------------------重写分割线------------------------ */
-
-//
-//
-//
-//    private List<Integer>  serverPorts=new CopyOnWriteArrayList();//show which  face port  transfer data on this Context
-//
-//
-//
-//    //private List<ServerPortProtector> serverPortProtectorList= new CopyOnWriteArrayList();//be used when shut down ChannelHandlerContextHolder
-//
-//    private ServerPortProtector serverPortProtector;
-//
-//
-//    public ChannelHandlerContextHolder(ChannelHandlerContext channelHandlerContext) {
-//        this.id= UUIDSimple.id();
-//        this.channelHandlerContext = channelHandlerContext;
-//    }
-//
-//
-//    public void addServerPortProtector(int port,ServerPortProtector serverPortProtector){
-//        serverPortProtectorList.add(serverPortProtector);
-//        serverPorts.add(port);
-//
-//    }
-//
-//
-//
-//    public ChannelHandlerContext getChannelHandlerContext() {
-//        return channelHandlerContext;
-//    }
-//
-//    public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
-//        this.channelHandlerContext = channelHandlerContext;
-//    }
-//
-//    public List<ServerPortProtector> getServerPortProtectorList() {
-//        return serverPortProtectorList;
-//    }
-//
-//    public void setServerPortProtectorList(List<ServerPortProtector> serverPortProtectorList) {
-//        this.serverPortProtectorList = serverPortProtectorList;
-//    }
-//
-//
-//    public List<Integer> getServerPorts() {
-//        return serverPorts;
-//    }
-//
-//
-//    /**
-//     * release bind  ServerPortProtectors
-//     */
-//    public void shutDownServerPortProtectors() {
-//        serverPortProtectorList.forEach(x->{
-//            x.releaseObject();
-//        });
-//
-//    }
 
 
 }

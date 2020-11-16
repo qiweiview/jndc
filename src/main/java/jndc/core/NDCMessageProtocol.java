@@ -47,6 +47,8 @@ public class NDCMessageProtocol {
 
     public static final int FIX_LENGTH = 33;//the length of the fixed part of protocol
 
+    public static final byte[] BLANK = "BLANK".getBytes();//magic variable
+
     public static final byte[] ACTIVE_MESSAGE = "ACTIVE_MESSAGE".getBytes();//magic variable
 
     private static final byte[] MAGIC = "NDC".getBytes();//magic variable

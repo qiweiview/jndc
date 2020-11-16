@@ -55,6 +55,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         UnifiedConfiguration unifiedConfiguration = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ClientConfig clientConfig = unifiedConfiguration.getClientConfig();
 
+        JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+
 
         if (clientConfig == null || clientConfig.getClientServiceDescriptions() == null) {
             logger.error("can not load mapping config");
@@ -70,6 +72,10 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         clientConfig.getClientServiceDescriptions().forEach(x -> {
             if (x.isServiceEnable()) {
                 tcpServiceDescriptions.add(x.toTcpServiceDescription());
+
+                //init the support service
+                jndcClientConfigCenter.initService(x);
+
             } else {
                 logger.info("ignore the mapping:" + x.getServiceName());
             }
@@ -129,7 +135,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 //todo CONNECTION_INTERRUPTED
 
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                bean.shutDownClientPortProtector(ndcMessageProtocol);
+                bean.shutDownClientServiceProvider(ndcMessageProtocol);
                 return;
             }
 
@@ -180,8 +186,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (reConnectTag) {
-            logger.info("client connection interrupted, will restart on 30 second later");
-            TimeUnit.SECONDS.sleep(30);
+            logger.info("client connection interrupted, will restart on 5 second later");
+            TimeUnit.SECONDS.sleep(5);
             EventLoop eventExecutors = ctx.channel().eventLoop();
             client.createClient(eventExecutors);
         }

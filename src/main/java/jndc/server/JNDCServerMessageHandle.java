@@ -11,6 +11,7 @@ import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
+import jndc.utils.UUIDSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,13 +67,13 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 //registerServiceProvider
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
                 ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
                 channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
                 channelHandlerContextHolder.setTcpServiceDescriptions(registrationMessage.getTcpServiceDescriptions());
 
                 //do register
                 ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
-
 
 
                 // send response
@@ -87,7 +88,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-                //ndcServerConfigCenter.shutDownTcpConnection(ndcMessageProtocol);
+                ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
             }
 
             if (type == NDCMessageProtocol.NO_ACCESS) {

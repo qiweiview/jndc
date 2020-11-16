@@ -9,15 +9,20 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
 
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String NAME = "NDC_CLIENT_TCP_DATA_HANDLE";
 
     private ChannelHandlerContext channelHandlerContext;
 
     private NDCMessageProtocol messageModel;
+
 
     public ClientTCPDataHandle(NDCMessageProtocol messageModel) {
         this.messageModel = messageModel;
@@ -42,30 +47,29 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        releaseRelatedResources();
+
 
         //发送消息
         NDCMessageProtocol copy = messageModel.copy();
         copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
-        copy.setData("connection lose".getBytes());
-
+        copy.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-        ctx.close();
-    }
+        logger.info("client send interrupt signal ");
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LogPrint.err("client tcp get a unCatchable error, cause:" + cause);
-    }
 
-    public void close() {
-        if (channelHandlerContext != null) {
-            channelHandlerContext.close();
-        }
     }
 
 
-    public void writeMessage(ByteBuf byteBuf) {
+
+
+    public void receiveMessage(ByteBuf byteBuf) {
         channelHandlerContext.writeAndFlush(byteBuf);
     }
 
+    public void releaseRelatedResources() {
+        channelHandlerContext.close();
+        channelHandlerContext=null;
+        logger.info("release local connection");
+    }
 }

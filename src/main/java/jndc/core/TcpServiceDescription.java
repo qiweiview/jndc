@@ -1,21 +1,65 @@
 package jndc.core;
 
-import java.io.Serializable;
+import io.netty.channel.ChannelHandlerContext;
+import jndc.server.ServerPortProtector;
+import jndc.utils.InetUtils;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+
+/**
+ * the description of service supported by client
+ */
 public class TcpServiceDescription implements Serializable {
 
 
     private static final long serialVersionUID = -6570101717300836163L;
 
+    private String id;
+
     private int port;
 
-    private String ip;
+    private String ip;//the service ip in the client net before NAT
 
     private String name;
 
     private String description;
 
-    private String belongContextIp;
+    private String belongContextIp;//the channel ip
+
+    private ChannelHandlerContext belongContext;
+
+    private List<ServerPortProtector> serviceReleaseList=new CopyOnWriteArrayList<>();
+
+
+    public void  addToServiceReleaseList(ServerPortProtector serverPortProtector){
+        serviceReleaseList.add(serverPortProtector);
+    }
+
+    public void sendMessage(NDCMessageProtocol ndcMessageProtocol) {
+        //set bind info
+        ndcMessageProtocol.setLocalPort(getPort());
+        ndcMessageProtocol.setLocalInetAddress(InetUtils.getByStringIpAddress(getIp()));
+        belongContext.writeAndFlush(ndcMessageProtocol);
+    }
+
+    public void releaseRelatedResources() {
+        belongContext=null;
+        serviceReleaseList.forEach(x->{
+            x.releaseRelatedResources();
+        });
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getBelongContextIp() {
         return belongContextIp;
@@ -58,6 +102,15 @@ public class TcpServiceDescription implements Serializable {
         this.ip = ip;
     }
 
+
+    public ChannelHandlerContext getBelongContext() {
+        return belongContext;
+    }
+
+    public void setBelongContext(ChannelHandlerContext belongContext) {
+        this.belongContext = belongContext;
+    }
+
     @Override
     public String toString() {
         return "TcpServiceDescription{" +
@@ -66,4 +119,6 @@ public class TcpServiceDescription implements Serializable {
                 ", description='" + description + '\'' +
                 '}';
     }
+
+
 }
