@@ -61,15 +61,20 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     }
 
 
-
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("client get a exception: "+cause);
+    }
 
     public void receiveMessage(ByteBuf byteBuf) {
         channelHandlerContext.writeAndFlush(byteBuf);
     }
 
     public void releaseRelatedResources() {
-        channelHandlerContext.close();
-        channelHandlerContext=null;
+        if (channelHandlerContext!=null){
+            channelHandlerContext.close();
+            channelHandlerContext=null;
+        }
         logger.info("release local connection");
     }
 }

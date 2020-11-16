@@ -167,16 +167,11 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
         } catch (Exception e) {
-            if (e instanceof ConnectionOpenFailException) {
-                NDCMessageProtocol copy = ndcMessageProtocol.copy();
-                copy.setType(NDCMessageProtocol.TCP_DATA);
-                copy.setData("connection lose".getBytes());
-                UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-            } else {
-                e.printStackTrace();
-                logger.error("client get a unCatchable Error:" + e);
-            }
-
+            NDCMessageProtocol copy = ndcMessageProtocol.copy();
+            copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
+            copy.setData("connection lose".getBytes());
+            UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
+            logger.error("client get a unCatchable Error:" + e);
         }
 
 

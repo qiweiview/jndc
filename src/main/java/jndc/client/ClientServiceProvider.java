@@ -104,8 +104,5 @@ public class ClientServiceProvider {
         }else {
             clientTCPDataHandle.releaseRelatedResources();
         }
-
-
-
     }
 }
