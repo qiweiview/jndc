@@ -1,5 +1,7 @@
 package jndc.core.data_store;
 
+import jndc.core.UniqueBeanManage;
+import jndc.core.config.UnifiedConfiguration;
 import jndc.server.ServerPortBind;
 import jndc.utils.UUIDSimple;
 
@@ -28,9 +30,9 @@ public class DataStore {
     private void init() {
         if (!initialized) {
             synchronized (this) {
-                // UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
-                //  String runtimeDir = bean.getRuntimeDir();
-                String runtimeDir = "C:\\Users\\刘启威\\Desktop\\start_script";
+                 UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
+                  String runtimeDir = bean.getRuntimeDir();
+
 
                 if (!runtimeDir.endsWith(File.separator)) {
                     runtimeDir += File.separator;

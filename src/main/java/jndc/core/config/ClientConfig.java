@@ -59,6 +59,11 @@ public class ClientConfig implements ParameterVerification {
 
     }
 
+    @Override
+    public void lazyInitAfterVerification() {
+
+    }
+
 
     public Logger getLogger() {
         return logger;

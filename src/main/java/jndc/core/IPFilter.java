@@ -19,6 +19,7 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
     public static String NAME = "IP_FILTER";
     public static final IPFilter STATIC_INSTANCE=new IPFilter();
 
+    private volatile IpChecker ipChecker;
 
     public IPFilter() {
         LogPrint.info("create filter object");
@@ -36,8 +37,10 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
             return;
         }
         String ipString = address.getHostAddress();
-        IpListChecker ipListChecker = UniqueBeanManage.getBean(IpListChecker.class);
-        if (ipListChecker.checkIpAddress(ipString)) {
+        if (ipChecker ==null){
+            ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        }
+        if (ipChecker.checkIpAddress(ipString)) {
             ctx.fireChannelActive();
         } else {
             LogPrint.debug("block the ip" + Arrays.toString(address1));

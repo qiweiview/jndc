@@ -72,6 +72,7 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
             fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
             fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
             fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE,"3600");
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }

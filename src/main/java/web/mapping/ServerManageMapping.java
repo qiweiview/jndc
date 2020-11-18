@@ -3,28 +3,33 @@ package web.mapping;
 
 import jndc.core.ChannelHandlerContextHolder;
 
+import jndc.core.IpChecker;
 import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store.DBWrapper;
+import jndc.server.IpFilterRule4V;
 import jndc.server.NDCServerConfigCenter;
 import jndc.server.ServerPortBind;
 import jndc.server.ServerPortBindContext;
 import jndc.utils.AESUtils;
-import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
 import web.core.JNDCHttpRequest;
 import web.core.WebMapping;
 import web.model.data_object.ManagementLoginUser;
 
+import web.model.data_transfer_object.IpDTO;
 import web.model.data_transfer_object.ResponseMessage;
 import web.model.data_transfer_object.serviceBindDTO;
 import web.model.view_object.ChannelContextVO;
 
+import web.model.view_object.IpRecordVO;
 import web.utils.AuthUtils;
 import jndc.utils.JSONUtils;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,10 +53,23 @@ public class ServerManageMapping {
         ManagementLoginUser managementLoginUser = JSONUtils.str2Object(s, ManagementLoginUser.class);
         if (AuthUtils.doLogin(managementLoginUser)) {
             InetAddress remoteAddress = jndcHttpRequest.getRemoteAddress();
-            byte[] encode = AESUtils.encode(remoteAddress.getAddress());
-            Base64.Encoder encoder = Base64.getEncoder();
-            String s1 = encoder.encodeToString(encode);
+            byte[] address = remoteAddress.getAddress();
+
+            //timestamp to byte array
+            ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+            buffer.putLong(System.currentTimeMillis()+60*60*1000);
+            byte[] array = buffer.array();
+
+            //mix data
+            byte[] newByte=new byte[address.length+8];
+            for (int i = 0; i < newByte.length; ++i) {
+                newByte[i] = i < array.length ? array[i] : address[i - array.length];
+            }
+
+            //token encode
+            String s1 = AuthUtils.webAuthTokenEncode(newByte);
             objectObjectHashMap.put("token", s1);
+
 
         } else {
             objectObjectHashMap.put("token", "403");
@@ -126,6 +144,8 @@ public class ServerManageMapping {
         return tcpServiceDescriptions;
 
     }
+
+
 
     /**
      * @param jndcHttpRequest
@@ -202,12 +222,16 @@ public class ServerManageMapping {
                 tcpServiceDescriptions.forEach(y -> {
                     TcpServiceDescription y1 = y;
                     if (y.getId().equals(channelContextVO.getServiceId())) {
-                        String s1 = y1.getIp() + ":" + y1.getPort();
-                        serverPortBind.setRouteTo(s1);
+
+                        //set route to tag
+                        serverPortBind.setRouteTo(y1.getRouteTo());
+
                         //set true
                         serverPortBind.setPortEnable(1);
                         dbWrapper.updateByPrimaryKey(serverPortBind);
-                        bean.addTCPRouter(serverPortBind.getPort(),y);
+
+                        //openPort
+                        bean.addTCPRouter(serverPortBind.getPort(), y);
 
                         //bind just once
                         atomicBoolean.set(false);
@@ -216,11 +240,36 @@ public class ServerManageMapping {
             }
         });
 
-        if (atomicBoolean.get()){
+        if (atomicBoolean.get()) {
             responseMessage.error();
-            responseMessage.setMessage("未找到对应编号服务："+channelContextVO.getServiceId());
+            responseMessage.setMessage("未找到对应编号服务：" + channelContextVO.getServiceId());
             return responseMessage;
         }
+
+        return responseMessage;
+
+    }
+
+
+
+
+    /**
+     * deleteServiceBindRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/deleteServiceBindRecord")
+    public ResponseMessage deleteServiceBindRecord(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+
+        DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+        dbWrapper.customExecute("delete from server_port_bind where id=?", channelContextVO.getServerPortId());
+
 
         return responseMessage;
 
@@ -253,11 +302,11 @@ public class ServerManageMapping {
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
-        if (serverPortBindContext!=null){
+        if (serverPortBindContext != null) {
             serverPortBindContext.releaseRelatedResources();
             tcpRouter.remove(port);
 
-        }else {
+        } else {
             serverPortBind.setPortEnable(0);
             serverPortBind.setRouteTo(null);
             dbWrapper.updateByPrimaryKey(serverPortBind);
@@ -268,5 +317,225 @@ public class ServerManageMapping {
 
     }
 
+
+    /**
+     * ip blackList
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/blackList")
+    public Collection<IpFilterRule4V> blackList(JNDCHttpRequest jndcHttpRequest) {
+        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
+        Map<String, IpFilterRule4V> blackMap = bean.getBlackMap();
+        Collection<IpFilterRule4V> values = blackMap.values();
+
+        return values;
+
+    }
+
+
+    /**
+     * ip whiteList
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/whiteList")
+    public Collection<IpFilterRule4V> whiteList(JNDCHttpRequest jndcHttpRequest) {
+        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
+        Map<String, IpFilterRule4V> whiteMap = bean.getWhiteMap();
+        Collection<IpFilterRule4V> values = whiteMap.values();
+        return values;
+
+    }
+
+    /**
+     * ip whiteList
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/addToIpWhiteList")
+    public ResponseMessage addToIpWhiteList(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        IpDTO ipDTO = JSONUtils.str2Object(s, IpDTO.class);
+
+        DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
+        //query exit white rule
+        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQuery("select * from server_ip_filter_rule where type = 0 and ip = ?", ipDTO.getIp());
+        if (ipFilterRule4VS.size() > 0) {
+            responseMessage.error();
+            responseMessage.setMessage("规则\"" + ipDTO.getIp() + "\"已存在");
+            return responseMessage;
+        }
+
+
+        IpFilterRule4V ipFilterRule4V = new IpFilterRule4V();
+        ipFilterRule4V.setId(UUIDSimple.id());
+        ipFilterRule4V.white();
+        ipFilterRule4V.setIp(ipDTO.getIp());
+
+
+        //store into memory
+        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
+        Map<String, IpFilterRule4V> whiteMap = bean.getWhiteMap();
+        whiteMap.put(ipFilterRule4V.getIp(), ipFilterRule4V);
+
+        //store into databases
+        dbWrapper.insert(ipFilterRule4V);
+        return responseMessage;
+
+    }
+
+    /**
+     * addToIpBlackList
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/addToIpBlackList")
+    public ResponseMessage addToIpBlackList(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        IpDTO ipDTO = JSONUtils.str2Object(s, IpDTO.class);
+
+        DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
+        //query exit black rule
+        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQuery("select * from server_ip_filter_rule where type = 1 and ip = ?", ipDTO.getIp());
+        if (ipFilterRule4VS.size() > 0) {
+            responseMessage.error();
+            responseMessage.setMessage("规则\"" + ipDTO.getIp() + "\"已存在");
+            return responseMessage;
+        }
+        IpFilterRule4V ipFilterRule4V = new IpFilterRule4V();
+        ipFilterRule4V.setId(UUIDSimple.id());
+        ipFilterRule4V.black();
+        ipFilterRule4V.setIp(ipDTO.getIp());
+
+
+        //store into memory
+        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
+        Map<String, IpFilterRule4V> blackMap = bean.getBlackMap();
+        blackMap.put(ipFilterRule4V.getIp(), ipFilterRule4V);
+
+
+        //store into databases
+        dbWrapper.insert(ipFilterRule4V);
+        return responseMessage;
+    }
+
+
+    /**
+     * deleteIpRule
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/deleteIpRuleByPrimaryKey")
+    public ResponseMessage deleteIpRuleByPrimaryKey(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        IpDTO ipDTO = JSONUtils.str2Object(s, IpDTO.class);
+
+        DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
+
+        IpFilterRule4V ipFilterRule4V = dbWrapper.customQuerySingle("select * from server_ip_filter_rule where id=?", ipDTO.getId());
+        if (ipFilterRule4V == null) {
+            responseMessage.error();
+            responseMessage.setMessage("规则\"" + ipDTO.getId() + "\"不存在");
+            return responseMessage;
+        }
+
+        IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        if (ipFilterRule4V.isBlack()) {
+            Map<String, IpFilterRule4V> blackMap = ipChecker.getBlackMap();
+            blackMap.remove(ipFilterRule4V.getIp());
+
+        } else {
+            Map<String, IpFilterRule4V> whiteMap = ipChecker.getWhiteMap();
+            whiteMap.remove(ipFilterRule4V.getIp());
+        }
+
+        dbWrapper.customExecute("delete from server_ip_filter_rule where id = ?", ipDTO.getId());
+        return responseMessage;
+    }
+
+
+    /**
+     * releaseRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/releaseRecord")
+    public Object releaseRecord(JNDCHttpRequest jndcHttpRequest) {
+        IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        List<IpRecordVO> ipRecordVOS = new ArrayList<>();
+        Map<String, List<IpChecker.IpRecord>> releaseMap = ipChecker.getReleaseMap();
+        releaseMap.forEach((k, v) -> {
+            if (v.size() > 0) {
+                IpRecordVO ipRecordVO = new IpRecordVO();
+                ipRecordVO.setIp(k);
+                ipRecordVO.setCount(v.size());
+                IpChecker.IpRecord ipRecord = v.get(v.size() - 1);
+                ipRecordVO.setLastTimeStamp(ipRecord.getTime());
+                ipRecordVOS.add(ipRecordVO);
+            }
+        });
+
+
+        // get the top 10
+        if (ipRecordVOS.size() > 10) {
+            ipRecordVOS.sort((a, b) -> {
+                Integer count1 = a.getCount();
+                Integer count2 = b.getCount();
+                return count1.compareTo(count2);
+            });
+            ipRecordVOS.subList(0, 10);
+        }
+
+        return ipRecordVOS;
+    }
+
+    /**
+     * releaseRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/blockRecord")
+    public Object blockRecord(JNDCHttpRequest jndcHttpRequest) {
+        IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        List<IpRecordVO> ipRecordVOS = new ArrayList<>();
+        Map<String, List<IpChecker.IpRecord>> releaseMap = ipChecker.getBlockMap();
+        releaseMap.forEach((k, v) -> {
+            if (v.size() > 0) {
+                IpRecordVO ipRecordVO = new IpRecordVO();
+                ipRecordVO.setIp(k);
+                ipRecordVO.setCount(v.size());
+                IpChecker.IpRecord ipRecord = v.get(v.size() - 1);
+                ipRecordVO.setLastTimeStamp(ipRecord.getTime());
+                ipRecordVOS.add(ipRecordVO);
+            }
+        });
+
+
+        // get the top 10
+        if (ipRecordVOS.size() > 10) {
+            ipRecordVOS.sort((a, b) -> {
+                Integer count1 = a.getCount();
+                Integer count2 = b.getCount();
+                return count1.compareTo(count2);
+            });
+            ipRecordVOS.subList(0, 10);
+        }
+
+        return ipRecordVOS;
+    }
 
 }

@@ -68,7 +68,9 @@ public class AppStart {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             unifiedConfiguration.performParameterVerification();
             LogPrint.info(configFile);
-            unifiedConfiguration.setRuntimeDir(configFile.substring(0,configFile.lastIndexOf(File.separator)+1));
+
+            //unifiedConfiguration.setRuntimeDir(configFile.substring(0,configFile.lastIndexOf(File.separator)+1));
+
             UniqueBeanManage.registerBean(unifiedConfiguration);
 
         } catch (Exception e) {

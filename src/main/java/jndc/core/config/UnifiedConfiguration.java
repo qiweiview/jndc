@@ -1,13 +1,19 @@
 package jndc.core.config;
 
-import jndc.core.IpListChecker;
+import jndc.core.IpChecker;
 import jndc.core.UniqueBeanManage;
+import jndc.core.data_store.DBWrapper;
+import jndc.server.IpFilterRule4V;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
+import jndc.utils.LogPrint;
+import jndc.utils.UUIDSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class UnifiedConfiguration implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -20,9 +26,7 @@ public class UnifiedConfiguration implements ParameterVerification {
 
     private ClientConfig clientConfig;
 
-    private String[] blackList;
 
-    private String[] whiteList;
 
 
 
@@ -36,20 +40,24 @@ public class UnifiedConfiguration implements ParameterVerification {
             AESUtils.setKey(secrete.getBytes());
         }
 
+
+        //set runtime dir
+        File file = new File("");
+        String absolutePath = file.getAbsolutePath();
+        LogPrint.info("runtimePath:"+absolutePath);
+        setRuntimeDir(absolutePath);
+
+
         serverConfig.performParameterVerification();
         clientConfig.performParameterVerification();
 
 
-        IpListChecker ipListChecker = UniqueBeanManage.getBean(IpListChecker.class);
-        if (blackList==null){
-            blackList=new String[0];
-        }
+    }
 
-        if (whiteList==null){
-            whiteList=new String[0];
-        }
-
-        ipListChecker.loadRule(blackList,whiteList);
+    @Override
+    public void lazyInitAfterVerification() {
+        serverConfig.lazyInitAfterVerification();
+        clientConfig.lazyInitAfterVerification();
     }
 
     @Override
@@ -72,21 +80,6 @@ public class UnifiedConfiguration implements ParameterVerification {
         return logger;
     }
 
-    public String[] getBlackList() {
-        return blackList;
-    }
-
-    public void setBlackList(String[] blackList) {
-        this.blackList = blackList;
-    }
-
-    public String[] getWhiteList() {
-        return whiteList;
-    }
-
-    public void setWhiteList(String[] whiteList) {
-        this.whiteList = whiteList;
-    }
 
     public String getSecrete() {
         return secrete;

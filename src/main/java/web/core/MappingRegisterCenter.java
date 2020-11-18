@@ -3,6 +3,7 @@ package web.core;
 import web.mapping.DevelopDebugMapping;
 import web.mapping.ServerManageMapping;
 import jndc.utils.JSONUtils;
+import web.model.data_transfer_object.ResponseMessage;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -85,8 +86,10 @@ public class MappingRegisterCenter {
                     return JSONUtils.object2JSON(invoke);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                ResponseMessage responseMessage = new ResponseMessage();
+                responseMessage.error();
+                responseMessage.setMessage(e.getCause().getMessage());
+                return JSONUtils.object2JSON(responseMessage);
             }
         }
 

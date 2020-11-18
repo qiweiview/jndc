@@ -89,8 +89,6 @@ public class ChannelHandlerContextHolder {
             x.setId(UUIDSimple.id());
             x.setBelongContext(channelHandlerContext);
         });
-
-
         this.tcpServiceDescriptions = tcpServiceDescriptions;
     }
 

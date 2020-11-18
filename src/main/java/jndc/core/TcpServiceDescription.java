@@ -53,6 +53,10 @@ public class TcpServiceDescription implements Serializable {
     }
 
 
+    public String getRouteTo(){
+        return belongContextIp+"->"+ip+":"+port;
+    }
+
     public String getId() {
         return id;
     }

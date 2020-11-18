@@ -46,7 +46,8 @@ public class WebServer {
                 pipeline.addFirst(http, new HttpServerCodec());
                 pipeline.addAfter(http, oag, new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
                 pipeline.addAfter(oag, JNDCRequestDecoder.NAME, new JNDCRequestDecoder());
-                pipeline.addAfter(JNDCRequestDecoder.NAME, WebContentHandler.NAME, new WebContentHandler());
+                pipeline.addAfter(JNDCRequestDecoder.NAME, AuthTokenChecker.NAME, new AuthTokenChecker());
+                pipeline.addAfter(AuthTokenChecker.NAME, WebContentHandler.NAME, new WebContentHandler());
 
             }
         };

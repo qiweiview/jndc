@@ -40,6 +40,11 @@ public class ClientServiceDescription implements ParameterVerification {
         ipSocketAddress =new InetSocketAddress(ipAddress, servicePort);
     }
 
+    @Override
+    public void lazyInitAfterVerification() {
+
+    }
+
     public String getUniqueTag(){
         return serviceIp+":"+servicePort;
     }

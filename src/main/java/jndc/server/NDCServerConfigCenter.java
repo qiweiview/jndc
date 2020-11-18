@@ -43,6 +43,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
 
     private void unRegisterServiceProvider(Object object, InnerCondition innerCondition) {
+        boolean find=false;
         for (int i = 0; i < channelHandlerContextHolders.size(); i++) {
             ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolders.get(i);
             if (innerCondition.check(channelHandlerContextHolder, object)) {// check is the holder list
@@ -50,8 +51,13 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
                //do something about resource release
                 channelHandlerContextHolder.releaseRelatedResources();
                 channelHandlerContextHolders.remove(i);
+                find=true;
                 break;
             }
+        }
+
+        if (!find){
+            throw new RuntimeException("未找到匹配隧道");
         }
     }
 

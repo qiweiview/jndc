@@ -10,6 +10,7 @@ import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.ClientConfig;
 import jndc.core.config.UnifiedConfiguration;
+import jndc.utils.ApplicationExit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class JNDCClient {
     private   final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static int FAIL_LIMIT = 5;
+    private static int FAIL_LIMIT = -1;
 
     private static int RETRY_INTERVAL = 5;
 
@@ -78,10 +79,9 @@ public class JNDCClient {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
                 eventExecutors.schedule(() -> {
                     failTimes++;
-                    if (failTimes > FAIL_LIMIT) {
+                    if (FAIL_LIMIT!=-1&&failTimes > FAIL_LIMIT) {
                         logger.error("exceeded the failure limit");
-                        group.shutdownGracefully();
-                        return;
+                        ApplicationExit.exit();
                     }
                     logger.info("connect fail , try re connect");
                     createClient(eventExecutors);

@@ -18,10 +18,7 @@ public class JNDCRequestDecoder extends MessageToMessageDecoder<FullHttpRequest>
         JNDCHttpRequest ndcHttpRequest = new JNDCHttpRequest(fullHttpRequest);
         InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
         ndcHttpRequest.setRemoteAddress(socketAddress.getAddress());
-
-
         list.add(ndcHttpRequest);
-
     }
 
 

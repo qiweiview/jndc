@@ -134,6 +134,13 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     }
 
     @Override
+    public void insertBatch(List<T> t) {
+        t.forEach(x->{
+            insert(x);
+        });
+    }
+
+    @Override
     public void updateByPrimaryKey(T t) {
         DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
         List<String> keys = getKeys();

@@ -6,6 +6,7 @@ import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.UnifiedConfiguration;
+import jndc.core.data_store.DBWrapper;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
@@ -18,7 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
@@ -67,10 +70,40 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 //registerServiceProvider
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-
                 ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
                 channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
-                channelHandlerContextHolder.setTcpServiceDescriptions(registrationMessage.getTcpServiceDescriptions());
+                List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
+                channelHandlerContextHolder.setTcpServiceDescriptions(tcpServiceDescriptions);
+
+
+
+                /* -------------------restore the bind relation------------------- */
+
+                //put new register service into map
+                Map<String,TcpServiceDescription> map=new HashMap<>();
+                tcpServiceDescriptions.forEach(x->{
+                    map.put(x.getRouteTo(),x);
+                });
+
+                //find the old "port service bind"
+                DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+                List<ServerPortBind> serverPortBinds = dbWrapper.listAll();
+
+                //find match "port service bind"
+                serverPortBinds.forEach(x->{
+                    String routeTo = x.getRouteTo();
+                    TcpServiceDescription tcpServiceDescription = map.get(routeTo);
+                    if (tcpServiceDescription!=null){
+                        //todo do rebind
+
+                        //rebind the port service
+                        ndcServerConfigCenter.addTCPRouter(x.getPort(),tcpServiceDescription);
+                        x.setPortEnable(1);
+                        dbWrapper.updateByPrimaryKey(x);
+                        logger.info("rebind the service:"+routeTo);
+                    }
+                });
+
 
                 //do register
                 ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);

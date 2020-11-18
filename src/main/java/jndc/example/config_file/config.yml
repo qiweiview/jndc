@@ -1,14 +1,19 @@
+# ------------------------------------------------------general config line------------------------------------------------------
 # general config
 secrete: "sexx"
 
-blackList:
-  - "192.168.1.1"
 
-whiteList:
-  #- "127.0.0.2"
+# ------------------------------------------------------server config line------------------------------------------------------
 
 # server config
 serverConfig:
+  blackList:
+    - "192.168.1.1"
+    - "192.168.1.2"
+    - "192.168.1.3"
+    - "192.168.1.4"
+  whiteList:
+  #- "127.0.0.2"
   frontProjectPath: "C:\\Users\\刘启威\\Desktop\\start_script\\web_resource\\"
   deployFrontProject: false
   managementApiPort: "82"
@@ -16,6 +21,8 @@ serverConfig:
   bindIp: "127.0.0.1"
 
 
+
+# ------------------------------------------------------client config line------------------------------------------------------
 
 # client config
 clientConfig:

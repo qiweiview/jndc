@@ -27,6 +27,7 @@ public class ServerTest {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
+            unifiedConfiguration.lazyInitAfterVerification();
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("config file:" + file + " parse fail：" + e);

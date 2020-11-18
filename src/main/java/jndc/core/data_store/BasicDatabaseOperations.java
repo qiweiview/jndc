@@ -5,6 +5,8 @@ import java.util.List;
 public interface BasicDatabaseOperations<T> {
     public void insert(T t);
 
+    public void insertBatch(List<T> t);
+
     public void updateByPrimaryKey(T t);
 
     public void deleteByPrimaryKey(T t);
