@@ -196,6 +196,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         if (list.size() < 1) {
             return new ArrayList<>();
         }
+
         String s = JSONUtils.object2JSONString(list);
         List<T> t = JSONUtils.str2ObjectArray(s, tClass);
         return t;

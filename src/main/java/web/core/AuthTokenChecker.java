@@ -59,7 +59,6 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<JNDCHttpReques
                     Long aLong1 = tokenCacheMap.get(stringHeader);
                     if (aLong1 != null) {
                         if (aLong1 > System.currentTimeMillis()) {
-                            LogPrint.info("check by cache");
                             channelHandlerContext.fireChannelRead(jndcHttpRequest);
                         } else {
                             tokenCacheMap.remove(stringHeader);

@@ -2,8 +2,8 @@ package jndc.core.data_store;
 
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.UnifiedConfiguration;
-import jndc.server.ServerPortBind;
-import jndc.utils.UUIDSimple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.io.File;
@@ -15,6 +15,8 @@ import java.util.Map;
 
 public class DataStore {
 
+    private  final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final String SQL_LITE_DB = "jnc_db.db";
 
     private final String PROTOCOL = "jdbc:sqlite:";
@@ -23,7 +25,30 @@ public class DataStore {
 
     private Connection connection;
 
+    private static final Map<String,SQLiteTableSupport> liteTableSupports=new HashMap();
+
+    static{
+        liteTableSupports.put("server_port_bind",new SQLiteTableSupport("server_port_bind","CREATE TABLE \"server_port_bind\"( \"id\" text(32) NOT NULL, \"name\" text(50), \"port\" integer(10), \"portEnable\" integer(2), \"routeTo\" text(16), PRIMARY KEY (\"id\"));"));
+        liteTableSupports.put("server_ip_filter_rule",new SQLiteTableSupport("server_port_bind","CREATE TABLE \"server_ip_filter_rule\"( \"id\" text(32) NOT NULL, \"ip\" text(32), \"type\" integer(1), PRIMARY KEY (\"id\"))"));
+    }
+
     public DataStore() {
+
+    }
+
+    private void lazyInit(){
+        DBWrapper<SQLiteTableSupport> dbWrapper = DBWrapper.getDBWrapper(SQLiteTableSupport.class);
+        List<SQLiteTableSupport> sqLiteTableSupports = dbWrapper.customQuery("select * from sqlite_master where type='table'",null);
+        sqLiteTableSupports.forEach(x->{
+            liteTableSupports.remove(x.getTbl_name());
+        });
+
+        liteTableSupports.forEach((k,v)->{
+            dbWrapper.customExecute(v.getSql(),null);
+            logger.info("auto create table:"+v.getSql());
+        });
+
+
 
     }
 
@@ -43,6 +68,7 @@ public class DataStore {
                 try {
                     connection = DriverManager.getConnection(s);
                     initialized = true;
+                    lazyInit();
                 } catch (SQLException sqlException) {
                     throw new RuntimeException(sqlException);
                 }
