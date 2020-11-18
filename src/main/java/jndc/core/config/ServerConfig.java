@@ -4,10 +4,13 @@ import jndc.core.IpChecker;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store.DBWrapper;
 import jndc.server.IpFilterRule4V;
+import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
+import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.utils.AuthUtils;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -15,6 +18,9 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class ServerConfig  implements ParameterVerification {
+
+    private static final String UN_SUPPORT_VALUE="jndc";
+
     private   final Logger logger = LoggerFactory.getLogger(getClass());
 
 
@@ -36,6 +42,10 @@ public class ServerConfig  implements ParameterVerification {
 
     private String[] whiteList;
 
+    private String loginName;
+
+    private String loginPassWord;
+
 
 
 
@@ -44,6 +54,13 @@ public class ServerConfig  implements ParameterVerification {
     public void performParameterVerification() {
         inetAddress = InetUtils.getByStringIpAddress(bindIp);
         inetSocketAddress=new InetSocketAddress(inetAddress,adminPort);
+
+        if (UN_SUPPORT_VALUE.equals(getLoginName())&&UN_SUPPORT_VALUE.equals(getLoginPassWord())){
+            LogPrint.err("the default name and password 'jndc' is not safe,please edit the config file and retry");
+            ApplicationExit.exit();
+        }
+        AuthUtils.name=getLoginName();
+        AuthUtils.passWord=getLoginPassWord();
     }
 
     @Override
@@ -114,6 +131,23 @@ public class ServerConfig  implements ParameterVerification {
                 ", bindIp='" + bindIp + '\'' +
                 '}';
     }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
+
+    public String getLoginPassWord() {
+        return loginPassWord;
+    }
+
+    public void setLoginPassWord(String loginPassWord) {
+        this.loginPassWord = loginPassWord;
+    }
+
     public String[] getBlackList() {
         return blackList;
     }

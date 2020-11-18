@@ -2,10 +2,6 @@ package web.utils;
 
 import jndc.utils.AESUtils;
 import web.model.data_object.ManagementLoginUser;
-
-import java.nio.ByteBuffer;
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -13,13 +9,17 @@ import java.util.Base64;
  */
 public class AuthUtils {
 
+
+    public static String name="";
+    public static String passWord="";
+
     /**
      *
      * @param managementLoginUser
      * @return
      */
     public static boolean doLogin(ManagementLoginUser managementLoginUser){
-        if ("test".equals(managementLoginUser.getName())&&"test".equals(managementLoginUser.getPassWord())){
+        if (name.equals(managementLoginUser.getName())&&passWord.equals(managementLoginUser.getPassWord())){
             return true;
         }
         return false;

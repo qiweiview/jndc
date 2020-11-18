@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 public class UnifiedConfiguration implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private static final String UN_SUPPORT_VALUE="jndc";
+
     private String runtimeDir;
 
     private String secrete;
@@ -37,6 +39,11 @@ public class UnifiedConfiguration implements ParameterVerification {
             logger.error("the secrete not be found in config file");
             ApplicationExit.exit();
         } else {
+            if (UN_SUPPORT_VALUE.equals(secrete)){
+                LogPrint.err("the default secrete 'jndc' is not safe,please edit the config file and retry");
+                ApplicationExit.exit();
+            }
+
             AESUtils.setKey(secrete.getBytes());
         }
 
@@ -44,7 +51,7 @@ public class UnifiedConfiguration implements ParameterVerification {
         //set runtime dir
         File file = new File("");
         String absolutePath = file.getAbsolutePath();
-        LogPrint.info("runtimePath:"+absolutePath);
+        LogPrint.info("the app runtimePath is: "+absolutePath);
         setRuntimeDir(absolutePath);
 
 

@@ -67,12 +67,8 @@ public class AppStart {
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
             unifiedConfiguration.performParameterVerification();
-            LogPrint.info(configFile);
-
-            //unifiedConfiguration.setRuntimeDir(configFile.substring(0,configFile.lastIndexOf(File.separator)+1));
-
             UniqueBeanManage.registerBean(unifiedConfiguration);
-
+            unifiedConfiguration.lazyInitAfterVerification();
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();

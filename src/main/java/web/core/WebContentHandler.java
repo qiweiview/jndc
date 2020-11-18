@@ -26,6 +26,10 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
             StringBuilder fullPath = jndcHttpRequest.getFullPath();
             String s = fullPath.toString().replaceAll("/", SEPARATOR);
 
+            if ("\\".equals(s)){
+                s="index.html";
+            }
+
             //jndc inner front project
             FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;
 
