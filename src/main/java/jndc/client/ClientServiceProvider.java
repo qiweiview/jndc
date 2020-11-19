@@ -50,7 +50,7 @@ public class ClientServiceProvider {
         //can replace with Arrays.compare in jdk 9
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
             //todo ignore active message
-            logger.info("get active message");
+          //  logger.info("get active message");
             return;
         }
 
@@ -88,7 +88,7 @@ public class ClientServiceProvider {
 
         try {
             connect.sync();
-            logger.info("local app connect success");
+            //logger.info("local app connect success");
         } catch (InterruptedException e) {
             logger.error("connect to " + inetSocketAddress + "fail cause"+e);
         }

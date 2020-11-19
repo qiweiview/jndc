@@ -16,9 +16,11 @@ import java.io.File;
 public class AppStart {
     private  static final Logger logger = LoggerFactory.getLogger(AppStart.class);
     
-    private static  final String CLIENT_APP_TYPE="CLIENT_APP_TYPE";
+    public static  final String CLIENT_APP_TYPE="CLIENT_APP_TYPE";
 
-    private static  final String SERVER_APP_TYPE="SERVER_APP_TYPE";
+    public static  final String SERVER_APP_TYPE="SERVER_APP_TYPE";
+
+
 
     public static final YmlParser ymlParser = new YmlParser();
 
@@ -61,11 +63,10 @@ public class AppStart {
             logger.error("can not found:" + file );
             ApplicationExit.exit();
         }
-
-
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.setThisAppType(args[1]);
             unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
             unifiedConfiguration.lazyInitAfterVerification();
@@ -77,16 +78,13 @@ public class AppStart {
 
 
 
-
-        String type = args[1];
-
-        if (SERVER_APP_TYPE.equals(type)){
+        if (SERVER_APP_TYPE.equals(unifiedConfiguration.getThisAppType())){
             JNDCServer serverTest =new JNDCServer();
             serverTest.createServer();
             return;
         }
 
-        if (CLIENT_APP_TYPE.equals(type)){
+        if (CLIENT_APP_TYPE.equals(unifiedConfiguration.getThisAppType())){
             JNDCClient clientTest = new JNDCClient();
             clientTest.createClient();
             return;

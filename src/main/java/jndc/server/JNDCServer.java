@@ -45,6 +45,9 @@ public class JNDCServer {
         if (serverConfig.isDeployFrontProject()){
             //load inner front file
             String web = serverConfig.getFrontProjectPath();
+            if (!web.endsWith(File.separator)){
+                web+=File.separator;
+            }
             FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
             LogPrint.info("deploy front management project");
         }

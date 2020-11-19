@@ -55,7 +55,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
         copy.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-        logger.info("client send interrupt signal ");
+        //logger.info("client send interrupt signal ");
 
 
     }
@@ -75,6 +75,6 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
             channelHandlerContext.close();
             channelHandlerContext=null;
         }
-        logger.info("release local connection");
+        //logger.info("release local connection");
     }
 }

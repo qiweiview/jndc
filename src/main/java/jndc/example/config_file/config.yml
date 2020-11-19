@@ -10,14 +10,14 @@ serverConfig:
   blackList: # ip访问黑名单
     - "192.168.1.1"
   whiteList: # 白名单
-    - "192.168.1.2"
-  frontProjectPath: "C://Users/xxx/Desktop/start_script/web_resource/" #管理端项目地址
+  #  - "192.168.1.2"
+  frontProjectPath: '/usr/local/web_resource/' #管理端项目地址
   deployFrontProject: true # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
   loginName: "jndc"
   loginPassWord: "jndc"
   managementApiPort: "82" #管理api端口
   adminPort: "81" # jndc服务端运行监听端口
-  bindIp: "127.0.0.1" # jndc服务端运行ip
+  bindIp: "0.0.0.0" # jndc服务端运行ip
 
 
 
@@ -25,17 +25,13 @@ serverConfig:
 
 # 客户端配置
 clientConfig:
-  serverIp: "127.0.0.1" # 服务端运行监听ip
+  serverIp: "123.207.114.245" # 服务端运行监听ip
   serverPort: "81" # 服务端运行端口
   clientServiceDescriptions: # 注册服务
     - serviceName: "remote desk"  # 服务名称
       serviceIp: "192.168.216.131" # 服务连接ip
       servicePort: "3389"  # 服务监听端口
-      serviceEnable: true # 服务是否可用
-    - serviceName: "echo server"
-      serviceIp: "127.0.0.1"
-      servicePort: "888"
-      serviceEnable: true
+      serviceEnable: false # 服务是否可用
     - serviceName: "mysql"
       serviceIp: "127.0.0.1"
       servicePort: "3306"

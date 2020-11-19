@@ -171,7 +171,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
             copy.setData("connection lose".getBytes());
             UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-            logger.error("client get a unCatchable Error:" + e);
+            e.printStackTrace();
+            logger.error("^ ^ client get a unCatchable Error:" + e);
         }
 
 

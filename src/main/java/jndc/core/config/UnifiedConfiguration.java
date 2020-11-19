@@ -1,24 +1,22 @@
 package jndc.core.config;
 
-import jndc.core.IpChecker;
-import jndc.core.UniqueBeanManage;
-import jndc.core.data_store.DBWrapper;
-import jndc.server.IpFilterRule4V;
+import jndc.core.AppStart;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
 import jndc.utils.LogPrint;
-import jndc.utils.UUIDSimple;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.stream.Stream;
+
 
 public class UnifiedConfiguration implements ParameterVerification {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final String UN_SUPPORT_VALUE="jndc";
+
+    private  String thisAppType;
 
     private String runtimeDir;
 
@@ -54,9 +52,15 @@ public class UnifiedConfiguration implements ParameterVerification {
         LogPrint.info("the app runtimePath is: "+absolutePath);
         setRuntimeDir(absolutePath);
 
+        if (AppStart.SERVER_APP_TYPE.endsWith(getThisAppType())){
+            serverConfig.performParameterVerification();
+        }
 
-        serverConfig.performParameterVerification();
-        clientConfig.performParameterVerification();
+        if (AppStart.CLIENT_APP_TYPE.endsWith(getThisAppType())){
+            clientConfig.performParameterVerification();
+        }
+
+
 
 
     }
@@ -73,6 +77,21 @@ public class UnifiedConfiguration implements ParameterVerification {
                 "serverConfig=" + serverConfig +
                 ", clientConfig=" + clientConfig +
                 '}';
+    }
+
+
+
+    //getter setter
+    public static String getUnSupportValue() {
+        return UN_SUPPORT_VALUE;
+    }
+
+    public String getThisAppType() {
+        return thisAppType;
+    }
+
+    public void setThisAppType(String thisAppType) {
+        this.thisAppType = thisAppType;
     }
 
     public String getRuntimeDir() {

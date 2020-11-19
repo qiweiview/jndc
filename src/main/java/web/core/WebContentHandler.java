@@ -18,17 +18,24 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
     public static String NAME = "WEB_CONTENT_HANDLER";
     private static final String SEPARATOR = Matcher.quoteReplacement(File.separator);
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, JNDCHttpRequest jndcHttpRequest) throws Exception {
         if (HttpMethod.GET.equals(jndcHttpRequest.getMethod())) {
             //todo get
 
             StringBuilder fullPath = jndcHttpRequest.getFullPath();
-            String s = fullPath.toString().replaceAll("/", SEPARATOR);
 
-            if ("\\".equals(s)){
-                s="index.html";
+            String fullPathStr = fullPath.toString();
+
+            if ("/".equals(fullPathStr)){
+                fullPathStr="/index.html";
             }
+
+            String s = fullPathStr.replaceAll("/", SEPARATOR);
+
+
+
 
             //jndc inner front project
             FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;

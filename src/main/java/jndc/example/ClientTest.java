@@ -2,6 +2,7 @@ package jndc.example;
 
 
 import jndc.client.JNDCClient;
+import jndc.core.AppStart;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.utils.ApplicationExit;
@@ -22,6 +23,7 @@ public class ClientTest {
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.setThisAppType(AppStart.CLIENT_APP_TYPE);
             unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
         } catch (Exception e) {

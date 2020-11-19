@@ -1,5 +1,6 @@
 package jndc.example;
 
+import jndc.core.AppStart;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
@@ -25,6 +26,7 @@ public class ServerTest {
         UnifiedConfiguration unifiedConfiguration = null;
         try {
             unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.setThisAppType(AppStart.SERVER_APP_TYPE);
             unifiedConfiguration.performParameterVerification();
             UniqueBeanManage.registerBean(unifiedConfiguration);
             unifiedConfiguration.lazyInitAfterVerification();

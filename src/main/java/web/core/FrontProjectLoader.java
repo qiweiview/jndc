@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 
 public class FrontProjectLoader {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public static FrontProjectLoader jndcStaticProject;
 
@@ -22,10 +22,11 @@ public class FrontProjectLoader {
 
     private String rootPath;
 
-    private Map<String, InnerFileDescription> fileDescriptionMap=new HashMap<>() ;
+    private Map<String, InnerFileDescription> fileDescriptionMap = new HashMap<>();
 
+    private int subStringIndex = 0;
 
-    private volatile  boolean reloadInterrupt=false;
+    private volatile boolean reloadInterrupt = false;
 
 
     public static FrontProjectLoader loadProject(String path) {
@@ -36,37 +37,36 @@ public class FrontProjectLoader {
     }
 
 
-    public void reloadProject(){
+    public void reloadProject() {
 
-        logger.info("load front project: "+rootPath);
+        logger.info("load front project: " + rootPath);
         destroyOldVersion();
 
 
         recordFile(new File(rootPath), 0);
 
-        reloadInterrupt=false;
+        reloadInterrupt = false;
     }
 
-    private void destroyOldVersion(){
-        reloadInterrupt=true;
+    private void destroyOldVersion() {
+        reloadInterrupt = true;
         Map<String, InnerFileDescription> fileDescriptionMap = this.fileDescriptionMap;
-        fileDescriptionMap.forEach((k,v)->{
+        fileDescriptionMap.forEach((k, v) -> {
             v.release();
         });
-        this.fileDescriptionMap=new HashMap<>();
+        this.fileDescriptionMap = new HashMap<>();
     }
 
-   public InnerFileDescription findFile(String path){
-        if (reloadInterrupt){
+    public InnerFileDescription findFile(String path) {
+        if (reloadInterrupt) {
             return null;
         }
-       return fileDescriptionMap.get(path);
-   }
+        return fileDescriptionMap.get(path);
+    }
 
     public FrontProjectLoader(String rootPath) {
         this.rootPath = rootPath;
     }
-
 
 
     private void recordFile(File file, Integer recursionDepth) {
@@ -75,7 +75,7 @@ public class FrontProjectLoader {
         }
 
         if (!file.exists()) {
-            throw new RuntimeException("file not be found");
+            throw new RuntimeException("file not be found:" + file);
         }
 
         if (file.isDirectory()) {
@@ -87,9 +87,11 @@ public class FrontProjectLoader {
             });
         } else {
             InnerFileDescription innerFileDescription = new InnerFileDescription(file, rootPath);
-            fileDescriptionMap.put(innerFileDescription.getShortPath(),innerFileDescription);
+            fileDescriptionMap.put(innerFileDescription.getShortPath(), innerFileDescription);
         }
     }
+
+
 
     public class InnerFileDescription {
 
@@ -118,15 +120,29 @@ public class FrontProjectLoader {
             this.file = file;
             this.rootPath = rootPath;
             this.fullPath = file.getAbsolutePath();
-            this.shortPath = this.fullPath.substring(rootPath.length()-1);
-            this.fileType=file.getName().substring(file.getName().lastIndexOf(".")+1);
+            if (subStringIndex == 0) {
+                subStringIndex = findTheDifferentIndex(this.rootPath, this.fullPath)-1;
+            }
+            this.shortPath = this.fullPath.substring(subStringIndex);
+            this.fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
             loadFile();
         }
 
+        private int findTheDifferentIndex(String s1, String s2) {
+            char[] chars = s1.toCharArray();
+            char[] chars1 = s2.toCharArray();
+            for (int i = 0; i < chars1.length; i++) {
+                if (i == chars.length || chars[i] != chars1[i]) {
+                    return i;
+                }
+            }
+            return 1;
+        }
 
-        public void release(){
-            this.file=null;
-            this.fileBytes=null;
+
+        public void release() {
+            this.file = null;
+            this.fileBytes = null;
         }
 
         private void loadFile() {
@@ -150,8 +166,6 @@ public class FrontProjectLoader {
         }
 
         /**
-         *
-         *
          * @return
          */
         public byte[] getData() {
