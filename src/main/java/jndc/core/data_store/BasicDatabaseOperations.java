@@ -15,6 +15,10 @@ public interface BasicDatabaseOperations<T> {
 
     public List<T> customQuery(String sql,Object... params);
 
+    public List<T> customQueryByPage(String sql,int page,int rows,Object... params);
+
+    public Integer count();
+
     public T customQuerySingle(String sql,Object... params);
 
     public void customExecute(String sql,Object[] params);

@@ -43,7 +43,7 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
         if (ipChecker.checkIpAddress(ipString)) {
             ctx.fireChannelActive();
         } else {
-            LogPrint.debug("block the ip" + Arrays.toString(address1));
+            LogPrint.info("block the ip" + Arrays.toString(address1));
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListeners(ChannelFutureListener.CLOSE);
             return;
         }

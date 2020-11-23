@@ -34,16 +34,18 @@ public class ChannelHandlerContextHolder {
     }
 
     public void releaseRelatedResources() {
-        channelHandlerContext.close().addListeners(x -> {
-            logger.info(contextIp + " unRegister " + serviceNum() + " service");
-        });
+
+        logger.info(contextIp + " unRegister " + serviceNum() + " service");
+
         tcpServiceDescriptions.forEach(x->{
+            //TcpServiceDescription
             x.releaseRelatedResources();
         });
 
-
         channelHandlerContext = null;
         tcpServiceDescriptions = null;
+
+
     }
 
     public boolean contextBelong(ChannelHandlerContext inactive) {
@@ -75,6 +77,10 @@ public class ChannelHandlerContextHolder {
 
     /* ------------------getter setter------------------ */
 
+    public ChannelHandlerContext getChannelHandlerContext() {
+        return channelHandlerContext;
+    }
+
     public String getContextIp() {
         return contextIp;
     }
@@ -100,8 +106,6 @@ public class ChannelHandlerContextHolder {
     public List<TcpServiceDescription> getTcpServiceDescriptions() {
         return tcpServiceDescriptions;
     }
-
-
 
 
 }

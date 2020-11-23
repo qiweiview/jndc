@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.List;
+import java.net.InetAddress;
+import java.util.*;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -20,46 +20,58 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class NDCServerConfigCenter implements NDCConfigCenter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private List<ChannelHandlerContextHolder> channelHandlerContextHolders = new CopyOnWriteArrayList<>();//channel list
-
+    private Map<String, ChannelHandlerContextHolder> channelHandlerContextHolderMap = new ConcurrentHashMap<>();
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
     public void registerServiceProvider(ChannelHandlerContextHolder channelHandlerContextHolder) {
         logger.info(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
-        channelHandlerContextHolders.add(channelHandlerContextHolder);
+        channelHandlerContextHolderMap.put(channelHandlerContextHolder.getId(), channelHandlerContextHolder);
 
     }
 
-    public void unRegisterServiceProvider(ChannelHandlerContext inactive) {
-        InnerCondition<ChannelHandlerContext> innerCondition = (x, y) -> x.contextBelong(y);
-        unRegisterServiceProvider(inactive, innerCondition);
-    }
-
-    public void unRegisterServiceProvider(String del) {
-        InnerCondition<String> innerCondition = (x, y) -> x.sameId(y);
-        unRegisterServiceProvider(del, innerCondition);
-    }
-
-
-    private void unRegisterServiceProvider(Object object, InnerCondition innerCondition) {
-        boolean find=false;
-        for (int i = 0; i < channelHandlerContextHolders.size(); i++) {
-            ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolders.get(i);
-            if (innerCondition.check(channelHandlerContextHolder, object)) {// check is the holder list
-
-               //do something about resource release
-                channelHandlerContextHolder.releaseRelatedResources();
-                channelHandlerContextHolders.remove(i);
-                find=true;
-                break;
+    public ChannelContextCloseRecord unRegisterServiceProvider(ChannelHandlerContext inactive) {
+        Set<Map.Entry<String, ChannelHandlerContextHolder>> entries = channelHandlerContextHolderMap.entrySet();
+        Iterator<Map.Entry<String, ChannelHandlerContextHolder>> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, ChannelHandlerContextHolder> next = iterator.next();
+            String key = next.getKey();
+            ChannelHandlerContextHolder value = next.getValue();
+            if (value.contextBelong(inactive)) {
+                ChannelContextCloseRecord channelContextCloseRecord = ChannelContextCloseRecord.of(value);
+                value.releaseRelatedResources();
+                channelHandlerContextHolderMap.remove(key);
+                return channelContextCloseRecord;
             }
-        }
 
-        if (!find){
-            throw new RuntimeException("未找到匹配隧道");
+        }
+        logger.error("未匹配到对应隧道");
+        return null;
+    }
+
+    public void sendHeartBeat(String id) {
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(id);
+        if (channelHandlerContextHolder == null) {
+            logger.error("未匹配到隧道:" + id);
+            throw new RuntimeException("未匹配到隧道");
+
+        } else {
+            ChannelHandlerContext channelHandlerContext = channelHandlerContextHolder.getChannelHandlerContext();
+            NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
+            channelHandlerContext.writeAndFlush(tqs);
         }
     }
+
+
+    public void unRegisterServiceProvider(String id) {
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(id);
+        if (channelHandlerContextHolder == null) {
+            logger.error("未匹配到隧道:" + id);
+            throw new RuntimeException("未匹配到隧道");
+        } else {
+            channelHandlerContextHolder.getChannelHandlerContext().close();
+        }
+    }
+
 
     public void addTCPRouter(int port, TcpServiceDescription y) {
         //create bind context
@@ -79,15 +91,16 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     /**
      * interrupt  because accept the signal from service provider
+     *
      * @param ndcMessageProtocol
      */
     public void connectionInterrupt(NDCMessageProtocol ndcMessageProtocol) {
         int serverPort = ndcMessageProtocol.getServerPort();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
-        if (serverPortBindContext==null){
+        if (serverPortBindContext == null) {
             //todo drop
-            logger.error("can not found the ServerPortBindContext for port :"+serverPort);
-        }else {
+            logger.error("can not found the ServerPortBindContext for port :" + serverPort);
+        } else {
             serverPortBindContext.connectionInterrupt(ndcMessageProtocol);
         }
 
@@ -133,7 +146,13 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     /* ------------------getter setter------------------ */
 
     public List<ChannelHandlerContextHolder> getChannelHandlerContextHolders() {
-        return channelHandlerContextHolders;
+        List<ChannelHandlerContextHolder> list = new ArrayList<>();
+        Collection<ChannelHandlerContextHolder> values1 = channelHandlerContextHolderMap.values();
+        values1.forEach(x -> {
+            list.add(x);
+        });
+
+        return list;
     }
 
     public Map<Integer, ServerPortBindContext> getTcpRouter() {

@@ -67,6 +67,7 @@ public class JNDCClient {
 
         b.group(group)
                 .channel(NioSocketChannel.class)//
+                .option(ChannelOption.SO_KEEPALIVE,true)//tcp keep alive
                 .handler(channelInitializer);
 
 

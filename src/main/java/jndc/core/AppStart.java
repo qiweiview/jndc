@@ -26,6 +26,10 @@ public class AppStart {
 
     public static void main(String[] args) {
 
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            logger.info("Good night everyone ");
+        }));
+
 
 
         String tag = "\n" +

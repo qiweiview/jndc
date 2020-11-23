@@ -1,35 +1,31 @@
 package web.mapping;
 
 
-import jndc.core.ChannelHandlerContextHolder;
+import jndc.core.*;
 
-import jndc.core.IpChecker;
-import jndc.core.TcpServiceDescription;
-import jndc.core.UniqueBeanManage;
 import jndc.core.data_store.DBWrapper;
-import jndc.server.IpFilterRule4V;
-import jndc.server.NDCServerConfigCenter;
-import jndc.server.ServerPortBind;
-import jndc.server.ServerPortBindContext;
-import jndc.utils.AESUtils;
+import jndc.server.*;
 import jndc.utils.UUIDSimple;
 import web.core.JNDCHttpRequest;
+import web.core.MessageNotificationCenter;
 import web.core.WebMapping;
 import web.model.data_object.ManagementLoginUser;
 
 import web.model.data_transfer_object.IpDTO;
+import web.model.data_transfer_object.PageDTO;
 import web.model.data_transfer_object.ResponseMessage;
 import web.model.data_transfer_object.serviceBindDTO;
 import web.model.view_object.ChannelContextVO;
 
 import web.model.view_object.IpRecordVO;
+import web.model.view_object.PageListVO;
 import web.utils.AuthUtils;
 import jndc.utils.JSONUtils;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -98,6 +94,72 @@ public class ServerManageMapping {
 
 
         return list;
+
+    }
+
+    /**
+     * getChannelRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/getChannelRecord")
+    public PageListVO<ChannelContextCloseRecord> getChannelRecord(JNDCHttpRequest jndcHttpRequest) {
+
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
+
+        DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
+        List<ChannelContextCloseRecord> channelContextCloseRecords = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc",pageDTO.getPage(),pageDTO.getRows());
+        Integer count = dbWrapper.count();
+
+        //create vo
+        PageListVO<ChannelContextCloseRecord> channelContextCloseRecordPageListVO = new PageListVO<>();
+        channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
+        channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
+        channelContextCloseRecordPageListVO.setData(channelContextCloseRecords);
+        channelContextCloseRecordPageListVO.setTotal(count);
+
+        return channelContextCloseRecordPageListVO;
+    }
+
+
+    /**
+     * clearChannelRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/clearChannelRecord")
+    public ResponseMessage clearChannelRecord(JNDCHttpRequest jndcHttpRequest) {
+
+        DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
+        dbWrapper.customExecute("delete from channel_context_record;");
+
+        return new ResponseMessage();
+    }
+
+
+
+
+    /**
+     * close channel by id
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/sendHeartBeat")
+    public ResponseMessage sendHeartBeat(JNDCHttpRequest jndcHttpRequest) {
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        ChannelContextVO channelContextVO = JSONUtils.str2Object(s, ChannelContextVO.class);
+        String id = channelContextVO.getId();
+
+        NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        bean.sendHeartBeat(id);
+
+        return new ResponseMessage();
 
     }
 
@@ -213,38 +275,52 @@ public class ServerManageMapping {
             return responseMessage;
         }
 
-        AtomicBoolean atomicBoolean = new AtomicBoolean(true);
-        NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
-        channelHandlerContextHolders.forEach(x -> {
-            if (atomicBoolean.get()) {
-                List<TcpServiceDescription> tcpServiceDescriptions = x.getTcpServiceDescriptions();
-                tcpServiceDescriptions.forEach(y -> {
-                    TcpServiceDescription y1 = y;
-                    if (y.getId().equals(channelContextVO.getServiceId())) {
+        AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
 
-                        //set route to tag
-                        serverPortBind.setRouteTo(y1.getRouteTo());
+        asynchronousEventCenter.systemRunningJob(()->{
+            AtomicBoolean atomicBoolean = new AtomicBoolean(true);
+            NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+            List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
 
-                        //set true
-                        serverPortBind.setPortEnable(1);
-                        dbWrapper.updateByPrimaryKey(serverPortBind);
+            //for each all context
+            channelHandlerContextHolders.forEach(x -> {
+                if (atomicBoolean.get()) {
+                    List<TcpServiceDescription> tcpServiceDescriptions = x.getTcpServiceDescriptions();
+                    tcpServiceDescriptions.forEach(y -> {
+                        TcpServiceDescription y1 = y;
+                        if (y.getId().equals(channelContextVO.getServiceId())) {
 
-                        //openPort
-                        bean.addTCPRouter(serverPortBind.getPort(), y);
+                            //set route to tag
+                            serverPortBind.setRouteTo(y1.getRouteTo());
 
-                        //bind just once
-                        atomicBoolean.set(false);
-                    }
-                });
-            }
+                            //openPort
+                            bean.addTCPRouter(serverPortBind.getPort(), y);
+
+                            //update databases state
+                            //set true
+                            serverPortBind.setPortEnable(1);
+                            dbWrapper.updateByPrimaryKey(serverPortBind);
+
+                            //notice refresh data
+                            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                            messageNotificationCenter.dateRefreshMessage("serverPortList");
+
+                            //bind just once
+                            atomicBoolean.set(false);
+                        }
+                    });
+                }
+            });
+
+
+
         });
 
-        if (atomicBoolean.get()) {
-            responseMessage.error();
-            responseMessage.setMessage("未找到对应编号服务：" + channelContextVO.getServiceId());
-            return responseMessage;
-        }
+
+        serverPortBind.setPortEnable(2);
+        dbWrapper.updateByPrimaryKey(serverPortBind);
+
+
 
         return responseMessage;
 

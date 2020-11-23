@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import jndc.core.*;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
@@ -39,15 +40,19 @@ public class WebServer {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
 
-                String http = "http";
-                String oag = "oag";
+                String http = "http";//HttpServerCodec
+                String oag = "oag";//HttpObjectAggregator
+                String ws = "ws";//WebSocketServerProtocolHandler
 
 
                 pipeline.addFirst(http, new HttpServerCodec());
                 pipeline.addAfter(http, oag, new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
-                pipeline.addAfter(oag, JNDCRequestDecoder.NAME, new JNDCRequestDecoder());
-                pipeline.addAfter(JNDCRequestDecoder.NAME, AuthTokenChecker.NAME, new AuthTokenChecker());
-                pipeline.addAfter(AuthTokenChecker.NAME, WebContentHandler.NAME, new WebContentHandler());
+                pipeline.addAfter(oag, AuthTokenChecker.NAME,new AuthTokenChecker());
+                pipeline.addAfter(AuthTokenChecker.NAME, JNDCRequestDecoder.NAME, new JNDCRequestDecoder());
+                pipeline.addAfter(JNDCRequestDecoder.NAME, WebContentHandler.NAME, new WebContentHandler());
+                pipeline.addAfter(WebContentHandler.NAME,ws,new WebSocketServerProtocolHandler("/ws"));
+                pipeline.addAfter(ws, WebSocketHandle.NAME, new WebSocketHandle());
+
 
             }
         };

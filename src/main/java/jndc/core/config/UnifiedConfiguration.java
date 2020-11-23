@@ -1,5 +1,6 @@
 package jndc.core.config;
 
+import ch.qos.logback.classic.Level;
 import jndc.core.AppStart;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
@@ -26,6 +27,8 @@ public class UnifiedConfiguration implements ParameterVerification {
 
     private ClientConfig clientConfig;
 
+    private String loglevel;
+
 
 
 
@@ -33,6 +36,10 @@ public class UnifiedConfiguration implements ParameterVerification {
 
     @Override
     public void performParameterVerification() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.toLevel(getLoglevel()));
+
+
         if (null == secrete) {
             logger.error("the secrete not be found in config file");
             ApplicationExit.exit();
@@ -82,6 +89,16 @@ public class UnifiedConfiguration implements ParameterVerification {
 
 
     //getter setter
+
+
+    public String getLoglevel() {
+        return loglevel;
+    }
+
+    public void setLoglevel(String loglevel) {
+        this.loglevel = loglevel;
+    }
+
     public static String getUnSupportValue() {
         return UN_SUPPORT_VALUE;
     }

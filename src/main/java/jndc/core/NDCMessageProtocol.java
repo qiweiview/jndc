@@ -37,6 +37,7 @@ public class NDCMessageProtocol {
 
     public static final int UN_CATCHABLE_ERROR = 7;//runtime unCatch
 
+    public static final int CHANNEL_HEART_BEAT = 8;//the channel heart beat
 
 
     /*--------------------- static variable ---------------------*/

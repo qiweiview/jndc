@@ -13,6 +13,7 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.ConnectionOpenFailException;
 import jndc.exception.SecreteDecodeFailException;
+import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.ObjectSerializableUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     public void sendRegisterToServer(int localPort, int serverPort) {
         RegistrationMessage registrationMessage = new RegistrationMessage();
-      //  registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
+        //  registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
@@ -67,7 +68,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         RegistrationMessage registrationMessage = new RegistrationMessage();
         registrationMessage.setAuth(unifiedConfiguration.getSecrete());
 
-        List<TcpServiceDescription> tcpServiceDescriptions=new ArrayList<>();
+        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
 
         clientConfig.getClientServiceDescriptions().forEach(x -> {
             if (x.isServiceEnable()) {
@@ -98,6 +99,13 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         try {
 
 
+            if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
+                //todo CHANNEL_HEART_BEAT
+                //just accept
+                logger.info("get heart beat from server");
+
+            }
+
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
@@ -116,8 +124,6 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.MAP_REGISTER) {
                 //todo MAP_REGISTER
 
-                //register response
-
 
                 //print msg
                 RegistrationMessage object = ndcMessageProtocol.getObject(RegistrationMessage.class);
@@ -127,6 +133,17 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 //register channel,client just hold one channelHandlerContext
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.registerMessageChannel(channelHandlerContext);
+
+                InetAddress unused = InetAddress.getLocalHost();
+                final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
+
+                //send heart beat
+                EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
+                eventExecutors.scheduleAtFixedRate(() -> {
+                    bean.addMessageToSendQueue(tqs);
+                }, 0, 60, TimeUnit.SECONDS);
+
+
                 return;
 
             }
@@ -169,10 +186,10 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         } catch (Exception e) {
             NDCMessageProtocol copy = ndcMessageProtocol.copy();
             copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
-            copy.setData("connection lose".getBytes());
+            copy.setData(NDCMessageProtocol.BLANK);
             UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-            e.printStackTrace();
-            logger.error("^ ^ client get a unCatchable Error:" + e);
+
+            logger.error(type+": client get a unCatchable Error:" + e);
         }
 
 
@@ -194,21 +211,15 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) throws Exception {
         if (cause instanceof DecoderException) {
-          if (cause.getCause() instanceof SecreteDecodeFailException){
-              reConnectTag = false;//not restart
-              channelHandlerContext.close();
-              channelHandlerContext.channel().eventLoop().shutdownGracefully().addListener(x -> {
-                  if (x.isSuccess()) {
-                      logger.error("secrete data decode fail, the client will close later...");
-                  } else {
-                      logger.error("shutdown fail");
-                  }
-              });
-              return;
-          }
+            if (cause.getCause() instanceof SecreteDecodeFailException) {
+                //auth fail
+                logger.error("secrete check error when decode,please check the secrete later...");
+                ApplicationExit.exit();
 
+            }
+            channelHandlerContext.close();
+            logger.error("unCatchable client error：" + cause.getMessage());
         }
-        logger.error("unCatchable client error：" + cause.getMessage());
     }
 
 }

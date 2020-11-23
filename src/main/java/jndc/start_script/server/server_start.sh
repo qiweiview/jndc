@@ -16,6 +16,6 @@ NDCDIR="$(
 CONIFG="$NDCDIR/config.yml"
 LIB="$NDCDIR/jndc-1.0.jar"
 
-nohup "$JAVA" -jar "$LIB" "$CONIFG" "SERVER_APP_TYPE" "jndcccccccccc_server" &
+nohup "$JAVA" -jar "$LIB" "$CONIFG" "SERVER_APP_TYPE" "jndcccccccccc_server" >/dev/null 2>&1  &
 
 echo 'start jndc success'

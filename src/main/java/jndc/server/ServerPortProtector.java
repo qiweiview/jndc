@@ -8,10 +8,12 @@ import jndc.core.IPFilter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.NettyComponentConfig;
 
+import jndc.core.UniqueBeanManage;
 import jndc.core.data_store.DBWrapper;
 import jndc.utils.UniqueInetTagProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.core.MessageNotificationCenter;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -114,6 +116,10 @@ public class ServerPortProtector {
         //update db info
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update server_port_bind set portEnable=0 where port=?", port);
+
+        //notice refresh data
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        messageNotificationCenter.dateRefreshMessage("serverPortList");
     }
 
 

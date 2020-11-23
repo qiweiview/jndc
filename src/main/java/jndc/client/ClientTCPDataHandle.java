@@ -33,6 +33,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         this.channelHandlerContext = ctx;
     }
 
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
@@ -63,6 +64,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.close();
         logger.error("client get a exception: "+cause);
     }
 

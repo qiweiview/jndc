@@ -17,7 +17,7 @@ public class ServerPortBind {
 
     private int port;
 
-    private int portEnable;//1 enable 0 disable
+    private int portEnable;//1 enable 0 disable 2 preparing
 
     private String routeTo;
 

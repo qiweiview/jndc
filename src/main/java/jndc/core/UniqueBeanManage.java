@@ -5,6 +5,7 @@ import jndc.client.JNDCClientConfigCenter;
 import jndc.core.data_store.DataStore;
 import jndc.server.NDCServerConfigCenter;
 import web.core.MappingRegisterCenter;
+import web.core.MessageNotificationCenter;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,6 +32,8 @@ public class UniqueBeanManage {
         registerBean(new IpChecker());
         registerBean(new MappingRegisterCenter());
         registerBean(new DataStore());
+        registerBean(new AsynchronousEventCenter());
+        registerBean(new MessageNotificationCenter());
 
     }
 

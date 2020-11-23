@@ -48,6 +48,7 @@ public class TcpServiceDescription implements Serializable {
     public void releaseRelatedResources() {
         belongContext=null;
         serviceReleaseList.forEach(x->{
+            //ServerPortProtector
             x.releaseRelatedResources();
         });
     }

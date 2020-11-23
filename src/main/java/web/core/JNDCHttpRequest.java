@@ -59,6 +59,7 @@ public class JNDCHttpRequest {
     }
 
 
+
     private void parseUri() {
         StringBuilder stringBuilder = new StringBuilder();
         char[] chars = this.uri.toCharArray();

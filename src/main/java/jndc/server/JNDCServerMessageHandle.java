@@ -1,20 +1,20 @@
 package jndc.server;
 
 import io.netty.channel.*;
-import jndc.core.ChannelHandlerContextHolder;
-import jndc.core.NDCMessageProtocol;
-import jndc.core.TcpServiceDescription;
-import jndc.core.UniqueBeanManage;
+import jndc.core.*;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.core.data_store.DBWrapper;
+import jndc.core.data_store.DataStore;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
+import jndc.utils.ThreadQueue;
 import jndc.utils.UUIDSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.core.MessageNotificationCenter;
 
 
 import java.net.InetAddress;
@@ -36,11 +36,18 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         Integer type = ndcMessageProtocol.getType();
 
         try {
+            if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
+                //todo CHANNEL_HEART_BEAT
+                //just accept
+                logger.info("get heart beat");
+
+            }
 
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.addMessageToReceiveQueue(ndcMessageProtocol);
+
             }
 
             if (type == NDCMessageProtocol.MAP_REGISTER) {
@@ -116,6 +123,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);
 
+
+                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+                messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
             }
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
@@ -156,7 +168,23 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        ndcServerConfigCenter.unRegisterServiceProvider(ctx);
+        ChannelContextCloseRecord channelContextCloseRecord = ndcServerConfigCenter.unRegisterServiceProvider(ctx);
+
+
+        if(channelContextCloseRecord!=null){
+            //record channel interrupt record
+            AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
+            asynchronousEventCenter.dbJob(()->{
+                channelContextCloseRecord.setId(UUIDSimple.id());
+                channelContextCloseRecord.setTimeStamp(System.currentTimeMillis());
+                DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(channelContextCloseRecord);
+                dbWrapper.insert(channelContextCloseRecord);
+            });
+        }
+
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+        messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
     }
 
     @Override

@@ -1,6 +1,7 @@
 package web.core;
 
 
+import jndc.utils.ApplicationExit;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,11 +72,13 @@ public class FrontProjectLoader {
 
     private void recordFile(File file, Integer recursionDepth) {
         if (recursionDepth > DEEP_LIMIT) {
-            throw new RuntimeException("over limit deep");
+            logger.error("over limit deep");
+            ApplicationExit.exit();
         }
 
         if (!file.exists()) {
-            throw new RuntimeException("file not be found:" + file);
+            logger.error("file not be found:" + file);
+            ApplicationExit.exit();
         }
 
         if (file.isDirectory()) {

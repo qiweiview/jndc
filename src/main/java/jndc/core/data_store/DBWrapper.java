@@ -44,6 +44,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     private String selectAll;
 
+    private String count;
+
     public DBWrapper(Class<T> t) {
         this.tClass = t;
         parseClass();
@@ -58,6 +60,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         selectAll = "select " + keyString + " from " + tableName + ";";
 
         update = "update " + tableName + " set " + keyString4Update + " where " + primaryName + " = ?;";
+
+        count  = "select count(*) count from " + tableName +" ;";
     }
 
     private void parseClass() {
@@ -135,7 +139,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void insertBatch(List<T> t) {
-        t.forEach(x->{
+        t.forEach(x -> {
             insert(x);
         });
     }
@@ -166,6 +170,37 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         List<Map> maps = dataStore.executeQuery(sql, params);
         return parseResult(maps);
     }
+
+    @Override
+    public List<T> customQueryByPage(String sql, int page, int rows, Object... params) {
+        //min limit
+        if (page < 1) {
+            page = 1;
+        }
+        if (rows < 1) {
+            rows = 1;
+        }
+
+        //max limit
+        if (rows > 50) {
+            rows = 50;
+        }
+
+
+        int noOfRows = (page-1) * rows;
+        String newSql = "select * from (" +sql+ ") g limit " + noOfRows + "," + rows;
+        return customQuery(newSql, params);
+    }
+
+    @Override
+    public Integer count() {
+        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        List<Map> maps = dataStore.executeQuery(count, null);
+        Map map = maps.get(0);
+        Integer count = (Integer) map.get("count");
+        return count;
+    }
+
 
     @Override
     public T customQuerySingle(String sql, Object... params) {
