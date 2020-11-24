@@ -29,10 +29,11 @@ other      ------->                                      ---------->local_app
 ```
 public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```
+
 * 协议结构：
 ```
 --------------------------------
-  3byte      2byte      1byte
+  3byte      1byte      1byte
 |  ndc   |  version  |  type   |
 --------------------------------
             4byte
@@ -50,7 +51,7 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
             4byte
 |          remote port         |
 --------------------------------
-            7byte
+            4byte
 |          data length         |
 --------------------------------
            data length byte
@@ -80,7 +81,5 @@ whiteList:
 
 
 ## 开发计划
-* 二级域名的端口复用
-* 流量统计
-* 流量特征识别
+* 客户端广播
 

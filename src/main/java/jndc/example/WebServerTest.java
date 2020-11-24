@@ -1,5 +1,6 @@
 package jndc.example;
 
+import jndc.core.AppStart;
 import jndc.core.UniqueBeanManage;
 import jndc.core.config.UnifiedConfiguration;
 import jndc.server.JNDCServer;
@@ -12,30 +13,34 @@ import web.core.WebServer;
 
 import java.io.File;
 
+/**
+ * management support api test
+ */
 public class WebServerTest {
 
     private   static final Logger logger = LoggerFactory.getLogger(WebServerTest.class);
 
     public static void main(String[] args) {
 
-//        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\src\\main\\java\\jndc\\example\\config_file\\config.yml");
-//        YmlParser ymlParser = new YmlParser();
-//        UnifiedConfiguration unifiedConfiguration = null;
-//        try {
-//            unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
-//            unifiedConfiguration.performParameterVerification();
-//            UniqueBeanManage.registerBean(unifiedConfiguration);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            logger.error("config file:" + file + " parse fail：" + e);
-//            ApplicationExit.exit();
-//        }
+        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\src\\main\\java\\jndc\\example\\config_file\\config.yml");
+        YmlParser ymlParser = new YmlParser();
+        UnifiedConfiguration unifiedConfiguration = null;
+        try {
+            unifiedConfiguration = ymlParser.parseFile(file, UnifiedConfiguration.class);
+            unifiedConfiguration.setThisAppType(AppStart.SERVER_APP_TYPE);
+            unifiedConfiguration.performParameterVerification();
+            UniqueBeanManage.registerBean(unifiedConfiguration);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("config file:" + file + " parse fail：" + e);
+            ApplicationExit.exit();
+        }
 
 
 
-//        WebServer serverTest =new WebServer();
-//
-//        serverTest.start();//start
+        WebServer serverTest =new WebServer();
+
+        serverTest.start();//start
     }
 
 

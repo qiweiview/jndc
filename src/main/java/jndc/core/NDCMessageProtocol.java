@@ -20,33 +20,32 @@ import java.util.List;
  * No Distance Connection Protocol
  */
 public class NDCMessageProtocol {
+    /*--------------------- message types ---------------------*/
 
-    /*--------------------- types ---------------------*/
+    public static final byte TCP_DATA = 1;//tcp data transmission message
 
-    public static final int TCP_DATA = 1;//tcp data transmission message
+    public static final byte TCP_ACTIVE = 2;//tcp active message
 
-    public static final int TCP_ACTIVE = 2;//tcp active message
+    public static final byte MAP_REGISTER = 3;//client register message
 
-    public static final int MAP_REGISTER = 3;//client register message
+    public static final byte CONNECTION_INTERRUPTED = 4;//server or client connection interrupted
 
-    public static final int CONNECTION_INTERRUPTED = 4;//server or client connection interrupted
+    public static final byte NO_ACCESS = 5;//auth fail
 
-    public static final int NO_ACCESS = 5;//auth fail
+    public static final byte USER_ERROR = 6;//throw by user
 
-    public static final int USER_ERROR = 6;//throw by user
+    public static final byte UN_CATCHABLE_ERROR = 7;//runtime unCatch
 
-    public static final int UN_CATCHABLE_ERROR = 7;//runtime unCatch
-
-    public static final int CHANNEL_HEART_BEAT = 8;//the channel heart beat
-
-
-    /*--------------------- static variable ---------------------*/
+    public static final byte CHANNEL_HEART_BEAT = 8;//the channel heart beat
 
     public static final int UN_USED_PORT = 0;//the single package length
 
-    public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;//the single package length
+    /*--------------------- static variable ---------------------*/
 
-    public static final int FIX_LENGTH = 33;//the length of the fixed part of protocol
+    //the max length of single package,protocol just support 4 byte to this value,so the value need to less then Integer.MAX_VALUE
+    public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;
+
+    public static final int FIX_LENGTH = 29;//the length of the fixed part of protocol
 
     public static final byte[] BLANK = "BLANK".getBytes();//magic variable
 
@@ -57,9 +56,9 @@ public class NDCMessageProtocol {
 
     /* ================= variable ================= */
 
-    private int version = 1;//protocol version
+    private byte version = 1;//protocol version
 
-    private int type;//data type
+    private byte type;//data type
 
     private InetAddress remoteInetAddress;//remote ip
 
@@ -99,10 +98,17 @@ public class NDCMessageProtocol {
     }
 
 
-
-
-
-    public static NDCMessageProtocol of(InetAddress remoteInetAddress, InetAddress localInetAddress, int remotePort, int serverPort, int localPort, int type) {
+    /**
+     * fast create message
+     * @param remoteInetAddress the connector  ip
+     * @param localInetAddress the map service ip
+     * @param remotePort the connector port
+     * @param serverPort the server port
+     * @param localPort the map service port
+     * @param type the message type
+     * @return
+     */
+    public static NDCMessageProtocol of(InetAddress remoteInetAddress, InetAddress localInetAddress, int remotePort, int serverPort, int localPort, byte type) {
         NDCMessageProtocol NDCMessageProtocol = new NDCMessageProtocol();
         NDCMessageProtocol.setRemoteInetAddress(remoteInetAddress);
         NDCMessageProtocol.setLocalInetAddress(localInetAddress);
@@ -114,49 +120,43 @@ public class NDCMessageProtocol {
         return NDCMessageProtocol;
     }
 
-    @Override
-    public String toString() {
-        return "NDCMessageProtocol{" +
-                "version=" + version +
-                ", type=" + type +
-                ", remoteInetAddress=" + remoteInetAddress +
-                ", localInetAddress=" + localInetAddress +
-                ", remotePort=" + remotePort +
-                ", serverPort=" + serverPort +
-                ", localPort=" + localPort +
-                ", dataSize=" + dataSize +
-                '}';
-    }
 
 
+
+
+    /**
+     * parse the fix part of data
+     * @param bytes
+     * @return
+     */
     public static NDCMessageProtocol parseFixInfo(byte[] bytes) {
         if (bytes.length < FIX_LENGTH) {
             throw new RuntimeException("unSupportFormat");
         }
 
 
-                //replace with Arrays.compare in jdk 9
-        if (!Arrays.equals(MAGIC,Arrays.copyOfRange(bytes, 0, 3))) {
+        //replace with Arrays.compare in jdk 9
+        if (!Arrays.equals(MAGIC, Arrays.copyOfRange(bytes, 0, 3))) {
             throw new RuntimeException("unSupportProtocol");
         }
 
-        Integer version = HexUtils.hex2Integer(Arrays.copyOfRange(bytes, 3, 5));
+        byte version = Arrays.copyOfRange(bytes, 3, 4)[0];
 
-        int type = Arrays.copyOfRange(bytes, 5, 6)[0];
-
-
-        byte[] localInetAddress = Arrays.copyOfRange(bytes, 6, 10);
-
-        byte[] remoteInetAddress = Arrays.copyOfRange(bytes, 10, 14);
-
-        int localPort = HexUtils.hex2Integer(Arrays.copyOfRange(bytes, 14, 18));
-
-        int serverPort = HexUtils.hex2Integer(Arrays.copyOfRange(bytes, 18, 22));
-
-        int remotePort = HexUtils.hex2Integer(Arrays.copyOfRange(bytes, 22, 26));
+        byte type = Arrays.copyOfRange(bytes, 4, 5)[0];
 
 
-        int dataSize = HexUtils.hex2Integer(Arrays.copyOfRange(bytes, 26, FIX_LENGTH));
+        byte[] localInetAddress = Arrays.copyOfRange(bytes, 5, 9);
+
+        byte[] remoteInetAddress = Arrays.copyOfRange(bytes, 9, 13);
+
+        int localPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 13, 17));
+
+        int serverPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 17, 21));
+
+        int remotePort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 21, 25));
+
+
+        int dataSize = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 25, FIX_LENGTH));
 
         NDCMessageProtocol NDCMessageProtocol = new NDCMessageProtocol();
         NDCMessageProtocol.setVersion(version);
@@ -174,6 +174,12 @@ public class NDCMessageProtocol {
         return NDCMessageProtocol;
     }
 
+    /**
+     * decode
+     *
+     * @param bytes
+     * @return
+     */
     public static NDCMessageProtocol parseTotal(byte[] bytes) {
         NDCMessageProtocol NDCMessageProtocol = parseFixInfo(bytes);
         byte[] data = Arrays.copyOfRange(bytes, FIX_LENGTH, FIX_LENGTH + NDCMessageProtocol.getDataSize());
@@ -182,6 +188,10 @@ public class NDCMessageProtocol {
     }
 
 
+    /**
+     * need verification
+     * @param bytes
+     */
     public void setDataWithVerification(byte[] bytes) {
         if (bytes.length < dataSize) {
             throw new RuntimeException("broken data");
@@ -191,6 +201,7 @@ public class NDCMessageProtocol {
 
     /**
      * auto unpack
+     *
      * @return
      */
     public List<NDCMessageProtocol> autoUnpack() {
@@ -205,23 +216,28 @@ public class NDCMessageProtocol {
         return ndcMessageProtocols;
     }
 
+    /**
+     * encode
+     *
+     * @return
+     */
     public byte[] toByteArray() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             byteArrayOutputStream.write(MAGIC);//3 byte
-            byteArrayOutputStream.write(HexUtils.fillBlank(version, 2).getBytes());//2 byte   -->5
-            byteArrayOutputStream.write(type);//1 byte -->6
-            byteArrayOutputStream.write(localInetAddress.getAddress());//4 byte -->10
-            byteArrayOutputStream.write(remoteInetAddress.getAddress());//4 byte -->14
-            byteArrayOutputStream.write(HexUtils.fillBlank(localPort, 4).getBytes());//4 byte -->18
-            byteArrayOutputStream.write(HexUtils.fillBlank(serverPort, 4).getBytes());//4 byte -->22
-            byteArrayOutputStream.write(HexUtils.fillBlank(remotePort, 4).getBytes());//4 byte -->26
+            byteArrayOutputStream.write(version);//1 byte   -->4
+            byteArrayOutputStream.write(type);//1 byte -->5
+            byteArrayOutputStream.write(localInetAddress.getAddress());//4 byte -->9
+            byteArrayOutputStream.write(remoteInetAddress.getAddress());//4 byte -->13
+            byteArrayOutputStream.write(HexUtils.int2ByteArray(localPort));//4 byte -->17
+            byteArrayOutputStream.write(HexUtils.int2ByteArray(serverPort));//4 byte -->21
+            byteArrayOutputStream.write(HexUtils.int2ByteArray(remotePort));//4 byte -->25
 
             dataSize = data.length;
             if (dataSize > AUTO_UNPACK_LENGTH) {
                 throw new RuntimeException("too long data,need run autoUnpack()");
             }
-            byteArrayOutputStream.write(HexUtils.fillBlank(dataSize, 7).getBytes());//7 byte -->33
+            byteArrayOutputStream.write(HexUtils.int2ByteArray(dataSize));//4 byte -->29
             byteArrayOutputStream.write(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -230,6 +246,12 @@ public class NDCMessageProtocol {
     }
 
 
+    /**
+     * byte array to object
+     * @param tClass
+     * @param <T>
+     * @return
+     */
     public <T> T getObject(Class<T> tClass) {
         byte[] data = getData();
         if (data == null) {
@@ -240,23 +262,37 @@ public class NDCMessageProtocol {
     }
 
 
-    public Integer getVersion() {
+    /* --------------------------getter setter-------------------------- */
+
+
+    @Override
+    public String toString() {
+        return "NDCMessageProtocol{" +
+                "version=" + version +
+                ", type=" + type +
+                ", remoteInetAddress=" + remoteInetAddress +
+                ", localInetAddress=" + localInetAddress +
+                ", remotePort=" + remotePort +
+                ", serverPort=" + serverPort +
+                ", localPort=" + localPort +
+                ", dataSize=" + dataSize +
+                '}';
+    }
+
+    public byte getVersion() {
         return version;
     }
 
 
-    public void setVersion(int version) {
-        if (version > 0xff) {
-            throw new RuntimeException("version must less than 255");
-        }
+    public void setVersion(byte version) {
         this.version = version;
     }
 
-    public int getType() {
+    public byte getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(byte type) {
         this.type = type;
     }
 

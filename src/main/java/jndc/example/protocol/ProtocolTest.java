@@ -23,6 +23,9 @@ public class ProtocolTest {
        logger.debug(of + "\r\n" + Arrays.toString(bytes));
     }
 
+    /**
+     * check encode and decode success
+     */
     @Test
     public void decode() {
         NDCMessageProtocol of = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 80, 81, 82, NDCMessageProtocol.TCP_DATA);

@@ -32,7 +32,7 @@ public class SimpleUserClient {
     }
 
     public void test2() throws IOException {
-        Socket socket = new Socket("127.0.0.1", 777);
+        Socket socket = new Socket("123.207.114.245", 22);
         InputStream inputStream = socket.getInputStream();
         while (true){
             byte[] bytes =new byte[1024];

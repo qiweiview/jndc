@@ -33,7 +33,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
-        Integer type = ndcMessageProtocol.getType();
+        byte type = ndcMessageProtocol.getType();
+
 
         try {
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {

@@ -63,19 +63,8 @@ public class IpChecker {
         this.whiteMap =whiteMap;
     }
 
-//    public void loadRule(String[] blackList, String[] whiteList) {
-//        Stream.of(blackList).forEach(x -> {
-//            blackSet.add(x);
-//        });
-//
-//        Stream.of(whiteList).forEach(x -> {
-//            whiteSet.add(x);
-//        });
-//    }
 
     public boolean checkIpAddress(String ipAddress) {
-
-
         if (whiteMap.size() > 0) {
             if (whiteMap.containsKey(ipAddress)) {
                 try {
@@ -94,9 +83,8 @@ public class IpChecker {
             }
         }
 
+
         //do not perform blacklist matching if there is a whitelist
-
-
         if (blackMap.containsKey(ipAddress)) {
             try {
                 recordQueue.put(new IpRecord(ipAddress, 1));

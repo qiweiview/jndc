@@ -1,6 +1,9 @@
 package web.mapping;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import jndc.core.*;
 
 import jndc.core.data_store.DBWrapper;
@@ -53,11 +56,11 @@ public class ServerManageMapping {
 
             //timestamp to byte array
             ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-            buffer.putLong(System.currentTimeMillis()+60*60*1000);
+            buffer.putLong(System.currentTimeMillis() + 60 * 60 * 1000);
             byte[] array = buffer.array();
 
             //mix data
-            byte[] newByte=new byte[address.length+8];
+            byte[] newByte = new byte[address.length + 8];
             for (int i = 0; i < newByte.length; ++i) {
                 newByte[i] = i < array.length ? array[i] : address[i - array.length];
             }
@@ -111,7 +114,7 @@ public class ServerManageMapping {
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
 
         DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
-        List<ChannelContextCloseRecord> channelContextCloseRecords = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc",pageDTO.getPage(),pageDTO.getRows());
+        List<ChannelContextCloseRecord> channelContextCloseRecords = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
         Integer count = dbWrapper.count();
 
         //create vo
@@ -139,8 +142,6 @@ public class ServerManageMapping {
 
         return new ResponseMessage();
     }
-
-
 
 
     /**
@@ -185,6 +186,8 @@ public class ServerManageMapping {
     }
 
 
+
+
     /**
      * close channel by id
      *
@@ -206,7 +209,6 @@ public class ServerManageMapping {
         return tcpServiceDescriptions;
 
     }
-
 
 
     /**
@@ -232,13 +234,11 @@ public class ServerManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         ServerPortBind channelContextVO = JSONUtils.str2Object(s, ServerPortBind.class);
-        channelContextVO.setPortEnable(0);
-        channelContextVO.setId(UUIDSimple.id());
+
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
 
         List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port=?", channelContextVO.getPort());
-
         ResponseMessage responseMessage = new ResponseMessage();
         if (serverPortBinds.size() > 0) {
             responseMessage.error();
@@ -247,6 +247,9 @@ public class ServerManageMapping {
         }
 
 
+        channelContextVO.setPortEnable(0);
+        channelContextVO.setId(UUIDSimple.id());
+        channelContextVO.setVirtualPort(0);//is physical port
         dbWrapper.insert(channelContextVO);
         return responseMessage;
 
@@ -277,7 +280,7 @@ public class ServerManageMapping {
 
         AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
 
-        asynchronousEventCenter.systemRunningJob(()->{
+        asynchronousEventCenter.systemRunningJob(() -> {
             AtomicBoolean atomicBoolean = new AtomicBoolean(true);
             NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
             List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
@@ -313,7 +316,6 @@ public class ServerManageMapping {
             });
 
 
-
         });
 
 
@@ -321,12 +323,9 @@ public class ServerManageMapping {
         dbWrapper.updateByPrimaryKey(serverPortBind);
 
 
-
         return responseMessage;
 
     }
-
-
 
 
     /**
@@ -347,6 +346,27 @@ public class ServerManageMapping {
         dbWrapper.customExecute("delete from server_port_bind where id=?", channelContextVO.getServerPortId());
 
 
+        return responseMessage;
+
+    }
+
+
+    /**
+     * resetBindRecord
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/resetBindRecord")
+    public ResponseMessage resetBindRecord(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+
+        DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+        dbWrapper.customExecute("update  server_port_bind set routeTo=null where id=?", channelContextVO.getServerPortId());
         return responseMessage;
 
     }
