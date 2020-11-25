@@ -74,8 +74,16 @@ public class UnifiedConfiguration implements ParameterVerification {
 
     @Override
     public void lazyInitAfterVerification() {
-        serverConfig.lazyInitAfterVerification();
-        clientConfig.lazyInitAfterVerification();
+
+        if (AppStart.SERVER_APP_TYPE.endsWith(getThisAppType())){
+            serverConfig.lazyInitAfterVerification();
+        }
+
+        if (AppStart.CLIENT_APP_TYPE.endsWith(getThisAppType())){
+            clientConfig.lazyInitAfterVerification();
+        }
+
+
     }
 
     @Override

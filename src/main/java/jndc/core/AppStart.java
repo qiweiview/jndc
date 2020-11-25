@@ -14,6 +14,8 @@ import java.io.File;
 
 
 public class AppStart {
+    public static String runType;
+
     private  static final Logger logger = LoggerFactory.getLogger(AppStart.class);
     
     public static  final String CLIENT_APP_TYPE="CLIENT_APP_TYPE";
@@ -61,6 +63,7 @@ public class AppStart {
 
 
         String configFile = args[0];
+        runType=args[1];
 
         File file = new File(configFile);
         if (!file.exists()) {

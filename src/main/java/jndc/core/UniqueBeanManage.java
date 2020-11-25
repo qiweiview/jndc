@@ -20,7 +20,7 @@ public class UniqueBeanManage {
     public static <T> T getBean(Class<T> tClass) {
         Object o = map.get(tClass);
         if (o == null) {
-            throw new RuntimeException("no matching bean ");
+            throw new RuntimeException("no matching bean "+tClass);
         }
         return (T) o;
     }
@@ -31,7 +31,9 @@ public class UniqueBeanManage {
         registerBean(new JNDCClientConfigCenter());
         registerBean(new IpChecker());
         registerBean(new MappingRegisterCenter());
-        registerBean(new DataStore());
+        if (AppStart.SERVER_APP_TYPE.equals(AppStart.runType)){
+            registerBean(new DataStore());
+        }
         registerBean(new AsynchronousEventCenter());
         registerBean(new MessageNotificationCenter());
 
