@@ -1,23 +1,36 @@
-if [[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]; then
-  JAVA="$JAVA_HOME/bin/java"
-elif type -p java; then
-  JAVA=java
-else
-  echo "Error: JAVA_HOME is not set and java could not be found in PATH." 1>&2
-  exit 1
-fi
+@echo off
 
-NDC="${BASH_SOURCE-$0}"
-NDC="$(dirname "${NDC}")"
-NDCDIR="$(
-  cd "${ZOOBIN}"
-  pwd
-)"
-CONIFG="$NDCDIR/config.yml"
-LIB="$NDCDIR/jndc-1.0.jar"
+if not defined JAVA_HOME (
+  echo Error: JAVA_HOME is not set.
+  pause
+  goto :eof
+)
 
-nohup "$JAVA" -jar "$LIB" "$CONIFG" "CLIENT_APP_TYPE" "jndcccccccccc_client" &
+set JAVA_HOME=%JAVA_HOME:"=%
 
-echo 'start jndc success'
+if not exist "%JAVA_HOME%"\bin\java.exe (
+  echo Error: JAVA_HOME is incorrectly set.
+  pause
+  goto :eof
+)
+
+set CONFIG=%~dp0%config.yml
+
+if not exist %CONFIG% (
+ echo Error: this file  "%CONFIG%"   not  found
+  pause
+  goto :eof
+)
+
+set LIB=%~dp0%jndc-1.0.jar
+
+if not exist %LIB% (
+  echo Error: this file  "%CONFIG%"   not  found
+  pause
+  goto :eof
+)
+
+set JAVA="%JAVA_HOME%"\bin\java
 
 
+call %JAVA% -jar  %LIB% %CONFIG%  "CLIENT_APP_TYPE"
