@@ -41,14 +41,20 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         String server = UniqueInetTagProducer.get4Server(socketAddress);
         this.innerActiveCallBack.register(server, this);
 
-        logger.info("open face tcp "+this.ctx.channel().remoteAddress());
+
+        logger.debug("open face tcp "+this.ctx.channel().remoteAddress());
 
         Channel channel = ctx.channel();
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
 
+
+
+        int serverPort = localAddress.getPort();
+
+
         //发送消息
-        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_ACTIVE);
+        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_ACTIVE);
         ndcMessageProtocol.setData(NDCMessageProtocol.ACTIVE_MESSAGE);
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
 
@@ -63,11 +69,14 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
 
+
+        int serverPort = localAddress.getPort();
+
         //发送消息
-        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CONNECTION_INTERRUPTED);
+        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(),serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CONNECTION_INTERRUPTED);
         ndcMessageProtocol.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
-        logger.info("server send interrupt signal ");
+        logger.debug("server send interrupt signal ");
     }
 
     @Override
@@ -80,9 +89,10 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
 
-        //发送消息
+        int serverPort =localAddress.getPort();
 
-        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), localAddress.getPort(), NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_DATA);
+        //发送消息
+        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_DATA);
         ndcMessageProtocol.setData(bytes);
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
 
@@ -105,7 +115,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     public void releaseRelatedResources() {
         if (this.ctx!=null){
             this.ctx.close();
-            logger.info("close face tcp "+this.ctx.channel().remoteAddress());
+            logger.debug("close face tcp "+this.ctx.channel().remoteAddress());
             this.ctx=null;
         }
 

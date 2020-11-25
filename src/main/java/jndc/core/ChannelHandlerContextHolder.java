@@ -35,7 +35,7 @@ public class ChannelHandlerContextHolder {
 
     public void releaseRelatedResources() {
 
-        logger.info(contextIp + " unRegister " + serviceNum() + " service");
+        logger.debug(contextIp + " unRegister " + serviceNum() + " service");
 
         tcpServiceDescriptions.forEach(x->{
             //TcpServiceDescription

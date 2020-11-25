@@ -22,7 +22,7 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
     private volatile IpChecker ipChecker;
 
     public IPFilter() {
-        LogPrint.info("create filter object");
+        LogPrint.debug("create filter object");
     }
 
 

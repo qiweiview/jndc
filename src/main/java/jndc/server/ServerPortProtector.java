@@ -41,7 +41,7 @@ public class ServerPortProtector {
         this.port = port;
     }
 
-    public void start() {
+    public boolean start() {
         InnerActiveCallBack innerActiveCallBack = (uniqueTag, serverTCPDataHandle) -> faceTCPMap.put(uniqueTag, serverTCPDataHandle);
 
 
@@ -64,14 +64,13 @@ public class ServerPortProtector {
                 .localAddress(new InetSocketAddress(port))//　
                 .childHandler(channelInitializer);
 
-        serverBootstrap.bind().addListener(x -> {
-            if (x.isSuccess()) {
-                logger.info("bind server port:" + port + " success");
-            } else {
-                logger.error("bind server port:" + port + " fail");
-            }
-
-        });
+        try {
+            serverBootstrap.bind().sync();
+            return true;
+        } catch (Exception e) {
+            logger.error("bind server port:" + port + " fail cause:"+e);
+           return false;
+        }
     }
 
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
@@ -97,7 +96,7 @@ public class ServerPortProtector {
         if (eventLoopGroup != null) {
             eventLoopGroup.shutdownGracefully().addListener(x -> {
                 if (x.isSuccess()) {
-                    logger.info(" release serverPortProtector for port " + port + " success");
+                    logger.debug(" release serverPortProtector for port " + port + " success");
                     eventLoopGroup = null;
                 } else {
                     logger.error("serverPortProtector for port " + port + " release fail");
@@ -113,9 +112,19 @@ public class ServerPortProtector {
         }
         serverBootstrap = null;
 
+
+        //remove from map
+        NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
+        tcpRouter.remove(port);
+
+
         //update db info
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update server_port_bind set portEnable=0 where port=?", port);
+
+
+
 
         //notice refresh data
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);

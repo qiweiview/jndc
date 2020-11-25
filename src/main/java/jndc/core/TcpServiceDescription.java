@@ -34,9 +34,13 @@ public class TcpServiceDescription implements Serializable {
     private List<ServerPortProtector> serviceReleaseList=new CopyOnWriteArrayList<>();
 
 
+
+
     public void  addToServiceReleaseList(ServerPortProtector serverPortProtector){
         serviceReleaseList.add(serverPortProtector);
     }
+
+
 
     public void sendMessage(NDCMessageProtocol ndcMessageProtocol) {
         //set bind info
@@ -55,6 +59,7 @@ public class TcpServiceDescription implements Serializable {
 
 
     public String getRouteTo(){
+        //context ip + local application ip+ local application port
         return belongContextIp+"->"+ip+":"+port;
     }
 

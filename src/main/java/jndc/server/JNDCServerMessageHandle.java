@@ -25,10 +25,9 @@ import java.util.Map;
 
 
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
-    private  final Logger logger = LoggerFactory.getLogger(getClass());
-    
-    public static final String NAME = "NDC_SERVER_HANDLE";
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    public static final String NAME = "NDC_SERVER_HANDLE";
 
 
     @Override
@@ -40,7 +39,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
                 //todo CHANNEL_HEART_BEAT
                 //just accept
-                logger.info("get heart beat");
+                logger.debug("get heart beat");
 
             }
 
@@ -71,7 +70,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                     byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
                     copy.setData(bytes);
                     channelHandlerContext.writeAndFlush(copy);
-                    logger.error("auth fail with:"+auth);
+                    logger.error("auth fail with:" + auth);
                     return;
                 }
 
@@ -88,9 +87,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 /* -------------------restore the bind relation------------------- */
 
                 //put new register service into map
-                Map<String,TcpServiceDescription> map=new HashMap<>();
-                tcpServiceDescriptions.forEach(x->{
-                    map.put(x.getRouteTo(),x);
+                Map<String, TcpServiceDescription> map = new HashMap<>();
+                tcpServiceDescriptions.forEach(x -> {
+                    map.put(x.getRouteTo(), x);
                 });
 
                 //find the old "port service bind"
@@ -98,17 +97,25 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 List<ServerPortBind> serverPortBinds = dbWrapper.listAll();
 
                 //find match "port service bind"
-                serverPortBinds.forEach(x->{
+                serverPortBinds.forEach(x -> {
                     String routeTo = x.getRouteTo();
                     TcpServiceDescription tcpServiceDescription = map.get(routeTo);
-                    if (tcpServiceDescription!=null){
+                    if (tcpServiceDescription != null) {
                         //todo do rebind
 
                         //rebind the port service
-                        ndcServerConfigCenter.addTCPRouter(x.getPort(),tcpServiceDescription);
-                        x.setPortEnable(1);
+                        boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), tcpServiceDescription);
+
+                        if (success) {
+                            x.setPortEnable(1);
+                            logger.debug("rebind the service:" + routeTo+" success");
+                        } else {
+                            x.setPortEnable(0);
+                            logger.error("rebind the service:" + routeTo+" fail");
+                        }
+
                         dbWrapper.updateByPrimaryKey(x);
-                        logger.info("rebind the service:"+routeTo);
+
                     }
                 });
 
@@ -119,7 +126,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 // send response
                 RegistrationMessage response = new RegistrationMessage();
-                response.setMessage(  "service has been successfully registered(msg from server)");
+                response.setMessage("service has been successfully registered(msg from server)");
                 byte[] bytes = ObjectSerializableUtils.object2bytes(response);
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);
@@ -154,7 +161,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
         } catch (Exception e) {
-            logger.error("unCatchableError:"+e);
+            logger.error("unCatchableError:" + e);
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
             UserError userError = new UserError();
             userError.setCode(UserError.SERVER_ERROR);
@@ -169,13 +176,15 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        //unregister  service provider
         ChannelContextCloseRecord channelContextCloseRecord = ndcServerConfigCenter.unRegisterServiceProvider(ctx);
 
 
-        if(channelContextCloseRecord!=null){
+        if (channelContextCloseRecord != null) {
             //record channel interrupt record
             AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
-            asynchronousEventCenter.dbJob(()->{
+            asynchronousEventCenter.dbJob(() -> {
                 channelContextCloseRecord.setId(UUIDSimple.id());
                 channelContextCloseRecord.setTimeStamp(System.currentTimeMillis());
                 DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(channelContextCloseRecord);
@@ -194,10 +203,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
 
 
-        if (cause.getCause() instanceof SecreteDecodeFailException){
+        if (cause.getCause() instanceof SecreteDecodeFailException) {
             NDCMessageProtocol of = NDCMessageProtocol.of(localAddress.getAddress(), remoteAddress.getAddress(), 0, localAddress.getPort(), remoteAddress.getPort(), NDCMessageProtocol.NO_ACCESS);
             ctx.writeAndFlush(of).addListeners(ChannelFutureListener.CLOSE);
-            logger.error("The \""+remoteAddress+"\" is broken due to incorrect credentials");
+            logger.error("The \"" + remoteAddress + "\" is broken due to incorrect credentials");
             return;
         }
 

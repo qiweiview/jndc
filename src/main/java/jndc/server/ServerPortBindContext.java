@@ -9,17 +9,40 @@ import jndc.core.TcpServiceDescription;
 public class ServerPortBindContext {
     private int port;
 
+    private int virtualTag;//0 physics 1 virtual
+
     private ServerPortProtector serverPortProtector;//port protector
 
     private TcpServiceDescription tcpServiceDescription;//bind service description
 
     public void releaseRelatedResources() {
-        serverPortProtector.releaseRelatedResources();
+        if (isPhysics()) {
+            serverPortProtector.releaseRelatedResources();
+        }
+    }
+
+    public boolean isPhysics() {
+        return getVirtualTag() == 0;
     }
 
 
+    public void makeVirtual() {
+        setVirtualTag(1);
+    }
+
+    public void makePhysics() {
+        setVirtualTag(0);
+    }
+
     /* --------------------getter setter---------------- */
 
+    public int getVirtualTag() {
+        return virtualTag;
+    }
+
+    public void setVirtualTag(int virtualTag) {
+        this.virtualTag = virtualTag;
+    }
 
     public ServerPortBindContext(int port) {
         this.port = port;

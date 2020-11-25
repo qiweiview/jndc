@@ -10,6 +10,10 @@ public class ResponseMessage {
     public void error(){
         code=500;
     }
+    public void error(String message){
+      error();
+      setMessage(message);
+    }
 
     public int getCode() {
         return code;

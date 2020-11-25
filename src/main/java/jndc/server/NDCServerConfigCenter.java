@@ -19,12 +19,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * server config center ,heart of this app
  */
 public class NDCServerConfigCenter implements NDCConfigCenter {
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private Map<String, ChannelHandlerContextHolder> channelHandlerContextHolderMap = new ConcurrentHashMap<>();
+
+    //port service bind
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
     public void registerServiceProvider(ChannelHandlerContextHolder channelHandlerContextHolder) {
-        logger.info(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
+        logger.debug(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
         channelHandlerContextHolderMap.put(channelHandlerContextHolder.getId(), channelHandlerContextHolder);
 
     }
@@ -73,19 +77,38 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     }
 
 
-    public void addTCPRouter(int port, TcpServiceDescription y) {
+
+    public boolean addTCPRouter(int port, TcpServiceDescription y) {
+       if (tcpRouter.get(port)!=null){
+           //todo exist a running context
+           logger.error("exist a context bind the port: "+port);
+          return true;//return true to change the state to success
+       }
+
+
         //create bind context
         ServerPortBindContext serverPortBindContext = new ServerPortBindContext(port);
+        serverPortBindContext.makePhysics();//physics
         serverPortBindContext.setTcpServiceDescription(y);
 
         //openTCPPortListener
         ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
-        serverPortBindContext.setServerPortProtector(serverPortProtector);
-        serverPortProtector.start();
+        boolean success = serverPortProtector.start();//this step is asynchronous
+        if (!success) {
+            //do rollback
+            serverPortBindContext.setTcpServiceDescription(null);
+            serverPortProtector.releaseRelatedResources();
+            return false;
+        }
+
+        serverPortBindContext.setServerPortProtector(serverPortProtector);//set serverPortProtector to the context
+
+        //add into  service release list in TcpServiceDescription
         y.addToServiceReleaseList(serverPortProtector);
 
-
+        //register the context
         tcpRouter.put(port, serverPortBindContext);
+        return true;
 
     }
 

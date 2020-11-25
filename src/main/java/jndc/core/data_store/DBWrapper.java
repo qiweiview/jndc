@@ -214,6 +214,28 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     }
 
     @Override
+    public <V> V customQuerySingleValue(String valueKey,String sql, Class<V> f, Object... params) {
+        Object defaultValue=null;
+        if (Integer.class==f){
+            defaultValue=0;
+        }
+        if (String.class==f){
+            defaultValue="";
+        }
+
+        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        List<Map> maps = dataStore.executeQuery(sql, params);
+        if (maps.size() > 0) {
+            Object o = maps.get(0).get(valueKey);
+           if (o==null){
+               o=defaultValue;
+           }
+            return (V) o;
+        }
+        return null;
+    }
+
+    @Override
     public void customExecute(String sql, Object... params) {
         DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
         dataStore.execute(sql, params);

@@ -21,5 +21,7 @@ public interface BasicDatabaseOperations<T> {
 
     public T customQuerySingle(String sql,Object... params);
 
+    public <V>V customQuerySingleValue(String valueKey,String sql, Class<V> f, Object... params);
+
     public void customExecute(String sql,Object[] params);
 }

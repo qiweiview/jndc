@@ -87,8 +87,7 @@ public class MappingRegisterCenter {
                 }
             } catch (Exception e) {
                 ResponseMessage responseMessage = new ResponseMessage();
-                responseMessage.error();
-                responseMessage.setMessage(e.getCause().getMessage());
+                responseMessage.error(e.getCause().getMessage());
                 return JSONUtils.object2JSON(responseMessage);
             }
         }

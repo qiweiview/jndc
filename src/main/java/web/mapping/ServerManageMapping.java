@@ -14,12 +14,10 @@ import web.core.MessageNotificationCenter;
 import web.core.WebMapping;
 import web.model.data_object.ManagementLoginUser;
 
-import web.model.data_transfer_object.IpDTO;
-import web.model.data_transfer_object.PageDTO;
-import web.model.data_transfer_object.ResponseMessage;
-import web.model.data_transfer_object.serviceBindDTO;
+import web.model.data_transfer_object.*;
 import web.model.view_object.ChannelContextVO;
 
+import web.model.view_object.IdVO;
 import web.model.view_object.IpRecordVO;
 import web.model.view_object.PageListVO;
 import web.utils.AuthUtils;
@@ -145,7 +143,7 @@ public class ServerManageMapping {
 
 
     /**
-     * close channel by id
+     * sendHeartBeat
      *
      * @param jndcHttpRequest
      * @return
@@ -186,10 +184,8 @@ public class ServerManageMapping {
     }
 
 
-
-
     /**
-     * close channel by id
+     * getServiceList
      *
      * @param jndcHttpRequest
      * @return
@@ -223,6 +219,7 @@ public class ServerManageMapping {
 
     }
 
+
     /**
      * @param jndcHttpRequest
      * @return
@@ -247,9 +244,9 @@ public class ServerManageMapping {
         }
 
 
+        //do create
         channelContextVO.setPortEnable(0);
         channelContextVO.setId(UUIDSimple.id());
-        channelContextVO.setVirtualPort(0);//is physical port
         dbWrapper.insert(channelContextVO);
         return responseMessage;
 
@@ -297,12 +294,19 @@ public class ServerManageMapping {
                             serverPortBind.setRouteTo(y1.getRouteTo());
 
                             //openPort
-                            bean.addTCPRouter(serverPortBind.getPort(), y);
+                            boolean success = bean.addTCPRouter(serverPortBind.getPort(), y);
 
-                            //update databases state
-                            //set true
-                            serverPortBind.setPortEnable(1);
+                            if (success) {
+                                //update databases state
+
+                                //set true
+                                serverPortBind.setPortEnable(1);
+                            } else {
+                                //set false
+                                serverPortBind.setPortEnable(0);
+                            }
                             dbWrapper.updateByPrimaryKey(serverPortBind);
+
 
                             //notice refresh data
                             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
@@ -367,6 +371,8 @@ public class ServerManageMapping {
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update  server_port_bind set routeTo=null where id=?", channelContextVO.getServerPortId());
+
+
         return responseMessage;
 
     }

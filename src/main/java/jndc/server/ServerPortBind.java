@@ -21,26 +21,6 @@ public class ServerPortBind {
 
     private String routeTo;
 
-    private int virtualPort; //0 normal port / 1 virtual port
-
-    private String domainBind; //
-
-
-    public String getDomainBind() {
-        return domainBind;
-    }
-
-    public void setDomainBind(String domainBind) {
-        this.domainBind = domainBind;
-    }
-
-    public int getVirtualPort() {
-        return virtualPort;
-    }
-
-    public void setVirtualPort(int virtualPort) {
-        this.virtualPort = virtualPort;
-    }
 
     public String getRouteTo() {
         return routeTo;
