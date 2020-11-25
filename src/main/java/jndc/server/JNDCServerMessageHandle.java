@@ -94,7 +94,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 //find the old "port service bind"
                 DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-                List<ServerPortBind> serverPortBinds = dbWrapper.listAll();
+                List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and routeTo is not null  ");
 
                 //find match "port service bind"
                 serverPortBinds.forEach(x -> {

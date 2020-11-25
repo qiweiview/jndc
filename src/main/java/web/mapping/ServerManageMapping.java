@@ -404,15 +404,16 @@ public class ServerManageMapping {
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
+
+
         if (serverPortBindContext != null) {
             serverPortBindContext.releaseRelatedResources();
             tcpRouter.remove(port);
-
-        } else {
-            serverPortBind.setPortEnable(0);
-            serverPortBind.setRouteTo(null);
-            dbWrapper.updateByPrimaryKey(serverPortBind);
         }
+
+        serverPortBind.setPortEnable(0);
+        serverPortBind.setRouteTo(null);
+        dbWrapper.updateByPrimaryKey(serverPortBind);
 
 
         return responseMessage;
