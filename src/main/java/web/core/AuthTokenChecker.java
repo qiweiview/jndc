@@ -33,6 +33,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
     static {
         releaseSet.add("/login");
+        releaseSet.add("/getDeviceIp");
     }
 
     @Override
