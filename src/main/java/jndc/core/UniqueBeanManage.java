@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * single bean init,can use spring or other tools replace
+ * simple object management,can use spring or other tools replace
  */
 public class UniqueBeanManage {
 
@@ -31,9 +31,7 @@ public class UniqueBeanManage {
         registerBean(new JNDCClientConfigCenter());
         registerBean(new IpChecker());
         registerBean(new MappingRegisterCenter());
-        if (AppStart.SERVER_APP_TYPE.equals(AppStart.runType)){
-            registerBean(new DataStore());
-        }
+        registerBean(new DataStore());
         registerBean(new AsynchronousEventCenter());
         registerBean(new MessageNotificationCenter());
 
