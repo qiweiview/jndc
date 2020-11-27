@@ -34,6 +34,7 @@ public class UniqueBeanManage {
         registerBean(new DataStore());
         registerBean(new AsynchronousEventCenter());
         registerBean(new MessageNotificationCenter());
+        registerBean(new ScheduledTaskCenter());
 
     }
 

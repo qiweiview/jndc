@@ -32,18 +32,10 @@ public class SimpleUserClient {
     }
 
     public void test2() throws IOException {
-        Socket socket = new Socket("123.207.114.245", 22);
-        InputStream inputStream = socket.getInputStream();
-        while (true){
-            byte[] bytes =new byte[1024];
-            socket.sendUrgentData(0x1);
-            int read = inputStream.read(bytes);
-            if (read==-1){
-                continue;
-            }
-            LogPrint.info(new String(bytes));
+        Socket socket = new Socket("123.207.114.245", 83);
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write("hi".getBytes());
 
-        }
 
 
     }

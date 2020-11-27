@@ -60,8 +60,5 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
                 //dynamic data not enough
             }
         }
-
-
-
     }
 }

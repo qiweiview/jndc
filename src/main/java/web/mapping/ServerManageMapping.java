@@ -428,12 +428,19 @@ public class ServerManageMapping {
      * @return
      */
     @WebMapping(path = "/blackList")
-    public Collection<IpFilterRule4V> blackList(JNDCHttpRequest jndcHttpRequest) {
-        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
-        Map<String, IpFilterRule4V> blackMap = bean.getBlackMap();
-        Collection<IpFilterRule4V> values = blackMap.values();
-
-        return values;
+    public PageListVO<IpFilterRule4V> blackList(JNDCHttpRequest jndcHttpRequest) {
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
+        DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
+        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=1", pageDTO.getPage(), pageDTO.getRows());
+        Integer count = dbWrapper.count();
+        PageListVO<IpFilterRule4V> channelContextCloseRecordPageListVO = new PageListVO<>();
+        channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
+        channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
+        channelContextCloseRecordPageListVO.setData(ipFilterRule4VS);
+        channelContextCloseRecordPageListVO.setTotal(count);
+        return channelContextCloseRecordPageListVO;
 
     }
 
@@ -445,16 +452,24 @@ public class ServerManageMapping {
      * @return
      */
     @WebMapping(path = "/whiteList")
-    public Collection<IpFilterRule4V> whiteList(JNDCHttpRequest jndcHttpRequest) {
-        IpChecker bean = UniqueBeanManage.getBean(IpChecker.class);
-        Map<String, IpFilterRule4V> whiteMap = bean.getWhiteMap();
-        Collection<IpFilterRule4V> values = whiteMap.values();
-        return values;
+    public PageListVO<IpFilterRule4V> whiteList(JNDCHttpRequest jndcHttpRequest) {
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
+        DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
+        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=0", pageDTO.getPage(), pageDTO.getRows());
+        Integer count = dbWrapper.count();
+        PageListVO<IpFilterRule4V> channelContextCloseRecordPageListVO = new PageListVO<>();
+        channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
+        channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
+        channelContextCloseRecordPageListVO.setData(ipFilterRule4VS);
+        channelContextCloseRecordPageListVO.setTotal(count);
+        return channelContextCloseRecordPageListVO;
 
     }
 
     /**
-     * ip whiteList
+     * addToIpWhiteList
      *
      * @param jndcHttpRequest
      * @return
@@ -577,32 +592,30 @@ public class ServerManageMapping {
      */
     @WebMapping(path = "/releaseRecord")
     public Object releaseRecord(JNDCHttpRequest jndcHttpRequest) {
-        IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
+        DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
+        List<IpFilterRecord> list = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=0 GROUP BY ip",pageDTO.getPage(),pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        Map<String, List<IpChecker.IpRecord>> releaseMap = ipChecker.getReleaseMap();
-        releaseMap.forEach((k, v) -> {
-            if (v.size() > 0) {
-                IpRecordVO ipRecordVO = new IpRecordVO();
-                ipRecordVO.setIp(k);
-                ipRecordVO.setCount(v.size());
-                IpChecker.IpRecord ipRecord = v.get(v.size() - 1);
-                ipRecordVO.setLastTimeStamp(ipRecord.getTime());
-                ipRecordVOS.add(ipRecordVO);
-            }
+        list.forEach(x->{
+            IpRecordVO ipRecordVO = new IpRecordVO();
+            ipRecordVO.setIp(x.getIp());
+            ipRecordVO.setCount(x.getvCount());
+            ipRecordVO.setLastTimeStamp(x.getTimeStamp());
+            ipRecordVOS.add(ipRecordVO);
         });
 
+        Integer count = dbWrapper.count();
 
-        // get the top 10
-        if (ipRecordVOS.size() > 10) {
-            ipRecordVOS.sort((a, b) -> {
-                Integer count1 = a.getCount();
-                Integer count2 = b.getCount();
-                return count1.compareTo(count2);
-            });
-            ipRecordVOS.subList(0, 10);
-        }
+        PageListVO<IpRecordVO> channelContextCloseRecordPageListVO = new PageListVO<>();
+        channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
+        channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
+        channelContextCloseRecordPageListVO.setData(ipRecordVOS);
+        channelContextCloseRecordPageListVO.setTotal(count);
 
-        return ipRecordVOS;
+        return channelContextCloseRecordPageListVO;
+
     }
 
     /**
@@ -613,32 +626,29 @@ public class ServerManageMapping {
      */
     @WebMapping(path = "/blockRecord")
     public Object blockRecord(JNDCHttpRequest jndcHttpRequest) {
-        IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
+
+        DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
+        List<IpFilterRecord> list = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=1 GROUP BY ip",pageDTO.getPage(),pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        Map<String, List<IpChecker.IpRecord>> releaseMap = ipChecker.getBlockMap();
-        releaseMap.forEach((k, v) -> {
-            if (v.size() > 0) {
-                IpRecordVO ipRecordVO = new IpRecordVO();
-                ipRecordVO.setIp(k);
-                ipRecordVO.setCount(v.size());
-                IpChecker.IpRecord ipRecord = v.get(v.size() - 1);
-                ipRecordVO.setLastTimeStamp(ipRecord.getTime());
-                ipRecordVOS.add(ipRecordVO);
-            }
+        list.forEach(x->{
+            IpRecordVO ipRecordVO = new IpRecordVO();
+            ipRecordVO.setIp(x.getIp());
+            ipRecordVO.setCount(x.getvCount());
+            ipRecordVO.setLastTimeStamp(x.getTimeStamp());
+            ipRecordVOS.add(ipRecordVO);
         });
+        Integer count = dbWrapper.count();
 
+        PageListVO<IpRecordVO> channelContextCloseRecordPageListVO = new PageListVO<>();
+        channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
+        channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
+        channelContextCloseRecordPageListVO.setData(ipRecordVOS);
+        channelContextCloseRecordPageListVO.setTotal(count);
 
-        // get the top 10
-        if (ipRecordVOS.size() > 10) {
-            ipRecordVOS.sort((a, b) -> {
-                Integer count1 = a.getCount();
-                Integer count2 = b.getCount();
-                return count1.compareTo(count2);
-            });
-            ipRecordVOS.subList(0, 10);
-        }
-
-        return ipRecordVOS;
+        return channelContextCloseRecordPageListVO;
     }
 
 }

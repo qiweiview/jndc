@@ -32,7 +32,7 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
         InetAddress address = socketAddress.getAddress();
         byte[] address1 = address.getAddress();
         if (address1.length > 4) {
-            LogPrint.err("unSupport ipv6 address:" + Arrays.toString(address1));
+            LogPrint.debug("unSupport ipv6 address:" + Arrays.toString(address1));
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListeners(ChannelFutureListener.CLOSE);
             return;
         }

@@ -17,16 +17,23 @@ import java.io.File;
 import java.net.URL;
 
 public class JNDCServer {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
 
     public JNDCServer() {
     }
 
+    public void initBelongServerOnly() {
+        ScheduledTaskCenter ipChecker = UniqueBeanManage.getBean(ScheduledTaskCenter.class);
+        ipChecker.start();
+    }
 
 
     public void createServer() {
+        //do server init
+        initBelongServerOnly();
+
 
         UnifiedConfiguration bean = UniqueBeanManage.getBean(UnifiedConfiguration.class);
         ServerConfig serverConfig = bean.getServerConfig();
@@ -34,19 +41,19 @@ public class JNDCServer {
 
         //reset service bind state
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        dbWrapper.customExecute("update server_port_bind set portEnable = 0",null);
+        dbWrapper.customExecute("update server_port_bind set portEnable = 0", null);
 
         //deploy the server management api
-        WebServer serverTest =new WebServer();
+        WebServer serverTest = new WebServer();
         serverTest.start();//start
 
         // confirm whether to deploy default static project
         // the management project will be deploy in managementApiPort
-        if (serverConfig.isDeployFrontProject()){
+        if (serverConfig.isDeployFrontProject()) {
             //load inner front file
             String web = serverConfig.getFrontProjectPath();
-            if (!web.endsWith(File.separator)){
-                web+=File.separator;
+            if (!web.endsWith(File.separator)) {
+                web += File.separator;
             }
             FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
             LogPrint.info("deploy front management project");
@@ -59,9 +66,9 @@ public class JNDCServer {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
 
-                pipeline.addFirst(IPFilter.NAME,IPFilter.STATIC_INSTANCE);
-                pipeline.addAfter(IPFilter.NAME,NDCPCodec.NAME, new NDCPCodec());
-                pipeline.addAfter(NDCPCodec.NAME,SecreteCodec.NAME,new SecreteCodec());
+                pipeline.addFirst(IPFilter.NAME, IPFilter.STATIC_INSTANCE);
+                pipeline.addAfter(IPFilter.NAME, NDCPCodec.NAME, new NDCPCodec());
+                pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME, new SecreteCodec());
                 pipeline.addAfter(SecreteCodec.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
             }
         };
@@ -80,7 +87,6 @@ public class JNDCServer {
             }
 
         });
-
 
 
     }

@@ -139,9 +139,12 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void insertBatch(List<T> t) {
-        t.forEach(x -> {
-            insert(x);
-        });
+        if (t!=null&&t.size()>0){
+            t.forEach(x -> {
+                insert(x);
+            });
+        }
+
     }
 
     @Override
