@@ -26,6 +26,11 @@ public class AuthUtils {
     }
 
 
+    /**
+     * encode  step with AESUtils
+     * @param uniqueBytes
+     * @return
+     */
     public static String webAuthTokenEncode(byte[] uniqueBytes){
         byte[] encode = AESUtils.encode(uniqueBytes);
         Base64.Encoder encoder = Base64.getEncoder();

@@ -7,6 +7,8 @@ import io.netty.handler.codec.http.*;
 
 import jndc.core.UniqueBeanManage;
 import jndc.utils.LogPrint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import web.utils.HttpResponseBuilder;
 
 import java.io.File;
@@ -15,6 +17,7 @@ import java.util.regex.Matcher;
 
 
 public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpRequest> {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     public static String NAME = "WEB_CONTENT_HANDLER";
     private static final String SEPARATOR = Matcher.quoteReplacement(File.separator);
 
@@ -39,6 +42,11 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
             //jndc inner front project
             FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;
+
+            if (jndcStaticProject==null){
+                channelHandlerContext.writeAndFlush(HttpResponseBuilder.notFoundResponse());
+                return;
+            }
 
             //find static file
             FrontProjectLoader.InnerFileDescription file = jndcStaticProject.findFile(s);
@@ -97,8 +105,7 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (cause instanceof IOException){
-            LogPrint.debug("a manage connection interrupt ");
-        }
+        logger.error("unCatchableException: "+cause);
+
     }
 }

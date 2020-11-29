@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled;
 import jndc.core.*;
 
 import jndc.core.data_store.DBWrapper;
+import jndc.core.data_store.PageResult;
 import jndc.server.*;
 import jndc.utils.UUIDSimple;
 import web.core.JNDCHttpRequest;
@@ -15,11 +16,8 @@ import web.core.WebMapping;
 import web.model.data_object.ManagementLoginUser;
 
 import web.model.data_transfer_object.*;
-import web.model.view_object.ChannelContextVO;
+import web.model.view_object.*;
 
-import web.model.view_object.IdVO;
-import web.model.view_object.IpRecordVO;
-import web.model.view_object.PageListVO;
 import web.utils.AuthUtils;
 import jndc.utils.JSONUtils;
 
@@ -112,15 +110,14 @@ public class ServerManageMapping {
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
 
         DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
-        List<ChannelContextCloseRecord> channelContextCloseRecords = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
-        Integer count = dbWrapper.count();
+        PageResult<ChannelContextCloseRecord> channelContextCloseRecordPageResult = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
 
         //create vo
         PageListVO<ChannelContextCloseRecord> channelContextCloseRecordPageListVO = new PageListVO<>();
         channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
         channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
-        channelContextCloseRecordPageListVO.setData(channelContextCloseRecords);
-        channelContextCloseRecordPageListVO.setTotal(count);
+        channelContextCloseRecordPageListVO.setData(channelContextCloseRecordPageResult.getData());
+        channelContextCloseRecordPageListVO.setTotal(channelContextCloseRecordPageResult.getTotal());
 
         return channelContextCloseRecordPageListVO;
     }
@@ -433,13 +430,13 @@ public class ServerManageMapping {
         String s = new String(body);
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
         DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
-        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=1", pageDTO.getPage(), pageDTO.getRows());
-        Integer count = dbWrapper.count();
+        PageResult<IpFilterRule4V> ipFilterRule4VPageResult = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=1", pageDTO.getPage(), pageDTO.getRows());
+
         PageListVO<IpFilterRule4V> channelContextCloseRecordPageListVO = new PageListVO<>();
         channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
         channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
-        channelContextCloseRecordPageListVO.setData(ipFilterRule4VS);
-        channelContextCloseRecordPageListVO.setTotal(count);
+        channelContextCloseRecordPageListVO.setData(ipFilterRule4VPageResult.getData());
+        channelContextCloseRecordPageListVO.setTotal(ipFilterRule4VPageResult.getTotal());
         return channelContextCloseRecordPageListVO;
 
     }
@@ -457,13 +454,13 @@ public class ServerManageMapping {
         String s = new String(body);
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
         DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
-        List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=0", pageDTO.getPage(), pageDTO.getRows());
-        Integer count = dbWrapper.count();
+        PageResult<IpFilterRule4V> ipFilterRule4VPageResult = dbWrapper.customQueryByPage("select * from server_ip_filter_rule where type=0", pageDTO.getPage(), pageDTO.getRows());
+
         PageListVO<IpFilterRule4V> channelContextCloseRecordPageListVO = new PageListVO<>();
         channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
         channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
-        channelContextCloseRecordPageListVO.setData(ipFilterRule4VS);
-        channelContextCloseRecordPageListVO.setTotal(count);
+        channelContextCloseRecordPageListVO.setData(ipFilterRule4VPageResult.getData());
+        channelContextCloseRecordPageListVO.setTotal(ipFilterRule4VPageResult.getTotal());
         return channelContextCloseRecordPageListVO;
 
     }
@@ -596,9 +593,9 @@ public class ServerManageMapping {
         String s = new String(body);
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
-        List<IpFilterRecord> list = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=0 GROUP BY ip",pageDTO.getPage(),pageDTO.getRows());
+        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=0 GROUP BY ip", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        list.forEach(x->{
+        ipFilterRecordPageResult.getData().forEach(x->{
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
             ipRecordVO.setCount(x.getvCount());
@@ -606,13 +603,12 @@ public class ServerManageMapping {
             ipRecordVOS.add(ipRecordVO);
         });
 
-        Integer count = dbWrapper.count();
 
         PageListVO<IpRecordVO> channelContextCloseRecordPageListVO = new PageListVO<>();
         channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
         channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
         channelContextCloseRecordPageListVO.setData(ipRecordVOS);
-        channelContextCloseRecordPageListVO.setTotal(count);
+        channelContextCloseRecordPageListVO.setTotal(ipFilterRecordPageResult.getTotal());
 
         return channelContextCloseRecordPageListVO;
 
@@ -631,24 +627,38 @@ public class ServerManageMapping {
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
 
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
-        List<IpFilterRecord> list = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=1 GROUP BY ip",pageDTO.getPage(),pageDTO.getRows());
+        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=1 GROUP BY ip", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        list.forEach(x->{
+        ipFilterRecordPageResult.getData().forEach(x->{
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
             ipRecordVO.setCount(x.getvCount());
             ipRecordVO.setLastTimeStamp(x.getTimeStamp());
             ipRecordVOS.add(ipRecordVO);
         });
-        Integer count = dbWrapper.count();
+
 
         PageListVO<IpRecordVO> channelContextCloseRecordPageListVO = new PageListVO<>();
         channelContextCloseRecordPageListVO.setPage(pageDTO.getPage());
         channelContextCloseRecordPageListVO.setRows(pageDTO.getRows());
         channelContextCloseRecordPageListVO.setData(ipRecordVOS);
-        channelContextCloseRecordPageListVO.setTotal(count);
+        channelContextCloseRecordPageListVO.setTotal(ipFilterRecordPageResult.getTotal());
 
         return channelContextCloseRecordPageListVO;
+    }
+
+    /**
+     * getCurrentDeviceIp
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/getCurrentDeviceIp")
+    public DeviceInfo getCurrentDeviceIp(JNDCHttpRequest jndcHttpRequest) {
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.setIp(jndcHttpRequest.getRemoteAddress().getHostAddress());
+        return deviceInfo;
+
     }
 
 }

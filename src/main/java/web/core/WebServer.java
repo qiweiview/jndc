@@ -9,15 +9,25 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
 import jndc.core.*;
 import jndc.core.config.ServerConfig;
 import jndc.core.config.UnifiedConfiguration;
+import jndc.server.NDCServerConfigCenter;
 import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import web.utils.SslOneWayContextFactory;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.security.KeyStore;
 
 public class WebServer {
 
@@ -34,10 +44,20 @@ public class WebServer {
         InetAddress localInetAddress = InetUtils.localInetAddress;
         InetSocketAddress inetSocketAddress = new InetSocketAddress(localInetAddress, manageCenterPort);
 
+
+
+
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
 
             @Override
             protected void initChannel(Channel channel) throws Exception {
+
+
+
+
+
+
+
                 ChannelPipeline pipeline = channel.pipeline();
 
                 String http = "http";//HttpServerCodec
@@ -45,7 +65,16 @@ public class WebServer {
                 String ws = "ws";//WebSocketServerProtocolHandler
 
 
-                pipeline.addFirst(http, new HttpServerCodec());
+                if (serverConfig.isUseSsl()){
+                    SSLContext serverSSLContext = serverConfig.getServerSSLContext();
+                    SSLEngine sslEngine = serverSSLContext.createSSLEngine();
+                    sslEngine.setUseClientMode(false);//设置为服务器模式
+                    pipeline.addFirst(CustomSslHandler.NAME, new CustomSslHandler(sslEngine));
+                }
+
+
+
+                pipeline.addLast( http,new HttpServerCodec());
                 pipeline.addAfter(http, oag, new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
                 pipeline.addAfter(oag, AuthTokenChecker.NAME,new AuthTokenChecker());
                 pipeline.addAfter(AuthTokenChecker.NAME, JNDCRequestDecoder.NAME, new JNDCRequestDecoder());

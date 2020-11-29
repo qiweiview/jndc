@@ -175,7 +175,9 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     }
 
     @Override
-    public List<T> customQueryByPage(String sql, int page, int rows, Object... params) {
+    public PageResult<T> customQueryByPage(String sql, int page, int rows, Object... params) {
+
+        PageResult<T> pageResult=new PageResult();
         //min limit
         if (page < 1) {
             page = 1;
@@ -192,7 +194,11 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
         int noOfRows = (page-1) * rows;
         String newSql = "select * from (" +sql+ ") g limit " + noOfRows + "," + rows;
-        return customQuery(newSql, params);
+        List<T> list = customQuery(newSql, params);
+        pageResult.setData(list);
+        Integer count = customQuerySingleValue("count",  "select count(*) count from (" +sql+ ")", Integer.class);
+        pageResult.setTotal(count);
+        return pageResult;
     }
 
     @Override

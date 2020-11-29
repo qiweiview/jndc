@@ -32,6 +32,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
     private static final Map<String, Long> tokenCacheMap = new ConcurrentHashMap<>();
 
     static {
+        releaseSet.add("/");
         releaseSet.add("/login");
         releaseSet.add("/getDeviceIp");
     }
