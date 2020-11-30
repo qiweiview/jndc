@@ -9,6 +9,7 @@
 * [ndc协议](#ndc协议)
 * [数据加解密](#数据加解密)
 * [IP黑白名单](#IP黑白名单)
+* [管理API及页面SSL支持](#管理API及页面SSL支持)
 * [配置文件说明](#配置文件说明)
 * [小结](#小结)
 
@@ -189,6 +190,15 @@ whiteList:
   - "127.0.0.2"
 ```
 
+## 管理API及页面SSL支持
+* 服务端支持对管理api配置ssl证书,目前只支持jks方式
+* 配置服务端配置文件参数,'useSsl'为true时会使用'keyStoreFile'处配置的证书
+```
+  useSsl: true
+  keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks'
+  keystorePass: 'xxx'
+```
+
 ## 配置文件说明
 
 ### server 配置
@@ -212,6 +222,9 @@ serverConfig:
   loginName: "jndc" # 内部管理api登录所需用户名，不允许默认值‘jndc’
   loginPassWord: "jndc" # 内部管理api登录所需密码，不允许默认值‘jndc’
   managementApiPort: "82" # 内部管理api监听端口，若‘deployFrontProject’为true,那么‘frontProjectPath’位置的前端项目也将被部署到这个端口上
+  useSsl: true # true时，会为’managementApiPort‘端口加载’keyStoreFile‘证书
+  keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks' # 证书文件，仅支持jks格式，校验失败控制台会提示
+  keystorePass: 'xxx' # jks文件密钥，校验失败控制台会提示
   adminPort: "81" # jndc建立隧道端口，端口用于支持ndc协议调用
   bindIp: "0.0.0.0" # jndc服务端运行绑定的网卡ip
 ```
