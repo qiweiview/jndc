@@ -115,7 +115,7 @@ http://118.29.31.43:82
 [![DdD4jx.png](https://s3.ax1x.com/2020/11/25/DdD4jx.png)](https://imgchr.com/i/DdD4jx)
 
 * ***！！！最重要一步！！！*** 设置常用设备出口ip至白名单，限制仅常用设备ip可访问
-[![Dds9Q1.png](https://s3.ax1x.com/2020/11/25/Dds9Q1.png)](https://imgchr.com/i/Dds9Q1)
+[![D2pi8J.png](https://s3.ax1x.com/2020/11/30/D2pi8J.png)](https://imgchr.com/i/D2pi8J)
 
 * 访问暴露的服务端口
 ```yaml
