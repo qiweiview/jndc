@@ -107,12 +107,15 @@ clientConfig:
 http://118.29.31.43:82
 ```
 [![Dddok9.png](https://s3.ax1x.com/2020/11/25/Dddok9.png)](https://imgchr.com/i/Dddok9)
+
 * 登录后左侧为主要的几个功能菜单，可以看到管理端已经显示连接到该设备上的客户端列表，并显示了对应注册的服务数
 [![DdB0eO.png](https://s3.ax1x.com/2020/11/25/DdB0eO.png)](https://imgchr.com/i/DdB0eO)
+
 * 列表展示了该设备上注册的所有服务
 [![DdDkX6.png](https://s3.ax1x.com/2020/11/25/DdDkX6.png)](https://imgchr.com/i/DdDkX6)
+
 * 添加一个***非常用端口监听***,并选择在该端口上暴露的服务
-[![DdD4jx.png](https://s3.ax1x.com/2020/11/25/DdD4jx.png)](https://imgchr.com/i/DdD4jx)
+[![D2pVDx.png](https://s3.ax1x.com/2020/11/30/D2pVDx.png)](https://imgchr.com/i/D2pVDx)
 
 * ***！！！最重要一步！！！*** 设置常用设备出口ip至白名单，限制仅常用设备ip可访问
 [![D2pi8J.png](https://s3.ax1x.com/2020/11/30/D2pi8J.png)](https://imgchr.com/i/D2pi8J)
