@@ -1,0 +1,13 @@
+secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
+loglevel: "info"
+serverIp: "127.0.0.1" # 服务端运行监听ip
+serverPort: "81" # 服务端运行端口
+clientServiceDescriptions: # 注册服务
+  - serviceName: "desk"
+    serviceIp: "192.168.216.131"
+    servicePort: "3389"
+    serviceEnable: true
+  - serviceName: "echo"
+    serviceIp: "127.0.0.1"
+    servicePort: "888"
+    serviceEnable: true

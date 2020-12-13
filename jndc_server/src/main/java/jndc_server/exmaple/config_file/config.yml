@@ -1,0 +1,16 @@
+secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
+loglevel: "info"
+blackList: # ip访问黑名单
+  - "192.168.1.1"
+whiteList: # 白名单
+  #  - "192.168.1.2"
+frontProjectPath: 'D:\xxx\xxx\compare_dist' #管理端项目地址
+deployFrontProject: false # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
+loginName: "xxx"
+loginPassWord: "xxx"
+useSsl: false
+keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks'
+keystorePass: 'xxx'
+managementApiPort: "443" #管理api端口
+adminPort: "81" # jndc服务端运行监听端口
+bindIp: "0.0.0.0" # jndc服务端运行ip
