@@ -23,7 +23,7 @@
 ## 使用范例
 ### 范例一 暴露内网192.168.216.31(举例)设备上的nginx和远程桌面服务器到公网服务器118.29.31.43(举例)的任意端口上
 * 安装jdk 1.8+
-* [下载合适的版本](https://github.com/qiweiview/jndc/releases/tag/v20201125) (java语言跨平台特性，实际两个版本仅启动脚本差异)
+* [下载合适的版本](https://github.com/qiweiview/jndc/releases/) (java语言跨平台特性，实际两个版本仅启动脚本差异)
 * 解压后文件目录
 ```yaml
 # (f)开头为文件 (d)开头为文件夹
@@ -79,7 +79,7 @@ start jndc success
 ```yaml
 # ------------------------------------------------------general config line------------------------------------------------------
 # 通用配置
-secrete: "scdfat!`" # 和上面服务端内要一直
+secrete: "scdfat!`" # 和上面服务端内要一致
 loglevel: "info" # 日志打印等级
 
 # ------------------------------------------------------client config line------------------------------------------------------
@@ -107,15 +107,18 @@ clientConfig:
 http://118.29.31.43:82
 ```
 [![Dddok9.png](https://s3.ax1x.com/2020/11/25/Dddok9.png)](https://imgchr.com/i/Dddok9)
+
 * 登录后左侧为主要的几个功能菜单，可以看到管理端已经显示连接到该设备上的客户端列表，并显示了对应注册的服务数
 [![DdB0eO.png](https://s3.ax1x.com/2020/11/25/DdB0eO.png)](https://imgchr.com/i/DdB0eO)
+
 * 列表展示了该设备上注册的所有服务
 [![DdDkX6.png](https://s3.ax1x.com/2020/11/25/DdDkX6.png)](https://imgchr.com/i/DdDkX6)
+
 * 添加一个***非常用端口监听***,并选择在该端口上暴露的服务
-[![DdD4jx.png](https://s3.ax1x.com/2020/11/25/DdD4jx.png)](https://imgchr.com/i/DdD4jx)
+[![D2pVDx.png](https://s3.ax1x.com/2020/11/30/D2pVDx.png)](https://imgchr.com/i/D2pVDx)
 
 * ***！！！最重要一步！！！*** 设置常用设备出口ip至白名单，限制仅常用设备ip可访问
-[![Dds9Q1.png](https://s3.ax1x.com/2020/11/25/Dds9Q1.png)](https://imgchr.com/i/Dds9Q1)
+[![D2pi8J.png](https://s3.ax1x.com/2020/11/30/D2pi8J.png)](https://imgchr.com/i/D2pi8J)
 
 * 访问暴露的服务端口
 ```yaml
