@@ -16,6 +16,39 @@ import java.util.List;
  * No Distance Connection Protocol
  */
 public class NDCMessageProtocol {
+
+
+ /*
+ protocol review
+
+ ---------ndc protocol ----------
+  3byte      1byte      1byte
+|  ndc   |  version  |  type   |
+ --------------------------------
+            4byte
+|          local ip            |
+ --------------------------------
+            4byte
+|          remote ip           |
+ --------------------------------
+            4byte
+|          local port          |
+ --------------------------------
+            4byte
+|          server port         |
+ --------------------------------
+            4byte
+|          remote port         |
+ --------------------------------
+            4byte
+|          data length         |
+ --------------------------------
+    data length byte
+|            data              |
+ --------------------------------
+
+*/
+
     /*--------------------- message types ---------------------*/
 
     public static final byte TCP_DATA = 1;//tcp data transmission message

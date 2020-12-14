@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="600.0" prefWidth="1280.0" stylesheets="@/css/jfoenix-components.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jndc_client.gui_support.controller.IndexController">
+   <children>
+      <JFXListView fx:id="jfxListView" layoutX="14.0" layoutY="56.0" prefHeight="521.0" prefWidth="200.0" />
+      <Label layoutX="78.0" layoutY="23.0" prefHeight="22.0" prefWidth="73.0" text="服务列表">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <JFXTextField alignment="CENTER" layoutX="408.0" layoutY="125.0" prefHeight="50.0" prefWidth="331.0" promptText="输入本地服务IP地址" style="-fx-border-color: black;" styleClass="jfx-text-field">
+         <font>
+            <Font size="14.0" />
+         </font></JFXTextField>
+      <JFXTextField alignment="CENTER" layoutX="408.0" layoutY="201.0" prefHeight="50.0" prefWidth="331.0" promptText="输入本地服务端口" style="-fx-border-color: black;" styleClass="jfx-text-field">
+         <font>
+            <Font size="14.0" />
+         </font></JFXTextField>
+      <Label layoutX="269.0" layoutY="137.0" prefHeight="27.0" prefWidth="90.0" text="服务IP">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <Label layoutX="263.0" layoutY="213.0" prefHeight="27.0" prefWidth="90.0" text="服务端口">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <JFXCheckBox layoutX="408.0" layoutY="282.0" text="是否可用" />
+      <Label layoutX="263.0" layoutY="278.0" prefHeight="27.0" prefWidth="90.0" text="服务状态">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <JFXTextField alignment="CENTER" layoutX="408.0" layoutY="58.0" prefHeight="50.0" prefWidth="331.0" promptText="输入本地服务名称" style="-fx-border-color: black;" styleClass="jfx-text-field">
+         <font>
+            <Font size="14.0" />
+         </font></JFXTextField>
+      <Label layoutX="263.0" layoutY="77.0" prefHeight="22.0" prefWidth="90.0" text="服务名称">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <JFXButton layoutX="1071.0" layoutY="64.0" maxHeight="41.0" maxWidth="200.0" minHeight="40.0" minWidth="108.0" prefHeight="41.0" prefWidth="122.0" style="-fx-background-color: #4886EC;" styleClass="button-raised" text="关于JNDC" textFill="#f2ebeb">
+         <font>
+            <Font size="20.0" />
+         </font></JFXButton>
+      <JFXButton layoutX="874.0" layoutY="130.0" maxWidth="108.0" minWidth="108.0" prefHeight="41.0" prefWidth="108.0" style="-fx-background-color: #EA4537;" styleClass="button-raised" text="删除服务" textFill="#f2ebeb">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </JFXButton>
+      <JFXButton layoutX="874.0" layoutY="63.0" maxWidth="108.0" minWidth="108.0" onAction="#addService" prefWidth="108.0" style="-fx-background-color: #4886EC;" styleClass="button-raised" text="添加服务" textFill="#f2ebeb">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </JFXButton>
+   </children>
+</AnchorPane>
