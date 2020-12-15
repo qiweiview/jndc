@@ -22,6 +22,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     private Map<String, ClientServiceProvider> portProtectorMap = new ConcurrentHashMap<>();
 
     private ChannelHandlerContext channelHandlerContext;//A client temporarily holds only one tunnel
+    private String channelId;//channelId
 
 
     @Override
@@ -47,8 +48,9 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     }
 
 
-    public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
+    public void registerMessageChannel(String channelId,ChannelHandlerContext channelHandlerContext) {
         this.channelHandlerContext = channelHandlerContext;
+        this.channelId = channelId;
     }
 
 
@@ -80,5 +82,9 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
         ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
         portProtectorMap.put(client, clientServiceProvider);
+    }
+
+    public String getChannelId() {
+        return channelId;
     }
 }

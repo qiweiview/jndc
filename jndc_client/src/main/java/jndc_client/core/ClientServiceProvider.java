@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * a local service provider
+ */
 public class ClientServiceProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());

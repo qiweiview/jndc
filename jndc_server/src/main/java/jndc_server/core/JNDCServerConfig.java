@@ -31,7 +31,7 @@ public class JNDCServerConfig {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private String runtimeDir;
+    private String runtimeDir="";
 
     private String secrete;
 
@@ -86,15 +86,29 @@ public class JNDCServerConfig {
         //perform ssl file
         performSslInWebApi();
 
+
+        //register bean
+        UniqueBeanManage.registerBean(this);
+
+        UniqueBeanManage.registerBean(new NDCServerConfigCenter());
+        UniqueBeanManage.registerBean(new IpChecker());
+        UniqueBeanManage.registerBean(new MappingRegisterCenter());
+        UniqueBeanManage.registerBean(new DataStore(getRuntimeDir()));
+        UniqueBeanManage.registerBean(new AsynchronousEventCenter());
+        UniqueBeanManage.registerBean(new MessageNotificationCenter());
+        UniqueBeanManage.registerBean(new ScheduledTaskCenter());
+
         //do server init
         init();
     }
 
+
+    static{
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.INFO);
+    }
+
     private void init(){
-        JNDCServerConfig bean = UniqueBeanManage.getBean(JNDCServerConfig.class);
-
-
-
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
 
@@ -102,15 +116,7 @@ public class JNDCServerConfig {
         AESUtils.setKey(secrete.getBytes());
 
 
-        UniqueBeanManage.registerBean(new ScheduledTaskCenter());
-        //fix tag
-        UniqueBeanManage.registerBean(new NDCServerConfigCenter());
-        UniqueBeanManage.registerBean(new IpChecker());
-        UniqueBeanManage.registerBean(new MappingRegisterCenter());
-        UniqueBeanManage.registerBean(new DataStore(bean.getRuntimeDir()));
-        UniqueBeanManage.registerBean(new AsynchronousEventCenter());
-        UniqueBeanManage.registerBean(new MessageNotificationCenter());
-        UniqueBeanManage.registerBean(new ScheduledTaskCenter());
+
     }
 
     private void performSslInWebApi() {

@@ -1,0 +1,7 @@
+<configuration>
+    <appender name="map" class="jndc_client.gui_support.utils.GuiLogAppender"/>
+
+    <root level="info">
+        <appender-ref ref="map"/>
+    </root>
+</configuration>

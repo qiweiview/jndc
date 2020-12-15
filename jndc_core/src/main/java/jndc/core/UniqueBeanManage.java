@@ -26,15 +26,7 @@ public class UniqueBeanManage {
 
     static {
 
-        //fix tag
-//        registerBean(new NDCServerConfigCenter());
-//        registerBean(new JNDCClientConfigCenter());
-//        registerBean(new IpChecker());
-//        registerBean(new MappingRegisterCenter());
-//        registerBean(new DataStore());
-//        registerBean(new AsynchronousEventCenter());
-//        registerBean(new MessageNotificationCenter());
-//        registerBean(new ScheduledTaskCenter());
+
 
     }
 
@@ -43,6 +35,11 @@ public class UniqueBeanManage {
         if (null == o) {
             return;
         }
+        Object o1 = map.get(o.getClass());
+        if (o1!=null){
+            throw new RuntimeException("exist a bean "+o1);
+        }
+
         Class<?> aClass = o.getClass();
         map.put(aClass, o);
     }

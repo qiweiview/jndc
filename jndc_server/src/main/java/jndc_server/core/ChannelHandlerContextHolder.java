@@ -8,7 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -24,7 +27,7 @@ public class ChannelHandlerContextHolder {
 
     private ChannelHandlerContext channelHandlerContext;
 
-    private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions;
+    private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions=new ArrayList<>();
 
     public ChannelHandlerContextHolder() {
         id = UUIDSimple.id();
@@ -34,10 +37,13 @@ public class ChannelHandlerContextHolder {
 
         logger.debug(contextIp + " unRegister " + serviceNum() + " service");
 
-        tcpServiceDescriptions.forEach(x->{
-            //TcpServiceDescription
-            x.releaseRelatedResources();
-        });
+        if (tcpServiceDescriptions!=null){
+            tcpServiceDescriptions.forEach(x->{
+                //TcpServiceDescription
+                x.releaseRelatedResources();
+            });
+        }
+
 
         channelHandlerContext = null;
         tcpServiceDescriptions = null;
@@ -87,11 +93,6 @@ public class ChannelHandlerContextHolder {
     }
 
     public void setTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptions) {
-        tcpServiceDescriptions.forEach(x -> {
-            x.setBelongContextIp(contextIp);
-            x.setId(UUIDSimple.id());
-            x.setBelongContext(channelHandlerContext);
-        });
         this.tcpServiceDescriptions = tcpServiceDescriptions;
     }
 
@@ -102,6 +103,24 @@ public class ChannelHandlerContextHolder {
 
     public List<TcpServiceDescriptionOnServer> getTcpServiceDescriptions() {
         return tcpServiceDescriptions;
+    }
+
+    public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+        Set<String> strings=new HashSet<>();
+        tcpServiceDescriptions.forEach(x->{
+            strings.add(x.getRouteTo());
+        });
+        tcpServiceDescriptionOnServers.forEach(x->{
+            String routeTo = x.getRouteTo();
+            if (strings.contains(routeTo)){
+                logger.error("the service "+routeTo+"is exist");
+            }else {
+                x.setBelongContextIp(contextIp);
+                x.setId(UUIDSimple.id());
+                x.setBelongContext(channelHandlerContext);
+                tcpServiceDescriptions.add(x);
+            }
+        });
     }
 
 

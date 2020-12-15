@@ -5,6 +5,8 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
+import jndc_client.gui_support.GuiStart;
+import jndc_client.gui_support.utils.GuiLogAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,8 @@ public class JNDCClientConfig {
 
     private int serverPort;
 
+    private boolean openGui;
+
     private List<ClientServiceDescription> clientServiceDescriptions;//service list
 
     private Map<String, ClientServiceDescription> clientServiceDescriptionMap;//service map
@@ -45,7 +49,6 @@ public class JNDCClientConfig {
     public void init(){
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
-
 
 
         //set secrete
@@ -84,6 +87,18 @@ public class JNDCClientConfig {
             });
         }
 
+
+
+        UniqueBeanManage.registerBean(this);
+
+        if (isOpenGui()){
+            GuiLogAppender.printIntoGui=true;
+         new Thread(()->{
+             new GuiStart().start();
+             logger.info("init gui");
+         }).start();
+        }
+
         init();
 
     }
@@ -91,6 +106,14 @@ public class JNDCClientConfig {
 
     //getter setter
 
+
+    public boolean isOpenGui() {
+        return openGui;
+    }
+
+    public void setOpenGui(boolean openGui) {
+        this.openGui = openGui;
+    }
 
     public String getSecrete() {
         return secrete;

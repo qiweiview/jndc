@@ -48,6 +48,7 @@
 
 .jfx-text-area, .text-area {
     -fx-font-weight: BOLD;
+    -fx-border-color: grey;
 }
 
 .jfx-text-field:error, .jfx-password-field:error, .jfx-text-area:error {
@@ -118,6 +119,32 @@
     -fx-background-color: rgb(77, 102, 204);
     -fx-pref-width: 200;
     -fx-text-fill: WHITE;
+}
+.button-raised-success {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: #67C23A;
+    -fx-pref-width: 200;
+    -fx-text-fill: #f2ebeb;
+}
+
+.button-raised-danger {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: #EA4537;
+    -fx-pref-width: 200;
+    -fx-text-fill: #f2ebeb;
+}
+
+.button-raised-info {
+    -fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -jfx-button-type: RAISED;
+    -fx-background-color: #909399;
+    -fx-pref-width: 200;
+    -fx-text-fill: #f2ebeb;
 }
 
 /* The main scrollbar **track** CSS class  */

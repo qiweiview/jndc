@@ -7,16 +7,24 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.util.Callback;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.util.Callback;
+import jndc.utils.LogPrint;
+import jndc_client.core.ClientServiceDescription;
+
+import java.io.ByteArrayInputStream;
 import java.util.stream.Stream;
 
-public class ContextMenuBuilder {
+public class ContextMenuOnListViewBuilder {
 
 
     public static Callback multipleButton(InnerButtonDescription... innerButtonDescription) {
-        Callback<ListView<RowPackaging>, ListCell<RowPackaging>> value = param -> {
-            ListCell<RowPackaging> cell = new ListCell<>();
+        Callback<ListView<MenuItemPackaging>, ListCell<MenuItemPackaging>> value = param -> {
+            ListCell<MenuItemPackaging> cell = new MenuItemPackagingCell();
+
+
             ContextMenu contextMenu = new ContextMenu();
             ObservableList<MenuItem> items = contextMenu.getItems();
 
@@ -24,13 +32,17 @@ public class ContextMenuBuilder {
                 MenuItem editItem = new MenuItem();
                 editItem.textProperty().bind(Bindings.format(z.getButtonName()));
                 editItem.setOnAction(event -> {
-                    RowPackaging item = cell.getItem();
+                    MenuItemPackaging item = cell.getItem();
 
                     z.getInnerStringCallBack().run(item);
                 });
                 items.add(editItem);
             });
-            ObjectProperty<RowPackaging> listViewRowObjectProperty = cell.itemProperty();
+
+
+            ObjectProperty<MenuItemPackaging> listViewRowObjectProperty = cell.itemProperty();
+
+
             cell.textProperty().bind(listViewRowObjectProperty.asString());
             cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
                 if (isNowEmpty) {
@@ -52,7 +64,7 @@ public class ContextMenuBuilder {
     }
 
     public interface InnerStringCallBack {
-        public void run(RowPackaging rowPackaging);
+        public void run(MenuItemPackaging menuItemPackaging);
     }
 
 
@@ -71,6 +83,27 @@ public class ContextMenuBuilder {
 
         public InnerStringCallBack getInnerStringCallBack() {
             return innerStringCallBack;
+        }
+    }
+
+
+    /**
+     *
+     */
+    public static class MenuItemPackagingCell extends ListCell<MenuItemPackaging>{
+        @Override
+        protected void updateItem(MenuItemPackaging item, boolean empty) {
+            if (empty){
+                item=new MenuItemPackaging("",null);
+                setGraphic(null);
+            }else {
+                ClientServiceDescription clientServiceDescription = (ClientServiceDescription) item.getValue();
+                ImageView imageView = new ImageView();
+                imageView.setImage(new Image(new ByteArrayInputStream(clientServiceDescription.isServiceEnable()?StaticFileCache.PIC_YES:StaticFileCache.PIC_NO)));
+                setGraphic(imageView);
+            }
+            super.updateItem(item, empty);
+
         }
     }
 }

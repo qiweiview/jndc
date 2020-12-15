@@ -24,6 +24,17 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     //port service bind
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
+
+    public void addServiceByChannelId(String channelId,List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
+        if (channelHandlerContextHolder==null){
+            logger.error("can not found the holder that id is"+channelId);
+        }else {
+            channelHandlerContextHolder.addTcpServiceDescriptions(tcpServiceDescriptionOnServers);
+        }
+
+    }
+
     public void registerServiceProvider(ChannelHandlerContextHolder channelHandlerContextHolder) {
         logger.debug(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
         channelHandlerContextHolderMap.put(channelHandlerContextHolder.getId(), channelHandlerContextHolder);
@@ -85,7 +96,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //create bind context
         ServerPortBindContext serverPortBindContext = new ServerPortBindContext(port);
-        serverPortBindContext.makePhysics();//physics
         serverPortBindContext.setTcpServiceDescription(y);
 
         //openTCPPortListener

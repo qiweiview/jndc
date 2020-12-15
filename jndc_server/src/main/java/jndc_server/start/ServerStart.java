@@ -64,9 +64,13 @@ public class ServerStart {
             logger.error("can not found:" + file );
             ApplicationExit.exit();
         }
+
+
+
         JNDCServerConfig jndcServerConfig = null;
         try {
             jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
+            jndcServerConfig.setRuntimeDir(file.getParent());
             jndcServerConfig.performParameterVerification();
             UniqueBeanManage.registerBean(jndcServerConfig);
             jndcServerConfig.lazyInitAfterVerification();

@@ -19,12 +19,14 @@ public class ServerTest {
 
 
         File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+
+
         YmlParser ymlParser = new YmlParser();
         JNDCServerConfig jndcServerConfig = null;
         try {
             jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
+            jndcServerConfig.setRuntimeDir(file.getParent());
             jndcServerConfig.performParameterVerification();
-            UniqueBeanManage.registerBean(jndcServerConfig);
             jndcServerConfig.lazyInitAfterVerification();
         } catch (Exception e) {
             e.printStackTrace();

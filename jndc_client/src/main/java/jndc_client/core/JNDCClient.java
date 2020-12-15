@@ -9,6 +9,7 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
+import jndc_client.gui_support.GuiStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

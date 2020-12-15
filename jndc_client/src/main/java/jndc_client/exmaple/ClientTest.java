@@ -23,7 +23,7 @@ public class ClientTest {
         try {
             jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
             jndcClientConfig.performParameterVerification();
-            UniqueBeanManage.registerBean(jndcClientConfig);
+
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("config file:" + file + " parse fail：" + e);

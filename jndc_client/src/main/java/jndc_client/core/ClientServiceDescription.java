@@ -26,7 +26,7 @@ public class ClientServiceDescription {
     private boolean serviceEnable;
 
 
-    /* ---------prepare  file-----*/
+    /* ---------prepare  field-----*/
     private InetAddress ipAddress;
 
     private InetSocketAddress ipSocketAddress;

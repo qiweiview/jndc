@@ -9,6 +9,7 @@ import jndc.core.TcpServiceDescription;
 
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
+import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
@@ -19,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,43 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     public static final String NAME = "NDC_SERVER_HANDLE";
 
+
+    private void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        //put new register service into map
+        Map<String, TcpServiceDescriptionOnServer> map = new HashMap<>();
+        tcpServiceDescriptionOnServers.forEach(x -> {
+            map.put(x.getRouteTo(), x);
+        });
+
+        //find the old "port service bind"
+        DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+        List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and routeTo is not null  ");
+
+        //find match "port service bind"
+        serverPortBinds.forEach(x -> {
+            String routeTo = x.getRouteTo();
+            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(routeTo);
+            if (tcpServiceDescription != null) {
+                //todo do rebind
+
+                //rebind the port service
+                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), tcpServiceDescription);
+
+                if (success) {
+                    x.setPortEnable(1);
+                    logger.debug("rebind the service:" + routeTo+" success");
+                } else {
+                    x.setPortEnable(0);
+                    logger.error("rebind the service:" + routeTo+" fail");
+                }
+
+                dbWrapper.updateByPrimaryKey(x);
+
+            }
+        });
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
@@ -51,8 +91,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             }
 
-            if (type == NDCMessageProtocol.MAP_REGISTER) {
-                //todo MAP_REGISTER
+            /*==================================== OPEN_CHANNEL ====================================*/
+            if (type== NDCMessageProtocol.OPEN_CHANNEL){
+                //todo OPEN_CHANNEL
+
 
                 //copy message
                 NDCMessageProtocol copy = ndcMessageProtocol.copy();
@@ -61,7 +103,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 String secrete = jndcServerConfig.getSecrete();
 
 
-                RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
+                OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
                 String auth = registrationMessage.getAuth();
 
                 if (auth == null || !secrete.equals(auth)) {
@@ -75,70 +117,88 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                     return;
                 }
 
-
-                //registerServiceProvider
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
                 ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
                 channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
-                List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
-
-                List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers= TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
-                channelHandlerContextHolder.setTcpServiceDescriptions(tcpServiceDescriptionOnServers);
-
-
-
-                /* -------------------restore the bind relation------------------- */
-
-                //put new register service into map
-                Map<String, TcpServiceDescriptionOnServer> map = new HashMap<>();
-                tcpServiceDescriptionOnServers.forEach(x -> {
-                    map.put(x.getRouteTo(), x);
-                });
-
-                //find the old "port service bind"
-                DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-                List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and routeTo is not null  ");
-
-                //find match "port service bind"
-                serverPortBinds.forEach(x -> {
-                    String routeTo = x.getRouteTo();
-                    TcpServiceDescriptionOnServer tcpServiceDescription = map.get(routeTo);
-                    if (tcpServiceDescription != null) {
-                        //todo do rebind
-
-                        //rebind the port service
-                        boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), tcpServiceDescription);
-
-                        if (success) {
-                            x.setPortEnable(1);
-                            logger.debug("rebind the service:" + routeTo+" success");
-                        } else {
-                            x.setPortEnable(0);
-                            logger.error("rebind the service:" + routeTo+" fail");
-                        }
-
-                        dbWrapper.updateByPrimaryKey(x);
-
-                    }
-                });
-
-
-                //do register
                 ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
 
 
                 // send response
-                RegistrationMessage response = new RegistrationMessage();
-                response.setMessage("service has been successfully registered(msg from server)");
-                byte[] bytes = ObjectSerializableUtils.object2bytes(response);
+                OpenChannelMessage openChannelMessage = new OpenChannelMessage();
+                openChannelMessage.setChannelId(channelHandlerContextHolder.getId());
+                byte[] bytes = ObjectSerializableUtils.object2bytes(openChannelMessage);
                 copy.setData(bytes);
                 channelHandlerContext.writeAndFlush(copy);
 
-
                 MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
                 messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+
+            }
+
+            /*==================================== SERVICE_REGISTER ====================================*/
+            if (type == NDCMessageProtocol.SERVICE_REGISTER) {
+                //todo SERVICE_REGISTER
+
+                //copy message
+                NDCMessageProtocol copy = ndcMessageProtocol.copy();
+
+
+//                String secrete = jndcServerConfig.getSecrete();
+//
+//                String auth = registrationMessage.getAuth();
+//
+//                if (auth == null || !secrete.equals(auth)) {
+//                    //todo auth fail
+//                    copy.setType(NDCMessageProtocol.NO_ACCESS);
+//                    UserError userError = new UserError();
+//                    byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
+//                    copy.setData(bytes);
+//                    channelHandlerContext.writeAndFlush(copy);
+//                    logger.error("auth fail with:" + auth);
+//                    return;
+//                }
+
+
+                //registerServiceProvider
+                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+
+                RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
+                List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
+                List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers= TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+
+
+                /* -------------------restore the bind relation------------------- */
+               serviceRebind(tcpServiceDescriptionOnServers);
+
+
+                //do register
+                ndcServerConfigCenter.addServiceByChannelId(registrationMessage.getChannelId(),tcpServiceDescriptionOnServers);
+
+
+                // send response
+//                RegistrationMessage response = new RegistrationMessage(RegistrationMessage.TYPE_REGISTER);
+//                response.setMessage("service has been successfully registered(msg from server)");
+//                byte[] bytes = ObjectSerializableUtils.object2bytes(response);
+//                copy.setData(bytes);
+//                channelHandlerContext.writeAndFlush(copy);
+
+
+                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
                 messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
                 messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
+            }
+
+
+
+
+
+            /*==================================== SERVICE_UNREGISTER ====================================*/
+            if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
+                //todo SERVICE_UNREGISTER
+
+
             }
 
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
@@ -164,6 +224,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("unCatchableError:" + e);
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
             UserError userError = new UserError();
@@ -219,7 +280,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         of.setData(cause.toString().getBytes());
         ctx.writeAndFlush(of).addListeners(ChannelFutureListener.CLOSE);
 
-        logger.error("unCatchable server error：" + cause.getMessage());
+        if (!(cause instanceof IOException)){
+            cause.printStackTrace();
+        }
+        logger.error("unCatchable server error：" + cause);
 
     }
 

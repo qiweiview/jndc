@@ -26,13 +26,7 @@ public class ServerPortBindContext {
     }
 
 
-    public void makeVirtual() {
-        setVirtualTag(1);
-    }
 
-    public void makePhysics() {
-        setVirtualTag(0);
-    }
 
     /* --------------------getter setter---------------- */
 

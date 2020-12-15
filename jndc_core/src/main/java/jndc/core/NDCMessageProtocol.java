@@ -51,25 +51,30 @@ public class NDCMessageProtocol {
 
     /*--------------------- message types ---------------------*/
 
-    public static final byte TCP_DATA = 1;//tcp data transmission message
+    public static final byte TCP_DATA = 0x01;//tcp data transmission message
 
-    public static final byte TCP_ACTIVE = 2;//tcp active message
+    public static final byte TCP_ACTIVE = 0x02;//tcp active message
 
-    public static final byte MAP_REGISTER = 3;//client register message
+    public static final byte SERVICE_REGISTER = 0x03;//client register message
 
-    public static final byte CONNECTION_INTERRUPTED = 4;//server or client connection interrupted
+    public static final byte SERVICE_UNREGISTER = 0x04;//client unregister message
 
-    public static final byte NO_ACCESS = 5;//auth fail
+    public static final byte CONNECTION_INTERRUPTED = 0x05;//server or client connection interrupted
 
-    public static final byte USER_ERROR = 6;//throw by user
+    public static final byte NO_ACCESS = 0x06;//auth fail
 
-    public static final byte UN_CATCHABLE_ERROR = 7;//runtime unCatch
+    public static final byte USER_ERROR = 0x07;//throw by user
 
-    public static final byte CHANNEL_HEART_BEAT = 8;//the channel heart beat
+    public static final byte UN_CATCHABLE_ERROR = 0x08;//runtime unCatch
 
-    public static final int UN_USED_PORT = 0;//the single package length
+    public static final byte CHANNEL_HEART_BEAT = 0x09;//the channel heart beat
+
+    public static final byte OPEN_CHANNEL = 0X0A;//client register message
+
+
 
     /*--------------------- static variable ---------------------*/
+    public static final int UN_USED_PORT = 0;//the single package length
 
     //the max length of single package,protocol just support 4 byte to this value,so the value need to less then Integer.MAX_VALUE
     public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;
