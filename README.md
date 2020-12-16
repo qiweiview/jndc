@@ -11,6 +11,7 @@
 * [数据加解密](#数据加解密)
 * [IP黑白名单](#IP黑白名单)
 * [管理API及页面SSL支持](#管理API及页面SSL支持)
+* [Client可视化](#Client可视化)
 * [配置文件说明](#配置文件说明)
 * [小结](#小结)
 
@@ -19,7 +20,7 @@
 ## 项目介绍
 * "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。
 * 应用以Client/Server架构运行,由本地client端向server端注册本地服务，由server端选择暴露对应服务 
-* 应用核心由ndc私有协议支撑，提供了"传输数据加密","ip黑白名单"功能
+* 应用核心由ndc私有协议支撑，提供了"传输数据加密","ip黑白名单","客户端可视化"功能
 
 
 ## 项目目录结构
@@ -33,47 +34,45 @@
 ## 项目使用范例
 ### 范例一 暴露内网192.168.216.31(举例)设备上的nginx和远程桌面服务器到公网服务器118.29.31.43(举例)的任意端口上
 * 安装jdk 1.8+
-* [下载适合设备运行的版本](https://github.com/qiweiview/jndc/releases/) (java语言跨平台特性，实际两个版本仅启动脚本差异)
-* 解压后文件目录
+* [下载应用](https://github.com/qiweiview/jndc/releases/tag/v20201216) 
+```yaml
+release20201216_client.zip # 客户端压缩包
+release20201216_server.zip # 服务端压缩包
+release20201216_front_management.zip # 前端项目压缩包
+```
+* 文件目录结构
 ```yaml
 # (f)开头为文件 (d)开头为文件夹
 
-- linux_client
-  - (f)client_start.sh #client启动脚本
-  - (f)client_stop.sh # client停止脚本
-  - (f)config.yml # client配置文件
-  - (f)jndc-1.0.jar # client java 应用
+- release20201216_client
+  - (f)jndc_server-1.0.jar # client端java程序
+  - (f)server_start.bat # window client 启动脚本
+  - (f)server_start.sh # linux client 启动脚本
+  - (f)config.yml # client 配置文件
   
-- linux_server
-  - (f)server_start.sh # server 启动脚本
-  - (f)server_stop.sh # server 停止脚本
+- release20201216_server
+  - (f)jndc_server-1.0.jar # server端java程序
+  - (f)server_start.bat # window server 启动脚本
+  - (f)server_start.sh # linux server 启动脚本
   - (f)config.yml # server 配置文件
-  - (d)default_management  # server 管理界面前端项目
 ```
 #### 部署server端
 * 将linux_server文件夹拷贝至公网服务器目录/usr/local/jndc(举例),
 * 启动前需要修改config.yml文件
 ```yaml
-# ------------------------------------------------------general config line------------------------------------------------------
-# general config
 secrete: "scdfat!`" # 尽量复杂，不支持初始密码‘jndc’
 loglevel: "info"
-
-# ------------------------------------------------------server config line------------------------------------------------------
-
-# server配置
-serverConfig:
-  blackList: # ip访问黑名单
-  # - "192.168.1.1"
-  whiteList: # 白名单
-  #  - "192.168.1.2"
-  frontProjectPath: '/usr/local/jndc/default_management/' #管理端项目地址,对应举例中/usr/local/jndc
-  deployFrontProject: true # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
-  loginName: "test33" # 管理界面用户名
-  loginPassWord: "test_pass1`" # 管理界面密码
-  managementApiPort: "82" # 管理界面访问端口
-  adminPort: "81" # jndc服务端运行监听端口
-  bindIp: "118.29.31.43" # jndc服务端运行ip
+blackList: # ip访问黑名单
+# - "192.168.1.1"
+whiteList: # 白名单
+#  - "192.168.1.2"
+frontProjectPath: '/usr/local/jndc/default_management/' #管理端项目地址(release中有发布对应前端项目)
+deployFrontProject: true # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
+loginName: "test33" # 管理界面用户名
+loginPassWord: "test_pass1`" # 管理界面密码
+managementApiPort: "82" # 管理界面访问端口
+adminPort: "81" # jndc服务端运行监听端口
+bindIp: "118.29.31.43" # jndc服务端运行ip
 ```
 
 * 运行server_start.sh脚本,日志将被输出至同级log目录下
@@ -87,26 +86,20 @@ start jndc success
 * 将linux_client文件加拷贝至内网服务器192.168.216.31
 * 启动前需要修改config.yml文件
 ```yaml
-# ------------------------------------------------------general config line------------------------------------------------------
-# 通用配置
 secrete: "scdfat!`" # 和上面服务端内要一致
 loglevel: "info" # 日志打印等级
-
-# ------------------------------------------------------client config line------------------------------------------------------
-
-# client配置
-clientConfig:
-  serverIp: "118.29.31.43" # 服务端运行监听ip
-  serverPort: "81" # server端jndc运行端口
-  clientServiceDescriptions: # 要注册的服务
-    - serviceName: "nginx服务"  # 服务名称
-      serviceIp: "127.0.0.1" # 服务连接ip
-      servicePort: "80"  # 服务监听端口
-      serviceEnable: true # 服务是否可用    
-    - serviceName: "远程桌面"  # 服务名称
-      serviceIp: "127.0.0.1" # 服务连接ip
-      servicePort: "3389"  # 服务监听端口
-      serviceEnable: true # 服务是否可用    
+serverIp: "118.29.31.43" # 服务端运行监听ip
+serverPort: "81" # server端jndc运行端口
+openGui: false # 'true'时会同时打开客户端可视化界面
+clientServiceDescriptions: # 要注册的服务
+ - serviceName: "nginx服务"  # 服务名称
+   serviceIp: "127.0.0.1" # 服务连接ip
+   servicePort: "80"  # 服务监听端口
+   serviceEnable: true # 服务是否可用
+ - serviceName: "远程桌面"  # 服务名称
+   serviceIp: "127.0.0.1" # 服务连接ip
+   servicePort: "3389"  # 服务监听端口
+   serviceEnable: true # 服务是否可用    
 ```
 * 运行client_start.sh脚本,日志将被输出至同级log目录下
 
@@ -212,54 +205,55 @@ whiteList:
   keystorePass: 'xxx'
 ```
 
+## Client可视化
+* 客户端开启可视化配置
+```yaml
+openGui: true
+```
+* 启动后将打开客户端
+* [![r1y3PH.png](https://s3.ax1x.com/2020/12/16/r1y3PH.png)](https://imgchr.com/i/r1y3PH)
+* 支持动态 开启/关闭/删除 服务
+* [![r1yNsP.png](https://s3.ax1x.com/2020/12/16/r1yNsP.png)](https://imgchr.com/i/r1yNsP)
+
 ## 配置文件说明
 
 ### server 配置
 ```yaml
-# ------------------------------------------------------general config line------------------------------------------------------
-# general config
 secrete: "jndc" # server端密钥，client端配置需要持有相同字符串。很重要务必在使用前更改,不允许默认密码为‘jndc’运行
-loglevel: "info" #日志打印等级
-
-
-# ------------------------------------------------------server config line------------------------------------------------------
-
-# 服务端配置
-serverConfig:
-  blackList: # ip访问黑名单，ip限制覆盖除管理端口（即managementApiPort）外的所有端口监听
-  # - "192.168.1.1"
-  whiteList: # ip访问白名单
-  # - "192.168.1.2"
-  frontProjectPath: '/usr/local/default_management/' #前端管理项目地址,若‘deployFrontProject’参数为true，则该地址文件夹将被作为静态项目部署到‘managementApiPort’端口
-  deployFrontProject: true # 是否部署‘frontProjectPath’参数地址下的项目到‘managementApiPort’端口,false不会部署，反之
-  loginName: "jndc" # 内部管理api登录所需用户名，不允许默认值‘jndc’
-  loginPassWord: "jndc" # 内部管理api登录所需密码，不允许默认值‘jndc’
-  managementApiPort: "82" # 内部管理api监听端口，若‘deployFrontProject’为true,那么‘frontProjectPath’位置的前端项目也将被部署到这个端口上
-  useSsl: true # true时，会为’managementApiPort‘端口加载’keyStoreFile‘证书
-  keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks' # 证书文件，仅支持jks格式，校验失败控制台会提示
-  keystorePass: 'xxx' # jks文件密钥，校验失败控制台会提示
-  adminPort: "81" # jndc建立隧道端口，端口用于支持ndc协议调用
-  bindIp: "0.0.0.0" # jndc服务端运行绑定的网卡ip
+loglevel: "info" # 日志打印等级
+blackList: # ip访问黑名单，ip限制覆盖除管理端口（即managementApiPort）外的所有端口监听
+  #- "192.168.1.1"
+whiteList: # ip访问白名单
+  #  - "192.168.1.2"
+frontProjectPath: '/usr/local/default_management/' # 前端管理项目地址,若‘deployFrontProject’参数为true，则该地址文件夹将被作为静态项目部署到‘managementApiPort’端口
+deployFrontProject: true # 是否部署‘frontProjectPath’参数地址下的项目到‘managementApiPort’端口,false不会部署，反之
+loginName: "jndc" # 内部管理api登录所需用户名，不允许默认值‘jndc’
+loginPassWord: "jndc" # 内部管理api登录所需密码，不允许默认值‘jndc’
+useSsl: false
+keyStoreFile: '/home/xxx.cn.jks' # 证书文件，仅支持jks格式，校验失败控制台会提示
+keystorePass: 'xxx' # jks文件密钥，校验失败控制台会提示
+managementApiPort: "443" #管理api端口
+adminPort: "81" # jndc建立隧道端口，端口用于支持ndc协议调用
+bindIp: "0.0.0.0" # jndc服务端运行ip
 ```
 
 ### client 配置
 ```yaml
-# ------------------------------------------------------general config line------------------------------------------------------
-# 通用配置
-secrete: "jndc" #server端密钥，client端配置需要持有相同字符串。很重要务必在使用前更改,不允许默认密码为‘jndc’运行
+secrete: "xxx" # client端配置需要持有相同字符串。很重要务必在使用前更改,不允许默认密码为‘jndc’运行
 loglevel: "info" # 日志打印等级
+serverIp: "127.0.0.1" # 服务端运行监听ip
+serverPort: "81" # 服务端运行端口
+openGui: true
+clientServiceDescriptions: # 注册服务
+  - serviceName: "desk" # 服务名称(仅作为注册的标识)
+    serviceIp: "192.168.216.131" #  服务所在网络ip
+    servicePort: "3389" #  服务监听端口
+    serviceEnable: true # 该服务是否在客户端启动后自动注册，即:'true'则会在客户端启动后自动将该服务注册到服务端,反之
+  - serviceName: "echo"
+    serviceIp: "127.0.0.1"
+    servicePort: "888"
+    serviceEnable: false
 
-# ------------------------------------------------------client config line------------------------------------------------------
-
-# 客户端配置
-clientConfig:
-  serverIp: "192.168.1.1" # 服务端运行监听ip
-  serverPort: "81" # 服务端运行端口
-  clientServiceDescriptions: # 注册服务
-    - serviceName: "nginx"  # 服务名称(仅命名，无其他作用)
-      serviceIp: "192.168.2.1" # 本地服务ip
-      servicePort: "80"  # 本地服务端口
-      serviceEnable: true # 服务是否开启，设置为false则该配置将被跳过，不被读取使用    
 ```
 
 ## 小结
@@ -268,5 +262,5 @@ clientConfig:
 
 ## 开发计划
 * 业务级IP记录
-* 客户端GUI支持
+
 
