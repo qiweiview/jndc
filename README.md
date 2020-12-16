@@ -3,6 +3,7 @@
 
 
 ## 文档摘要
+* [常见问题](https://github.com/qiweiview/jndc/blob/master/QA.md)
 * [项目介绍](#项目介绍)
 * [项目目录结构](#项目目录结构)
 * [项目使用范例](#项目使用范例)
