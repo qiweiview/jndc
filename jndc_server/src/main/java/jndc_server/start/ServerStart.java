@@ -72,7 +72,6 @@ public class ServerStart {
             jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
             jndcServerConfig.setRuntimeDir(file.getParent());
             jndcServerConfig.performParameterVerification();
-            UniqueBeanManage.registerBean(jndcServerConfig);
             jndcServerConfig.lazyInitAfterVerification();
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);

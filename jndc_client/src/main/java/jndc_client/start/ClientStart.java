@@ -65,7 +65,6 @@ public class ClientStart {
         try {
             jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
             jndcClientConfig.performParameterVerification();
-            UniqueBeanManage.registerBean(jndcClientConfig);
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();
