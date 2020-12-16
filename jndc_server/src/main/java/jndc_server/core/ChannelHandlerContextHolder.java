@@ -8,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -105,12 +102,36 @@ public class ChannelHandlerContextHolder {
         return tcpServiceDescriptions;
     }
 
+
+
+    public  void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+        Set<String> strings=new HashSet<>();
+        tcpServiceDescriptionOnServers.forEach(x->{
+            x.setBelongContextIp(contextIp);
+            strings.add(x.getRouteTo());
+        });
+
+        //lock
+        synchronized(ChannelHandlerContextHolder.class){
+            Iterator<TcpServiceDescriptionOnServer> iterator = tcpServiceDescriptions.iterator();
+            while (iterator.hasNext()){
+                TcpServiceDescriptionOnServer next = iterator.next();
+                if (strings.contains(next.getRouteTo())){
+                    iterator.remove();
+                    next.releaseRelatedResources();
+                }
+            }
+        }
+
+    }
+
     public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
         Set<String> strings=new HashSet<>();
         tcpServiceDescriptions.forEach(x->{
             strings.add(x.getRouteTo());
         });
         tcpServiceDescriptionOnServers.forEach(x->{
+            x.setBelongContextIp(contextIp);
             String routeTo = x.getRouteTo();
             if (strings.contains(routeTo)){
                 logger.error("the service "+routeTo+"is exist");

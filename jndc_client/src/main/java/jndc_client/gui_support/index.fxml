@@ -42,8 +42,10 @@
             <Font size="20.0" />
          </font>
       </Label>
-      <JFXTextArea fx:id="logArea" editable="false" layoutX="762.0" layoutY="102.0" prefHeight="532.0" prefWidth="504.0" style="-fx-border-color: grey" wrapText="true">
-      </JFXTextArea>
+      <JFXTextArea fx:id="logArea" editable="false" layoutX="762.0" layoutY="102.0" prefHeight="532.0" prefWidth="504.0" style="-fx-border-color: grey; -fx-background-size: 13;" wrapText="true">
+         <font>
+            <Font size="13.0" />
+         </font></JFXTextArea>
       <ToolBar prefHeight="40.0" prefWidth="1280.0">
          <items>
             <JFXButton maxWidth="108.0" minWidth="108.0" onAction="#addService" prefWidth="108.0" style="-fx-background-color: #4886EC;" styleClass="button-raised" text="添加服务" textFill="#f2ebeb">
@@ -51,7 +53,7 @@
                   <Font size="20.0" />
                </font>
             </JFXButton>
-            <JFXButton  maxWidth="108.0" minWidth="108.0" onAction="#moreAboutJNDC" prefWidth="108.0" style="-fx-background-color: #4886EC;" styleClass="button-raised" text="关 于" textFill="#f2ebeb">
+            <JFXButton maxWidth="108.0" minWidth="108.0" onAction="#moreAboutJNDC" prefWidth="108.0" style="-fx-background-color: #4886EC;" styleClass="button-raised" text="关 于" textFill="#f2ebeb">
                <font>
                   <Font size="20.0" />
                </font>

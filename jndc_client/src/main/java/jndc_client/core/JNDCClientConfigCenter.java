@@ -96,6 +96,19 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         portProtectorMap.put(clientTag, clientServiceProvider);
     }
 
+    public void destroyService(ClientServiceDescription x) {
+        InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
+        String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
+        ClientServiceProvider remove = portProtectorMap.remove(clientTag);
+        if (remove==null){
+            logger.error("can not found service "+clientTag+" in local");
+            return;
+        }else {
+            remove.releaseAllRelatedResources();
+        }
+    }
+
+
     public String getChannelId() {
         return channelId;
     }

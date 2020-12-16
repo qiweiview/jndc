@@ -62,12 +62,63 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         ctx.writeAndFlush(tqs);
     }
 
+
+    public void stopRegister(ClientServiceDescription... list) {
+        if (list == null || list.length < 1) {
+            logger.error("ignore empty list");
+            return;
+        }
+        stopRegister(Stream.of(list).collect(Collectors.toList()));
+    }
+
     public void startRegister(ClientServiceDescription... list) {
         if (list == null || list.length < 1) {
             logger.error("ignore empty list");
             return;
         }
         startRegister(Stream.of(list).collect(Collectors.toList()));
+    }
+
+    public void stopRegister(List<ClientServiceDescription> list) {
+
+        JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+        JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+
+        if (list == null || list.size() < 1) {
+            logger.error("ignore empty list");
+            return;
+        }
+
+
+        //get service info
+        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
+        list.forEach(x -> {
+            TcpServiceDescription tcpServiceDescription = x.toTcpServiceDescription();
+            tcpServiceDescriptions.add(tcpServiceDescription);
+            jndcClientConfigCenter.destroyService(x);//destroy the support service
+        });
+
+
+        //create register message
+        RegistrationMessage registrationMessage = new RegistrationMessage(RegistrationMessage.TYPE_UNREGISTER);
+        registrationMessage.setChannelId(jndcClientConfigCenter.getChannelId());
+        registrationMessage.setAuth(clientConfig.getSecrete());
+
+
+        registrationMessage.setTcpServiceDescriptions(tcpServiceDescriptions);
+        byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
+
+
+        try {
+            InetAddress unused = InetAddress.getLocalHost();
+            NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.SERVICE_UNREGISTER);
+            tqs.setData(bytes);
+
+            //send data
+            ctx.writeAndFlush(tqs);
+        } catch (UnknownHostException e) {
+            logger.error(e+"");
+        }
     }
 
     public void startRegister(List<ClientServiceDescription> list) {

@@ -25,6 +25,19 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
 
+    public void removeServiceByChannelId(String channelId,List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
+        if (channelId==null){
+            throw new RuntimeException( "channelId is necessary");
+        }
+
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
+        if (channelHandlerContextHolder==null){
+            logger.error("can not found the holder that id is"+channelId);
+        }else {
+            channelHandlerContextHolder.removeTcpServiceDescriptions(tcpServiceDescriptionOnServers);
+        }
+    }
+
     public void addServiceByChannelId(String channelId,List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
         if (channelId==null){
            throw new RuntimeException( "channelId is necessary");

@@ -50,7 +50,7 @@ public class ClientServiceProvider {
         //can replace with Arrays.compare in jdk 9
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
             //todo ignore active message
-          //  logger.info("get active message");
+            //  logger.info("get active message");
             return;
         }
 
@@ -90,18 +90,27 @@ public class ClientServiceProvider {
             connect.sync();
             //logger.info("local app connect success");
         } catch (InterruptedException e) {
-            logger.error("connect to " + inetSocketAddress + "fail cause"+e);
+            logger.error("connect to " + inetSocketAddress + "fail cause" + e);
         }
 
         return clientTCPDataHandle;
     }
 
 
+    public void releaseAllRelatedResources() {
+        synchronized (ClientServiceProvider.class) {
+            faceTCPMap.forEach((k, v) -> {
+                v.releaseRelatedResources();
+            });
+        }
+    }
+
+
     public void releaseRelatedResources(String uniqueTag) {
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(uniqueTag);
-        if (clientTCPDataHandle==null){
-            logger.error("can not find the service provider for "+uniqueTag);
-        }else {
+        if (clientTCPDataHandle == null) {
+            logger.error("can not find the service provider for " + uniqueTag);
+        } else {
             clientTCPDataHandle.releaseRelatedResources();
         }
     }

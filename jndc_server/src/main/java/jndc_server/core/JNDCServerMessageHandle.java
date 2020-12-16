@@ -87,6 +87,31 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         return null;
     }
 
+
+    private void handleUnRegisterService(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) {
+        //copy message
+        NDCMessageProtocol copy = ndcMessageProtocol.copy();
+
+        //===================auth check===========================
+        RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
+        String auth = registrationMessage.getAuth();
+        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        if (checkResult != null) {
+            channelHandlerContext.writeAndFlush(copy);
+            return;
+        }
+        //========================================================
+
+        //registerServiceProvider
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
+        List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+
+        //do register
+        ndcServerConfigCenter.removeServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);
+    }
+
     /**
      * handle the register service message
      *
@@ -204,8 +229,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             /*==================================== SERVICE_UNREGISTER ====================================*/
             if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
                 //todo SERVICE_UNREGISTER
-
-
+                handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
+                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
             }
 
             /*==================================== CONNECTION_INTERRUPTED ====================================*/
@@ -213,6 +239,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 //todo CONNECTION_INTERRUPTED
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
+
+                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+                messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
             }
 
             /*==================================== NO_ACCESS ====================================*/
@@ -247,6 +277,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
     }
+
+
+
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {

@@ -74,7 +74,7 @@ public class IndexController implements Initializable {
 
     @FXML
     public void clearConsoleLog(ActionEvent actionEvent) {
-        logArea.setText(null);
+        logArea.setText("");
     }
 
     @FXML
@@ -113,25 +113,26 @@ public class IndexController implements Initializable {
         ContextMenuOnListViewBuilder.InnerButtonDescription start = new ContextMenuOnListViewBuilder.InnerButtonDescription(" 启 用 ", x -> {
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
-            if (clientServiceDescription.isServiceEnable()){
-                AlertUtils.error("服务已经启用");
-                return;
-            }
+//            if (clientServiceDescription.isServiceEnable()){
+//                AlertUtils.error("服务已经启用");
+//                return;
+//            }
 
-            //about gui
+
             EventHandler<ActionEvent> startCallBack = z -> {
+                //about gui
                 clientServiceDescription.setServiceEnable(true);
                 MenuItemPackagingListStore.reloadItem();
 
+                //about jndc_client
                 JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.startRegister(clientServiceDescription);
-
                 logger.info("register service '"+clientServiceDescription.getServiceName()+"' to server");
 
             };
 
-            //about jndc_client
+
             DialogBuilder.InnerAutoCloseButton startB = new DialogBuilder.InnerAutoCloseButton("启动", startCallBack);
             startB.setButtonType(DialogBuilder.InnerAutoCloseButton.SUCCESS_TYPE);
             DialogBuilder.openMessageDialog(anchorPane, "启动后客户端将自动向服务端注册服务",startB );
@@ -173,8 +174,18 @@ public class IndexController implements Initializable {
 
             //----------------- about gui -----------------
             EventHandler<ActionEvent> pauseCallBack = z -> {
+
+                //about gui
                 clientServiceDescription.setServiceEnable(false);
                 MenuItemPackagingListStore.reloadItem();
+
+
+                //about jndc
+                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+                JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
+                currentHandler.stopRegister(clientServiceDescription);
+                logger.info("unregister service '"+clientServiceDescription.getServiceName()+"' to server");
+
             };
             DialogBuilder.openMessageDialog(anchorPane, "确认暂停服务 \"" + x + "\" ？ 暂停后，已建立连接也将中断", new DialogBuilder.InnerAutoCloseButton("暂停", pauseCallBack));
 
