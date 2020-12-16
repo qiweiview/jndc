@@ -12,7 +12,6 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ApplicationExit;
-import jndc.utils.InetUtils;
 import jndc.utils.ObjectSerializableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +21,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,16 +39,6 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         this.client = jndcClient;
     }
 
-    public void sendRegisterToServer(int localPort, int serverPort) {
-        RegistrationMessage registrationMessage = new RegistrationMessage(RegistrationMessage.TYPE_REGISTER);
-        //  registrationMessage.setEquipmentId(InetUtils.uniqueInetTag);
-        byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
-
-
-        NDCMessageProtocol tqs = NDCMessageProtocol.of(InetUtils.localInetAddress, InetUtils.localInetAddress, 0, serverPort, localPort, NDCMessageProtocol.SERVICE_REGISTER);
-        tqs.setData(bytes);
-        ctx.writeAndFlush(tqs);
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -71,16 +62,40 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         ctx.writeAndFlush(tqs);
     }
 
-    private void sendServiceRegisterMessage() throws Exception {
+    public void startRegister(ClientServiceDescription... list) {
+        if (list == null || list.length < 1) {
+            logger.error("ignore empty list");
+            return;
+        }
+        startRegister(Stream.of(list).collect(Collectors.toList()));
+    }
+
+    public void startRegister(List<ClientServiceDescription> list) {
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
 
-
-        if (clientConfig == null || clientConfig.getClientServiceDescriptions() == null) {
-            logger.error("can not load service support config");
+        if (list == null || list.size() < 1) {
+            logger.error("ignore empty list");
             return;
         }
 
+
+        //get service info
+        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
+        list.forEach(x -> {
+            if (x.isServiceEnable()) {
+                TcpServiceDescription tcpServiceDescription = x.toTcpServiceDescription();
+                tcpServiceDescriptions.add(tcpServiceDescription);
+                jndcClientConfigCenter.initService(x);//init the support service
+            } else {
+                logger.info("ignore the mapping:" + x.getServiceName());
+            }
+        });
+
+        if (tcpServiceDescriptions.size()<1){
+            logger.info("do not send register message ,because  there is not any enable service  on config file ");
+            return;
+        }
 
         //create register message
         RegistrationMessage registrationMessage = new RegistrationMessage(RegistrationMessage.TYPE_REGISTER);
@@ -88,31 +103,59 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         registrationMessage.setAuth(clientConfig.getSecrete());
 
 
-        //get service info
-        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
-        clientConfig.getClientServiceDescriptions().forEach(x -> {
-            if (x.isServiceEnable()) {
-                tcpServiceDescriptions.add(x.toTcpServiceDescription());
-
-                //init the support service
-                jndcClientConfigCenter.initService(x);
-
-            } else {
-                logger.info("ignore the mapping:" + x.getServiceName());
-            }
-        });
-
-
         registrationMessage.setTcpServiceDescriptions(tcpServiceDescriptions);
         byte[] bytes = ObjectSerializableUtils.object2bytes(registrationMessage);
 
 
-        InetAddress unused = InetAddress.getLocalHost();
-        NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.SERVICE_REGISTER);
-        tqs.setData(bytes);
+        try {
+            InetAddress unused = InetAddress.getLocalHost();
+            NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.SERVICE_REGISTER);
+            tqs.setData(bytes);
 
-        //send data
-        ctx.writeAndFlush(tqs);
+            //send data
+            ctx.writeAndFlush(tqs);
+        } catch (UnknownHostException e) {
+            logger.error(e+"");
+        }
+
+
+    }
+
+    /**
+     * send service register by config file
+     *
+     * @throws Exception
+     */
+    private void sendServiceRegisterMessage()  {
+        JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+
+
+        if (clientConfig == null) {
+            logger.error("can not load service support config");
+            return;
+        }
+
+        //get service list by config file
+        List<ClientServiceDescription> clientServiceDescriptions = clientConfig.getClientServiceDescriptions();
+        startRegister(clientServiceDescriptions);
+    }
+
+    private void handleOpenChannelResponse(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
+        OpenChannelMessage object = ndcMessageProtocol.getObject(OpenChannelMessage.class);
+        String channelId = object.getChannelId();
+        JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+        jndcClientConfigCenter.registerMessageChannel(channelId, channelHandlerContext);
+        InetAddress unused = InetAddress.getLocalHost();
+        final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
+
+        //send heart beat
+        EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
+        eventExecutors.scheduleAtFixedRate(() -> {
+            jndcClientConfigCenter.addMessageToSendQueue(tqs);
+        }, 0, 60, TimeUnit.SECONDS);
+
+        //send register message
+        sendServiceRegisterMessage();
     }
 
     @Override
@@ -145,22 +188,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
 
-            if (type== NDCMessageProtocol.OPEN_CHANNEL){
+            if (type == NDCMessageProtocol.OPEN_CHANNEL) {
                 //todo OPEN_CHANNEL
-                OpenChannelMessage object = ndcMessageProtocol.getObject(OpenChannelMessage.class);
-                String channelId = object.getChannelId();
-                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                jndcClientConfigCenter.registerMessageChannel(channelId,channelHandlerContext);
-                InetAddress unused = InetAddress.getLocalHost();
-                final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
-
-                //send heart beat
-                EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
-                eventExecutors.scheduleAtFixedRate(() -> {
-                    jndcClientConfigCenter.addMessageToSendQueue(tqs);
-                }, 0, 60, TimeUnit.SECONDS);
-
-                sendServiceRegisterMessage();
+                handleOpenChannelResponse(channelHandlerContext, ndcMessageProtocol);
             }
 
 
@@ -177,6 +207,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 logger.info("unregister success");
             }
 
+            /* ================================== CONNECTION_INTERRUPTED ================================== */
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
 

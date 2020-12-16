@@ -19,8 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JNDCClientConfigCenter implements NDCConfigCenter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<String, ClientServiceProvider> portProtectorMap = new ConcurrentHashMap<>();
 
+    private JNDCClientMessageHandle currentHandler;
+    private Map<String, ClientServiceProvider> portProtectorMap = new ConcurrentHashMap<>();
     private ChannelHandlerContext channelHandlerContext;//A client temporarily holds only one tunnel
     private String channelId;//channelId
 
@@ -46,6 +47,8 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         //receive message
         clientServiceProvider.receiveMessage(ndcMessageProtocol);
     }
+
+
 
 
     public void registerMessageChannel(String channelId,ChannelHandlerContext channelHandlerContext) {
@@ -75,16 +78,33 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         clientServiceProvider.releaseRelatedResources(client1);
     }
 
+    /**
+     * register service the manage map
+     * @param x
+     */
     public void initService(ClientServiceDescription x) {
-        InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
-        String client = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
-
-
         ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
-        portProtectorMap.put(client, clientServiceProvider);
+
+        InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
+        String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
+        ClientServiceProvider clientServiceProvider1 = portProtectorMap.get(clientTag);
+        if (clientServiceProvider1!=null){
+            logger.error("the service "+clientTag+" has been register in this map");
+            return;
+        }
+
+        portProtectorMap.put(clientTag, clientServiceProvider);
     }
 
     public String getChannelId() {
         return channelId;
+    }
+
+    public JNDCClientMessageHandle getCurrentHandler() {
+        return currentHandler;
+    }
+
+    public void setCurrentHandler(JNDCClientMessageHandle currentHandler) {
+        this.currentHandler = currentHandler;
     }
 }

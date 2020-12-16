@@ -34,7 +34,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     public static final String NAME = "NDC_SERVER_HANDLE";
 
 
-    private void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
+    private void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //put new register service into map
@@ -59,10 +59,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 if (success) {
                     x.setPortEnable(1);
-                    logger.debug("rebind the service:" + routeTo+" success");
+                    logger.debug("rebind the service:" + routeTo + " success");
                 } else {
                     x.setPortEnable(0);
-                    logger.error("rebind the service:" + routeTo+" fail");
+                    logger.error("rebind the service:" + routeTo + " fail");
                 }
 
                 dbWrapper.updateByPrimaryKey(x);
@@ -71,12 +71,109 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         });
     }
 
+    private NDCMessageProtocol authCheck(NDCMessageProtocol copy, String tokenFromRequest) {
+        JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
+        String secrete = jndcServerConfig.getSecrete();
+
+        if (tokenFromRequest == null || !secrete.equals(tokenFromRequest)) {
+            //todo auth fail
+            copy.setType(NDCMessageProtocol.NO_ACCESS);
+            UserError userError = new UserError();
+            byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
+            copy.setData(bytes);
+            logger.error("auth fail with:" + tokenFromRequest);
+            return copy;
+        }
+        return null;
+    }
+
+    /**
+     * handle the register service message
+     *
+     * @param channelHandlerContext
+     * @param ndcMessageProtocol
+     */
+    private void handleRegisterService(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) {
+        //copy message
+        NDCMessageProtocol copy = ndcMessageProtocol.copy();
+
+
+        //===================auth check===========================
+        RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
+        String auth = registrationMessage.getAuth();
+        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        if (checkResult != null) {
+            channelHandlerContext.writeAndFlush(copy);
+            return;
+        }
+        //========================================================
+
+
+        //registerServiceProvider
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
+        List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+
+        //do register
+        ndcServerConfigCenter.addServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);
+
+        /* ============================= restore the bind relation ============================= */
+        serviceRebind(tcpServiceDescriptionOnServers);
+
+
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+        messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
+    }
+
+    /**
+     * handle the open channel message
+     *
+     * @param channelHandlerContext
+     * @param ndcMessageProtocol
+     */
+    private void handleOpenChannel(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) {
+        //copy message
+        NDCMessageProtocol copy = ndcMessageProtocol.copy();
+
+
+        //===================auth check===========================
+        OpenChannelMessage openChannelMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
+        String auth = openChannelMessage.getAuth();
+        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        if (checkResult != null) {
+            channelHandlerContext.writeAndFlush(copy);
+            return;
+        }
+        //========================================================
+
+
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
+        channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
+        ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
+
+
+        // send response
+        OpenChannelMessage response = new OpenChannelMessage();
+        response.setChannelId(channelHandlerContextHolder.getId());
+        byte[] bytes = ObjectSerializableUtils.object2bytes(response);
+        copy.setData(bytes);
+        channelHandlerContext.writeAndFlush(copy);
+
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
         byte type = ndcMessageProtocol.getType();
 
 
         try {
+            /*==================================== CHANNEL_HEART_BEAT ====================================*/
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
                 //todo CHANNEL_HEART_BEAT
                 //just accept
@@ -84,114 +181,24 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             }
 
+            /*==================================== TCP_DATA ====================================*/
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.addMessageToReceiveQueue(ndcMessageProtocol);
-
             }
 
             /*==================================== OPEN_CHANNEL ====================================*/
-            if (type== NDCMessageProtocol.OPEN_CHANNEL){
+            if (type == NDCMessageProtocol.OPEN_CHANNEL) {
                 //todo OPEN_CHANNEL
-
-
-                //copy message
-                NDCMessageProtocol copy = ndcMessageProtocol.copy();
-
-                JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-                String secrete = jndcServerConfig.getSecrete();
-
-
-                OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
-                String auth = registrationMessage.getAuth();
-
-                if (auth == null || !secrete.equals(auth)) {
-                    //todo auth fail
-                    copy.setType(NDCMessageProtocol.NO_ACCESS);
-                    UserError userError = new UserError();
-                    byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
-                    copy.setData(bytes);
-                    channelHandlerContext.writeAndFlush(copy);
-                    logger.error("auth fail with:" + auth);
-                    return;
-                }
-
-                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-
-                ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
-                channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
-                ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
-
-
-                // send response
-                OpenChannelMessage openChannelMessage = new OpenChannelMessage();
-                openChannelMessage.setChannelId(channelHandlerContextHolder.getId());
-                byte[] bytes = ObjectSerializableUtils.object2bytes(openChannelMessage);
-                copy.setData(bytes);
-                channelHandlerContext.writeAndFlush(copy);
-
-                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
-
+                handleOpenChannel(channelHandlerContext, ndcMessageProtocol);
             }
 
             /*==================================== SERVICE_REGISTER ====================================*/
             if (type == NDCMessageProtocol.SERVICE_REGISTER) {
                 //todo SERVICE_REGISTER
-
-                //copy message
-                NDCMessageProtocol copy = ndcMessageProtocol.copy();
-
-
-//                String secrete = jndcServerConfig.getSecrete();
-//
-//                String auth = registrationMessage.getAuth();
-//
-//                if (auth == null || !secrete.equals(auth)) {
-//                    //todo auth fail
-//                    copy.setType(NDCMessageProtocol.NO_ACCESS);
-//                    UserError userError = new UserError();
-//                    byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
-//                    copy.setData(bytes);
-//                    channelHandlerContext.writeAndFlush(copy);
-//                    logger.error("auth fail with:" + auth);
-//                    return;
-//                }
-
-
-                //registerServiceProvider
-                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-
-
-                RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
-                List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
-                List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers= TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
-
-
-                /* -------------------restore the bind relation------------------- */
-               serviceRebind(tcpServiceDescriptionOnServers);
-
-
-                //do register
-                ndcServerConfigCenter.addServiceByChannelId(registrationMessage.getChannelId(),tcpServiceDescriptionOnServers);
-
-
-                // send response
-//                RegistrationMessage response = new RegistrationMessage(RegistrationMessage.TYPE_REGISTER);
-//                response.setMessage("service has been successfully registered(msg from server)");
-//                byte[] bytes = ObjectSerializableUtils.object2bytes(response);
-//                copy.setData(bytes);
-//                channelHandlerContext.writeAndFlush(copy);
-
-
-                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
-                messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
+                handleRegisterService(channelHandlerContext, ndcMessageProtocol);
             }
-
-
-
 
 
             /*==================================== SERVICE_UNREGISTER ====================================*/
@@ -201,23 +208,27 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             }
 
+            /*==================================== CONNECTION_INTERRUPTED ====================================*/
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
             }
 
+            /*==================================== NO_ACCESS ====================================*/
             if (type == NDCMessageProtocol.NO_ACCESS) {
                 //todo NO_ACCESS
                 logger.debug(new String(ndcMessageProtocol.getData()));
             }
 
+            /*==================================== USER_ERROR ====================================*/
             if (type == NDCMessageProtocol.USER_ERROR) {
                 //todo USER_ERROR
                 logger.error(new String(ndcMessageProtocol.getData()));
 
             }
 
+            /*==================================== UN_CATCHABLE_ERROR ====================================*/
             if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
                 //todo UN_CATCHABLE_ERROR
                 logger.error(new String(ndcMessageProtocol.getData()));
@@ -280,7 +291,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         of.setData(cause.toString().getBytes());
         ctx.writeAndFlush(of).addListeners(ChannelFutureListener.CLOSE);
 
-        if (!(cause instanceof IOException)){
+        if (!(cause instanceof IOException)) {
             cause.printStackTrace();
         }
         logger.error("unCatchable server error：" + cause);

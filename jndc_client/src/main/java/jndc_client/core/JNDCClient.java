@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class JNDCClient {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static int FAIL_LIMIT = -1;
 
@@ -31,15 +31,6 @@ public class JNDCClient {
 
 
     public JNDCClient() {
-    }
-
-    public void sendRegisterToServer(int localPort, int serverPort){
-        if (jndcClientMessageHandle==null){
-            logger.error("The client has not connected to the server ");
-        }else {
-            jndcClientMessageHandle.sendRegisterToServer(localPort,serverPort);
-        }
-
     }
 
 
@@ -56,16 +47,22 @@ public class JNDCClient {
                 ChannelPipeline pipeline = channel.pipeline();
                 pipeline.addFirst(NDCPCodec.NAME, new NDCPCodec());
 
-                pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME,new SecreteCodec());
-                jndcClientMessageHandle=new JNDCClientMessageHandle(jndcClient);
-                pipeline.addAfter(SecreteCodec.NAME, JNDCClientMessageHandle.NAME,jndcClientMessageHandle );
+                pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME, new SecreteCodec());
+                jndcClientMessageHandle = new JNDCClientMessageHandle(jndcClient);
+
+                //set current handler
+                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+                jndcClientConfigCenter.setCurrentHandler(jndcClientMessageHandle);
+
+
+                pipeline.addAfter(SecreteCodec.NAME, JNDCClientMessageHandle.NAME, jndcClientMessageHandle);
 
             }
         };
 
         b.group(group)
                 .channel(NioSocketChannel.class)//
-                .option(ChannelOption.SO_KEEPALIVE,true)//tcp keep alive
+                .option(ChannelOption.SO_KEEPALIVE, true)//tcp keep alive
                 .handler(channelInitializer);
 
 
@@ -77,7 +74,7 @@ public class JNDCClient {
                 final EventLoop eventExecutors = connect.channel().eventLoop();
                 eventExecutors.schedule(() -> {
                     failTimes++;
-                    if (FAIL_LIMIT!=-1&&failTimes > FAIL_LIMIT) {
+                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {
                         logger.error("exceeded the failure limit");
                         ApplicationExit.exit();
                     }
@@ -85,12 +82,11 @@ public class JNDCClient {
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
             } else {
-                logger.info("connect success to the jndc server : "+clientConfig.getServerIpSocketAddress());
+                logger.info("connect success to the jndc server : " + clientConfig.getServerIpSocketAddress());
             }
 
         });
     }
-
 
 
 }

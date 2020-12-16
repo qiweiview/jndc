@@ -13,15 +13,14 @@ import javafx.util.Callback;
 import jndc.core.UniqueBeanManage;
 import jndc_client.core.ClientServiceDescription;
 import jndc_client.core.JNDCClientConfig;
+import jndc_client.core.JNDCClientConfigCenter;
+import jndc_client.core.JNDCClientMessageHandle;
 import jndc_client.gui_support.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -123,6 +122,13 @@ public class IndexController implements Initializable {
             EventHandler<ActionEvent> startCallBack = z -> {
                 clientServiceDescription.setServiceEnable(true);
                 MenuItemPackagingListStore.reloadItem();
+
+                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+                JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
+                currentHandler.startRegister(clientServiceDescription);
+
+                logger.info("register service '"+clientServiceDescription.getServiceName()+"' to server");
+
             };
 
             //about jndc_client

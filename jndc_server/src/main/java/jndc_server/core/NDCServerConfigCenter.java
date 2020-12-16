@@ -21,11 +21,14 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     private Map<String, ChannelHandlerContextHolder> channelHandlerContextHolderMap = new ConcurrentHashMap<>();
 
-    //port service bind
+    //port service bind,there is a 'ServerPortProtector' in every  'ServerPortBindContext'
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
 
     public void addServiceByChannelId(String channelId,List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers){
+        if (channelId==null){
+           throw new RuntimeException( "channelId is necessary");
+        }
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
         if (channelHandlerContextHolder==null){
             logger.error("can not found the holder that id is"+channelId);
@@ -85,7 +88,12 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     }
 
 
-
+    /**
+     * bind local service to a server port
+     * @param port
+     * @param y
+     * @return
+     */
     public boolean addTCPRouter(int port, TcpServiceDescriptionOnServer y) {
        if (tcpRouter.get(port)!=null){
            //todo exist a running context
@@ -101,7 +109,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         //openTCPPortListener
         ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
         boolean success = serverPortProtector.start();//this step is asynchronous
-        if (!success) {
+        if (!success) {//check the port has been monitored or not
             //do rollback
             serverPortBindContext.setTcpServiceDescription(null);
             serverPortProtector.releaseRelatedResources();
