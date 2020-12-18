@@ -263,5 +263,6 @@ clientServiceDescriptions: # 注册服务
 
 ## 开发计划
 * 业务级IP记录
+* 通道巡检
 
 
