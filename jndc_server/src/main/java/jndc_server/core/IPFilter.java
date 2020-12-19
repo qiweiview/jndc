@@ -36,9 +36,15 @@ public class IPFilter extends ChannelInboundHandlerAdapter {
             return;
         }
         String ipString = address.getHostAddress();
+
         if (ipChecker ==null){
-            ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+            synchronized (IPFilter.class){
+                if (ipChecker ==null){
+                    ipChecker = UniqueBeanManage.getBean(IpChecker.class);
+                }
+            }
         }
+
         if (ipChecker.checkIpAddress(ipString)) {
             ctx.fireChannelActive();
         } else {

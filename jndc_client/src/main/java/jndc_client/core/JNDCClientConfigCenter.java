@@ -70,6 +70,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
         if (clientServiceProvider == null) {
             logger.error("can not find the service provider of "+client);
+            return;
         }
 
         int remotePort = ndcMessageProtocol.getRemotePort();

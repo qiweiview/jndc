@@ -92,7 +92,7 @@ public class IndexController implements Initializable {
                     String text = logArea.getText();
                     logArea.setText("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "]" + take + "\n\r" + text);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                  logger.error(e+"");
                 }
             }
         }).start();
@@ -113,10 +113,10 @@ public class IndexController implements Initializable {
         ContextMenuOnListViewBuilder.InnerButtonDescription start = new ContextMenuOnListViewBuilder.InnerButtonDescription(" 启 用 ", x -> {
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
-//            if (clientServiceDescription.isServiceEnable()){
-//                AlertUtils.error("服务已经启用");
-//                return;
-//            }
+            if (clientServiceDescription.isServiceEnable()){
+                AlertUtils.error("服务已经启用");
+                return;
+            }
 
 
             EventHandler<ActionEvent> startCallBack = z -> {
@@ -155,12 +155,7 @@ public class IndexController implements Initializable {
             boolean serviceEnable = clientServiceDescription.isServiceEnable();
             if (serviceEnable){
                 //todo stop client service
-
-
-            }else {
-                //todo do nothing because the service has not been used
-
-
+                logger.info("developing");
             }
         });
 

@@ -18,9 +18,9 @@ public class DataStore {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final String SQL_LITE_DB = "jnc_db.db";
+    private static final String SQL_LITE_DB = "jnc_db.db";
 
-    private final String PROTOCOL = "jdbc:sqlite:";
+    private static final String PROTOCOL = "jdbc:sqlite:";
 
     private volatile boolean initialized = false;
 
@@ -96,8 +96,8 @@ public class DataStore {
 
     public void execute(String sql, Object[] objects) {
         init();
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             if (objects == null) {
                 objects = new Object[0];
             }
@@ -115,8 +115,8 @@ public class DataStore {
     public List<Map> executeQuery(String sql, Object[] objects) {
         init();
         ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try( PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             if (objects == null) {
                 objects = new Object[0];
             }
@@ -131,7 +131,9 @@ public class DataStore {
             throw new RuntimeException("execute error: " + sqlException);
         } finally {
             try {
-                resultSet.close();
+               if (resultSet!=null){
+                   resultSet.close();
+               }
             } catch (SQLException sqlException) {
                 throw new RuntimeException("result close fail:" + sqlException);
             }

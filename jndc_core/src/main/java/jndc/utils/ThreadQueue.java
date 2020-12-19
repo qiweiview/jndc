@@ -1,4 +1,7 @@
 package jndc.utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.UUID;
 import java.util.concurrent.*;
 
@@ -6,12 +9,16 @@ import java.util.concurrent.*;
  * thread safe
  */
 public class ThreadQueue {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private String name;//队列名
     private LinkedBlockingQueue<InnerTask> linkedBlockingQueue = new LinkedBlockingQueue();//任务队列
     private LinkedBlockingQueue<InnerTask> deathQueue = new LinkedBlockingQueue();//死信队列
     private ExecutorService executorService;//线程池
     private final ThreadLocal<InnerTask> threadLocal = new ThreadLocal();//线程变量
     private Thread worker;//启动线程
+    private volatile boolean workerEnable=true;
     private ThreadQueue nextFailThreadQueue;//下一级失败队列
     private ThreadQueue successLogThreadQueue;//日志队列
     private volatile boolean init = false;//初始化标志
@@ -50,26 +57,23 @@ public class ThreadQueue {
 
         final ThreadQueue threadQueue = this;
 
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        InnerTask take = linkedBlockingQueue.take();
-                        take.register(threadQueue);
-                        if (proxyAction != null) {
-                            proxyAction.run(take);
-                        } else {
-                            executorService.execute(take);
-                        }
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+        Runnable runnable = () -> {
+            while (workerEnable) {
+                try {
+                    InnerTask take = linkedBlockingQueue.take();
+                    take.register(threadQueue);
+                    if (proxyAction != null) {
+                        proxyAction.run(take);
+                    } else {
+                        executorService.execute(take);
                     }
 
+                } catch (InterruptedException e) {
+                    logger.error(e+"");
                 }
 
             }
+
         };
         worker = new Thread(runnable);
         worker.start();
@@ -177,6 +181,7 @@ public class ThreadQueue {
                         interruptedException.printStackTrace();
                     }
                     InnerTask innerTask = threadLocal.get();
+                    threadLocal.remove();
                     if (innerTask.runBreak()) {
                         if (nextFailThreadQueue != null) {
                             innerTask.clearRecord();//清空错误计数器

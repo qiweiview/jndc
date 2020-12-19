@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IpChecker {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private volatile LinkedBlockingQueue<IpRecord> recordQueue = new LinkedBlockingQueue<>();
+    private  LinkedBlockingQueue<IpRecord> recordQueue = new LinkedBlockingQueue<>();
 
     private Map<String, IpFilterRule4V> blackMap = new HashMap<>();
 
@@ -27,16 +27,16 @@ public class IpChecker {
     private ExecutorService executorService;
 
     //release ip map
-    private volatile Map<String, IPCount> releaseMap = new ConcurrentHashMap<>();
+    private  Map<String, IPCount> releaseMap = new ConcurrentHashMap<>();
 
     //block ip map
-    private volatile Map<String, IPCount> blockMap = new ConcurrentHashMap<>();
+    private  Map<String, IPCount> blockMap = new ConcurrentHashMap<>();
 
     private volatile boolean work = true;
 
     private volatile boolean pause = false;
 
-    private final long IP_CACHE_EXPIRE=24*60*60*1000;
+    private final long IP_CACHE_EXPIRE=24*60*60*1000L;
 
 
 
