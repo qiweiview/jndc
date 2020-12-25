@@ -5,14 +5,9 @@
 ## 文档摘要
 * [常见问题](https://github.com/qiweiview/jndc/blob/master/QA.md)
 * [项目介绍](#项目介绍)
-* [项目目录结构](#项目目录结构)
 * [项目使用范例](#项目使用范例)
-* [数据流向](#数据流向)
-* [ndc协议](#ndc协议)
-* [数据加解密](#数据加解密)
-* [IP黑白名单](#IP黑白名单)
-* [管理API及页面SSL支持](#管理API及页面SSL支持)
-* [Client可视化](#Client可视化)
+* [协议说明](#协议说明)
+* [功能说明](#功能说明)
 * [配置文件说明](#配置文件说明)
 * [小结](#小结)
 
@@ -22,9 +17,7 @@
 * "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。
 * 应用以Client/Server架构运行,由本地client端向server端注册本地服务，由server端选择暴露对应服务 
 * 应用核心由ndc私有协议支撑，提供了"传输数据加密","ip黑白名单","客户端可视化"功能
-
-
-## 项目目录结构
+* 项目目录结构
 ```
 - jndc
  - jndc_core # 核心公共实现
@@ -32,24 +25,27 @@
  - jndc_client # 客户端实现
 ```
 
-## 项目使用范例
-* [范例](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
 
-## 数据流向
+* 数据流向
 ```
 broser     ------->               (tunnel)               ---------->local_app
 client     -------> jndc server <----------> jndc client ---------->local_app
 other      ------->                                      ---------->local_app
 ```
 
-## ndc协议
+## 项目使用范例
+* [范例](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
+
+
+## 协议介绍
+* NDC协议
 * 协议设计为仅支持ipv4
 * 单包数据长度限制,超出将自动拆包
 ```
 public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```
 
-* 协议结构：
+* 协议说明：
 ```
 --------------------------------
   3byte      1byte      1byte
@@ -78,47 +74,8 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 --------------------------------
 ```
 
-## 数据加解密
-* 应用通过```DataEncryption```接口对协议内"变长部分数据”进行加解密，应用默认使用AES算法执行加解密过程。
-* 可替换为非对称加密或更为安全的加密算法
-
-## IP黑白名单
-* IP名单限制覆盖：
- 1. server端隧道端口（非名单规则内ip无法通过client向server注册服务）
- 2. server端暴露出的服务端口(非名单规则内ip无法访问暴露的服务)
- 
-* 可通过配置文件限制服务端IP黑白名单：
-1. 黑名单：名单内ip禁止访问
-2. 白名单：仅白名单内ip放行 
-* 默认白名单拥有更高权重，即黑白名单均出现127.0.0.1,那么127.0.0.1将被放行
-```yaml
-blackList:
-  - "127.0.0.1"
-  - "192.168.1.1"
-
-whiteList:
-  - "127.0.0.1"
-  - "127.0.0.2"
-```
-
-## 管理API及页面SSL支持
-* 服务端支持对管理api配置ssl证书,目前只支持jks方式
-* 配置服务端配置文件参数,'useSsl'为true时会使用'keyStoreFile'处配置的证书
-```
-  useSsl: true
-  keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks'
-  keystorePass: 'xxx'
-```
-
-## Client可视化
-* 客户端开启可视化配置
-```yaml
-openGui: true
-```
-* 启动后将打开客户端
-* [![r1y3PH.png](https://s3.ax1x.com/2020/12/16/r1y3PH.png)](https://imgchr.com/i/r1y3PH)
-* 支持动态 开启/关闭/删除 服务
-* [![r1yNsP.png](https://s3.ax1x.com/2020/12/16/r1yNsP.png)](https://imgchr.com/i/r1yNsP)
+## 功能说明
+* [功能介绍](https://github.com/qiweiview/jndc/blob/master/function_introduction.md)
 
 ## 配置文件说明
 
