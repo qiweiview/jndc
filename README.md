@@ -37,7 +37,7 @@ other      ------->                                      ---------->local_app
 * [范例](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
 
 
-## 协议介绍
+## 协议说明
 * NDC协议
 * 协议设计为仅支持ipv4
 * 单包数据长度限制,超出将自动拆包
