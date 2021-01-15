@@ -8,11 +8,17 @@ import javafx.event.EventHandler;
  */
 public class DialogClose {
 
-    public static volatile EventHandler<ActionEvent> tConsumer;
+    public static volatile   EventHandler<ActionEvent> tConsumer;
 
     public static void close() {
         if (tConsumer != null) {
-            tConsumer.handle(null);
+
+            synchronized (DialogClose.class) {
+                if (tConsumer != null) {
+                    tConsumer.handle(null);
+                }
+            }
+
         }
     }
 }

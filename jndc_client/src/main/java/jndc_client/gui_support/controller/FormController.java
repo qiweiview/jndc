@@ -47,6 +47,7 @@ public class FormController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //reformat the number
         ip_1.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
         ip_2.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
         ip_3.setTextFormatter(new TextFormatter<>(new NumberStringConverter()));
@@ -60,8 +61,11 @@ public class FormController implements Initializable {
         boolean checkBlank = checkBlank(ip_1.getText(), ip_2.getText(), ip_3.getText(), ip_4.getText(), port.getText(), serviceName.getText());
         if (checkBlank) {
             String ip = ip_1.getText() + "." + ip_2.getText() + "." + ip_3.getText() + "." + ip_4.getText();
+            ip=ip.replaceAll(",","");
             ClientServiceDescription service = new ClientServiceDescription();
-            service.setServicePort(Integer.parseInt(port.getText()));
+            String portStr = port.getText();
+            portStr=portStr.replaceAll(",","");
+            service.setServicePort(Integer.parseInt(portStr));
             service.setServiceIp(ip);
             service.setServiceName(serviceName.getText());
             service.performParameterVerification();
