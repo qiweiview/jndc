@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  for sqlite only
+ * for sqlite only
  */
 public class DataStore {
 
@@ -62,14 +62,11 @@ public class DataStore {
                 if (!initialized) {
 
 
-
-
-
-                    if (! this.dbWorkDirect .endsWith(File.separator)) {
-                        this.dbWorkDirect  += File.separator;
+                    if (!this.dbWorkDirect.endsWith(File.separator)) {
+                        this.dbWorkDirect += File.separator;
                     }
 
-                    String s = PROTOCOL +  this.dbWorkDirect  + SQL_LITE_DB;
+                    String s = PROTOCOL + this.dbWorkDirect + SQL_LITE_DB;
 
                     try {
                         connection = DriverManager.getConnection(s);
@@ -96,7 +93,7 @@ public class DataStore {
 
     public void execute(String sql, Object[] objects) {
         init();
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             if (objects == null) {
                 objects = new Object[0];
@@ -114,8 +111,8 @@ public class DataStore {
 
     public List<Map> executeQuery(String sql, Object[] objects) {
         init();
-        ResultSet resultSet = null;
-        try( PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             if (objects == null) {
                 objects = new Object[0];
@@ -123,20 +120,17 @@ public class DataStore {
             for (int i = 0; i < objects.length; i++) {
                 preparedStatement.setObject(i + 1, objects[i]);
             }
-            resultSet = preparedStatement.executeQuery();
-            List<Map> maps = parseResult(resultSet);
-            return maps;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                List<Map> maps = parseResult(resultSet);
+                return maps;
+            } catch (SQLException exception) {
+                throw exception;
+            }
+
+
         } catch (SQLException sqlException) {
             logger.error(sqlException.toString());
             throw new RuntimeException("execute error: " + sqlException);
-        } finally {
-            try {
-               if (resultSet!=null){
-                   resultSet.close();
-               }
-            } catch (SQLException sqlException) {
-                throw new RuntimeException("result close fail:" + sqlException);
-            }
         }
     }
 
