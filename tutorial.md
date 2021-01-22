@@ -3,11 +3,10 @@
 ## 范例一
 ### 暴露内网192.168.216.31(举例)设备上的 "nginx服务" 和 "远程桌面服务" 到公网服务设备118.29.31.43(举例)的任意端口上
 * 安装jdk 1.8+
-* [下载应用](https://github.com/qiweiview/jndc/releases/tag/v20201216) 
+* [下载应用](https://github.com/qiweiview/jndc/releases) 
 ```yaml
 release20201216_client.zip # 客户端压缩包
 release20201216_server.zip # 服务端压缩包
-release20201216_front_management.zip # 前端项目压缩包
 ```
 * 文件目录结构
 ```yaml
@@ -20,6 +19,7 @@ release20201216_front_management.zip # 前端项目压缩包
   - (f)config.yml # client 配置文件
   
 - release20201216_server
+  - (d)management # 管理端项目
   - (f)jndc_server-1.0.jar # server端java程序
   - (f)server_start.bat # window server 启动脚本
   - (f)server_start.sh # linux server 启动脚本
@@ -34,9 +34,7 @@ loglevel: "info"
 blackList: # ip访问黑名单
 # - "192.168.1.1"
 whiteList: # 白名单
-#  - "192.168.1.2"
-frontProjectPath: '/usr/local/jndc/default_management/' #管理端项目地址(release中有发布对应前端项目)
-deployFrontProject: true # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
+# - "192.168.1.2"
 loginName: "test33" # 管理界面用户名
 loginPassWord: "test_pass1`" # 管理界面密码
 managementApiPort: "82" # 管理界面访问端口

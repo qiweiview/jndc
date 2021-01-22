@@ -38,12 +38,13 @@ public class JNDCServerConfig {
 
     private String loglevel;
 
-
-    private String frontProjectPath;
+//
+//    private boolean deployFrontProject;
+//
+//    private String frontProjectPath;
 
     private int managementApiPort;
 
-    private boolean deployFrontProject;
 
     private int adminPort;
 
@@ -310,22 +311,6 @@ public class JNDCServerConfig {
         this.whiteList = whiteList;
     }
 
-
-    public String getFrontProjectPath() {
-        return frontProjectPath;
-    }
-
-    public void setFrontProjectPath(String frontProjectPath) {
-        this.frontProjectPath = frontProjectPath;
-    }
-
-    public boolean isDeployFrontProject() {
-        return deployFrontProject;
-    }
-
-    public void setDeployFrontProject(boolean deployFrontProject) {
-        this.deployFrontProject = deployFrontProject;
-    }
 
     public int getManagementApiPort() {
         return managementApiPort;

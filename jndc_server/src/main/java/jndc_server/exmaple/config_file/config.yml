@@ -3,9 +3,7 @@ loglevel: "info"
 blackList: # ip访问黑名单
   #- "192.168.1.1"
 whiteList: # 白名单
-  #  - "192.168.1.2"
-frontProjectPath: 'D:\xxx\xxx\compare_dist' #管理端项目地址
-deployFrontProject: false # 是否扫描部署前端项目（管理端）,false则不会启动前端项目，但web接口仍旧会启动
+  #- "192.168.1.2"
 loginName: "xxx"
 loginPassWord: "xxx"
 useSsl: false

@@ -85,9 +85,7 @@ loglevel: "info" # 日志打印等级
 blackList: # ip访问黑名单，ip限制覆盖除管理端口（即managementApiPort）外的所有端口监听
   #- "192.168.1.1"
 whiteList: # ip访问白名单
-  #  - "192.168.1.2"
-frontProjectPath: '/usr/local/default_management/' # 前端管理项目地址,若‘deployFrontProject’参数为true，则该地址文件夹将被作为静态项目部署到‘managementApiPort’端口
-deployFrontProject: true # 是否部署‘frontProjectPath’参数地址下的项目到‘managementApiPort’端口,false不会部署，反之
+  #- "192.168.1.2"
 loginName: "jndc" # 内部管理api登录所需用户名，不允许默认值‘jndc’
 loginPassWord: "jndc" # 内部管理api登录所需密码，不允许默认值‘jndc’
 useSsl: false
