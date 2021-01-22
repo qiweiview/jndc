@@ -3,6 +3,7 @@ package jndc.core;
 import jndc.utils.ByteArrayUtils;
 import jndc.utils.HexUtils;
 import jndc.utils.ObjectSerializableUtils;
+import sun.misc.HexDumpEncoder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -150,7 +151,7 @@ public class NDCMessageProtocol {
         NDCMessageProtocol.setServerPort(serverPort);
         NDCMessageProtocol.setRemotePort(remotePort);
         NDCMessageProtocol.setType(type);
-        NDCMessageProtocol.setData("".getBytes());
+        NDCMessageProtocol.setData(new byte[0]);
         return NDCMessageProtocol;
     }
 
@@ -288,7 +289,7 @@ public class NDCMessageProtocol {
      */
     public <T> T getObject(Class<T> tClass) {
         byte[] data = getData();
-        if (data == null) {
+        if (data == null||data.length==0) {
             throw new RuntimeException("byte empty");
         }
         T t = ObjectSerializableUtils.bytes2object(data, tClass);

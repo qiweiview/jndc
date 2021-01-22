@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.databases_object;
 
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;

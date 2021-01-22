@@ -2,6 +2,8 @@ package jndc_server.core;
 
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UUIDSimple;
+import jndc_server.databases_object.IpFilterRecord;
+import jndc_server.databases_object.IpFilterRule4V;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +90,7 @@ public class IpChecker {
                 if (!pause) {
                     try {
                         IpRecord take = recordQueue.take();
-                        if (take.isRelease()) {
+                        if (take.isRelease()) {//check the type of record
                             addToMap(take, releaseMap);
                         } else {
                             addToMap(take, blockMap);
@@ -174,13 +176,6 @@ public class IpChecker {
 
     /* --------------getter and setter-------------- */
 
-  /*  public Map<String, List<IpRecord>> getReleaseMap() {
-        return releaseMap;
-    }
-
-    public Map<String, List<IpRecord>> getBlockMap() {
-        return blockMap;
-    }*/
 
     public Map<String, IpFilterRule4V> getBlackMap() {
         return blackMap;

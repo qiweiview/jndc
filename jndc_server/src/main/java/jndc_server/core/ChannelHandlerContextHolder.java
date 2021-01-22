@@ -16,15 +16,19 @@ import java.util.*;
 public class ChannelHandlerContextHolder {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private static final long  HEART_BEAT_TIME_OUT=5*60*1000;
+
     private String id;//the id for the channelHandlerContext
 
     private String contextIp;
 
     private int contextPort;
 
+    private long lastHearBeatTimeStamp;
+
     private ChannelHandlerContext channelHandlerContext;
 
-    private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions=new ArrayList<>();
+    private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = new ArrayList<>();
 
     public ChannelHandlerContextHolder() {
         id = UUIDSimple.id();
@@ -34,8 +38,8 @@ public class ChannelHandlerContextHolder {
 
         logger.debug(contextIp + " unRegister " + serviceNum() + " service");
 
-        if (tcpServiceDescriptions!=null){
-            tcpServiceDescriptions.forEach(x->{
+        if (tcpServiceDescriptions != null) {
+            tcpServiceDescriptions.forEach(x -> {
                 //TcpServiceDescription
                 x.releaseRelatedResources();
             });
@@ -77,6 +81,10 @@ public class ChannelHandlerContextHolder {
 
     /* ------------------getter setter------------------ */
 
+    public long getLastHearBeatTimeStamp() {
+        return lastHearBeatTimeStamp;
+    }
+
     public ChannelHandlerContext getChannelHandlerContext() {
         return channelHandlerContext;
     }
@@ -103,20 +111,19 @@ public class ChannelHandlerContextHolder {
     }
 
 
-
-    public  void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
-        Set<String> strings=new HashSet<>();
-        tcpServiceDescriptionOnServers.forEach(x->{
+    public void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+        Set<String> strings = new HashSet<>();
+        tcpServiceDescriptionOnServers.forEach(x -> {
             x.setBelongContextIp(contextIp);
             strings.add(x.getRouteTo());
         });
 
         //lock
-        synchronized(ChannelHandlerContextHolder.class){
+        synchronized (ChannelHandlerContextHolder.class) {
             Iterator<TcpServiceDescriptionOnServer> iterator = tcpServiceDescriptions.iterator();
-            while (iterator.hasNext()){
+            while (iterator.hasNext()) {
                 TcpServiceDescriptionOnServer next = iterator.next();
-                if (strings.contains(next.getRouteTo())){
+                if (strings.contains(next.getRouteTo())) {
                     iterator.remove();
                     next.releaseRelatedResources();
                 }
@@ -126,22 +133,36 @@ public class ChannelHandlerContextHolder {
     }
 
     public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
-        Set<String> strings=new HashSet<>();
-        tcpServiceDescriptions.forEach(x->{
+        Set<String> strings = new HashSet<>();
+        tcpServiceDescriptions.forEach(x -> {
             strings.add(x.getRouteTo());
         });
-        tcpServiceDescriptionOnServers.forEach(x->{
+        tcpServiceDescriptionOnServers.forEach(x -> {
             x.setBelongContextIp(contextIp);
             String routeTo = x.getRouteTo();
-            if (strings.contains(routeTo)){
-                logger.error("the service "+routeTo+"is exist");
-            }else {
+            if (strings.contains(routeTo)) {
+                logger.error("the service " + routeTo + "is exist");
+            } else {
                 x.setBelongContextIp(contextIp);
                 x.setId(UUIDSimple.id());
                 x.setBelongContext(channelHandlerContext);
                 tcpServiceDescriptions.add(x);
             }
         });
+    }
+
+
+    public void refreshHeartBeatTimeStamp() {
+        lastHearBeatTimeStamp = System.currentTimeMillis();
+    }
+
+    /**
+     *
+     * @return true mean the connection is unreachable / return false mean the connection is still connected
+     *
+     */
+    public boolean checkUnreachable() {
+        return lastHearBeatTimeStamp +HEART_BEAT_TIME_OUT < System.currentTimeMillis();
     }
 
 

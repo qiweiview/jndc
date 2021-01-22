@@ -12,6 +12,7 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ApplicationExit;
+import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -117,7 +119,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             //send data
             ctx.writeAndFlush(tqs);
         } catch (UnknownHostException e) {
-            logger.error(e+"");
+            logger.error(e + "");
         }
     }
 
@@ -143,7 +145,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
         });
 
-        if (tcpServiceDescriptions.size()<1){
+        if (tcpServiceDescriptions.size() < 1) {
             logger.info("do not send register message ,because  there is not any enable service  on config file ");
             return;
         }
@@ -166,7 +168,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             //send data
             ctx.writeAndFlush(tqs);
         } catch (UnknownHostException e) {
-            logger.error(e+"");
+            logger.error(e + "");
         }
 
 
@@ -177,7 +179,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
      *
      * @throws Exception
      */
-    private void sendServiceRegisterMessage()  {
+    private void sendServiceRegisterMessage() {
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
 
 
@@ -197,11 +199,16 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
         jndcClientConfigCenter.registerMessageChannel(channelId, channelHandlerContext);
         InetAddress unused = InetAddress.getLocalHost();
-        final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
 
-        //send heart beat
+        //use the message with id
+        final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
+        byte[] bytes = ObjectSerializableUtils.object2bytes(object);
+
+
+        //use the message from server as  heartbeat request message
         EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
         eventExecutors.scheduleAtFixedRate(() -> {
+            tqs.setData(bytes);//necessary
             jndcClientConfigCenter.addMessageToSendQueue(tqs);
         }, 0, 60, TimeUnit.SECONDS);
 

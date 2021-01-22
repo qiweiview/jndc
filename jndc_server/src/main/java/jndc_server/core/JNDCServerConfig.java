@@ -5,6 +5,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.DataStore;
 import jndc.utils.*;
+import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.core.MappingRegisterCenter;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import jndc_server.web_support.utils.AuthUtils;

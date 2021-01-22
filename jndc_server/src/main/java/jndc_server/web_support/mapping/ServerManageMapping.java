@@ -1,23 +1,24 @@
 package jndc_server.web_support.mapping;
 
 
-
 import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
 import jndc.utils.JSONUtils;
+import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
 import jndc_server.core.*;
 import jndc_server.core.ChannelHandlerContextHolder;
+import jndc_server.databases_object.ChannelContextCloseRecord;
+import jndc_server.databases_object.IpFilterRecord;
+import jndc_server.databases_object.IpFilterRule4V;
+import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import jndc_server.web_support.core.WebMapping;
 import jndc_server.web_support.model.data_object.ManagementLoginUser;
-import jndc_server.web_support.model.data_transfer_object.IpDTO;
-import jndc_server.web_support.model.data_transfer_object.PageDTO;
-import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
-import jndc_server.web_support.model.data_transfer_object.serviceBindDTO;
+import jndc_server.web_support.model.data_transfer_object.*;
 import jndc_server.web_support.model.view_object.ChannelContextVO;
 import jndc_server.web_support.model.view_object.DeviceInfo;
 import jndc_server.web_support.model.view_object.IpRecordVO;
@@ -601,7 +602,7 @@ public class ServerManageMapping {
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
         PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=0 GROUP BY ip order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        ipFilterRecordPageResult.getData().forEach(x->{
+        ipFilterRecordPageResult.getData().forEach(x -> {
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
             ipRecordVO.setCount(x.getvCount());
@@ -635,7 +636,7 @@ public class ServerManageMapping {
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
         PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=1 GROUP BY ip order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
-        ipFilterRecordPageResult.getData().forEach(x->{
+        ipFilterRecordPageResult.getData().forEach(x -> {
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
             ipRecordVO.setCount(x.getvCount());
@@ -663,6 +664,30 @@ public class ServerManageMapping {
     public DeviceInfo getCurrentDeviceIp(JNDCHttpRequest jndcHttpRequest) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setIp(jndcHttpRequest.getRemoteAddress().getHostAddress());
+        return deviceInfo;
+
+    }
+
+    @WebMapping(path = "/clearIpRecord")
+    public DeviceInfo clearIpRecord(JNDCHttpRequest jndcHttpRequest) {
+        DeviceInfo deviceInfo = new DeviceInfo();
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        ClearRecordOptionDTO pageDTO = JSONUtils.str2Object(s, ClearRecordOptionDTO.class);
+
+        DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
+        if (pageDTO.clearByDateLimit()) {
+            //todo clear by date limit
+            dbWrapper.customExecute("delete from ip_filter_record where timeStamp<=? and recordType = ? ",pageDTO.getClearDateLimit(),pageDTO.getRecordType());
+        } else {
+            //todo save only top ten
+            List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, recordType , max(timeStamp) AS timeStamp, max(vCount) AS vCount FROM ip_filter_record WHERE recordType = ? GROUP BY ip, recordType ORDER BY max(vCount) DESC LIMIT 10", pageDTO.getRecordType());
+            dbWrapper.customExecute("delete from ip_filter_record where recordType = ? ", pageDTO.getRecordType());
+            dbWrapper.insertBatch(ipFilterRecords);
+        }
+
+
+        LogPrint.info(pageDTO);
         return deviceInfo;
 
     }

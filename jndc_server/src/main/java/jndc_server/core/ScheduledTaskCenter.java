@@ -15,6 +15,12 @@ public class ScheduledTaskCenter {
         eventLoopGroup.scheduleWithFixedDelay(()->{
             ipChecker.storeRecordData();
         },0,1, TimeUnit.HOURS);
+
+
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        eventLoopGroup.scheduleWithFixedDelay(()->{
+            ndcServerConfigCenter.checkChannelHealthy();
+        },0,5, TimeUnit.MINUTES);
     }
 
 

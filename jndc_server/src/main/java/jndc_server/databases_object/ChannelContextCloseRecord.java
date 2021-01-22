@@ -1,7 +1,8 @@
-package jndc_server.core;
+package jndc_server.databases_object;
 
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
+import jndc_server.core.ChannelHandlerContextHolder;
 
 @DSTable(name = "channel_context_record")
 public class ChannelContextCloseRecord {

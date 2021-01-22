@@ -12,6 +12,8 @@ public class ChannelContextVO {
 
     private String channelClientIp;
 
+    private long lastHearBeatTimeStamp;
+
 
 
 
@@ -22,9 +24,17 @@ public class ChannelContextVO {
         facePortVO.setSupportServiceNum(channelHandlerContextHolder.serviceNum());
         facePortVO.setChannelClientIp(channelHandlerContextHolder.getContextIp());
         facePortVO.setChannelClientPort(channelHandlerContextHolder.getContextPort());
-
+        facePortVO.setLastHearBeatTimeStamp(channelHandlerContextHolder.getLastHearBeatTimeStamp());
         return facePortVO;
 
+    }
+
+    public long getLastHearBeatTimeStamp() {
+        return lastHearBeatTimeStamp;
+    }
+
+    public void setLastHearBeatTimeStamp(long lastHearBeatTimeStamp) {
+        this.lastHearBeatTimeStamp = lastHearBeatTimeStamp;
     }
 
     public String getId() {

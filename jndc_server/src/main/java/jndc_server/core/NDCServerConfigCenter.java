@@ -5,6 +5,7 @@ import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 
 import jndc.utils.InetUtils;
+import jndc_server.databases_object.ChannelContextCloseRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +157,22 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         }
 
 
+    }
+
+    public void refreshHeartBeatTimeStamp(String channelId) {
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
+        if (channelHandlerContextHolder!=null){
+            channelHandlerContextHolder.refreshHeartBeatTimeStamp();
+        }
+
+    }
+
+    public void checkChannelHealthy() {
+        channelHandlerContextHolderMap.forEach((k,v)->{
+            if (v.checkUnreachable()){
+                v.getChannelHandlerContext().close();
+            }
+        });
     }
 
 

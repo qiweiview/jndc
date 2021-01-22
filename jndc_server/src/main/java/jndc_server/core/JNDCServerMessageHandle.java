@@ -15,6 +15,8 @@ import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
 import jndc.utils.UUIDSimple;
+import jndc_server.databases_object.ChannelContextCloseRecord;
+import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,6 +169,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         String auth = openChannelMessage.getAuth();
         NDCMessageProtocol checkResult = authCheck(copy, auth);
         if (checkResult != null) {
+            //todo auth check fail
             channelHandlerContext.writeAndFlush(copy);
             return;
         }
@@ -182,6 +184,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
         // send response
+        copy.setType(NDCMessageProtocol.OPEN_CHANNEL);
         OpenChannelMessage response = new OpenChannelMessage();
         response.setChannelId(channelHandlerContextHolder.getId());
         byte[] bytes = ObjectSerializableUtils.object2bytes(response);
@@ -190,6 +193,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
         messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+    }
+    private void handleHeartBeatFromClient(OpenChannelMessage registrationMessage) {
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ndcServerConfigCenter.refreshHeartBeatTimeStamp(registrationMessage.getChannelId());
     }
 
     @Override
@@ -202,7 +209,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
                 //todo CHANNEL_HEART_BEAT
                 //just accept
-                logger.debug("get heart beat");
+                logger.info("get heart beat");
+
+                OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
+                handleHeartBeatFromClient(registrationMessage);
 
             }
 
