@@ -42,6 +42,20 @@ adminPort: "81" # jndc服务端运行监听端口
 bindIp: "118.29.31.43" # jndc服务端运行ip
 ```
 
+* 修改前端项目中配置
+```
+window.runtimeConfig = {
+    //举例，若本项目部署于公网服务器123.207.111.212（举例）上
+    //则该文件配置参照以下配置
+    BASE_REQUEST_PATH : 'http://123.207.111.212:443/',
+    BASE_WEBSOCKET_PATH : 'ws://123.207.111.212:443/'
+
+    //若打开ssl证书则需要切换使用下方配置
+    //BASE_REQUEST_PATH : 'https://123.207.111.212:443/',
+    //BASE_WEBSOCKET_PATH : 'wss://123.207.111.212:443/'
+}
+```
+
 * 运行server_start.sh脚本,日志将被输出至同级log目录下
 ```yaml
 # 控制台返回
