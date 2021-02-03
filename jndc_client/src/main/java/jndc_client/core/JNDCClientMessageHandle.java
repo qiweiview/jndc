@@ -207,7 +207,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //use the message from server as  heartbeat request message
         EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
-        eventExecutors.scheduleAtFixedRate(() -> {
+        eventExecutors.scheduleWithFixedDelay(() -> {
             tqs.setData(bytes);//necessary
             jndcClientConfigCenter.addMessageToSendQueue(tqs);
         }, 0, 60, TimeUnit.SECONDS);

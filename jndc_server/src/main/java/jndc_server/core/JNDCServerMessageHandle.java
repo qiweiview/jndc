@@ -209,7 +209,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
                 //todo CHANNEL_HEART_BEAT
                 //just accept
-                logger.info("get heart beat");
+                logger.debug("get heart beat");
 
                 OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
                 handleHeartBeatFromClient(registrationMessage);
