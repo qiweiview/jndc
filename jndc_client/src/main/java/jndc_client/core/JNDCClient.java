@@ -3,6 +3,7 @@ package jndc_client.core;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
@@ -28,6 +29,8 @@ public class JNDCClient {
     private EventLoopGroup group = NettyComponentConfig.getNioEventLoopGroup();
 
     private JNDCClientMessageHandle jndcClientMessageHandle;
+
+
 
 
     public JNDCClient() {
@@ -65,24 +68,39 @@ public class JNDCClient {
                 .option(ChannelOption.SO_KEEPALIVE, true)//tcp keep alive
                 .handler(channelInitializer);
 
+        JNDCClientConfigCenter jndcClientConfigCenter =UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
 
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
 
         ChannelFuture connect = b.connect(clientConfig.getServerIpSocketAddress());
         connect.addListeners(x -> {
-            if (!x.isSuccess()) {
+            if (x.isSuccess()) {
+                //todo connect successFully
+
+                //set success tag
+                jndcClientConfigCenter.successToConnectToServer();
+
+                logger.info("connect success to the jndc server : " + clientConfig.getServerIpSocketAddress());
+            } else {
+                //todo connect fail
+
+                //set fail tag
+                jndcClientConfigCenter.failToConnectToServer();
+
                 final EventLoop eventExecutors = connect.channel().eventLoop();
+
+                //run retry operation once on 5 second later
                 eventExecutors.schedule(() -> {
                     failTimes++;
-                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {
+
+                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {//always be false,so always retry
                         logger.error("exceeded the failure limit");
                         ApplicationExit.exit();
                     }
+
                     logger.info("connect fail , try re connect");
                     createClient(eventExecutors);
                 }, RETRY_INTERVAL, TimeUnit.SECONDS);
-            } else {
-                logger.info("connect success to the jndc server : " + clientConfig.getServerIpSocketAddress());
             }
 
         });

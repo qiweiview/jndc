@@ -35,6 +35,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     public static final String NAME = "NDC_SERVER_HANDLE";
 
 
+    /**
+     * do rebind operation
+     * @param tcpServiceDescriptionOnServers
+     */
     private void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
@@ -55,8 +59,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (tcpServiceDescription != null) {
                 //todo do rebind
 
+
+
                 //rebind the port service
-                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), tcpServiceDescription);
+                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(),x.getEnableDateRange(), tcpServiceDescription);
 
                 if (success) {
                     x.setPortEnable(1);

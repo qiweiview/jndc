@@ -24,6 +24,8 @@ import jndc_server.web_support.model.view_object.DeviceInfo;
 import jndc_server.web_support.model.view_object.IpRecordVO;
 import jndc_server.web_support.model.view_object.PageListVO;
 import jndc_server.web_support.utils.AuthUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 import java.net.InetAddress;
@@ -38,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * singleton， thread unsafe
  */
 public class ServerManageMapping {
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * do login
@@ -281,6 +283,7 @@ public class ServerManageMapping {
 
         AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
 
+        //asynchronous
         asynchronousEventCenter.systemRunningJob(() -> {
             AtomicBoolean atomicBoolean = new AtomicBoolean(true);
             NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
@@ -288,17 +291,20 @@ public class ServerManageMapping {
 
             //for each all context
             channelHandlerContextHolders.forEach(x -> {
-                if (atomicBoolean.get()) {
+                if (atomicBoolean.get()) {//find the only one service ,if service has been found,ignore other data
+
                     List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = x.getTcpServiceDescriptions();
+
                     tcpServiceDescriptions.forEach(y -> {
-                        TcpServiceDescriptionOnServer y1 = y;
-                        if (y.getId().equals(channelContextVO.getServiceId())) {
+                        //y -->TcpServiceDescriptionOnServer
+                        if (y.getId().equals(channelContextVO.getServiceId())) {//find the service from contextHolder
+
 
                             //set route to tag
-                            serverPortBind.setRouteTo(y1.getRouteTo());
+                            serverPortBind.setRouteTo(y.getRouteTo());
 
-                            //openPort
-                            boolean success = bean.addTCPRouter(serverPortBind.getPort(), y);
+                            //do open-port operation
+                            boolean success = bean.addTCPRouter(serverPortBind.getPort(),serverPortBind.getEnableDateRange(), y);
 
                             if (success) {
                                 //update databases state
@@ -330,6 +336,51 @@ public class ServerManageMapping {
         serverPortBind.setPortEnable(2);
         dbWrapper.updateByPrimaryKey(serverPortBind);
 
+
+        return responseMessage;
+
+    }
+
+
+    /**
+     * do Date Range Edit
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = "/doDateRangeEdit")
+    public ResponseMessage doDateRangeEdit(JNDCHttpRequest jndcHttpRequest) {
+        ResponseMessage responseMessage = new ResponseMessage();
+
+        byte[] body = jndcHttpRequest.getBody();
+        String s = new String(body);
+        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+
+        DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
+        ServerPortBind serverPortBind = dbWrapper.customQuerySingle("select * from server_port_bind where id=?", channelContextVO.getServerPortId());
+        if (serverPortBind == null) {
+            responseMessage.error();
+            responseMessage.setMessage("端口监听不存在");
+            return responseMessage;
+        }
+
+        NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
+        ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPortBind.getPort());
+
+        if (serverPortBindContext!=null){
+            ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
+            serverPortProtector.parseEnableDateRange(channelContextVO.getEnableDateRange());
+
+           //reset all connection
+            serverPortProtector.resetAllConnection();
+
+            //do db info update
+            serverPortBind.setEnableDateRange(channelContextVO.getEnableDateRange());
+            dbWrapper.updateByPrimaryKey(serverPortBind);
+        }else {
+            logger.error("can not found the service on server port "+serverPortBind.getPort());
+        }
 
         return responseMessage;
 

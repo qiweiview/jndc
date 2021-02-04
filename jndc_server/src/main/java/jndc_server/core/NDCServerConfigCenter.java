@@ -23,6 +23,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     private Map<String, ChannelHandlerContextHolder> channelHandlerContextHolderMap = new ConcurrentHashMap<>();
 
     //port service bind,there is a 'ServerPortProtector' in every  'ServerPortBindContext'
+    //to use this map.we can get the 'ServerPortBindContext' by port instead of from the 'ServerPortBindContext'
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
 
@@ -105,10 +106,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     /**
      * bind local service to a server port
      * @param port
-     * @param y
+     * @param enableDateRange
      * @return
      */
-    public boolean addTCPRouter(int port, TcpServiceDescriptionOnServer y) {
+    public boolean addTCPRouter(int port,String enableDateRange, TcpServiceDescriptionOnServer y) {
        if (tcpRouter.get(port)!=null){
            //todo exist a running context
            logger.error("exist a context bind the port: "+port);
@@ -122,17 +123,27 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //openTCPPortListener
         ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
-        boolean success = serverPortProtector.start();//this step is asynchronous
-        if (!success) {//check the port has been monitored or not
+
+        //set enable date  range string and parse to java object
+        serverPortProtector.parseEnableDateRange(enableDateRange);
+
+
+        //this step is asynchronous
+        boolean success = serverPortProtector.start();
+
+        //check the port has been monitored or not
+        if (!success) {
             //do rollback
             serverPortBindContext.setTcpServiceDescription(null);
             serverPortProtector.releaseRelatedResources();
             return false;
         }
 
-        serverPortBindContext.setServerPortProtector(serverPortProtector);//set serverPortProtector to the context
+        //set serverPortProtector to the context
+        serverPortBindContext.setServerPortProtector(serverPortProtector);
 
-        //add into  service release list in TcpServiceDescription
+        //add into service release list in TcpServiceDescription
+        //this list is used to release port-protector when the bind service be released
         y.addToServiceReleaseList(serverPortProtector);
 
         //register the context
@@ -213,6 +224,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     /* ------------------getter setter------------------ */
 
+    /**
+     * get all ChannelHandlerContextHolder
+     * @return
+     */
     public List<ChannelHandlerContextHolder> getChannelHandlerContextHolders() {
         List<ChannelHandlerContextHolder> list = new ArrayList<>();
         Collection<ChannelHandlerContextHolder> values1 = channelHandlerContextHolderMap.values();

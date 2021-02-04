@@ -91,6 +91,8 @@ public class JNDCClientConfig {
 
         UniqueBeanManage.registerBean(this);
 
+
+        //check open gui or not
         if (isOpenGui()){
             GuiLogAppender.printIntoGui=true;
          new Thread(()->{

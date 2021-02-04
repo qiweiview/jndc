@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.core.filter;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -7,12 +7,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.LogPrint;
+import jndc_server.core.IpChecker;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
 
+@Deprecated
 @ChannelHandler.Sharable
 public class IPFilter extends ChannelInboundHandlerAdapter {
     public static String NAME = "IP_FILTER";

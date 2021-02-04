@@ -12,6 +12,7 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UniqueInetTagProducer;
+import jndc_server.core.filter.CustomRulesFilter;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import org.slf4j.Logger;
@@ -20,8 +21,11 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * port bind context
@@ -36,16 +40,48 @@ public class ServerPortProtector {
 
     private EventLoopGroup eventLoopGroup;
 
+    private LocalTime startDatePoint;
+
+    private LocalTime endDatePoint;
+
 
     private Map<String, ServerTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
+
+
+    private ReentrantReadWriteLock reentrantLock=new ReentrantReadWriteLock();
 
 
     public ServerPortProtector(int port) {
         this.port = port;
     }
 
+    public boolean checkBetweenEnableTimeRange() {
+        LocalTime now = LocalTime.now();
+        return now.isAfter(startDatePoint) && now.isBefore(endDatePoint);
+    }
+
+    public void parseEnableDateRange(String dateRange) {
+        try {
+            String[] split = dateRange.split(",");
+            String startString = split[0];
+            String endString = split[1];
+            startDatePoint = LocalTime.parse(startString);
+            endDatePoint = LocalTime.parse(endString);
+            logger.info("set enable range between " + startDatePoint + " to " + endDatePoint);
+        } catch (Exception e) {
+            //todo if get any exception, the port will reject all requests
+
+            logger.error("parse the enable date range error,to ensure security, the port will reject all requests");
+            startDatePoint = LocalTime.parse("00:00:00");
+            endDatePoint = LocalTime.parse("00:00:00");
+        }
+
+    }
+
     public boolean start() {
-        InnerActiveCallBack innerActiveCallBack = (uniqueTag, serverTCPDataHandle) -> faceTCPMap.put(uniqueTag, serverTCPDataHandle);
+        InnerActiveCallBack innerActiveCallBack = (uniqueTag, serverTCPDataHandle) -> {
+            faceTCPMap.put(uniqueTag, serverTCPDataHandle);
+        };
 
 
         //create  Initializer
@@ -53,8 +89,8 @@ public class ServerPortProtector {
             @Override
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
-                pipeline.addFirst(IPFilter.NAME, IPFilter.STATIC_INSTANCE);
-                pipeline.addAfter(IPFilter.NAME, ServerTCPDataHandle.NAME, new ServerTCPDataHandle(innerActiveCallBack));
+                pipeline.addFirst(CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
+                pipeline.addAfter(CustomRulesFilter.NAME, ServerTCPDataHandle.NAME, new ServerTCPDataHandle(innerActiveCallBack));
             }
         };
 
@@ -71,8 +107,8 @@ public class ServerPortProtector {
             serverBootstrap.bind().sync();
             return true;
         } catch (Exception e) {
-            logger.error("bind server port:" + port + " fail cause:"+e);
-           return false;
+            logger.error("bind server port:" + port + " fail cause:" + e);
+            return false;
         }
     }
 
@@ -90,6 +126,14 @@ public class ServerPortProtector {
         serverTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
 
 
+    }
+
+    public void resetAllConnection() {
+        Map<String, ServerTCPDataHandle> backUp = this.faceTCPMap;
+        this.faceTCPMap = new ConcurrentHashMap<>();
+        backUp.forEach((k, v) -> {
+            v.releaseRelatedResources();
+        });
     }
 
     /**
@@ -127,8 +171,6 @@ public class ServerPortProtector {
         dbWrapper.customExecute("update server_port_bind set portEnable=0 where port=?", port);
 
 
-
-
         //notice refresh data
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
         messageNotificationCenter.dateRefreshMessage("serverPortList");
@@ -137,6 +179,7 @@ public class ServerPortProtector {
 
     /**
      * interrupt one tcp connection
+     *
      * @param ndcMessageProtocol
      */
     public void connectionInterrupt(NDCMessageProtocol ndcMessageProtocol) {

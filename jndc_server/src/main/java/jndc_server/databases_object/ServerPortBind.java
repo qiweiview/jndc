@@ -3,6 +3,8 @@ package jndc_server.databases_object;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 
+import java.time.LocalTime;
+
 
 /**
  * the description of the server port listening
@@ -17,10 +19,19 @@ public class ServerPortBind {
 
     private int port;
 
+    private String enableDateRange;
+
     private int portEnable;//1 enable 0 disable 2 preparing
 
     private String routeTo;
 
+    public String getEnableDateRange() {
+        return enableDateRange;
+    }
+
+    public void setEnableDateRange(String enableDateRange) {
+        this.enableDateRange = enableDateRange;
+    }
 
     public String getRouteTo() {
         return routeTo;

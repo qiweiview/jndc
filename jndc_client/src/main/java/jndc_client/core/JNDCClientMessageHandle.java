@@ -332,7 +332,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (cause.getCause() instanceof SecreteDecodeFailException) {
                 //auth fail
                 logger.error("secrete check error when decode,please check the secrete later...");
-                ApplicationExit.exit();
+                cause.printStackTrace();
+                //ApplicationExit.exit();
 
             }
             channelHandlerContext.close();

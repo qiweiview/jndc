@@ -111,6 +111,12 @@ public class IndexController implements Initializable {
         });
 
         ContextMenuOnListViewBuilder.InnerButtonDescription start = new ContextMenuOnListViewBuilder.InnerButtonDescription(" 启 用 ", x -> {
+            JNDCClientConfigCenter jndcClientConfigCenter =UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+            if (!jndcClientConfigCenter.getCurrentClientConnectionState()){
+                AlertUtils.error("客户端暂未连接至服务端");
+                return;
+            }
+
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
             if (clientServiceDescription.isServiceEnable()){
@@ -125,7 +131,6 @@ public class IndexController implements Initializable {
                 MenuItemPackagingListStore.reloadItem();
 
                 //about jndc_client
-                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.startRegister(clientServiceDescription);
                 logger.info("register service '"+clientServiceDescription.getServiceName()+"' to server");
@@ -135,31 +140,48 @@ public class IndexController implements Initializable {
 
             DialogBuilder.InnerAutoCloseButton startB = new DialogBuilder.InnerAutoCloseButton("启动", startCallBack);
             startB.setButtonType(DialogBuilder.InnerAutoCloseButton.SUCCESS_TYPE);
-            DialogBuilder.openMessageDialog(anchorPane, "启动后客户端将自动向服务端注册服务",startB );
+            DialogBuilder.openMessageDialog(anchorPane, "启动后客户端将自动向服务端注册该服务",startB );
         });
 
 
         ContextMenuOnListViewBuilder.InnerButtonDescription delete = new ContextMenuOnListViewBuilder.InnerButtonDescription(" 删 除 ", x -> {
+            JNDCClientConfigCenter jndcClientConfigCenter =UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+            if (!jndcClientConfigCenter.getCurrentClientConnectionState()){
+                AlertUtils.error("客户端暂未连接至服务端");
+                return;
+            }
+
+
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
 
 
-            //----------------- about gui -----------------
+
             EventHandler<ActionEvent> del = z -> {
+                //----------------- about gui -----------------
                 MenuItemPackagingListStore.deleteItem(x);
+
+
+                //about jndc
+                JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
+                currentHandler.stopRegister(clientServiceDescription);
+                logger.info("unregister service '"+clientServiceDescription.getServiceName()+"' to server");
+
             };
 
             DialogBuilder.openMessageDialog(anchorPane, "服务将从列表中移除，已建立连接也将中断", new DialogBuilder.InnerAutoCloseButton("移除", del));
 
-            //----------------- about jndc_client -----------------
-            boolean serviceEnable = clientServiceDescription.isServiceEnable();
-            if (serviceEnable){
-                //todo stop client service
-                logger.info("developing");
-            }
+
         });
 
         ContextMenuOnListViewBuilder.InnerButtonDescription pause = new ContextMenuOnListViewBuilder.InnerButtonDescription(" 停 用 ", x -> {
+            JNDCClientConfigCenter jndcClientConfigCenter =UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+            if (!jndcClientConfigCenter.getCurrentClientConnectionState()){
+                AlertUtils.error("客户端暂未连接至服务端");
+                return;
+            }
+
+
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
             if (!clientServiceDescription.isServiceEnable()){
@@ -176,16 +198,15 @@ public class IndexController implements Initializable {
 
 
                 //about jndc
-                JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.stopRegister(clientServiceDescription);
                 logger.info("unregister service '"+clientServiceDescription.getServiceName()+"' to server");
 
             };
-            DialogBuilder.openMessageDialog(anchorPane, "确认暂停服务 \"" + x + "\" ？ 暂停后，已建立连接也将中断", new DialogBuilder.InnerAutoCloseButton("暂停", pauseCallBack));
+            DialogBuilder.openMessageDialog(anchorPane, "确认暂停服务 \"" + x + "\" ？ 暂停后，客户端将不再向服务端注册该服务，已建立连接也将中断", new DialogBuilder.InnerAutoCloseButton("停用", pauseCallBack));
 
 
-            //----------------- about jndc_client -----------------
+
 
         });
 

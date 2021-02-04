@@ -5,12 +5,23 @@ public class serviceBindDTO {
 
     private String serviceId;
 
+    private String enableDateRange;
+
     @Override
     public String toString() {
         return "serviceBindDTO{" +
                 "serverPortId='" + serverPortId + '\'' +
                 ", serviceId='" + serviceId + '\'' +
+                ", enableDateRange='" + enableDateRange + '\'' +
                 '}';
+    }
+
+    public String getEnableDateRange() {
+        return enableDateRange;
+    }
+
+    public void setEnableDateRange(String enableDateRange) {
+        this.enableDateRange = enableDateRange;
     }
 
     public String getServerPortId() {

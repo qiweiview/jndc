@@ -4,6 +4,7 @@ import jndc.core.UniqueBeanManage;
 
 import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
+import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServer;
 import jndc_server.core.JNDCServerConfig;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ public class ServerTest {
 
     public static void main(String[] args) {
 
+        ServerRuntimeConfig.DEBUG_MODEL=true;
 
         File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 

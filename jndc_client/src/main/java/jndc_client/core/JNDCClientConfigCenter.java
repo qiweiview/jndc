@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * client config center
@@ -19,12 +20,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class JNDCClientConfigCenter implements NDCConfigCenter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-
     private JNDCClientMessageHandle currentHandler;
+
+    //store
     private Map<String, ClientServiceProvider> portProtectorMap = new ConcurrentHashMap<>();
-    private ChannelHandlerContext channelHandlerContext;//A client temporarily holds only one tunnel
+
+    private ChannelHandlerContext channelHandlerContext;//A client  holds only one tunnel
+
     private String channelId;//channelId
 
+    private volatile AtomicBoolean connectionToServerState =new AtomicBoolean(false);
 
     @Override
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
@@ -33,8 +38,12 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {
+
+
         int localPort = ndcMessageProtocol.getLocalPort();
         InetAddress localInetAddress = ndcMessageProtocol.getLocalInetAddress();
+
+        //service provider ip address+port
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
 
 
@@ -87,7 +96,10 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
 
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
+
+        //service provider ip address + port
         String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
+
         ClientServiceProvider clientServiceProvider1 = portProtectorMap.get(clientTag);
         if (clientServiceProvider1!=null){
             logger.error("the service "+clientTag+" has been register in this map");
@@ -120,5 +132,17 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     public void setCurrentHandler(JNDCClientMessageHandle currentHandler) {
         this.currentHandler = currentHandler;
+    }
+
+    public void successToConnectToServer() {
+        connectionToServerState.set(true);
+    }
+
+    public void failToConnectToServer() {
+        connectionToServerState.set(false);
+    }
+
+    public boolean getCurrentClientConnectionState(){
+        return connectionToServerState.get();
     }
 }

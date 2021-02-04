@@ -99,7 +99,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("client get a exception: "+cause);
+        logger.error("tcp server get a exception: "+cause);
     }
 
     /**

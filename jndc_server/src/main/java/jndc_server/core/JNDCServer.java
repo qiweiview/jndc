@@ -13,6 +13,8 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.ApplicationExit;
 import jndc.utils.LogPrint;
+import jndc_server.config.ServerRuntimeConfig;
+import jndc_server.core.filter.CustomRulesFilter;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.FrontProjectLoader;
 import jndc_server.web_support.core.WebServer;
@@ -32,6 +34,9 @@ public class JNDCServer {
     }
 
 
+    /**
+     * do some init operation only for server
+     */
     public void initBelongServerOnly() {
         ScheduledTaskCenter ipChecker = UniqueBeanManage.getBean(ScheduledTaskCenter.class);
         ipChecker.start();
@@ -54,26 +59,19 @@ public class JNDCServer {
         serverTest.start();//start
 
 
-        // confirm whether to deploy default static project
-        // the management project will be deploy in managementApiPort
-//        if (serverConfig.isDeployFrontProject()) {
-//            //load inner front file
-//            String web = serverConfig.getFrontProjectPath();
-//            if (!web.endsWith(File.separator)) {
-//                web += File.separator;
-//            }
-//            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(web);
-//            LogPrint.info("deploy front management project");
-//        }
 
-        String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
+        //when debug is true , not deploy management project
+        if (ServerRuntimeConfig.deployManagementProject()){
+            String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
 
-        if (!new File(runtimeDir).exists()) {
-            LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
-            ApplicationExit.exit();
+            if (!new File(runtimeDir).exists()) {
+                LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
+                ApplicationExit.exit();
+            }
+            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
+            LogPrint.debug("deploy front management project");
         }
-        FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-        LogPrint.debug("deploy front management project");
+
 
 
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
@@ -82,8 +80,8 @@ public class JNDCServer {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
 
-                pipeline.addFirst(IPFilter.NAME, IPFilter.STATIC_INSTANCE);
-                pipeline.addAfter(IPFilter.NAME, NDCPCodec.NAME, new NDCPCodec());
+                pipeline.addFirst(CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
+                pipeline.addAfter(CustomRulesFilter.NAME, NDCPCodec.NAME, new NDCPCodec());
                 pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME, new SecreteCodec());
                 pipeline.addAfter(SecreteCodec.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
             }

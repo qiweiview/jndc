@@ -32,7 +32,7 @@ public class DataStore {
 
     static {
         liteTableSupports.put("channel_context_record", new SQLiteTableSupport("channel_context_record", "CREATE TABLE \"channel_context_record\"( \"id\" text(32) NOT NULL, \"ip\" text(16), \"port\" integer(8), \"timeStamp\" integer(64), PRIMARY KEY (\"id\"))"));
-        liteTableSupports.put("server_port_bind", new SQLiteTableSupport("server_port_bind", "CREATE TABLE \"server_port_bind\"( \"id\" text(32) NOT NULL, \"name\" text(50), \"port\" integer(10), \"portEnable\" integer(2), \"routeTo\" text(16), PRIMARY KEY (\"id\"));"));
+        liteTableSupports.put("server_port_bind", new SQLiteTableSupport("server_port_bind", "CREATE TABLE \"server_port_bind\"( \"id\" text(32) NOT NULL, \"name\" text(50),\"enableDateRange\" text(50), \"port\" integer(10), \"portEnable\" integer(2), \"routeTo\" text(16), PRIMARY KEY (\"id\"));"));
         liteTableSupports.put("server_ip_filter_rule", new SQLiteTableSupport("server_ip_filter_rule", "CREATE TABLE \"server_ip_filter_rule\"( \"id\" text(32) NOT NULL, \"ip\" text(32), \"type\" integer(1), PRIMARY KEY (\"id\"))"));
         liteTableSupports.put("ip_filter_record", new SQLiteTableSupport("ip_filter_record", "CREATE TABLE \"ip_filter_record\" ( \"id\" text(32) NOT NULL, \"ip\" TEXT(16), \"vCount\" integer(32), \"timeStamp\" integer(64), \"recordType\" integer(2), PRIMARY KEY (\"id\") )"));
     }

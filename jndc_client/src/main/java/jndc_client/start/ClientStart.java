@@ -73,8 +73,8 @@ public class ClientStart {
 
 
 
-        JNDCClient serverTest =new JNDCClient();
-        serverTest.createClient();
+        JNDCClient jndcClient =new JNDCClient();
+        jndcClient.createClient();
         return;
 
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="jnc_db" uuid="5ad63f87-b6a7-452b-83b4-53836e22690a">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\NewWorkSpace\Tools\jndc\jndc_server\src\main\java\jndc_server\exmaple\config_file\jnc_db.db</jdbc-url>
+    </data-source>
+  </component>
+</project>
