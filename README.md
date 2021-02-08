@@ -120,7 +120,7 @@ clientServiceDescriptions: # 注册服务
 * 如若有好的功能需求，或代码存在的bug欢迎在issue里提出
 
 ## 开发计划
-* 定时功能
+* http协议端口复用
 
 
 
