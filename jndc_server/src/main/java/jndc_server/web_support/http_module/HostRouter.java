@@ -31,7 +31,7 @@ public class HostRouter {
     }
 
     public String parseHost(String host) {
-        logger.info("accept host:" + host);
+        logger.debug("accept host:" + host);
         int i = host.lastIndexOf(".");
         if (i != -1) {
             String substring = host.substring(0, i);
