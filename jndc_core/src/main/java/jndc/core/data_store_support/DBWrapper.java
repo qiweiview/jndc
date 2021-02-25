@@ -268,7 +268,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     }
 
-    public Object getFiledValue(String filed, Object o) {
+    private Object getFiledValue(String filed, Object o) {
         Field field = filedMap.get(filed);
         try {
             field.setAccessible(true);
@@ -283,23 +283,23 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     /* ========================getter setter======================== */
 
-    public String getInsert() {
+    private String getInsert() {
         return insert;
     }
 
-    public String getDelete() {
+    private String getDelete() {
         return delete;
     }
 
-    public List<String> getKeys() {
+    private List<String> getKeys() {
         return keys;
     }
 
-    public String getSelectAll() {
+    private String getSelectAll() {
         return selectAll;
     }
 
-    public String getUpdate() {
+    private String getUpdate() {
         return update;
     }
 

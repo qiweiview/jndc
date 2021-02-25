@@ -9,6 +9,7 @@ loginPassWord: "xxx"
 useSsl: false
 keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks'
 keystorePass: 'xxx'
-managementApiPort: "443" #管理api端口
+httpPort: "80" # http应用端口
+managementApiPort: "777" #管理api端口
 adminPort: "81" # jndc服务端运行监听端口
 bindIp: "0.0.0.0" # jndc服务端运行ip

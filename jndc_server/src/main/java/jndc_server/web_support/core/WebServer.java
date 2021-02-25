@@ -13,24 +13,33 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 
 
+import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
+import jndc.utils.LogPrint;
+import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServerConfig;
+import jndc_server.core.app.ServerApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-public class WebServer {
-
+/**
+ * web management server
+ */
+public class WebServer implements ServerApp {
+    private static final String MANAGEMENT_PROJECT = "management";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
 
+    @Override
     public void start() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         int manageCenterPort = serverConfig.getManagementApiPort();
@@ -87,6 +96,27 @@ public class WebServer {
             }
 
         });
+
+        //check if scan the front project
+        scanFrontProject();
+
+
+    }
+
+    public void scanFrontProject(){
+        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
+
+        //when debug is true , not deploy management project
+        if (ServerRuntimeConfig.deployManagementProject()){
+            String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
+
+            if (!new File(runtimeDir).exists()) {
+                LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
+                ApplicationExit.exit();
+            }
+            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
+            LogPrint.debug("deploy front management project");
+        }
     }
 
 }

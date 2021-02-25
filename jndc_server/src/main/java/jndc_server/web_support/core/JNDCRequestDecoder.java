@@ -11,14 +11,17 @@ import java.util.List;
 public class JNDCRequestDecoder extends MessageToMessageDecoder<FullHttpRequest> {
     public static String NAME = "JNDC_REQUEST_DECODER";
 
+    //default not ignore header
+    private boolean ignoreWsHeader =false;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest, List<Object> list) throws Exception {
-        String s = fullHttpRequest.headers().get(HttpHeaderNames.UPGRADE);
-        if (s != null) {
-            //todo websocket
+
+        if (!ignoreWsHeader&&fullHttpRequest.headers().get(HttpHeaderNames.UPGRADE) != null) {
+            //todo not ignore header and upgrade is not null
             channelHandlerContext.fireChannelRead(fullHttpRequest.retain());
         } else {
+            //todo do http parse only
             JNDCHttpRequest ndcHttpRequest = new JNDCHttpRequest(fullHttpRequest);
             InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
             ndcHttpRequest.setRemoteAddress(socketAddress.getAddress());
@@ -26,5 +29,12 @@ public class JNDCRequestDecoder extends MessageToMessageDecoder<FullHttpRequest>
         }
     }
 
-
+    /**
+     * set the ignore state
+     * the method is be called in JNDCHttpServer
+     * @param ignoreWsHeader
+     */
+    public void setIgnoreWsHeader(boolean ignoreWsHeader) {
+        this.ignoreWsHeader = ignoreWsHeader;
+    }
 }

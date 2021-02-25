@@ -1,33 +1,17 @@
 package jndc_server.core;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import jndc.core.NDCPCodec;
-import jndc.core.NettyComponentConfig;
-import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
-import jndc.utils.ApplicationExit;
-import jndc.utils.LogPrint;
-import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.core.filter.CustomRulesFilter;
+import jndc_server.core.app.JndcCoreServer;
 import jndc_server.databases_object.ServerPortBind;
-import jndc_server.web_support.core.FrontProjectLoader;
 import jndc_server.web_support.core.WebServer;
+import jndc_server.web_support.http_module.JNDCHttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import java.io.File;
-
 public class JNDCServer {
-    private static final String MANAGEMENT_PROJECT = "management";
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
+
 
 
     public JNDCServer() {
@@ -37,7 +21,7 @@ public class JNDCServer {
     /**
      * do some init operation only for server
      */
-    public void initBelongServerOnly() {
+    public void initBelongOnlyInServer() {
         ScheduledTaskCenter ipChecker = UniqueBeanManage.getBean(ScheduledTaskCenter.class);
         ipChecker.start();
     }
@@ -45,7 +29,7 @@ public class JNDCServer {
 
     public void createServer() {
         //do server init
-        initBelongServerOnly();
+        initBelongOnlyInServer();
 
 
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
@@ -58,49 +42,14 @@ public class JNDCServer {
         WebServer serverTest = new WebServer();
         serverTest.start();//start
 
+        //deploy jndc-core service
+        JndcCoreServer jndcCoreServer=new JndcCoreServer();
+        jndcCoreServer.start();
 
+        //deploy jndc-http server
+        JNDCHttpServer jndcHttpServer=new JNDCHttpServer();
+        jndcHttpServer.start();
 
-        //when debug is true , not deploy management project
-        if (ServerRuntimeConfig.deployManagementProject()){
-            String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
-
-            if (!new File(runtimeDir).exists()) {
-                LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
-                ApplicationExit.exit();
-            }
-            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-            LogPrint.debug("deploy front management project");
-        }
-
-
-
-        ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
-
-            @Override
-            protected void initChannel(Channel channel) throws Exception {
-                ChannelPipeline pipeline = channel.pipeline();
-
-                pipeline.addFirst(CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
-                pipeline.addAfter(CustomRulesFilter.NAME, NDCPCodec.NAME, new NDCPCodec());
-                pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME, new SecreteCodec());
-                pipeline.addAfter(SecreteCodec.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
-            }
-        };
-
-        ServerBootstrap b = new ServerBootstrap();
-        b.group(eventLoopGroup)
-                .channel(NioServerSocketChannel.class)//
-                .localAddress(serverConfig.getInetSocketAddress())//　
-                .childHandler(channelInitializer);
-
-        b.bind().addListener(x -> {
-            if (x.isSuccess()) {
-                logger.info("bind admin : " + serverConfig.getInetSocketAddress() + " success");
-            } else {
-                logger.error("bind admin : " + serverConfig.getInetSocketAddress() + " fail");
-            }
-
-        });
 
 
     }

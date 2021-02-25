@@ -8,6 +8,7 @@ import jndc.utils.*;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.core.MappingRegisterCenter;
 import jndc_server.web_support.core.MessageNotificationCenter;
+import jndc_server.web_support.http_module.HostRouter;
 import jndc_server.web_support.utils.AuthUtils;
 import jndc_server.web_support.utils.SslOneWayContextFactory;
 import org.apache.commons.io.FileUtils;
@@ -38,13 +39,10 @@ public class JNDCServerConfig {
 
     private String loglevel;
 
-//
-//    private boolean deployFrontProject;
-//
-//    private String frontProjectPath;
 
     private int managementApiPort;
 
+    private int httpPort;
 
     private int adminPort;
 
@@ -53,6 +51,8 @@ public class JNDCServerConfig {
     private InetAddress inetAddress;
 
     private InetSocketAddress inetSocketAddress;
+
+    private InetSocketAddress httpInetSocketAddress;
 
     private String[] blackList;
 
@@ -77,6 +77,7 @@ public class JNDCServerConfig {
     public void performParameterVerification() {
         inetAddress = InetUtils.getByStringIpAddress(bindIp);
         inetSocketAddress = new InetSocketAddress(inetAddress, adminPort);
+        httpInetSocketAddress=new InetSocketAddress(inetAddress, httpPort);
 
         if (UN_SUPPORT_VALUE.equals(getLoginName()) && UN_SUPPORT_VALUE.equals(getLoginPassWord())) {
             LogPrint.err("the default name and password 'jndc' is not safe,please edit the config file and retry");
@@ -99,6 +100,7 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(new AsynchronousEventCenter());
         UniqueBeanManage.registerBean(new MessageNotificationCenter());
         UniqueBeanManage.registerBean(new ScheduledTaskCenter());
+        UniqueBeanManage.registerBean(new HostRouter());
 
         //do server init
         init();
@@ -222,6 +224,26 @@ public class JNDCServerConfig {
 
 
     /* ----------------getter setter---------------- */
+
+    public int getHttpPort() {
+        return httpPort;
+    }
+
+    public void setHttpPort(int httpPort) {
+        this.httpPort = httpPort;
+    }
+
+    public InetSocketAddress getHttpInetSocketAddress() {
+        return httpInetSocketAddress;
+    }
+
+    public void setHttpInetSocketAddress(InetSocketAddress httpInetSocketAddress) {
+        this.httpInetSocketAddress = httpInetSocketAddress;
+    }
+
+    public static String getUnSupportValue() {
+        return UN_SUPPORT_VALUE;
+    }
 
     public String getRuntimeDir() {
         return runtimeDir;

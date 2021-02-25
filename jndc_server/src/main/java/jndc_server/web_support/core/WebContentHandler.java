@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.AsciiString;
 import jndc.core.UniqueBeanManage;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import org.slf4j.Logger;
@@ -25,6 +26,8 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, JNDCHttpRequest jndcHttpRequest) throws Exception {
+
+        //get method
         if (HttpMethod.GET.equals(jndcHttpRequest.getMethod())) {
             //todo get
 
@@ -62,6 +65,7 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
         }
 
 
+        //post method
         if (HttpMethod.POST.equals(jndcHttpRequest.getMethod())) {
             //todo post
             MappingRegisterCenter mappingRegisterCenter = UniqueBeanManage.getBean(MappingRegisterCenter.class);
@@ -71,15 +75,14 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
                 fullHttpResponse = HttpResponseBuilder.notFoundResponse();
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             } else {
                 fullHttpResponse = HttpResponseBuilder.jsonResponse(data);
 
                 //configuration during development
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
                 fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             }
+            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }

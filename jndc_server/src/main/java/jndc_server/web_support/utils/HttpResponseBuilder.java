@@ -7,15 +7,15 @@ import io.netty.handler.codec.http.*;
 public class HttpResponseBuilder {
     private static final byte[] notFoundModel="<html><body>file not be found,maybe you want go to <a href=\"./index.html\">home page</a></body><html>".getBytes();
 
-    private static final String TEXT_PLAIN = "text/plain";
+    private static final String TEXT_PLAIN = "text/plain;charset=utf-8";
 
-    private static final String APPLICATION_JSON = "application/json";
+    private static final String APPLICATION_JSON = "application/json;charset=utf-8";
 
-    private static final String HTML = "text/html";
+    private static final String HTML = "text/html;charset=utf-8";
 
-    private static final String JS = "application/javascript";
+    private static final String JS = "application/javascript;charset=utf-8";
 
-    private static final String CSS = "text/css";
+    private static final String CSS = "text/css;charset=utf-8";
 
 
     public static FullHttpResponse fileResponse(byte[] bytes, String fileType) {
@@ -62,6 +62,16 @@ public class HttpResponseBuilder {
         ByteBuf emptyBuffer = Unpooled.EMPTY_BUFFER;
         FullHttpResponse defaultHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, emptyBuffer);
         HttpHeaders headers = defaultHttpResponse.headers();
+        headers.set(HttpHeaderNames.CONTENT_TYPE, TEXT_PLAIN);
+        headers.set(HttpHeaderNames.CONTENT_LENGTH, emptyBuffer.readableBytes());
+        return defaultHttpResponse;
+    }
+
+    public static FullHttpResponse redirectResponse(String newLocation) {
+        ByteBuf emptyBuffer = Unpooled.EMPTY_BUFFER;
+        FullHttpResponse defaultHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND, emptyBuffer);
+        HttpHeaders headers = defaultHttpResponse.headers();
+        headers.set(HttpHeaderNames.LOCATION,newLocation);
         headers.set(HttpHeaderNames.CONTENT_TYPE, TEXT_PLAIN);
         headers.set(HttpHeaderNames.CONTENT_LENGTH, emptyBuffer.readableBytes());
         return defaultHttpResponse;
