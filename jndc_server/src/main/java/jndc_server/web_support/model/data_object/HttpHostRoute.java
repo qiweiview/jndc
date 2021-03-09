@@ -17,11 +17,26 @@ public class HttpHostRoute {
 
     private String redirectAddress;
 
+    private String forwardHost;
+
+    private int forwardPort;
+
     private String fixedContentType;
 
 
-    public boolean returnFixedValue(){
+    public boolean fromFixValue(){
+        //todo1
         return returnFixedValue==1;
+    }
+
+    public boolean fromRedirect(){
+        //todo 0
+        return returnFixedValue==0;
+    }
+
+    public boolean fromForward(){
+        //todo 2
+        return returnFixedValue==2;
     }
 
     public static HttpHostRoute of(HostRouteDTO hostRouteDTO) {
@@ -33,6 +48,22 @@ public class HttpHostRoute {
         httpHostRoute.setReturnFixedValue(hostRouteDTO.getReturnFixedValue());
         return httpHostRoute;
 
+    }
+
+    public String getForwardHost() {
+        return forwardHost;
+    }
+
+    public void setForwardHost(String forwardHost) {
+        this.forwardHost = forwardHost;
+    }
+
+    public int getForwardPort() {
+        return forwardPort;
+    }
+
+    public void setForwardPort(int forwardPort) {
+        this.forwardPort = forwardPort;
     }
 
     public String getFixedContentType() {

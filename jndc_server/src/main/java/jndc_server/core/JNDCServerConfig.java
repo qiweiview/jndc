@@ -8,7 +8,7 @@ import jndc.utils.*;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.core.MappingRegisterCenter;
 import jndc_server.web_support.core.MessageNotificationCenter;
-import jndc_server.web_support.http_module.HostRouter;
+import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.utils.AuthUtils;
 import jndc_server.web_support.utils.SslOneWayContextFactory;
 import org.apache.commons.io.FileUtils;
@@ -100,7 +100,7 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(new AsynchronousEventCenter());
         UniqueBeanManage.registerBean(new MessageNotificationCenter());
         UniqueBeanManage.registerBean(new ScheduledTaskCenter());
-        UniqueBeanManage.registerBean(new HostRouter());
+        UniqueBeanManage.registerBean(new HostRouterComponent());
 
         //do server init
         init();

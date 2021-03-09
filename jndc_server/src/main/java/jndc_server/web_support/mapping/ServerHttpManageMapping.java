@@ -10,7 +10,7 @@ import jndc.utils.JSONUtils;
 import jndc.utils.UUIDSimple;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.WebMapping;
-import jndc_server.web_support.http_module.HostRouter;
+import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
 import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
@@ -57,8 +57,8 @@ public class ServerHttpManageMapping {
 
 
         dbWrapper.insert(httpHostRoute);
-        HostRouter hostRouter = UniqueBeanManage.getBean(HostRouter.class);
-        hostRouter.addRule(httpHostRoute);
+        HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
+        hostRouterComponent.addRule(httpHostRoute);
         return responseMessage;
 
     }
@@ -118,8 +118,8 @@ public class ServerHttpManageMapping {
 
         dbWrapper.updateByPrimaryKey(newRule);
 
-        HostRouter hostRouter = UniqueBeanManage.getBean(HostRouter.class);
-        hostRouter.updateRule(oldRule, newRule);
+        HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
+        hostRouterComponent.updateRule(oldRule, newRule);
         return responseMessage;
 
     }
@@ -143,8 +143,8 @@ public class ServerHttpManageMapping {
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
 
         dbWrapper.deleteByPrimaryKey(oldRule);
-        HostRouter hostRouter = UniqueBeanManage.getBean(HostRouter.class);
-        hostRouter.removeRule(oldRule);
+        HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
+        hostRouterComponent.removeRule(oldRule);
 
         return responseMessage;
     }

@@ -6,12 +6,12 @@ import jndc_server.web_support.model.data_object.HttpHostRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class HostRouter {
+public class HostRouterComponent {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, HttpHostRoute> map = new ConcurrentHashMap<>();
     private volatile boolean initFinished = false;
@@ -58,7 +58,7 @@ public class HostRouter {
 
 
     public void init() {
-        synchronized (HostRouter.class) {
+        synchronized (HostRouterComponent.class) {
             if (!initFinished) {
                 DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
                 List<HttpHostRoute> httpHostRoutes = dbWrapper.listAll();
