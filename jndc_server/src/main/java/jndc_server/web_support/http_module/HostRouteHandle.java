@@ -6,9 +6,9 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.util.concurrent.ScheduledFuture;
 import jndc.core.UniqueBeanManage;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
+import jndc_server.web_support.utils.BlockValueFeature;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 
 public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest> {
@@ -38,8 +38,10 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
             if (httpHostRoute.fromForward()) {
                 //todo forward request
-                ScheduledFuture<FullHttpResponse> start = new LiteHttpProxy(channelHandlerContext, httpHostRoute, fullHttpRequest).forward();
-                fullHttpResponse = start.get();
+                BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(channelHandlerContext, httpHostRoute, fullHttpRequest).forward();
+
+                //wait for 15 second
+                fullHttpResponse = forward.get(15);
             }
 
         } else {
