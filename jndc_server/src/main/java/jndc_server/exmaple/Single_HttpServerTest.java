@@ -15,7 +15,7 @@ public class Single_HttpServerTest {
 
         ServerRuntimeConfig.DEBUG_MODEL=true;
 
-        Single_HttpServerTest.class.getClassLoader().getResource("").getFile();
+
 
         File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 

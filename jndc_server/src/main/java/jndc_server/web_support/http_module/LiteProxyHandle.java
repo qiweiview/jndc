@@ -33,4 +33,9 @@ public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpRespons
         logger.info("forward point inactive");
         liteHttpProxy.release();
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+      cause.printStackTrace();
+    }
 }

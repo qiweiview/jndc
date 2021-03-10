@@ -21,35 +21,44 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
         HttpHeaders headers = fullHttpRequest.headers();
 
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
-        String host = headers.get(HttpHeaderNames.HOST);
-        HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
+//        String host = headers.get(HttpHeaderNames.HOST);
+//        HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
+//        FullHttpResponse fullHttpResponse = null;
+//        if (httpHostRoute != null) {
+//            if (httpHostRoute.fromFixValue()) {
+//                //todo return fix value
+//                fullHttpResponse = HttpResponseBuilder.defaultResponse(httpHostRoute.getFixedResponse().getBytes(), httpHostRoute.getFixedContentType() + ";charset=utf-8");
+//            }
+//
+//            if (httpHostRoute.fromRedirect()) {
+//                //todo return redirect tag
+//                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getRedirectAddress());
+//            }
+//
+//
+//            if (httpHostRoute.fromForward()) {
+//                //todo forward request
+//                BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(channelHandlerContext, httpHostRoute, fullHttpRequest).forward();
+//
+//                //wait for 15 second
+//                fullHttpResponse = forward.get(15);
+//            }
+//
+//        } else {
+//            fullHttpResponse = HttpResponseBuilder.textResponse("不存该路径匹配规则".getBytes());
+//        }
         FullHttpResponse fullHttpResponse = null;
-        if (httpHostRoute != null) {
-            if (httpHostRoute.fromFixValue()) {
-                //todo return fix value
-                fullHttpResponse = HttpResponseBuilder.defaultResponse(httpHostRoute.getFixedResponse().getBytes(), httpHostRoute.getFixedContentType() + ";charset=utf-8");
-            }
+        BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy( null,fullHttpRequest.retain()).forward();
 
-            if (httpHostRoute.fromRedirect()) {
-                //todo return redirect tag
-                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getRedirectAddress());
-            }
-
-
-            if (httpHostRoute.fromForward()) {
-                //todo forward request
-                BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(channelHandlerContext, httpHostRoute, fullHttpRequest).forward();
-
-                //wait for 15 second
-                fullHttpResponse = forward.get(15);
-            }
-
-        } else {
-            fullHttpResponse = HttpResponseBuilder.textResponse("不存该路径匹配规则".getBytes());
-        }
-
+        //wait for 15 second
+        fullHttpResponse = forward.get(15);
         channelHandlerContext.writeAndFlush(fullHttpResponse);
 
 
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
     }
 }
