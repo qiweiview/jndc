@@ -1,6 +1,7 @@
 package jndc_server.web_support.http_module;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -8,6 +9,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.util.concurrent.ScheduledFuture;
 import javafx.util.Callback;
 import jndc.core.NettyComponentConfig;
+import jndc.utils.ByteBufUtil4V;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 
@@ -31,6 +33,15 @@ public class LiteHttpProxy {
         fullHttpRequest = null;
         httpHostRoute = null;
     }
+
+//    public static void main(String[] args) {
+//        DefaultFullHttpRequest defaultFullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+//        BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(null,defaultFullHttpRequest).forward();
+//        byte[] bytes = ByteBufUtil4V.readWithRelease(forward.get().content().retain());
+//        System.out.println(new String(bytes));
+//
+//
+//    }
 
     public BlockValueFeature<FullHttpResponse> forward() {
         LiteHttpProxy liteHttpProxy = this;

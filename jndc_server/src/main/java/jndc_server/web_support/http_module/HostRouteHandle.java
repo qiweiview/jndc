@@ -52,7 +52,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
         //wait for 15 second
         fullHttpResponse = forward.get(15);
-        channelHandlerContext.writeAndFlush(fullHttpResponse);
+        channelHandlerContext.writeAndFlush(fullHttpResponse.copy());
 
 
     }

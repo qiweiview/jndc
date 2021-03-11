@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
+import jndc.utils.ByteBufUtil4V;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import org.slf4j.Logger;
@@ -25,7 +26,9 @@ public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpRespons
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpResponse fullHttpResponse) throws Exception {
-        liteHttpProxy.writeData(fullHttpResponse);
+
+
+        liteHttpProxy.writeData(fullHttpResponse.retain());
     }
 
     @Override
