@@ -21,6 +21,18 @@ public class InetUtils {
     }
 
 
+
+    public static InetAddress getInetAddressByHost(String host) {
+        try {
+            InetAddress address = InetAddress.getByName(host);
+
+            return address;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            throw new RuntimeException("can not know the host: " + host);
+        }
+    }
+
     public static InetAddress getByStringIpAddress(String ipAddress) {
         InetAddress byAddress = null;
         try {
@@ -61,7 +73,6 @@ public class InetUtils {
             uniqueInetTag = "0.0.0.0/" + UUIDSimple.id();
         }
     }
-
 
 
 }

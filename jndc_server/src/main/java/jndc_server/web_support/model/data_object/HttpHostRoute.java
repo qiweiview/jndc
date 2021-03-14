@@ -11,9 +11,14 @@ public class HttpHostRoute {
 
     private String hostKeyWord;
 
-    private int returnFixedValue;//0 do redirect 1 return fixed value
+    //0 redirect
+    //1 fixed value
+    //2 forward
+    private int routeType;
 
     private String fixedResponse;
+
+    private String fixedContentType;
 
     private String redirectAddress;
 
@@ -21,22 +26,22 @@ public class HttpHostRoute {
 
     private int forwardPort;
 
-    private String fixedContentType;
+
 
 
     public boolean fromFixValue(){
         //todo 1
-        return returnFixedValue==1;
+        return routeType ==1;
     }
 
     public boolean fromRedirect(){
         //todo 0
-        return returnFixedValue==0;
+        return routeType ==0;
     }
 
     public boolean fromForward(){
         //todo 2
-        return returnFixedValue==2;
+        return routeType ==2;
     }
 
     public static HttpHostRoute of(HostRouteDTO hostRouteDTO) {
@@ -45,7 +50,7 @@ public class HttpHostRoute {
         httpHostRoute.setFixedResponse(hostRouteDTO.getFixedResponse());
         httpHostRoute.setHostKeyWord(hostRouteDTO.getHostKeyWord());
         httpHostRoute.setRedirectAddress(hostRouteDTO.getRedirectAddress());
-        httpHostRoute.setReturnFixedValue(hostRouteDTO.getReturnFixedValue());
+        httpHostRoute.setRouteType(hostRouteDTO.getReturnFixedValue());
         return httpHostRoute;
 
     }
@@ -90,12 +95,12 @@ public class HttpHostRoute {
         this.hostKeyWord = hostKeyWord;
     }
 
-    public int getReturnFixedValue() {
-        return returnFixedValue;
+    public int getRouteType() {
+        return routeType;
     }
 
-    public void setReturnFixedValue(int returnFixedValue) {
-        this.returnFixedValue = returnFixedValue;
+    public void setRouteType(int routeType) {
+        this.routeType = routeType;
     }
 
     public String getFixedResponse() {

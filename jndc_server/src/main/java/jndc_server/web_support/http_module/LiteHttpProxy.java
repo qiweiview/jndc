@@ -10,6 +10,7 @@ import io.netty.util.concurrent.ScheduledFuture;
 import javafx.util.Callback;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.ByteBufUtil4V;
+import jndc.utils.InetUtils;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.*;
 
 
 public class LiteHttpProxy {
-    private EventLoopGroup eventLoopGroup= NettyComponentConfig.getNioEventLoopGroup();
+    private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
     private FullHttpRequest fullHttpRequest;
     private HttpHostRoute httpHostRoute;
     private BlockValueFeature completeFeature;
@@ -34,14 +35,6 @@ public class LiteHttpProxy {
         httpHostRoute = null;
     }
 
-//    public static void main(String[] args) {
-//        DefaultFullHttpRequest defaultFullHttpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
-//        BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(null,defaultFullHttpRequest).forward();
-//        byte[] bytes = ByteBufUtil4V.readWithRelease(forward.get().content().retain());
-//        System.out.println(new String(bytes));
-//
-//
-//    }
 
     public BlockValueFeature<FullHttpResponse> forward() {
         LiteHttpProxy liteHttpProxy = this;
@@ -64,7 +57,7 @@ public class LiteHttpProxy {
                 .handler(channelInitializer);
         ChannelFuture sync = null;
         try {
-            sync = b.connect("123.207.114.245", 777).sync();
+            sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
