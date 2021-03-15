@@ -36,6 +36,7 @@ public class JSONUtils {
         try {
             return objectMapper.readValue(str, tClass);
         } catch (JsonProcessingException e) {
+            e.printStackTrace();
             logger.error("deserialization fail ,cause"+e);
             throw new RuntimeException(e);
         }

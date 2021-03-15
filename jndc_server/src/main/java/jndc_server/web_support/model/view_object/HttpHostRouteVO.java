@@ -7,13 +7,33 @@ public class HttpHostRouteVO {
 
     private String hostKeyWord;
 
-    private int returnFixedValue;//0 do redirect 1 return fixed value
+    private int routeType;//0 do redirect 1 return fixed value
 
     private String fixedResponse;
 
     private String redirectAddress;
 
     private String fixedContentType;
+
+    private String forwardHost;
+
+    private int forwardPort;
+
+    public String getForwardHost() {
+        return forwardHost;
+    }
+
+    public void setForwardHost(String forwardHost) {
+        this.forwardHost = forwardHost;
+    }
+
+    public int getForwardPort() {
+        return forwardPort;
+    }
+
+    public void setForwardPort(int forwardPort) {
+        this.forwardPort = forwardPort;
+    }
 
     public String getId() {
         return id;
@@ -39,12 +59,12 @@ public class HttpHostRouteVO {
         this.hostKeyWord = hostKeyWord;
     }
 
-    public int getReturnFixedValue() {
-        return returnFixedValue;
+    public int getRouteType() {
+        return routeType;
     }
 
-    public void setReturnFixedValue(int returnFixedValue) {
-        this.returnFixedValue = returnFixedValue;
+    public void setRouteType(int routeType) {
+        this.routeType = routeType;
     }
 
     public String getFixedResponse() {

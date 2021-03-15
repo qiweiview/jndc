@@ -5,7 +5,10 @@ public class HostRouteDTO {
 
     private String hostKeyWord;
 
-    private int returnFixedValue;//0 do redirect 1 return fixed value
+    //0 redirect
+    //1 fixed value
+    //2 forward
+    private int routeType;
 
     private String fixedResponse;
 
@@ -13,9 +16,29 @@ public class HostRouteDTO {
 
     private String redirectAddress;
 
+    private String forwardHost;
+
+    private int forwardPort;
+
     private int page;
 
     private int rows;
+
+    public String getForwardHost() {
+        return forwardHost;
+    }
+
+    public void setForwardHost(String forwardHost) {
+        this.forwardHost = forwardHost;
+    }
+
+    public int getForwardPort() {
+        return forwardPort;
+    }
+
+    public void setForwardPort(int forwardPort) {
+        this.forwardPort = forwardPort;
+    }
 
     public String getId() {
         return id;
@@ -57,12 +80,12 @@ public class HostRouteDTO {
         this.hostKeyWord = hostKeyWord;
     }
 
-    public int getReturnFixedValue() {
-        return returnFixedValue;
+    public int getRouteType() {
+        return routeType;
     }
 
-    public void setReturnFixedValue(int returnFixedValue) {
-        this.returnFixedValue = returnFixedValue;
+    public void setRouteType(int routeType) {
+        this.routeType = routeType;
     }
 
     public String getFixedResponse() {

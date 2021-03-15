@@ -26,14 +26,12 @@ public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpRespons
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpResponse fullHttpResponse) throws Exception {
-
-
         liteHttpProxy.writeData(fullHttpResponse.retain());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("forward point inactive");
+        logger.debug("forward point inactive");
         liteHttpProxy.release();
     }
 

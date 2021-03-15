@@ -1,20 +1,16 @@
 package jndc_server.web_support.utils;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jndc.utils.LogPrint;
 
 public class BlockValueFeature<T> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private T data;
-    private Thread blockThread;
 
     public BlockValueFeature() {
-        logger.info("new");
     }
 
     public void complete(T t) {
-        logger.debug("complete by value: "+t);
+        LogPrint.debug("complete by value: "+t);
         data = t;
         synchronized (this) {
             this.notify();
@@ -22,7 +18,6 @@ public class BlockValueFeature<T> {
     }
 
     public T get(Integer second) {
-        blockThread = Thread.currentThread();
         synchronized (this) {
             try {
                 if (second>0){
@@ -30,8 +25,10 @@ public class BlockValueFeature<T> {
                 }else {
                     this.wait();
                 }
-                logger.debug("return value: "+data);
-                return data;
+                LogPrint.debug("return value: "+data);
+                T t2=data;
+                data=null;
+                return t2;
             } catch (InterruptedException e) {
                 throw new RuntimeException("get value fail cause " + e);
             }

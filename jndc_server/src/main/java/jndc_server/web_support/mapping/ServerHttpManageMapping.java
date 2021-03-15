@@ -7,6 +7,7 @@ import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
 import jndc.utils.BeanUtils;
 import jndc.utils.JSONUtils;
+import jndc.utils.StringUtils4V;
 import jndc.utils.UUIDSimple;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.WebMapping;
@@ -36,6 +37,11 @@ public class ServerHttpManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         HostRouteDTO hostRouteDTO = JSONUtils.str2Object(s, HostRouteDTO.class);
+        if (StringUtils4V.isBlank( hostRouteDTO.getHostKeyWord())){
+            responseMessage.error();
+            responseMessage.setMessage("包含字符不能为空");
+            return responseMessage;
+        }
         HttpHostRoute httpHostRoute = HttpHostRoute.of(hostRouteDTO);
         httpHostRoute.setId(UUIDSimple.id());
 
@@ -55,6 +61,9 @@ public class ServerHttpManageMapping {
 
 
 
+        if (httpHostRoute.forwardType()){
+            httpHostRoute.setForwardHost("127.0.0.1");
+        }
 
         dbWrapper.insert(httpHostRoute);
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);

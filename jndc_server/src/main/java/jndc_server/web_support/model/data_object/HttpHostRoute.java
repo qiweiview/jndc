@@ -29,17 +29,17 @@ public class HttpHostRoute {
 
 
 
-    public boolean fromFixValue(){
+    public boolean fixValueType(){
         //todo 1
         return routeType ==1;
     }
 
-    public boolean fromRedirect(){
+    public boolean redirectType(){
         //todo 0
         return routeType ==0;
     }
 
-    public boolean fromForward(){
+    public boolean forwardType(){
         //todo 2
         return routeType ==2;
     }
@@ -50,7 +50,9 @@ public class HttpHostRoute {
         httpHostRoute.setFixedResponse(hostRouteDTO.getFixedResponse());
         httpHostRoute.setHostKeyWord(hostRouteDTO.getHostKeyWord());
         httpHostRoute.setRedirectAddress(hostRouteDTO.getRedirectAddress());
-        httpHostRoute.setRouteType(hostRouteDTO.getReturnFixedValue());
+        httpHostRoute.setRouteType(hostRouteDTO.getRouteType());
+        httpHostRoute.setForwardHost(hostRouteDTO.getForwardHost());
+        httpHostRoute.setForwardPort(hostRouteDTO.getForwardPort());
         return httpHostRoute;
 
     }
