@@ -22,7 +22,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
         String host = headers.get(HttpHeaderNames.HOST);
-        host="blog.ab.com";
+       // host="blog.ab.com";
         HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
         FullHttpResponse fullHttpResponse = null;
         if (httpHostRoute != null) {

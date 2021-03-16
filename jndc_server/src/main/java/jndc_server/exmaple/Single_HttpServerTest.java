@@ -19,6 +19,8 @@ public class Single_HttpServerTest {
 
         File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 
+        file=new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+
 
         YmlParser ymlParser = new YmlParser();
         JNDCServerConfig jndcServerConfig = null;

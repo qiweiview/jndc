@@ -19,25 +19,6 @@ import java.util.concurrent.*;
 
 public class LiteHttpProxy {
 
-    public static void main(String[] args) {
-        EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
-      for(int i=0;i<500;i++){
-          eventLoopGroup.submit(()->{
-              Integer z=0;
-              synchronized (z){
-                  try {
-                      z.wait();
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
-                  }
-              }
-          });
-      }
-
-        eventLoopGroup.submit(()->{
-            System.out.println("你好");
-        });
-    }
 
     private static final EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
     private FullHttpRequest fullHttpRequest;
@@ -77,8 +58,8 @@ public class LiteHttpProxy {
                 .handler(channelInitializer);
         ChannelFuture sync = null;
         try {
-            sync = b.connect(InetUtils.getInetAddressByHost("www.tianshouzhi.com"),80).sync();
-//            sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
+     //       sync = b.connect(InetUtils.getInetAddressByHost("www.tianshouzhi.com"),80).sync();
+          sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
