@@ -133,6 +133,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //check the port has been monitored or not
         if (!success) {
+            //todo bind port fail
             //do rollback
             serverPortBindContext.setTcpServiceDescription(null);
             serverPortProtector.releaseRelatedResources();

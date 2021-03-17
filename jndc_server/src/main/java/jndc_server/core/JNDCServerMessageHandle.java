@@ -65,10 +65,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(),x.getEnableDateRange(), tcpServiceDescription);
 
                 if (success) {
-                    x.setPortEnable(1);
+                    x.bindEnable();
                     logger.debug("rebind the service:" + routeTo + " success");
                 } else {
-                    x.setPortEnable(0);
+                    x.bindDisable();
+                    x.setRouteTo(null);
                     logger.error("rebind the service:" + routeTo + " fail");
                 }
 

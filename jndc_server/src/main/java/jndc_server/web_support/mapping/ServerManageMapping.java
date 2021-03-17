@@ -251,7 +251,7 @@ public class ServerManageMapping {
 
 
         //do create
-        channelContextVO.setPortEnable(0);
+        channelContextVO.bindDisable();
         channelContextVO.setId(UUIDSimple.id());
         dbWrapper.insert(channelContextVO);
         return responseMessage;
@@ -310,17 +310,24 @@ public class ServerManageMapping {
                                 //update databases state
 
                                 //set true
-                                serverPortBind.setPortEnable(1);
+                                serverPortBind.bindEnable();
                             } else {
                                 //set false
-                                serverPortBind.setPortEnable(0);
+                                serverPortBind.bindDisable();
+                                serverPortBind.setRouteTo(null);
                             }
                             dbWrapper.updateByPrimaryKey(serverPortBind);
 
 
                             //notice refresh data
                             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                            messageNotificationCenter.dateRefreshMessage("serverPortList");
+                           if (success){
+                               messageNotificationCenter.dateRefreshMessage("serverPortList");
+                           }else {
+                               messageNotificationCenter.noticeMessage(serverPortBind.getPort()+"端口服务关联失败");
+                           }
+
+
 
                             //bind just once
                             atomicBoolean.set(false);
@@ -333,7 +340,7 @@ public class ServerManageMapping {
         });
 
 
-        serverPortBind.setPortEnable(2);
+        serverPortBind.bindPreparing();
         dbWrapper.updateByPrimaryKey(serverPortBind);
 
 
@@ -466,7 +473,7 @@ public class ServerManageMapping {
             tcpRouter.remove(port);
         }
 
-        serverPortBind.setPortEnable(0);
+        serverPortBind.bindDisable();
         serverPortBind.setRouteTo(null);
         dbWrapper.updateByPrimaryKey(serverPortBind);
 

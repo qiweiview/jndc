@@ -25,6 +25,27 @@ public class ServerPortBind {
 
     private String routeTo;
 
+    /**
+     * change state to enable
+     */
+    public void bindEnable(){
+        setPortEnable(1);
+    }
+
+    /**
+     * change state to disable
+     */
+    public void bindDisable(){
+        setPortEnable(0);
+    }
+
+    /**
+     * change state to preparing
+     */
+    public void bindPreparing(){
+        setPortEnable(2);
+    }
+
     public String getEnableDateRange() {
         return enableDateRange;
     }
