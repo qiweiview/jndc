@@ -24,6 +24,17 @@ public class HostRouteDTO {
 
     private int rows;
 
+
+    private String forwardProtocol;
+
+    public String getForwardProtocol() {
+        return forwardProtocol;
+    }
+
+    public void setForwardProtocol(String forwardProtocol) {
+        this.forwardProtocol = forwardProtocol;
+    }
+
     public String getForwardHost() {
         return forwardHost;
     }

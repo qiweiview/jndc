@@ -35,7 +35,7 @@ public class DataStore {
         liteTableSupports.put("server_port_bind", new SQLiteTableSupport("server_port_bind", "CREATE TABLE \"server_port_bind\"( \"id\" text(32) NOT NULL, \"name\" text(50),\"enableDateRange\" text(50), \"port\" integer(10), \"portEnable\" integer(2), \"routeTo\" text(16), PRIMARY KEY (\"id\"));"));
         liteTableSupports.put("server_ip_filter_rule", new SQLiteTableSupport("server_ip_filter_rule", "CREATE TABLE \"server_ip_filter_rule\"( \"id\" text(32) NOT NULL, \"ip\" text(32), \"type\" integer(1), PRIMARY KEY (\"id\"))"));
         liteTableSupports.put("ip_filter_record", new SQLiteTableSupport("ip_filter_record", "CREATE TABLE \"ip_filter_record\" ( \"id\" text(32) NOT NULL, \"ip\" TEXT(16), \"vCount\" integer(32), \"timeStamp\" integer(64), \"recordType\" integer(2), PRIMARY KEY (\"id\") )"));
-        liteTableSupports.put("http_host_route", new SQLiteTableSupport("http_host_route", "CREATE TABLE \"http_host_route\" ( \"id\" text(32) NOT NULL, \"routeType\" INTEGER(2), \"hostKeyWord\" text(200), \"fixedResponse\" text(2000), \"redirectAddress\" text(500), \"fixedContentType\" text(100), \"forwardHost\" text(100), \"forwardPort\" INTEGER(20), PRIMARY KEY (\"id\") );"));
+        liteTableSupports.put("http_host_route", new SQLiteTableSupport("http_host_route", "CREATE TABLE \"http_host_route\" ( \"id\" text(32) NOT NULL, \"routeType\" INTEGER(2), \"hostKeyWord\" text(200), \"fixedResponse\" text(2000), \"redirectAddress\" text(500), \"fixedContentType\" text(100), \"forwardHost\" text(100),\"forwardProtocol\" text(30), \"forwardPort\" INTEGER(20), PRIMARY KEY (\"id\") );"));
 
     }
 

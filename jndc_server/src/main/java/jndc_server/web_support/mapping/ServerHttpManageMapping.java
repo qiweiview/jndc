@@ -45,6 +45,12 @@ public class ServerHttpManageMapping {
         HttpHostRoute httpHostRoute = HttpHostRoute.of(hostRouteDTO);
         httpHostRoute.setId(UUIDSimple.id());
 
+        if (!("http://".equals(hostRouteDTO.getForwardProtocol())||"https://".equals(hostRouteDTO.getForwardProtocol()))) {
+            responseMessage.error();
+            responseMessage.setMessage("不支持协议类型");
+            return responseMessage;
+        }
+
         if (hostRouteDTO.getHostKeyWord().length() > 50 || hostRouteDTO.getFixedResponse().length() > 500) {
             responseMessage.error();
             responseMessage.setMessage("字段长度超出限制");

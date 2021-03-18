@@ -1,5 +1,6 @@
 package jndc_server.web_support.model.data_object;
 
+
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
@@ -27,6 +28,15 @@ public class HttpHostRoute {
     private int forwardPort;
 
 
+    private String forwardProtocol;
+
+    public String getForwardProtocol() {
+        return forwardProtocol;
+    }
+
+    public void setForwardProtocol(String forwardProtocol) {
+        this.forwardProtocol = forwardProtocol;
+    }
 
 
     public boolean fixValueType(){
@@ -53,6 +63,7 @@ public class HttpHostRoute {
         httpHostRoute.setRouteType(hostRouteDTO.getRouteType());
         httpHostRoute.setForwardHost(hostRouteDTO.getForwardHost());
         httpHostRoute.setForwardPort(hostRouteDTO.getForwardPort());
+        httpHostRoute.setForwardProtocol(hostRouteDTO.getForwardProtocol());
         return httpHostRoute;
 
     }

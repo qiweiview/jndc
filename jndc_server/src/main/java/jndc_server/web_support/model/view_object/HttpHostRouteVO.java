@@ -1,6 +1,8 @@
 package jndc_server.web_support.model.view_object;
 
 
+
+
 public class HttpHostRouteVO {
 
     private String id;
@@ -18,6 +20,17 @@ public class HttpHostRouteVO {
     private String forwardHost;
 
     private int forwardPort;
+
+
+    private String forwardProtocol;
+
+    public String getForwardProtocol() {
+        return forwardProtocol;
+    }
+
+    public void setForwardProtocol(String forwardProtocol) {
+        this.forwardProtocol = forwardProtocol;
+    }
 
     public String getForwardHost() {
         return forwardHost;
