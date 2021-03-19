@@ -33,7 +33,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
             if (httpHostRoute.redirectType()) {
                 //todo return redirect tag
-                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getRedirectAddress());
+                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getForwardProtocol()+httpHostRoute.getRedirectAddress());
             }
 
 
