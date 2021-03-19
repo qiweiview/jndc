@@ -51,9 +51,15 @@ public class ServerHttpManageMapping {
             return responseMessage;
         }
 
-        if (hostRouteDTO.getHostKeyWord().length() > 50 || hostRouteDTO.getFixedResponse().length() > 500) {
+        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
             responseMessage.error();
-            responseMessage.setMessage("字段长度超出限制");
+            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
+            return responseMessage;
+        }
+
+        if ( hostRouteDTO.getFixedResponse().length() > 1000) {
+            responseMessage.error();
+            responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
             return responseMessage;
         }
 
@@ -118,11 +124,19 @@ public class ServerHttpManageMapping {
         newRule.setId(oldRule.getId());
 
 
-        if (hostRouteDTO.getHostKeyWord().length() > 50 || hostRouteDTO.getFixedResponse().length() > 500) {
+
+        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
             responseMessage.error();
-            responseMessage.setMessage("字段长度超出限制");
+            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
             return responseMessage;
         }
+
+        if ( hostRouteDTO.getFixedResponse().length() > 1000) {
+            responseMessage.error();
+            responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
+            return responseMessage;
+        }
+
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
 
         if (!oldRule.getHostKeyWord().equals(newRule.getHostKeyWord())&&checkHostKeyExist(newRule.getHostKeyWord())) {
