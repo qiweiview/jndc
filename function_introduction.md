@@ -42,3 +42,8 @@ openGui: true
 * [![r1y3PH.png](https://s3.ax1x.com/2020/12/16/r1y3PH.png)](https://imgchr.com/i/r1y3PH)
 * 支持动态 开启/关闭/删除 服务
 * [![r1yNsP.png](https://s3.ax1x.com/2020/12/16/r1yNsP.png)](https://imgchr.com/i/r1yNsP)
+
+## 域名路由
+* 通过配置域名规则（“转发”，“重定向”，“固定值相应”），服务器可以对规则下请求进行不同的处理
+* [![6oizeH.png](https://z3.ax1x.com/2021/03/22/6oizeH.png)](https://imgtu.com/i/6oizeH)
+* [![6oFemQ.png](https://z3.ax1x.com/2021/03/22/6oFemQ.png)](https://imgtu.com/i/6oFemQ)
