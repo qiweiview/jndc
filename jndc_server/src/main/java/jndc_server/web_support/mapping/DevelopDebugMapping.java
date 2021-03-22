@@ -1,8 +1,6 @@
 package jndc_server.web_support.mapping;
 
 
-
-
 import jndc_server.web_support.core.FrontProjectLoader;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.WebMapping;
@@ -17,23 +15,22 @@ import java.util.HashMap;
 public class DevelopDebugMapping {
 
 
-
-    @WebMapping(path = "/reloadFront")
-    public HashMap run(JNDCHttpRequest jndcHttpRequest){
+    @WebMapping(path = UrlConstant.DevelopDebug.reloadFront)
+    public HashMap run(JNDCHttpRequest jndcHttpRequest) {
         FrontProjectLoader.jndcStaticProject.reloadProject();
         HashMap objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put("message","success");
+        objectObjectHashMap.put("message", "success");
         return objectObjectHashMap;
 
     }
 
-    @WebMapping(path = "/getDeviceIp")
-    public ResponseMessage getDeviceIp(JNDCHttpRequest jndcHttpRequest){
+    @WebMapping(path = UrlConstant.DevelopDebug.getDeviceIp)
+    public ResponseMessage getDeviceIp(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
         InetAddress remoteAddress = jndcHttpRequest.getRemoteAddress();
         String hostAddress = remoteAddress.getHostAddress();
-        responseMessage.setMessage("device ip:"+hostAddress);
+        responseMessage.setMessage("device ip:" + hostAddress);
         return responseMessage;
 
 
