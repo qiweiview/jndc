@@ -31,7 +31,7 @@ public class ServerHttpManageMapping {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
-    @WebMapping(path = "/saveHostRouteRule")
+    @WebMapping(path = UrlConstant.ServerHttp.saveHostRouteRule)
     public ResponseMessage saveHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -105,7 +105,7 @@ public class ServerHttpManageMapping {
         return count>0;
     }
 
-    @WebMapping(path = "/updateHostRouteRule")
+    @WebMapping(path = UrlConstant.ServerHttp.updateHostRouteRule)
     public ResponseMessage updateHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -153,7 +153,7 @@ public class ServerHttpManageMapping {
 
     }
 
-    @WebMapping(path = "/deleteHostRouteRule")
+    @WebMapping(path = UrlConstant.ServerHttp.deleteHostRouteRule)
     public ResponseMessage deleteHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -178,7 +178,7 @@ public class ServerHttpManageMapping {
         return responseMessage;
     }
 
-    @WebMapping(path = "/listHostRouteRule")
+    @WebMapping(path = UrlConstant.ServerHttp.listHostRouteRule)
     public Object listHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
