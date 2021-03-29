@@ -58,7 +58,6 @@ public class LiteHttpProxy {
                 .handler(channelInitializer);
         ChannelFuture sync = null;
         try {
-     //       sync = b.connect(InetUtils.getInetAddressByHost("www.tianshouzhi.com"),80).sync();
           sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

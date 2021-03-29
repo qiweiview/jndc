@@ -20,7 +20,7 @@ public class IpAddressRule implements CustomRule {
         InetAddress address = socketAddress.getAddress();
         byte[] address1 = address.getAddress();
         if (address1.length > 4) {
-            LogPrint.debug("unSupport ipv6 address:" + Arrays.toString(address1));
+            LogPrint.err("unSupport ipv6 address:" + Arrays.toString(address1));
             return false;
         }
         String ipString = address.getHostAddress();
