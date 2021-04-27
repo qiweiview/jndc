@@ -4,6 +4,8 @@ import io.netty.channel.EventLoopGroup;
 import jndc.core.NettyComponentConfig;
 import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ScheduledTaskCenter {
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public void start() {
         IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
@@ -28,6 +30,7 @@ public class ScheduledTaskCenter {
 
         //fix the problem of rebind operation fail
         eventLoopGroup.scheduleWithFixedDelay(() -> {
+            logger.info("do once rebind check");
             List<TcpServiceDescription> tcpServiceDescriptions = ndcServerConfigCenter.getCurrentSupportService();
             List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
             JNDCServerMessageHandle.serviceRebind(tcpServiceDescriptionOnServers);
@@ -35,6 +38,5 @@ public class ScheduledTaskCenter {
 
 
     }
-
 
 }

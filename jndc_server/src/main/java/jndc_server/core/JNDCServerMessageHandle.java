@@ -67,7 +67,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 if (success) {
                     x.bindEnable();
-                    logger_static.debug("rebind the service:" + routeTo + " success");
+                    logger_static.info("rebind the service:" + routeTo + " success");
                 } else {
                     x.bindDisable();
                     x.setRouteTo(null);
