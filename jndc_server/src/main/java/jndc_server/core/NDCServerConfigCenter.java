@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 
+import jndc.core.TcpServiceDescription;
 import jndc.utils.InetUtils;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import org.slf4j.Logger;
@@ -185,6 +186,16 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
                 v.getChannelHandlerContext().close();
             }
         });
+    }
+
+    public List<TcpServiceDescription> getCurrentSupportService() {
+        List<TcpServiceDescription> tcpServiceDescriptions=new ArrayList<>();
+        List<ChannelHandlerContextHolder> channelHandlerContextHolders = getChannelHandlerContextHolders();
+        channelHandlerContextHolders.forEach(x -> {
+            tcpServiceDescriptions.addAll(x.getTcpServiceDescriptions());
+        });
+
+        return tcpServiceDescriptions;
     }
 
 

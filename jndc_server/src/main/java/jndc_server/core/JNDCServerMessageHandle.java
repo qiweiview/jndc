@@ -31,6 +31,7 @@ import java.util.Map;
 
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final Logger logger_static = LoggerFactory.getLogger(JNDCServerMessageHandle.class);
 
     public static final String NAME = "NDC_SERVER_HANDLE";
 
@@ -39,7 +40,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
      * do rebind operation
      * @param tcpServiceDescriptionOnServers
      */
-    private void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+    public static void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //put new register service into map
@@ -66,11 +67,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 if (success) {
                     x.bindEnable();
-                    logger.debug("rebind the service:" + routeTo + " success");
+                    logger_static.debug("rebind the service:" + routeTo + " success");
                 } else {
                     x.bindDisable();
                     x.setRouteTo(null);
-                    logger.error("rebind the service:" + routeTo + " fail");
+                    logger_static.error("rebind the service:" + routeTo + " fail");
                 }
 
                 dbWrapper.updateByPrimaryKey(x);
