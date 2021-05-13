@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JNDCClientConfigCenter implements NDCConfigCenter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+
     private JNDCClientMessageHandle currentHandler;
 
     //store
@@ -27,7 +28,6 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     private ChannelHandlerContext channelHandlerContext;//A client  holds only one tunnel
 
-    private String channelId;//channelId
 
     private volatile AtomicBoolean connectionToServerState =new AtomicBoolean(false);
 
@@ -60,9 +60,8 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
 
 
-    public void registerMessageChannel(String channelId,ChannelHandlerContext channelHandlerContext) {
+    public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
         this.channelHandlerContext = channelHandlerContext;
-        this.channelId = channelId;
     }
 
 
@@ -122,9 +121,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     }
 
 
-    public String getChannelId() {
-        return channelId;
-    }
+
 
     public JNDCClientMessageHandle getCurrentHandler() {
         return currentHandler;

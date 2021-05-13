@@ -15,6 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private String bindClientId;//the id of current service bound client
+
     private String belongContextIp;//the channel ip
 
     private ChannelHandlerContext belongContext;
@@ -73,6 +75,13 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
         return belongContextIp + "->" + getIp() + ":" + getPort();
     }
 
+    public String getBindClientId() {
+        return bindClientId;
+    }
+
+    public void setBindClientId(String bindClientId) {
+        this.bindClientId = bindClientId;
+    }
 
     public String getBelongContextIp() {
         return belongContextIp;

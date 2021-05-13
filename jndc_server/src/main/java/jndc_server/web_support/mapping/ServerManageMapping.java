@@ -302,6 +302,8 @@ public class ServerManageMapping {
 
                             //set route to tag
                             serverPortBind.setRouteTo(y.getRouteTo());
+                            //set belong id
+                            serverPortBind.setBindClientId(x.getId());
 
                             //do open-port operation
                             boolean success = bean.addTCPRouter(serverPortBind.getPort(),serverPortBind.getEnableDateRange(), y);
@@ -315,6 +317,7 @@ public class ServerManageMapping {
                                 //set false
                                 serverPortBind.bindDisable();
                                 serverPortBind.setRouteTo(null);
+                                serverPortBind.setBindClientId(null);
                             }
                             dbWrapper.updateByPrimaryKey(serverPortBind);
 
@@ -475,6 +478,7 @@ public class ServerManageMapping {
 
         serverPortBind.bindDisable();
         serverPortBind.setRouteTo(null);
+        serverPortBind.setBindClientId(null);
         dbWrapper.updateByPrimaryKey(serverPortBind);
 
 

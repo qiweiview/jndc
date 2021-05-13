@@ -46,17 +46,20 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         //put new register service into map
         Map<String, TcpServiceDescriptionOnServer> map = new HashMap<>();
         tcpServiceDescriptionOnServers.forEach(x -> {
-            map.put(x.getRouteTo(), x);
+            map.put(x.getBindClientId(), x);
         });
 
         //find the old "port service bind"
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and routeTo is not null  ");
+        List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and bindClientId is not null  ");
 
         //find match "port service bind"
         serverPortBinds.forEach(x -> {
+            String bindClientId = x.getBindClientId();
             String routeTo = x.getRouteTo();
-            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(routeTo);
+
+            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(bindClientId);
+            logger_static.info("rebind:"+map+"----->"+bindClientId);
             if (tcpServiceDescription != null) {
                 //todo do rebind
 
@@ -67,10 +70,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 if (success) {
                     x.bindEnable();
-                    logger_static.info("rebind the service:" + routeTo + " success");
+                    logger_static.info("rebind the service:" +routeTo+ " success");
                 } else {
                     x.bindDisable();
-                    x.setRouteTo(null);
                     logger_static.error("rebind the service:" + routeTo + " fail");
                 }
 
@@ -146,8 +148,17 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         //registerServiceProvider
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
+
+        String channelId = registrationMessage.getChannelId();
+
+
         List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
         List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+
+        //set current bound client
+        tcpServiceDescriptionOnServers.forEach(x->{
+            x.setBindClientId(channelId);
+        });
 
         //do register
         ndcServerConfigCenter.addServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);

@@ -103,7 +103,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //create register message
         RegistrationMessage registrationMessage = new RegistrationMessage(RegistrationMessage.TYPE_UNREGISTER);
-        registrationMessage.setChannelId(jndcClientConfigCenter.getChannelId());
+        registrationMessage.setChannelId(ClientStart.CLIENT_ID);
         registrationMessage.setAuth(clientConfig.getSecrete());
 
 
@@ -152,7 +152,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //create register message
         RegistrationMessage registrationMessage = new RegistrationMessage(RegistrationMessage.TYPE_REGISTER);
-        registrationMessage.setChannelId(jndcClientConfigCenter.getChannelId());
+        registrationMessage.setChannelId(ClientStart.CLIENT_ID);
         registrationMessage.setAuth(clientConfig.getSecrete());
 
 
@@ -195,9 +195,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     private void handleOpenChannelResponse(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
         OpenChannelMessage object = ndcMessageProtocol.getObject(OpenChannelMessage.class);
-        String channelId = object.getChannelId();
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-        jndcClientConfigCenter.registerMessageChannel(channelId, channelHandlerContext);
+        jndcClientConfigCenter.registerMessageChannel( channelHandlerContext);
         InetAddress unused = InetAddress.getLocalHost();
 
         //use the message with id

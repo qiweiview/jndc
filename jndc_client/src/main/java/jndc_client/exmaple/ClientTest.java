@@ -17,12 +17,16 @@ public class ClientTest {
     private   static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args) {
-        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
+        //File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
+        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
+
         YmlParser ymlParser = new YmlParser();
         JNDCClientConfig jndcClientConfig = null;
         try {
             jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
             jndcClientConfig.performParameterVerification();
+            jndcClientConfig.setRuntimeDir(file.getParent());
+            jndcClientConfig.loadClientId();
 
         } catch (Exception e) {
             e.printStackTrace();

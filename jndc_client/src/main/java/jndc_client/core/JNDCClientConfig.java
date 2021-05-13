@@ -5,11 +5,14 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
+import jndc.utils.UUIDSimple;
 import jndc_client.gui_support.GuiStart;
 import jndc_client.gui_support.utils.GuiLogAppender;
+import jndc_client.start.ClientStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -23,6 +26,8 @@ import java.util.Map;
 public class JNDCClientConfig {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private String runtimeDir = "";
 
     private String secrete;
 
@@ -46,7 +51,7 @@ public class JNDCClientConfig {
     private InetSocketAddress serverIpSocketAddress;
 
 
-    public void init(){
+    public void init() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
 
@@ -88,17 +93,16 @@ public class JNDCClientConfig {
         }
 
 
-
         UniqueBeanManage.registerBean(this);
 
 
         //check open gui or not
-        if (isOpenGui()){
-            GuiLogAppender.printIntoGui=true;
-         new Thread(()->{
-             new GuiStart().start();
-             logger.info("init gui");
-         }).start();
+        if (isOpenGui()) {
+            GuiLogAppender.printIntoGui = true;
+            new Thread(() -> {
+                new GuiStart().start();
+                logger.info("init gui");
+            }).start();
         }
 
         init();
@@ -108,6 +112,14 @@ public class JNDCClientConfig {
 
     //getter setter
 
+
+    public String getRuntimeDir() {
+        return runtimeDir;
+    }
+
+    public void setRuntimeDir(String runtimeDir) {
+        this.runtimeDir = runtimeDir;
+    }
 
     public boolean isOpenGui() {
         return openGui;
@@ -183,5 +195,57 @@ public class JNDCClientConfig {
 
     public void setServerIpSocketAddress(InetSocketAddress serverIpSocketAddress) {
         this.serverIpSocketAddress = serverIpSocketAddress;
+    }
+
+    public void loadClientId() {
+        String runtimeDir = getRuntimeDir();
+        if (!runtimeDir.endsWith(File.separator)) {
+            runtimeDir += File.separator;
+        }
+
+        String clientIdPath = runtimeDir + "client_id";
+        File file = new File(clientIdPath);
+        if (file.exists()) {
+            FileInputStream fileInputStream = null;
+            try {
+                byte[] clientId = new byte[32];
+                fileInputStream = new FileInputStream(file);
+                int read = fileInputStream.read(clientId);
+                ClientStart.CLIENT_ID = new String(clientId);
+            } catch (Exception e) {
+                logger.error("load client id fail,cause " + e);
+                ApplicationExit.exit();
+            } finally {
+                if (fileInputStream != null) {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        logger.error("load client id fail,cause " + e);
+                        ApplicationExit.exit();
+                    }
+                }
+            }
+        } else {
+            ClientStart.CLIENT_ID = UUIDSimple.id();
+            FileOutputStream fileOutputStream = null;
+            try {
+                fileOutputStream = new FileOutputStream(file);
+                fileOutputStream.write(ClientStart.CLIENT_ID.getBytes());
+            } catch (Exception e) {
+                logger.error("load client id fail,cause " + e);
+                ApplicationExit.exit();
+            } finally {
+                if (fileOutputStream != null) {
+                    try {
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        logger.error("load client id fail,cause " + e);
+                        ApplicationExit.exit();
+                    }
+                }
+            }
+
+        }
+
     }
 }

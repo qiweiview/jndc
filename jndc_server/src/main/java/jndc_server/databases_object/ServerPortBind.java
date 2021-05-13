@@ -3,8 +3,6 @@ package jndc_server.databases_object;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 
-import java.time.LocalTime;
-
 
 /**
  * the description of the server port listening
@@ -20,6 +18,8 @@ public class ServerPortBind {
     private int port;
 
     private String enableDateRange;
+
+    private String bindClientId;
 
     private int portEnable;//1 enable 0 disable 2 preparing
 
@@ -44,6 +44,15 @@ public class ServerPortBind {
      */
     public void bindPreparing(){
         setPortEnable(2);
+    }
+
+
+    public String getBindClientId() {
+        return bindClientId;
+    }
+
+    public void setBindClientId(String bindClientId) {
+        this.bindClientId = bindClientId;
     }
 
     public String getEnableDateRange() {

@@ -10,6 +10,8 @@ public class ChannelContextCloseRecord {
     @DSKey
     private String id;
 
+    private String channelId;
+
     private String ip;
 
     private int port;
@@ -18,11 +20,20 @@ public class ChannelContextCloseRecord {
 
     public static ChannelContextCloseRecord of(ChannelHandlerContextHolder value) {
         ChannelContextCloseRecord channelContextCloseRecord = new ChannelContextCloseRecord();
+        channelContextCloseRecord.setChannelId(value.getId());
         channelContextCloseRecord.setIp(value.getContextIp());
         channelContextCloseRecord.setPort(value.getContextPort());
         return channelContextCloseRecord;
     }
 
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 
     public String getId() {
         return id;

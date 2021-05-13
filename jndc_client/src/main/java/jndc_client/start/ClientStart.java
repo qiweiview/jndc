@@ -65,6 +65,9 @@ public class ClientStart {
         try {
             jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
             jndcClientConfig.performParameterVerification();
+            jndcClientConfig.setRuntimeDir(file.getParent());
+            jndcClientConfig.loadClientId();
+            logger.info(tag+CLIENT_ID);
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();
