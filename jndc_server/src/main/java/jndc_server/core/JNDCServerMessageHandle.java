@@ -197,7 +197,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
-        ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder();
+        ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder(openChannelMessage.getChannelId());
         channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
         ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
 

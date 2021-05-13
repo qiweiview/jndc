@@ -30,8 +30,8 @@ public class ChannelHandlerContextHolder {
 
     private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = new ArrayList<>();
 
-    public ChannelHandlerContextHolder() {
-        id = UUIDSimple.id();
+    public ChannelHandlerContextHolder(String channelId) {
+        id = channelId;
     }
 
     public void releaseRelatedResources() {
@@ -61,6 +61,10 @@ public class ChannelHandlerContextHolder {
     }
 
 
+    /**
+     * the id of channel from client
+     * @return
+     */
     public String getId() {
         return id;
     }

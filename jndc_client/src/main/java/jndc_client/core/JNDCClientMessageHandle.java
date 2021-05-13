@@ -14,6 +14,7 @@ import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ApplicationExit;
 import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
+import jndc_client.start.ClientStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
 
         OpenChannelMessage openChannelMessage = new OpenChannelMessage();
+        openChannelMessage.setChannelId(ClientStart.CLIENT_ID);
         openChannelMessage.setAuth(clientConfig.getSecrete());
         byte[] bytes = ObjectSerializableUtils.object2bytes(openChannelMessage);
 

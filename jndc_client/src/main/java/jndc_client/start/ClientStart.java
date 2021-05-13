@@ -3,6 +3,7 @@ package jndc_client.start;//package jndc.core;
 
 import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
+import jndc.utils.UUIDSimple;
 import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
@@ -14,6 +15,7 @@ import java.io.File;
 
 public class ClientStart {
 
+    public static  String CLIENT_ID;
 
     private  static final Logger logger = LoggerFactory.getLogger(ClientStart.class);
 
@@ -29,23 +31,16 @@ public class ClientStart {
 
 
         String tag = "\n" +
-                "                                                               \n" +
-                "         ,---._                   ,--.                         \n" +
-                "       .-- -.' \\                ,--.'|    ,---,      ,----..   \n" +
-                "       |    |   :           ,--,:  : |  .'  .' `\\   /   /   \\  \n" +
-                "       :    ;   |        ,`--.'`|  ' :,---.'     \\ |   :     : \n" +
-                "       :        |        |   :  :  | ||   |  .`\\  |.   |  ;. / \n" +
-                "       |    :   :        :   |   \\ | ::   : |  '  |.   ; /--`  \n" +
-                "       :                 |   : '  '; ||   ' '  ;  :;   | ;     \n" +
-                "       |    ;   |        '   ' ;.    ;'   | ;  .  ||   : |     \n" +
-                "   ___ l                 |   | | \\   ||   | :  |  '.   | '___  \n" +
-                " /    /\\    J   :        '   : |  ; .''   : | /  ; '   ; : .'| \n" +
-                "/  ../  `..-    ,        |   | '`--'  |   | '` ,/  '   | '/  : \n" +
-                "\\    \\         ;         '   : |      ;   :  .'    |   :    /  \n" +
-                " \\    \\      ,'          ;   |.'      |   ,.'       \\   \\ .'   \n" +
-                "  \"---....--'            '---'        '---'          `---`     \n" +
-                "                                                               \n";
-        logger.info(tag);
+                "       _   _   _ _____   _____             _____ _      _____ ______ _   _ _______ \n" +
+                "      | | | \\ | |  __ \\ / ____|           / ____| |    |_   _|  ____| \\ | |__   __|\n" +
+                "      | | |  \\| | |  | | |       ______  | |    | |      | | | |__  |  \\| |  | |   \n" +
+                "  _   | | | . ` | |  | | |      |______| | |    | |      | | |  __| | . ` |  | |   \n" +
+                " | |__| | | |\\  | |__| | |____           | |____| |____ _| |_| |____| |\\  |  | |   \n" +
+                "  \\____/  |_| \\_|_____/ \\_____|           \\_____|______|_____|______|_| \\_|  |_|   \n" +
+                "                                                                                   \n" +
+                "                                                                                   \n" +
+                "client_id: ";
+
 
 
         if (args.length < 1) {
