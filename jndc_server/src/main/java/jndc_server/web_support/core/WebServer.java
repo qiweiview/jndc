@@ -11,12 +11,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
-
-
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
-import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServerConfig;
 import jndc_server.core.app.ServerApp;
 import org.slf4j.Logger;
@@ -47,8 +44,6 @@ public class WebServer implements ServerApp {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(localInetAddress, manageCenterPort);
 
 
-
-
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
 
             @Override
@@ -61,7 +56,7 @@ public class WebServer implements ServerApp {
                 String ws = "ws";//WebSocketServerProtocolHandler
 
 
-                if (serverConfig.isUseSsl()){
+                if (serverConfig.isUseSsl()) {
                     SSLContext serverSSLContext = serverConfig.getServerSSLContext();
                     SSLEngine sslEngine = serverSSLContext.createSSLEngine();
                     sslEngine.setUseClientMode(false);//设置为服务器模式
@@ -69,13 +64,12 @@ public class WebServer implements ServerApp {
                 }
 
 
-
-                pipeline.addLast( http,new HttpServerCodec());
+                pipeline.addLast(http, new HttpServerCodec());
                 pipeline.addAfter(http, oag, new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
-                pipeline.addAfter(oag, AuthTokenChecker.NAME,new AuthTokenChecker());
+                pipeline.addAfter(oag, AuthTokenChecker.NAME, new AuthTokenChecker());
                 pipeline.addAfter(AuthTokenChecker.NAME, JNDCRequestDecoder.NAME, new JNDCRequestDecoder());
                 pipeline.addAfter(JNDCRequestDecoder.NAME, WebContentHandler.NAME, new WebContentHandler());
-                pipeline.addAfter(WebContentHandler.NAME,ws,new WebSocketServerProtocolHandler("/ws"));
+                pipeline.addAfter(WebContentHandler.NAME, ws, new WebSocketServerProtocolHandler("/ws"));
                 pipeline.addAfter(ws, WebSocketHandle.NAME, new WebSocketHandle());
 
 
@@ -98,25 +92,30 @@ public class WebServer implements ServerApp {
         });
 
         //check if scan the front project
-        scanFrontProject();
+        if (serverConfig.isScanFrontPages()) {
+            scanFrontProject();
+        } else {
+            LogPrint.info("will not deploy front management project");
+        }
 
 
     }
 
-    public void scanFrontProject(){
+    /**
+     * scan the front project
+     */
+    public void scanFrontProject() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
 
-        //when debug is true , not deploy management project
-        if (ServerRuntimeConfig.deployManagementProject()){
-            String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
+        String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
 
-            if (!new File(runtimeDir).exists()) {
-                LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
-                ApplicationExit.exit();
-            }
-            FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-            LogPrint.debug("deploy front management project");
+        if (!new File(runtimeDir).exists()) {
+            LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
+            ApplicationExit.exit();
         }
+
+        FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
+        LogPrint.info("deploy front management project");
     }
 
 }

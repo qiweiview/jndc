@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.net.ssl.SSLContext;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -39,6 +38,7 @@ public class JNDCServerConfig {
 
     private String loglevel;
 
+    private boolean scanFrontPages = false;
 
     private int managementApiPort;
 
@@ -224,6 +224,14 @@ public class JNDCServerConfig {
 
 
     /* ----------------getter setter---------------- */
+
+    public boolean isScanFrontPages() {
+        return scanFrontPages;
+    }
+
+    public void setScanFrontPages(boolean scanFrontPages) {
+        this.scanFrontPages = scanFrontPages;
+    }
 
     public int getHttpPort() {
         return httpPort;

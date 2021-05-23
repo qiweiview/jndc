@@ -32,8 +32,6 @@ public class JNDCServer {
         initBelongOnlyInServer();
 
 
-        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-
         //reset service bind state
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update server_port_bind set portEnable = 0", null);
