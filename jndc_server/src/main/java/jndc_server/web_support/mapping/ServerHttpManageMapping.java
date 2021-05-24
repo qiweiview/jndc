@@ -57,7 +57,7 @@ public class ServerHttpManageMapping {
             return responseMessage;
         }
 
-        if ( hostRouteDTO.getFixedResponse().length() > 1000) {
+        if ( hostRouteDTO.getFixedResponse().length() > 5000) {
             responseMessage.error();
             responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
             return responseMessage;
@@ -131,7 +131,7 @@ public class ServerHttpManageMapping {
             return responseMessage;
         }
 
-        if ( hostRouteDTO.getFixedResponse().length() > 1000) {
+        if ( hostRouteDTO.getFixedResponse().length() > 5000) {
             responseMessage.error();
             responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
             return responseMessage;

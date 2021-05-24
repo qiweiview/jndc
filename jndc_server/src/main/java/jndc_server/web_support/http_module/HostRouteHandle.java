@@ -22,7 +22,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
         String host = headers.get(HttpHeaderNames.HOST);
-       // host="blog.ab.com";
+        // host="blog.ab.com";
         HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
         FullHttpResponse fullHttpResponse = null;
         if (httpHostRoute != null) {
@@ -33,14 +33,14 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
             if (httpHostRoute.redirectType()) {
                 //todo return redirect tag
-                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getForwardProtocol()+httpHostRoute.getRedirectAddress());
+                fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getForwardProtocol() + httpHostRoute.getRedirectAddress());
             }
 
 
             if (httpHostRoute.forwardType()) {
                 //todo forward request
                 //overwrite the host
-                fullHttpRequest.headers().set(HttpHeaderNames.HOST,httpHostRoute.getForwardHost()+":"+httpHostRoute.getForwardPort());
+                fullHttpRequest.headers().set(HttpHeaderNames.HOST, httpHostRoute.getForwardHost() + ":" + httpHostRoute.getForwardPort());
                 BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(httpHostRoute, fullHttpRequest.retain()).forward();
 
                 //wait for 15 second
@@ -48,7 +48,14 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
             }
 
         } else {
-            fullHttpResponse = HttpResponseBuilder.textResponse("不存该路径匹配规则".getBytes());
+            String info = " <div style=\"text-align: center;position: fixed;bottom: 45px;width:100vw;\">\n" +
+                    "      <span\n" +
+                    "        style=\"margin-left: 15px;color: white;font-size: 18px;margin-right:15px;\">Copyright © 2020 View. 保留所有权利 |</span>\n" +
+                    "      <a href=\"http://www.beian.miit.gov.cn\" rel=\"noreferrer\" target=\"_blank\" style=\"color: white;font-size: 25px;\">\n" +
+                    "        闽ICP备17002953号\n" +
+                    "      </a>\n" +
+                    "    </div>";
+            fullHttpResponse = HttpResponseBuilder.htmlResponse(("<div/>不存该路径匹配规</div>" + info).getBytes());
         }
 
         channelHandlerContext.writeAndFlush(fullHttpResponse);

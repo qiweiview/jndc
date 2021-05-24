@@ -44,6 +44,10 @@ public class HttpResponseBuilder {
         return defaultResponse(bytes, TEXT_PLAIN);
     }
 
+    public static FullHttpResponse htmlResponse(byte[] bytes) {
+        return defaultResponse(bytes, HTML);
+    }
+
     public static FullHttpResponse jsonResponse(byte[] bytes) {
         return defaultResponse(bytes, APPLICATION_JSON);
     }

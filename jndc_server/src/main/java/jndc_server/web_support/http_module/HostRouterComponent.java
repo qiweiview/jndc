@@ -30,18 +30,17 @@ public class HostRouterComponent {
 
     }
 
-    public String parseHost(String host) {
-        logger.debug("accept host:" + host);
-        int i = host.lastIndexOf(".");
-        if (i != -1) {
-            String substring = host.substring(0, i);
-            i = substring.lastIndexOf(".");
-            if (i != -1) {
-                String result = host.substring(0, i);
-                return result;
-            }
+
+
+    public static String parseHost(String host) {
+       // logger.debug("accept host:" + host);
+        String[] split = host.split("\\.");
+        if (split.length<3){
+            return "";
         }
-        return "";
+
+        return split[0];
+
 
     }
 
