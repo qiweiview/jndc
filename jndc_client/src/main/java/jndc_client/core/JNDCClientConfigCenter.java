@@ -50,6 +50,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
 
         if (clientServiceProvider == null) {
+            logger.error("cant fount the service:" + client);
             throw new RuntimeException("cant fount the service");
         }
 
@@ -105,6 +106,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
             return;
         }
 
+        logger.debug("init local service:" + x + "--->" + clientTag);
         portProtectorMap.put(clientTag, clientServiceProvider);
     }
 

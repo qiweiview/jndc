@@ -11,8 +11,6 @@ import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
-import jndc.utils.ApplicationExit;
-import jndc.utils.LogPrint;
 import jndc.utils.ObjectSerializableUtils;
 import jndc_client.start.ClientStart;
 import org.slf4j.Logger;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -142,6 +139,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 TcpServiceDescription tcpServiceDescription = x.toTcpServiceDescription();
                 tcpServiceDescriptions.add(tcpServiceDescription);
                 jndcClientConfigCenter.initService(x);//init the support service
+
             } else {
                 logger.info("ignore the mapping:" + x.getServiceName());
             }
@@ -233,6 +231,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
+                logger.debug("get tcp data from server: " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.addMessageToReceiveQueue(ndcMessageProtocol);
                 return;
@@ -241,6 +240,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.TCP_ACTIVE) {
                 //todo TCP_ACTIVE
+                logger.debug("get active from server: " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.addMessageToReceiveQueue(ndcMessageProtocol);
                 return;
@@ -262,7 +262,6 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
                 //todo SERVICE_UNREGISTER
-
                 logger.info("unregister success");
             }
 

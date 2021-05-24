@@ -7,7 +7,6 @@ import jndc.core.UniqueBeanManage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +31,8 @@ public class ScheduledTaskCenter {
         eventLoopGroup.scheduleWithFixedDelay(() -> {
             logger.debug("do once rebind check");
             List<TcpServiceDescription> tcpServiceDescriptions = ndcServerConfigCenter.getCurrentSupportService();
+
+            //change to  list of TcpServiceDescriptionOnServer
             List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
             JNDCServerMessageHandle.serviceRebind(tcpServiceDescriptionOnServers);
         }, 0, 3, TimeUnit.MINUTES);

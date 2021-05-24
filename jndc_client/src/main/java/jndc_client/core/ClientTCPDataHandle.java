@@ -27,6 +27,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.debug("local app has been active ");
         this.channelHandlerContext = ctx;
     }
 
@@ -35,6 +36,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
         byte[] bytes = ByteBufUtil4V.readWithRelease(byteBuf);
+
 
         //发送消息
         NDCMessageProtocol copy = messageModel.copy();
@@ -45,6 +47,9 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
+        logger.debug("local app inactive ");
+
         releaseRelatedResources();
 
 
@@ -53,7 +58,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
         copy.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-        //logger.info("client send interrupt signal ");
+
 
 
     }

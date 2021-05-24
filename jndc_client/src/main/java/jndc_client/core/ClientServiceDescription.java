@@ -37,13 +37,22 @@ public class ClientServiceDescription {
      */
     public void performParameterVerification() {
         ipAddress = InetUtils.getByStringIpAddress(serviceIp);
-        ipSocketAddress =new InetSocketAddress(ipAddress, servicePort);
+        ipSocketAddress = new InetSocketAddress(ipAddress, servicePort);
     }
 
 
+    @Override
+    public String toString() {
+        return "ClientServiceDescription{" +
+                "serviceName='" + serviceName + '\'' +
+                ", serviceIp='" + serviceIp + '\'' +
+                ", servicePort=" + servicePort +
+                ", serviceEnable=" + serviceEnable +
+                '}';
+    }
 
-    public String getUniqueTag(){
-        return serviceIp+":"+servicePort;
+    public String getUniqueTag() {
+        return serviceIp + ":" + servicePort;
     }
 
     /* -------getter setter-------- */

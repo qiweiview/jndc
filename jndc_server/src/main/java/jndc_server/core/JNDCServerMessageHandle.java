@@ -2,11 +2,9 @@ package jndc_server.core;
 
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-
 import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
-
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.message.OpenChannelMessage;
@@ -20,7 +18,6 @@ import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -38,6 +35,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     /**
      * do rebind operation
+     *
      * @param tcpServiceDescriptionOnServers
      */
     public static void serviceRebind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
@@ -46,7 +44,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         //put new register service into map
         Map<String, TcpServiceDescriptionOnServer> map = new HashMap<>();
         tcpServiceDescriptionOnServers.forEach(x -> {
-            map.put(x.getBindClientId(), x);
+            String s = x.getBindClientId() + x.getPort();
+            logger_static.debug("rebind map key" + s);
+            map.put(s, x);
         });
 
         //find the old "port service bind"
@@ -58,19 +58,26 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             String bindClientId = x.getBindClientId();
             String routeTo = x.getRouteTo();
 
-            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(bindClientId);
-            logger_static.info("rebind:"+map+"----->"+bindClientId);
+            int index = routeTo.lastIndexOf(":") + 1;
+            if (index == 0) {
+                //todo not right route to
+                return;
+            }
+
+            String s = bindClientId + routeTo.substring(index);
+            logger_static.debug("db old key" + s);
+            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(s);
             if (tcpServiceDescription != null) {
                 //todo do rebind
-
+                logger_static.info("rebind:" + map + "----->" + bindClientId);
 
 
                 //rebind the port service
-                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(),x.getEnableDateRange(), tcpServiceDescription);
+                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), x.getEnableDateRange(), tcpServiceDescription);
 
                 if (success) {
                     x.bindEnable();
-                    logger_static.info("rebind the service:" +routeTo+ " success");
+                    logger_static.info("rebind the service:" + routeTo + " success");
                 } else {
                     x.bindDisable();
                     logger_static.error("rebind the service:" + routeTo + " fail");
@@ -81,6 +88,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
         });
     }
+
 
     private NDCMessageProtocol authCheck(NDCMessageProtocol copy, String tokenFromRequest) {
         JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
@@ -156,7 +164,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
 
         //set current bound client
-        tcpServiceDescriptionOnServers.forEach(x->{
+        tcpServiceDescriptionOnServers.forEach(x -> {
             x.setBindClientId(channelId);
         });
 
@@ -213,6 +221,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
         messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
     }
+
     private void handleHeartBeatFromClient(OpenChannelMessage registrationMessage) {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         ndcServerConfigCenter.refreshHeartBeatTimeStamp(registrationMessage.getChannelId());
@@ -306,8 +315,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
     }
-
-
 
 
     @Override

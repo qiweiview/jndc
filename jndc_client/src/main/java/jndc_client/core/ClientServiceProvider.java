@@ -42,6 +42,8 @@ public class ClientServiceProvider {
         String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
         if (clientTCPDataHandle == null) {
+
+            logger.debug("start local netty client for:" + client);
             //block create
             clientTCPDataHandle = startInnerBootstrap(ndcMessageProtocol);
             faceTCPMap.put(client, clientTCPDataHandle);
@@ -50,7 +52,8 @@ public class ClientServiceProvider {
         //can replace with Arrays.compare in jdk 9
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
             //todo ignore active message
-            //  logger.info("get active message");
+
+            logger.debug("get active message");
             return;
         }
 
@@ -73,8 +76,6 @@ public class ClientServiceProvider {
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
                 pipeline.addFirst(ClientTCPDataHandle.NAME, clientTCPDataHandle);
-
-
             }
         };
 
@@ -88,7 +89,7 @@ public class ClientServiceProvider {
 
         try {
             connect.sync();
-            //logger.info("local app connect success");
+            logger.debug("local app connect success " + byStringIpAddress + ":" + port);
         } catch (InterruptedException e) {
             logger.error("connect to " + inetSocketAddress + "fail cause" + e);
         }
