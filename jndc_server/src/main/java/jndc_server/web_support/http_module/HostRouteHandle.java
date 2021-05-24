@@ -48,14 +48,27 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
             }
 
         } else {
-            String info = " <div style=\"text-align: center;position: fixed;bottom: 45px;width:100vw;\">\n" +
-                    "      <span\n" +
-                    "        style=\"margin-left: 15px;color: white;font-size: 18px;margin-right:15px;\">Copyright © 2020 View. 保留所有权利 |</span>\n" +
-                    "      <a href=\"http://www.beian.miit.gov.cn\" rel=\"noreferrer\" target=\"_blank\" style=\"color: white;font-size: 25px;\">\n" +
-                    "        闽ICP备17002953号\n" +
-                    "      </a>\n" +
-                    "    </div>";
-            fullHttpResponse = HttpResponseBuilder.htmlResponse(("<div/>不存该路径匹配规</div>" + info).getBytes());
+            String info = "" +
+                    "<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "\t<head>\n" +
+                    "\t\t<meta charset=\"utf-8\">\n" +
+                    "\t\t<title></title>\n" +
+                    "\t</head>\n" +
+                    "\t<body>\n" +
+                    "\t\t<div style=\"text-align: center;font-size: 85px;margin-top: 20vh;\">\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found</div>\n" +
+                    "\t\t<div style=\"text-align: center;position: fixed;bottom: 45px;width:100vw;\">\n" +
+                    "\t\t\t<span style=\"margin-left: 15px;color: black;font-size: 18px;margin-right:15px;\">Copyright © 2020 View.\n" +
+                    "\t\t\t\t保留所有权利 |</span>\n" +
+                    "\t\t\t<a href=\"http://beian.miit.gov.cn\" rel=\"noreferrer\" target=\"_blank\"\n" +
+                    "\t\t\t\tstyle=\"color: black;font-size: 25px;\">\n" +
+                    "\t\t\t\t闽ICP备17002953号\n" +
+                    "\t\t\t</a>\n" +
+                    "\t\t</div>\n" +
+                    "\t</body>\n" +
+                    "</html>\n" +
+                    "";
+            fullHttpResponse = HttpResponseBuilder.htmlResponse(info.getBytes());
         }
 
         channelHandlerContext.writeAndFlush(fullHttpResponse);
