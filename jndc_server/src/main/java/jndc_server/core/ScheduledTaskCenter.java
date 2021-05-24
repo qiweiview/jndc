@@ -30,7 +30,7 @@ public class ScheduledTaskCenter {
 
         //fix the problem of rebind operation fail
         eventLoopGroup.scheduleWithFixedDelay(() -> {
-            logger.info("do once rebind check");
+            logger.debug("do once rebind check");
             List<TcpServiceDescription> tcpServiceDescriptions = ndcServerConfigCenter.getCurrentSupportService();
             List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
             JNDCServerMessageHandle.serviceRebind(tcpServiceDescriptionOnServers);

@@ -38,6 +38,8 @@ public class JNDCServerConfig {
 
     private String loglevel;
 
+    private String routNotFoundPage="\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found";
+
     private boolean scanFrontPages = false;
 
     private int managementApiPort;
@@ -224,6 +226,14 @@ public class JNDCServerConfig {
 
 
     /* ----------------getter setter---------------- */
+
+    public String getRoutNotFoundPage() {
+        return routNotFoundPage;
+    }
+
+    public void setRoutNotFoundPage(String routNotFoundPage) {
+        this.routNotFoundPage = routNotFoundPage;
+    }
 
     public boolean isScanFrontPages() {
         return scanFrontPages;

@@ -13,3 +13,5 @@ httpPort: "80" # http应用端口
 managementApiPort: "777" #管理api端口
 adminPort: "81" # jndc服务端运行监听端口
 bindIp: "0.0.0.0" # jndc服务端运行ip
+
+routNotFoundPage: ''

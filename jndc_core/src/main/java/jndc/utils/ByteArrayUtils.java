@@ -6,6 +6,12 @@ import java.util.List;
 
 public class ByteArrayUtils {
 
+    /**
+     *  covert a large package to  much little package
+     * @param bytes
+     * @param length
+     * @return
+     */
     public static List<byte[]> bytesUnpack(byte[] bytes, int length) {
         List<byte[]> list = new ArrayList<>();
         int maxLength = bytes.length;

@@ -14,8 +14,4 @@ public class ByteBufUtil4V {
     }
 
 
-    public static void main(String[] args) {
-        ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes("".getBytes());
-    }
 }

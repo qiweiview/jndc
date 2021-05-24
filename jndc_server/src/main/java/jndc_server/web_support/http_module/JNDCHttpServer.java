@@ -10,10 +10,17 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
+import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServerConfig;
 import jndc_server.core.app.ServerApp;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * jndc server core functions
@@ -56,5 +63,25 @@ public class JNDCHttpServer implements ServerApp {
             }
 
         });
+
+        //the page for "route not found"
+        loadRouteNotFoundPage();
+
+    }
+
+    public void loadRouteNotFoundPage() {
+        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
+        File file = new File(serverConfig.getRoutNotFoundPage());
+        if (file.exists()) {
+            try {
+                String s = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+                ServerRuntimeConfig.ROUTE_NOT_FOUND_CONTENT = s;
+            } catch (IOException e) {
+                logger.error("load route not found page fail ,cause:" + e);
+            }
+        } else {
+            logger.info("not found the route not found page");
+        }
+
     }
 }
