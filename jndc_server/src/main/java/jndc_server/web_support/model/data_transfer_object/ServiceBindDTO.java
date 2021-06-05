@@ -1,6 +1,8 @@
 package jndc_server.web_support.model.data_transfer_object;
 
-public class serviceBindDTO {
+public class ServiceBindDTO {
+    private String remark;
+
     private String serverPortId;
 
     private String serviceId;
@@ -9,11 +11,20 @@ public class serviceBindDTO {
 
     @Override
     public String toString() {
-        return "serviceBindDTO{" +
-                "serverPortId='" + serverPortId + '\'' +
+        return "ServiceBindDTO{" +
+                "remark='" + remark + '\'' +
+                ", serverPortId='" + serverPortId + '\'' +
                 ", serviceId='" + serviceId + '\'' +
                 ", enableDateRange='" + enableDateRange + '\'' +
                 '}';
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public String getEnableDateRange() {

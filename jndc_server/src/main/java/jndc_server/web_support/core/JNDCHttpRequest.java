@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.AsciiString;
+import jndc.utils.JSONUtils;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -37,6 +38,18 @@ public class JNDCHttpRequest {
 
     private Map<String, InnerQueryValue> queryMap;
 
+    /**
+     * 获取对应对象
+     *
+     * @param tClass
+     * @param <T>
+     * @return
+     */
+    public <T> T getObject(Class<T> tClass) {
+        byte[] body = getBody();
+        String s = new String(body);
+        return JSONUtils.str2Object(s, tClass);
+    }
 
     public JNDCHttpRequest(FullHttpRequest fullHttpRequest) {
         ByteBuf content = fullHttpRequest.content();

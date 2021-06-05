@@ -1,0 +1,679 @@
+{
+  "paper": {
+    "name": "B3",
+    "leftMargin": 0.5,
+    "rightMargin": 0.5,
+    "topMargin": 0.5,
+    "bottomMargin": 0.5,
+    "isPortriat": true
+  },
+  "modelVersion": 2.01,
+  "defaultSchema": "Default",
+  "server": {
+    "objectType": "Server_SQLITE",
+    "name": "Default",
+    "serverVersion": 3030001,
+    "edition": "Default",
+    "schemas": [
+      {
+        "objectType": "Schema_SQLITE",
+        "name": "Default",
+        "tables": [],
+        "views": []
+      },
+      {
+        "objectType": "Schema_SQLITE",
+        "name": "main",
+        "tables": [
+          {
+            "objectType": "Table_SQLITE",
+            "name": "server_ip_filter_rule",
+            "autoIncrement": -1,
+            "isWithoutRowID": false,
+            "oldName": "server_ip_filter_rule",
+            "rootPage": 8,
+            "sql": "CREATE TABLE \"server_ip_filter_rule\"( \"id\" text(32) NOT NULL, \"ip\" text(32), \"type\" integer(1), PRIMARY KEY (\"id\"))",
+            "hasIndexes": true,
+            "hasTriggers": false,
+            "hasAutoIncrementInDB": false,
+            "fields": [
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "id",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "No",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "id"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "ip",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "ip"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "type",
+                "type": "integer",
+                "size": 1,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "type"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_SQLITE",
+              "name": "",
+              "fields": [
+                "id"
+              ],
+              "onConflict": "None",
+              "oldName": ""
+            },
+            "foreignKeys": [],
+            "uniques": [],
+            "checks": [],
+            "triggers": []
+          },
+          {
+            "objectType": "Table_SQLITE",
+            "name": "ip_filter_record",
+            "autoIncrement": -1,
+            "isWithoutRowID": false,
+            "oldName": "ip_filter_record",
+            "rootPage": 2,
+            "sql": "CREATE TABLE \"ip_filter_record\" ( \"id\" text(32) NOT NULL, \"ip\" TEXT(16), \"vCount\" integer(32), \"timeStamp\" integer(64), \"recordType\" integer(2), PRIMARY KEY (\"id\") )",
+            "hasIndexes": true,
+            "hasTriggers": false,
+            "hasAutoIncrementInDB": false,
+            "fields": [
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "id",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "No",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "id"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "ip",
+                "type": "text",
+                "size": 16,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "ip"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "vCount",
+                "type": "integer",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "vCount"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "timeStamp",
+                "type": "integer",
+                "size": 64,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "timeStamp"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "recordType",
+                "type": "integer",
+                "size": 2,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "recordType"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_SQLITE",
+              "name": "",
+              "fields": [
+                "id"
+              ],
+              "onConflict": "None",
+              "oldName": ""
+            },
+            "foreignKeys": [],
+            "uniques": [],
+            "checks": [],
+            "triggers": []
+          },
+          {
+            "objectType": "Table_SQLITE",
+            "name": "channel_context_record",
+            "autoIncrement": -1,
+            "isWithoutRowID": false,
+            "oldName": "channel_context_record",
+            "rootPage": 6,
+            "sql": "CREATE TABLE \"channel_context_record\"( \"id\" text(32) NOT NULL, \"ip\" text(16),\"channelId\" text(32), \"port\" integer(8), \"timeStamp\" integer(64), PRIMARY KEY (\"id\"))",
+            "hasIndexes": true,
+            "hasTriggers": false,
+            "hasAutoIncrementInDB": false,
+            "fields": [
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "id",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "No",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "id"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "ip",
+                "type": "text",
+                "size": 16,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "ip"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "channelId",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "channelId"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "port",
+                "type": "integer",
+                "size": 8,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "port"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "timeStamp",
+                "type": "integer",
+                "size": 64,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "timeStamp"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_SQLITE",
+              "name": "",
+              "fields": [
+                "id"
+              ],
+              "onConflict": "None",
+              "oldName": ""
+            },
+            "foreignKeys": [],
+            "uniques": [],
+            "checks": [],
+            "triggers": []
+          },
+          {
+            "objectType": "Table_SQLITE",
+            "name": "http_host_route",
+            "autoIncrement": -1,
+            "isWithoutRowID": false,
+            "oldName": "http_host_route",
+            "rootPage": 4,
+            "sql": "CREATE TABLE \"http_host_route\" ( \"id\" text(32) NOT NULL, \"routeType\" INTEGER(2), \"hostKeyWord\" text(200), \"fixedResponse\" text(2000), \"redirectAddress\" text(500), \"fixedContentType\" text(100), \"forwardHost\" text(100),\"forwardProtocol\" text(30), \"forwardPort\" INTEGER(20), PRIMARY KEY (\"id\") )",
+            "hasIndexes": true,
+            "hasTriggers": false,
+            "hasAutoIncrementInDB": false,
+            "fields": [
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "id",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "No",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "id"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "routeType",
+                "type": "integer",
+                "size": 2,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "routeType"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "hostKeyWord",
+                "type": "text",
+                "size": 200,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "hostKeyWord"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "fixedResponse",
+                "type": "text",
+                "size": 2000,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "fixedResponse"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "redirectAddress",
+                "type": "text",
+                "size": 500,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "redirectAddress"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "fixedContentType",
+                "type": "text",
+                "size": 100,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "fixedContentType"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "forwardHost",
+                "type": "text",
+                "size": 100,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "forwardHost"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "forwardProtocol",
+                "type": "text",
+                "size": 30,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "forwardProtocol"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "forwardPort",
+                "type": "integer",
+                "size": 20,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "forwardPort"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_SQLITE",
+              "name": "",
+              "fields": [
+                "id"
+              ],
+              "onConflict": "None",
+              "oldName": ""
+            },
+            "foreignKeys": [],
+            "uniques": [],
+            "checks": [],
+            "triggers": []
+          },
+          {
+            "objectType": "Table_SQLITE",
+            "name": "server_port_bind",
+            "autoIncrement": -1,
+            "isWithoutRowID": false,
+            "oldName": "server_port_bind",
+            "rootPage": 10,
+            "sql": "CREATE TABLE \"server_port_bind\"( \"id\" text(32) NOT NULL, \"name\" text(50), \"bindClientId\" text(32),\"enableDateRange\" text(50), \"port\" integer(10), \"portEnable\" integer(2), \"routeTo\" text(16), PRIMARY KEY (\"id\"))",
+            "hasIndexes": true,
+            "hasTriggers": false,
+            "hasAutoIncrementInDB": false,
+            "fields": [
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "id",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "No",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "id"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "name",
+                "type": "text",
+                "size": 50,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "name"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "bindClientId",
+                "type": "text",
+                "size": 32,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "bindClientId"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "enableDateRange",
+                "type": "text",
+                "size": 50,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "enableDateRange"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "port",
+                "type": "integer",
+                "size": 10,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "port"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "portEnable",
+                "type": "integer",
+                "size": 2,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "portEnable"
+              },
+              {
+                "objectType": "TableField_SQLITE",
+                "name": "routeTo",
+                "type": "text",
+                "size": 16,
+                "scale": -2147483648,
+                "isNullable": "Yes",
+                "defaultValue": "",
+                "defaultValueType": "Others",
+                "collate": "",
+                "notNullOnConflict": "None",
+                "isAutoIncrement": false,
+                "oldName": "routeTo"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_SQLITE",
+              "name": "",
+              "fields": [
+                "id"
+              ],
+              "onConflict": "None",
+              "oldName": ""
+            },
+            "foreignKeys": [],
+            "uniques": [],
+            "checks": [],
+            "triggers": []
+          }
+        ],
+        "views": []
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "name": "Diagram 1",
+      "paperWidth": 1,
+      "paperHeight": 1,
+      "tableFont": "Arial Unicode MS",
+      "tableFontSize": 14,
+      "isBalckWhite": false,
+      "showDBSchemaName": false,
+      "showViewRelations": true,
+      "notation": "default",
+      "showFieldComment": false,
+      "showTableComment": false,
+      "shapes": [
+        {
+          "type": "table",
+          "schemaName": "main",
+          "tableName": "channel_context_record",
+          "x": 380,
+          "y": 330,
+          "width": 255,
+          "height": 150,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "main",
+          "tableName": "http_host_route",
+          "x": 30,
+          "y": 30,
+          "width": 282,
+          "height": 230,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "main",
+          "tableName": "ip_filter_record",
+          "x": 380,
+          "y": 30,
+          "width": 255,
+          "height": 150,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "main",
+          "tableName": "server_ip_filter_rule",
+          "x": 30,
+          "y": 590,
+          "width": 211,
+          "height": 110,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "main",
+          "tableName": "server_port_bind",
+          "x": 30,
+          "y": 330,
+          "width": 277,
+          "height": 190,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        }
+      ],
+      "layers": [],
+      "relations": [],
+      "viewRelations": []
+    }
+  ]
+}

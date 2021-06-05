@@ -16,7 +16,6 @@ import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
 import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
 import jndc_server.web_support.model.view_object.HttpHostRouteVO;
-
 import jndc_server.web_support.model.view_object.PageListVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,9 +56,9 @@ public class ServerHttpManageMapping {
             return responseMessage;
         }
 
-        if ( hostRouteDTO.getFixedResponse().length() > 5000) {
+        if (hostRouteDTO.getFixedResponse().length() > 10000) {
             responseMessage.error();
-            responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
+            responseMessage.setMessage("固定内容长度超出限制" + hostRouteDTO.getFixedResponse().length());
             return responseMessage;
         }
 
@@ -131,9 +130,9 @@ public class ServerHttpManageMapping {
             return responseMessage;
         }
 
-        if ( hostRouteDTO.getFixedResponse().length() > 5000) {
+        if (hostRouteDTO.getFixedResponse().length() > 10000) {
             responseMessage.error();
-            responseMessage.setMessage("固定内容长度超出限制"+ hostRouteDTO.getFixedResponse().length());
+            responseMessage.setMessage("固定内容长度超出限制" + hostRouteDTO.getFixedResponse().length());
             return responseMessage;
         }
 

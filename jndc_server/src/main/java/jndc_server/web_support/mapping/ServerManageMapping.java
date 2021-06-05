@@ -9,7 +9,6 @@ import jndc.utils.JSONUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
 import jndc_server.core.*;
-import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import jndc_server.databases_object.IpFilterRecord;
 import jndc_server.databases_object.IpFilterRule4V;
@@ -26,7 +25,6 @@ import jndc_server.web_support.model.view_object.PageListVO;
 import jndc_server.web_support.utils.AuthUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -48,7 +46,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.login)
+    @WebMapping(path = UrlConstant.ServerManage.login)
     public HashMap login(JNDCHttpRequest jndcHttpRequest) {
         HashMap objectObjectHashMap = new HashMap<>();
 
@@ -154,7 +152,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.sendHeartBeat)
+    @WebMapping(path = UrlConstant.ServerManage.sendHeartBeat)
     public ResponseMessage sendHeartBeat(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -219,8 +217,17 @@ public class ServerManageMapping {
      */
     @WebMapping(path = UrlConstant.ServerManage.getServerPortList)
     public List<ServerPortBind> getServerPortList(JNDCHttpRequest jndcHttpRequest) {
+
+
+        ServerPortBind serverPortBind = jndcHttpRequest.getObject(ServerPortBind.class);
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        List<ServerPortBind> serverPortBinds = dbWrapper.listAll();
+        List<ServerPortBind> serverPortBinds;
+        if (0 == serverPortBind.getPort()) {
+            serverPortBinds = dbWrapper.listAll();
+        } else {
+            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =?", serverPortBind.getPort());
+        }
+
         return serverPortBinds;
 
     }
@@ -271,7 +278,7 @@ public class ServerManageMapping {
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+        ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         ServerPortBind serverPortBind = dbWrapper.customQuerySingle("select * from server_port_bind where id=?", channelContextVO.getServerPortId());
@@ -306,7 +313,7 @@ public class ServerManageMapping {
                             serverPortBind.setBindClientId(x.getId());
 
                             //do open-port operation
-                            boolean success = bean.addTCPRouter(serverPortBind.getPort(),serverPortBind.getEnableDateRange(), y);
+                            boolean success = bean.addTCPRouter(serverPortBind.getPort(), serverPortBind.getEnableDateRange(), y);
 
                             if (success) {
                                 //update databases state
@@ -324,12 +331,11 @@ public class ServerManageMapping {
 
                             //notice refresh data
                             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                           if (success){
-                               messageNotificationCenter.dateRefreshMessage("serverPortList");
-                           }else {
-                               messageNotificationCenter.noticeMessage(serverPortBind.getPort()+"端口服务关联失败");
-                           }
-
+                            if (success) {
+                                messageNotificationCenter.dateRefreshMessage("serverPortList");
+                            } else {
+                                messageNotificationCenter.noticeMessage(serverPortBind.getPort() + "端口服务关联失败");
+                            }
 
 
                             //bind just once
@@ -358,13 +364,13 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.doDateRangeEdit)
+    @WebMapping(path = UrlConstant.ServerManage.doDateRangeEdit)
     public ResponseMessage doDateRangeEdit(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+        ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         ServerPortBind serverPortBind = dbWrapper.customQuerySingle("select * from server_port_bind where id=?", channelContextVO.getServerPortId());
@@ -378,19 +384,21 @@ public class ServerManageMapping {
         Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPortBind.getPort());
 
-        if (serverPortBindContext!=null){
+        if (serverPortBindContext != null) {
             ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
             serverPortProtector.parseEnableDateRange(channelContextVO.getEnableDateRange());
 
-           //reset all connection
+            //reset all connection
             serverPortProtector.resetAllConnection();
 
-            //do db info update
-            serverPortBind.setEnableDateRange(channelContextVO.getEnableDateRange());
-            dbWrapper.updateByPrimaryKey(serverPortBind);
-        }else {
-            logger.error("can not found the service on server port "+serverPortBind.getPort());
+        } else {
+            logger.debug("can not found the service on server port " + serverPortBind.getPort());
         }
+
+        //do db info update
+        serverPortBind.setEnableDateRange(channelContextVO.getEnableDateRange());
+        serverPortBind.setName(channelContextVO.getRemark());
+        dbWrapper.updateByPrimaryKey(serverPortBind);
 
         return responseMessage;
 
@@ -409,7 +417,7 @@ public class ServerManageMapping {
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+        ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("delete from server_port_bind where id=?", channelContextVO.getServerPortId());
@@ -432,7 +440,7 @@ public class ServerManageMapping {
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+        ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update  server_port_bind set routeTo=null where id=?", channelContextVO.getServerPortId());
@@ -455,7 +463,7 @@ public class ServerManageMapping {
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        serviceBindDTO channelContextVO = JSONUtils.str2Object(s, serviceBindDTO.class);
+        ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         ServerPortBind serverPortBind = dbWrapper.customQuerySingle("select * from server_port_bind where id=?", channelContextVO.getServerPortId());
@@ -517,7 +525,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.whiteList)
+    @WebMapping(path = UrlConstant.ServerManage.whiteList)
     public PageListVO<IpFilterRule4V> whiteList(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -656,7 +664,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.releaseRecord)
+    @WebMapping(path = UrlConstant.ServerManage.releaseRecord)
     public Object releaseRecord(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -722,7 +730,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path =UrlConstant.ServerManage.getCurrentDeviceIp)
+    @WebMapping(path = UrlConstant.ServerManage.getCurrentDeviceIp)
     public DeviceInfo getCurrentDeviceIp(JNDCHttpRequest jndcHttpRequest) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setIp(jndcHttpRequest.getRemoteAddress().getHostAddress());
@@ -740,7 +748,7 @@ public class ServerManageMapping {
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
         if (pageDTO.clearByDateLimit()) {
             //todo clear by date limit
-            dbWrapper.customExecute("delete from ip_filter_record where timeStamp<=? and recordType = ? ",pageDTO.getClearDateLimit(),pageDTO.getRecordType());
+            dbWrapper.customExecute("delete from ip_filter_record where timeStamp<=? and recordType = ? ", pageDTO.getClearDateLimit(), pageDTO.getRecordType());
         } else {
             //todo save only top ten
             List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, recordType , max(timeStamp) AS timeStamp, max(vCount) AS vCount FROM ip_filter_record WHERE recordType = ? GROUP BY ip, recordType ORDER BY max(vCount) DESC LIMIT 10", pageDTO.getRecordType());
