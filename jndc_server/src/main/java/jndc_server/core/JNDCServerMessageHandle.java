@@ -59,7 +59,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             String bindClientId = x.getBindClientId();
             String routeTo = x.getRouteTo();
             if (routeTo==null){
-                logger_static.error("empty route to");
+                logger_static.error(x.getName()+" empty route to");
                 return;
             }
             int index = routeTo.lastIndexOf(":") + 1;
