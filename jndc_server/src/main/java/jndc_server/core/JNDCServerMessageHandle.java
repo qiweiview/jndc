@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +58,13 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         serverPortBinds.forEach(x -> {
             String bindClientId = x.getBindClientId();
             String routeTo = x.getRouteTo();
-
+            if (routeTo==null){
+                logger_static.error("empty route to");
+                return;
+            }
             int index = routeTo.lastIndexOf(":") + 1;
             if (index == 0) {
-                //todo not right route to
+                //todo  not right route to
                 return;
             }
 
@@ -303,8 +307,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("unCatchableError:" + e);
+            logger.error("unCatchableError--> " + e.getMessage()+"/"+ Arrays.toString(e.getStackTrace()));
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
             UserError userError = new UserError();
             userError.setCode(UserError.SERVER_ERROR);

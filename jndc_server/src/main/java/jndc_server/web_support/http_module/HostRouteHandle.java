@@ -42,7 +42,11 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
             if (httpHostRoute.forwardType()) {
                 //todo forward request
                 //overwrite the host
-                fullHttpRequest.headers().set(HttpHeaderNames.HOST, httpHostRoute.getForwardHost() + ":" + httpHostRoute.getForwardPort());
+
+                //bug fix使用访问者的host,不做修改
+                //fullHttpRequest.headers().set(HttpHeaderNames.HOST, httpHostRoute.getForwardHost() + ":" + httpHostRoute.getForwardPort());
+
+                //启动内部访问客户端
                 BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(httpHostRoute, fullHttpRequest.retain()).forward();
 
                 //wait for 15 second
