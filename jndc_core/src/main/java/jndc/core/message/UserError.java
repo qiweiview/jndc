@@ -2,6 +2,7 @@ package jndc.core.message;
 
 import java.io.Serializable;
 
+
 public class UserError implements Serializable {
     public static final int SERVER_ERROR = 500;
 
@@ -11,6 +12,13 @@ public class UserError implements Serializable {
 
     private String description;
 
+    @Override
+    public String toString() {
+        return "UserError{" +
+                "code=" + code +
+                ", description='" + description + '\'' +
+                '}';
+    }
 
     public int getCode() {
         return code;
