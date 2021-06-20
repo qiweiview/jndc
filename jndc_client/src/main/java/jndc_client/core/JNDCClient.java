@@ -3,14 +3,11 @@ package jndc_client.core;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
-import jndc.utils.ApplicationExit;
-import jndc_client.gui_support.GuiStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +27,45 @@ public class JNDCClient {
 
     private JNDCClientMessageHandle jndcClientMessageHandle;
 
+    private Thread managerThread;
 
 
-
-    public JNDCClient() {
+    public void tryReconnect() {
+        //延迟5秒
+        try {
+            TimeUnit.SECONDS.sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        synchronized (managerThread) {
+            managerThread.notify();
+        }
     }
 
+    public void start() {
+        managerThread = new Thread(() -> {
+            while (true) {
+                Thread currentThread = Thread.currentThread();
+                synchronized (currentThread) {
+                    try {
+                        createClient(group);
+                        currentThread.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-    public void createClient() {
-        createClient(group);
+            }
+        });
+
+        //启动管理线程
+        managerThread.start();
+
     }
 
-    public void createClient(EventLoopGroup group) {
+    private void createClient(EventLoopGroup group) {
+        logger.info("do once connect...");
+
         Bootstrap b = new Bootstrap();
         JNDCClient jndcClient = this;
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
@@ -68,7 +92,7 @@ public class JNDCClient {
                 .option(ChannelOption.SO_KEEPALIVE, true)//tcp keep alive
                 .handler(channelInitializer);
 
-        JNDCClientConfigCenter jndcClientConfigCenter =UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
+        JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
 
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
 
@@ -83,24 +107,28 @@ public class JNDCClient {
                 logger.info("connect success to the jndc server : " + clientConfig.getServerIpSocketAddress());
             } else {
                 //todo connect fail
+                logger.info("connect fail , try re connect");
 
                 //set fail tag
                 jndcClientConfigCenter.failToConnectToServer();
 
-                final EventLoop eventExecutors = connect.channel().eventLoop();
+                //重试连接
+                tryReconnect();
 
-                //run retry operation once on 5 second later
-                eventExecutors.schedule(() -> {
-                    failTimes++;
+//                //run retry operation once on 5 second later
+//                eventExecutors.schedule(() -> {
+//                    failTimes++;
+//
+//                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {//always be false,so always retry
+//                        logger.error("exceeded the failure limit");
+//                        ApplicationExit.exit();
+//                    }
+//
+//                    logger.info("connect fail , try re connect");
+//                    createClient(eventExecutors);
+//                }, RETRY_INTERVAL, TimeUnit.SECONDS);
 
-                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {//always be false,so always retry
-                        logger.error("exceeded the failure limit");
-                        ApplicationExit.exit();
-                    }
 
-                    logger.info("connect fail , try re connect");
-                    createClient(eventExecutors);
-                }, RETRY_INTERVAL, TimeUnit.SECONDS);
             }
 
         });

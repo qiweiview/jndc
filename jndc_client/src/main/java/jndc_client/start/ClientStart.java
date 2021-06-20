@@ -1,9 +1,7 @@
 package jndc_client.start;//package jndc.core;
 
 
-import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
-import jndc.utils.UUIDSimple;
 import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
@@ -72,7 +70,7 @@ public class ClientStart {
 
 
         JNDCClient jndcClient =new JNDCClient();
-        jndcClient.createClient();
+        jndcClient.start();
         return;
 
 
