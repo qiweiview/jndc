@@ -196,7 +196,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     private void handleOpenChannelResponse(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
         OpenChannelMessage object = ndcMessageProtocol.getObject(OpenChannelMessage.class);
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-        jndcClientConfigCenter.registerMessageChannel( channelHandlerContext);
+        jndcClientConfigCenter.registerMessageChannel(channelHandlerContext);
         InetAddress unused = InetAddress.getLocalHost();
 
         //use the message with id
@@ -267,7 +267,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             /* ================================== CONNECTION_INTERRUPTED ================================== */
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
-                //todo CONNECTION_INTERRUPTED
+                //todo CONNECTION_INTERRUPTED 连接由服务端中断
 
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.shutDownClientServiceProvider(ndcMessageProtocol);

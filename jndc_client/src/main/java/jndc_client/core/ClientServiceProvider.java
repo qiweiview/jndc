@@ -103,14 +103,20 @@ public class ClientServiceProvider {
             faceTCPMap.forEach((k, v) -> {
                 v.releaseRelatedResources();
             });
+            faceTCPMap = new ConcurrentHashMap<>();
         }
     }
 
 
+    /**
+     * 释放提供给访问者的本地连接
+     *
+     * @param uniqueTag
+     */
     public void releaseRelatedResources(String uniqueTag) {
-        ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(uniqueTag);
+        ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.remove(uniqueTag);
         if (clientTCPDataHandle == null) {
-            logger.error("can not find the service provider for " + uniqueTag);
+            logger.error("无法获取访问者：" + uniqueTag+" 对应本地连接");
         } else {
             clientTCPDataHandle.releaseRelatedResources();
         }

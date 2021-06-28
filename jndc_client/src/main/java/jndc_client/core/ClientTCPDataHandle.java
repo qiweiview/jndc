@@ -45,20 +45,26 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
     }
 
+    /**
+     * 服务由本地中断
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
         logger.debug("local app inactive ");
 
-        releaseRelatedResources();
 
-
-        //发送消息
+        //发送中断消息给服务端
         NDCMessageProtocol copy = messageModel.copy();
         copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
         copy.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
 
+        //释放本地连接
+        releaseRelatedResources();
 
 
     }
@@ -67,17 +73,21 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
-        logger.error("client get a exception: "+cause);
+        logger.error("client get a exception: " + cause);
     }
 
     public void receiveMessage(ByteBuf byteBuf) {
         channelHandlerContext.writeAndFlush(byteBuf);
     }
 
+    /**
+     * 释放本地连接
+     */
     public void releaseRelatedResources() {
-        if (channelHandlerContext!=null){
+        if (channelHandlerContext != null) {
+            //关闭到本地服务的连接
             channelHandlerContext.close();
-            channelHandlerContext=null;
+            channelHandlerContext = null;
         }
         //logger.info("release local connection");
     }
