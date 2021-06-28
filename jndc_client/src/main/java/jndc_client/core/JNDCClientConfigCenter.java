@@ -29,7 +29,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     private ChannelHandlerContext channelHandlerContext;//A client  holds only one tunnel
 
 
-    private volatile AtomicBoolean connectionToServerState =new AtomicBoolean(false);
+    private volatile AtomicBoolean connectionToServerState = new AtomicBoolean(false);
 
     @Override
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
@@ -59,8 +59,6 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     }
 
 
-
-
     public void registerMessageChannel(ChannelHandlerContext channelHandlerContext) {
         this.channelHandlerContext = channelHandlerContext;
     }
@@ -80,7 +78,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
         if (clientServiceProvider == null) {
-            logger.error("无法获取服务提供者："+client);
+            logger.error("无法获取服务提供者：" + client);
             return;
         }
 
@@ -96,23 +94,30 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     /**
      * register service the manage map
+     *
      * @param x
      */
     public void initService(ClientServiceDescription x) {
-        ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
+
 
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
 
         //service provider ip address + port
         String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
 
-        ClientServiceProvider clientServiceProvider1 = portProtectorMap.get(clientTag);
-        if (clientServiceProvider1!=null){
-            logger.error("the service "+clientTag+" has been register in this map");
+        ClientServiceProvider existProvider = portProtectorMap.get(clientTag);
+        if (existProvider != null) {
+            logger.error("the service " + clientTag + " has been register in this map");
+
+            //移除所有已建立的本地连接
+            existProvider.releaseAllRelatedResources();
             return;
         }
 
         logger.debug("init local service:" + x + "--->" + clientTag);
+
+        //创建新的服务提供者
+        ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
         portProtectorMap.put(clientTag, clientServiceProvider);
     }
 
@@ -120,15 +125,13 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
         String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
         ClientServiceProvider remove = portProtectorMap.remove(clientTag);
-        if (remove==null){
-            logger.error("can not found service "+clientTag+" in local");
+        if (remove == null) {
+            logger.error("can not found service " + clientTag + " in local");
             return;
-        }else {
+        } else {
             remove.releaseAllRelatedResources();
         }
     }
-
-
 
 
     public JNDCClientMessageHandle getCurrentHandler() {
@@ -147,7 +150,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         connectionToServerState.set(false);
     }
 
-    public boolean getCurrentClientConnectionState(){
+    public boolean getCurrentClientConnectionState() {
         return connectionToServerState.get();
     }
 }

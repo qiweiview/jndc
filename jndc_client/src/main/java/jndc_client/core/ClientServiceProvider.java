@@ -98,12 +98,16 @@ public class ClientServiceProvider {
     }
 
 
+    /**
+     * 中断所有本地连接
+     */
     public void releaseAllRelatedResources() {
         synchronized (ClientServiceProvider.class) {
             faceTCPMap.forEach((k, v) -> {
                 v.releaseRelatedResources();
             });
             faceTCPMap = new ConcurrentHashMap<>();
+            logger.info("中断所有本地连接...");
         }
     }
 
