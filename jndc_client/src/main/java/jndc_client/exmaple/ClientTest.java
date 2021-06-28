@@ -1,8 +1,6 @@
 package jndc_client.exmaple;
 
 
-
-import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
@@ -36,7 +34,7 @@ public class ClientTest {
 
 
         JNDCClient clientTest = new JNDCClient();
-        clientTest.createClient();
+        clientTest.start();
 
 
     }
