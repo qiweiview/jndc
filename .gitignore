@@ -1,2 +1,13 @@
 /target/
 /.idea/
+/jndc_server/target/
+/jndc_server/jndc_server.iml
+/jndc_server/src/main/java/jndc_server/exmaple/config_file/jnc_db.db
+/jndc_core/target/
+/jndc_client/target/
+/log/
+/CLIENT_ID
+/jndc_client/src/main/java/jndc_client/exmaple/config_file/
+/jndc_client/jndc_client.iml
+/jndc_client/src/main/java/jndc_client/exmaple/config_file/client_id
+/jndc_core/jndc_core.iml
