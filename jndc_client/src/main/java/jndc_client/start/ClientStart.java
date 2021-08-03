@@ -5,6 +5,7 @@ import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
+import jndc_client.http_support.ClientHttpManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,19 +61,22 @@ public class ClientStart {
             jndcClientConfig.performParameterVerification();
             jndcClientConfig.setRuntimeDir(file.getParent());
             jndcClientConfig.loadClientId();
-            logger.info(tag+CLIENT_ID);
+            logger.info(tag + CLIENT_ID);
+            logger.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
         } catch (Exception e) {
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();
         }
 
 
-
-
-        JNDCClient jndcClient =new JNDCClient();
+        //核心服务
+        JNDCClient jndcClient = new JNDCClient();
         jndcClient.start();
-        return;
 
+        //http管理端
+        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
+        clientHttpManagement.start();
+        return;
 
 
     }

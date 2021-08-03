@@ -11,3 +11,7 @@
 /jndc_client/jndc_client.iml
 /jndc_client/src/main/java/jndc_client/exmaple/config_file/client_id
 /jndc_core/jndc_core.iml
+jndc.iml
+sonar.bat
+output.log
+jndc.iml

@@ -22,8 +22,8 @@ public class JNDCServer {
      * do some init operation only for server
      */
     public void initBelongOnlyInServer() {
-        ScheduledTaskCenter ipChecker = UniqueBeanManage.getBean(ScheduledTaskCenter.class);
-        ipChecker.start();
+        ScheduledTaskCenter scheduledTaskCenter = UniqueBeanManage.getBean(ScheduledTaskCenter.class);
+        scheduledTaskCenter.start();
     }
 
 

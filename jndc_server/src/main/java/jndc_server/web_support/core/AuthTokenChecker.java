@@ -11,7 +11,6 @@ import jndc_server.web_support.utils.UriUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -49,7 +48,6 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
             //reset uri
             fullHttpRequest.setUri(parseResult.getReduceUri());
 
-            channelHandlerContext.fireChannelRead(fullHttpRequest.retain());
         } else {
             //base http
             HttpMethod method = fullHttpRequest.method();
@@ -65,9 +63,9 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
                 String stringHeader = fullHttpRequest.headers().get(AsciiString.of(AUTH_TOKEN));
                 verificationToken(stringHeader, channelHandlerContext);
             }
-            channelHandlerContext.fireChannelRead(fullHttpRequest.retain());
 
         }
+        channelHandlerContext.fireChannelRead(fullHttpRequest.retain());
     }
 
 

@@ -8,21 +8,25 @@ import jndc.core.NDCMessageProtocol;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * a local service provider
  */
-public class ClientServiceProvider {
+@Data
+@Slf4j
+public class ClientServiceProvider implements Serializable {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final String pId = UUID.randomUUID().toString();
     private int port;
     private String serviceIp;
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();//much client use the same EventLoopGroup
@@ -43,7 +47,7 @@ public class ClientServiceProvider {
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
         if (clientTCPDataHandle == null) {
 
-            logger.debug("start local netty client for:" + client);
+            log.debug("start local netty client for:" + client);
             //block create
             clientTCPDataHandle = startInnerBootstrap(ndcMessageProtocol);
             faceTCPMap.put(client, clientTCPDataHandle);
@@ -53,7 +57,7 @@ public class ClientServiceProvider {
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
             //todo ignore active message
 
-            logger.debug("get active message");
+            log.debug("get active message");
             return;
         }
 
@@ -89,9 +93,9 @@ public class ClientServiceProvider {
 
         try {
             connect.sync();
-            logger.debug("local app connect success " + byStringIpAddress + ":" + port);
+            log.debug("local app connect success " + byStringIpAddress + ":" + port);
         } catch (InterruptedException e) {
-            logger.error("connect to " + inetSocketAddress + "fail cause" + e);
+            log.error("connect to " + inetSocketAddress + "fail cause" + e);
         }
 
         return clientTCPDataHandle;
@@ -107,7 +111,7 @@ public class ClientServiceProvider {
                 v.releaseRelatedResources();
             });
             faceTCPMap = new ConcurrentHashMap<>();
-            logger.info("中断所有本地连接...");
+            log.info("中断所有本地连接...");
         }
     }
 
@@ -120,7 +124,7 @@ public class ClientServiceProvider {
     public void releaseRelatedResources(String uniqueTag) {
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.remove(uniqueTag);
         if (clientTCPDataHandle == null) {
-            logger.error("无法获取访问者：" + uniqueTag+" 对应本地连接");
+            log.error("无法获取访问者：" + uniqueTag + " 对应本地连接");
         } else {
             clientTCPDataHandle.releaseRelatedResources();
         }

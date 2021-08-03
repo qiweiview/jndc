@@ -6,6 +6,7 @@ import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * client config center
  */
+@Data
 public class JNDCClientConfigCenter implements NDCConfigCenter {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -43,10 +45,11 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         int localPort = ndcMessageProtocol.getLocalPort();
         InetAddress localInetAddress = ndcMessageProtocol.getLocalInetAddress();
 
-        //service provider ip address+port
+        //ip+端口 确定一个唯一的服务提供者标识
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
 
 
+        //获取对象
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
 
         if (clientServiceProvider == null) {
@@ -134,13 +137,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     }
 
 
-    public JNDCClientMessageHandle getCurrentHandler() {
-        return currentHandler;
-    }
 
-    public void setCurrentHandler(JNDCClientMessageHandle currentHandler) {
-        this.currentHandler = currentHandler;
-    }
 
     public void successToConnectToServer() {
         connectionToServerState.set(true);

@@ -207,6 +207,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         //use the message from server as  heartbeat request message
         EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
         eventExecutors.scheduleWithFixedDelay(() -> {
+            //todo 心跳
             tqs.setData(bytes);//necessary
             jndcClientConfigCenter.addMessageToSendQueue(tqs);
         }, 0, 60, TimeUnit.SECONDS);
@@ -268,7 +269,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             /* ================================== CONNECTION_INTERRUPTED ================================== */
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED 连接由服务端中断
-
+                logger.info("interrupt  connection " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.shutDownClientServiceProvider(ndcMessageProtocol);
                 return;

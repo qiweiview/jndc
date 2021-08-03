@@ -6,13 +6,24 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 
+@Data
+@Slf4j
 public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final String tId = UUID.randomUUID().toString();
+
+    private long createTime;
+
+    private volatile long lastActiveTime;
+
+    //是否废弃
+    private volatile boolean released = false;
 
     public static final String NAME = "NDC_CLIENT_TCP_DATA_HANDLE";
 
@@ -23,17 +34,20 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     public ClientTCPDataHandle(NDCMessageProtocol messageModel) {
         this.messageModel = messageModel;
+        this.createTime = System.currentTimeMillis();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.debug("local app has been active ");
+        log.debug("local app has been active ");
         this.channelHandlerContext = ctx;
     }
 
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        updateTime();
+
         ByteBuf byteBuf = (ByteBuf) msg;
         byte[] bytes = ByteBufUtil4V.readWithRelease(byteBuf);
 
@@ -45,6 +59,35 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
     }
 
+    public void receiveMessage(ByteBuf byteBuf) {
+        updateTime();
+
+        channelHandlerContext.writeAndFlush(byteBuf);
+    }
+
+    /**
+     * 变更活跃时间
+     */
+    private void updateTime() {
+        this.lastActiveTime = System.currentTimeMillis();
+    }
+
+    /**
+     * 是否过期
+     *
+     * @return
+     */
+    public boolean isTimeOut() {
+        long l = System.currentTimeMillis();
+        long times = l - lastActiveTime;
+        JNDCClientConfig jndcClientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+        boolean b = times > jndcClientConfig.getAutoReleaseTimeOut();
+        if (b) {
+            log.info("now:" + l + " last active time:" + lastActiveTime + " difference:" + times + " time out limit:" + jndcClientConfig.getAutoReleaseTimeOut());
+        }
+        return b;
+    }
+
     /**
      * 服务由本地中断
      *
@@ -54,7 +97,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        logger.debug("local app inactive ");
+        log.debug("local app inactive ");
 
 
         //发送中断消息给服务端
@@ -73,22 +116,20 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.close();
-        logger.error("client get a exception: " + cause);
+        log.error("client get a exception: " + cause);
     }
 
-    public void receiveMessage(ByteBuf byteBuf) {
-        channelHandlerContext.writeAndFlush(byteBuf);
-    }
 
     /**
      * 释放本地连接
      */
     public void releaseRelatedResources() {
+        released = true;
         if (channelHandlerContext != null) {
             //关闭到本地服务的连接
             channelHandlerContext.close();
             channelHandlerContext = null;
         }
-        //logger.info("release local connection");
+        //log.info("release local connection");
     }
 }

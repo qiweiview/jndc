@@ -9,10 +9,14 @@ import jndc.utils.UUIDSimple;
 import jndc_client.gui_support.GuiStart;
 import jndc_client.gui_support.utils.GuiLogAppender;
 import jndc_client.start.ClientStart;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -23,6 +27,7 @@ import java.util.Map;
 /**
  * JNDC client config
  */
+@Data
 public class JNDCClientConfig {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,6 +43,9 @@ public class JNDCClientConfig {
     private int serverPort;
 
     private boolean openGui;
+
+    //十分钟超时断开
+    private long autoReleaseTimeOut = 10 * 60 * 1000;
 
     private List<ClientServiceDescription> clientServiceDescriptions;//service list
 
@@ -62,6 +70,19 @@ public class JNDCClientConfig {
 
         //register bean,this will be replaced later
         UniqueBeanManage.registerBean(new JNDCClientConfigCenter());
+
+        //初始化定时器
+        initClientScheduled();
+
+    }
+
+    /**
+     * 客户端定时器
+     */
+    private void initClientScheduled() {
+        ClientScheduledTaskCenter clientScheduledTaskCenter = new ClientScheduledTaskCenter();
+        UniqueBeanManage.registerBean(clientScheduledTaskCenter);
+        clientScheduledTaskCenter.start();
     }
 
     /**
@@ -110,60 +131,6 @@ public class JNDCClientConfig {
     }
 
 
-    //getter setter
-
-
-    public String getRuntimeDir() {
-        return runtimeDir;
-    }
-
-    public void setRuntimeDir(String runtimeDir) {
-        this.runtimeDir = runtimeDir;
-    }
-
-    public boolean isOpenGui() {
-        return openGui;
-    }
-
-    public void setOpenGui(boolean openGui) {
-        this.openGui = openGui;
-    }
-
-    public String getSecrete() {
-        return secrete;
-    }
-
-    public void setSecrete(String secrete) {
-        this.secrete = secrete;
-    }
-
-    public String getLoglevel() {
-        return loglevel;
-    }
-
-    public void setLoglevel(String loglevel) {
-        this.loglevel = loglevel;
-    }
-
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public String getServerIp() {
-        return serverIp;
-    }
-
-    public void setServerIp(String serverIp) {
-        this.serverIp = serverIp;
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
 
     public List<ClientServiceDescription> getClientServiceDescriptions() {
         return clientServiceDescriptions;
@@ -197,6 +164,9 @@ public class JNDCClientConfig {
         this.serverIpSocketAddress = serverIpSocketAddress;
     }
 
+    /**
+     * 装在本地客户端id
+     */
     public void loadClientId() {
         String runtimeDir = getRuntimeDir();
         if (!runtimeDir.endsWith(File.separator)) {

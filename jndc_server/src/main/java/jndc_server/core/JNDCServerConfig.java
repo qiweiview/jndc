@@ -11,6 +11,7 @@ import jndc_server.web_support.core.MessageNotificationCenter;
 import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.utils.AuthUtils;
 import jndc_server.web_support.utils.SslOneWayContextFactory;
+import lombok.Data;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@Data
 public class JNDCServerConfig {
 
     private static final String UN_SUPPORT_VALUE = "jndc";
@@ -122,7 +124,6 @@ public class JNDCServerConfig {
         AESUtils.setKey(secrete.getBytes());
 
 
-
     }
 
     private void performSslInWebApi() {
@@ -152,6 +153,7 @@ public class JNDCServerConfig {
 
 
     //fix tag
+
     /**
      * lazy init
      */
@@ -222,178 +224,6 @@ public class JNDCServerConfig {
                 "adminPort=" + adminPort +
                 ", bindIp='" + bindIp + '\'' +
                 '}';
-    }
-
-
-    /* ----------------getter setter---------------- */
-
-    public String getRoutNotFoundPage() {
-        return routNotFoundPage;
-    }
-
-    public void setRoutNotFoundPage(String routNotFoundPage) {
-        this.routNotFoundPage = routNotFoundPage;
-    }
-
-    public boolean isScanFrontPages() {
-        return scanFrontPages;
-    }
-
-    public void setScanFrontPages(boolean scanFrontPages) {
-        this.scanFrontPages = scanFrontPages;
-    }
-
-    public int getHttpPort() {
-        return httpPort;
-    }
-
-    public void setHttpPort(int httpPort) {
-        this.httpPort = httpPort;
-    }
-
-    public InetSocketAddress getHttpInetSocketAddress() {
-        return httpInetSocketAddress;
-    }
-
-    public void setHttpInetSocketAddress(InetSocketAddress httpInetSocketAddress) {
-        this.httpInetSocketAddress = httpInetSocketAddress;
-    }
-
-    public static String getUnSupportValue() {
-        return UN_SUPPORT_VALUE;
-    }
-
-    public String getRuntimeDir() {
-        return runtimeDir;
-    }
-
-    public void setRuntimeDir(String runtimeDir) {
-        this.runtimeDir = runtimeDir;
-    }
-
-    public String getSecrete() {
-        return secrete;
-    }
-
-    public void setSecrete(String secrete) {
-        this.secrete = secrete;
-    }
-
-    public String getLoglevel() {
-        return loglevel;
-    }
-
-    public void setLoglevel(String loglevel) {
-        this.loglevel = loglevel;
-    }
-
-    public SSLContext getServerSSLContext() {
-        return serverSSLContext;
-    }
-
-    public void setServerSSLContext(SSLContext serverSSLContext) {
-        this.serverSSLContext = serverSSLContext;
-    }
-
-    public String getKeystorePass() {
-        return keystorePass;
-    }
-
-    public void setKeystorePass(String keystorePass) {
-        this.keystorePass = keystorePass;
-    }
-
-    public String getKeyStoreFile() {
-        return keyStoreFile;
-    }
-
-    public void setKeyStoreFile(String keyStoreFile) {
-        this.keyStoreFile = keyStoreFile;
-    }
-
-    public boolean isUseSsl() {
-        return useSsl;
-    }
-
-    public void setUseSsl(boolean useSsl) {
-        this.useSsl = useSsl;
-    }
-
-    public String getLoginName() {
-        return loginName;
-    }
-
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
-    }
-
-    public String getLoginPassWord() {
-        return loginPassWord;
-    }
-
-    public void setLoginPassWord(String loginPassWord) {
-        this.loginPassWord = loginPassWord;
-    }
-
-    public String[] getBlackList() {
-        return blackList;
-    }
-
-    public void setBlackList(String[] blackList) {
-        this.blackList = blackList;
-    }
-
-    public String[] getWhiteList() {
-        return whiteList;
-    }
-
-    public void setWhiteList(String[] whiteList) {
-        this.whiteList = whiteList;
-    }
-
-
-    public int getManagementApiPort() {
-        return managementApiPort;
-    }
-
-    public void setManagementApiPort(int managementApiPort) {
-        this.managementApiPort = managementApiPort;
-    }
-
-    public InetSocketAddress getInetSocketAddress() {
-        return inetSocketAddress;
-    }
-
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
-    }
-
-    public Logger getLogger() {
-        return logger;
-    }
-
-    public InetAddress getInetAddress() {
-        return inetAddress;
-    }
-
-    public void setInetAddress(InetAddress inetAddress) {
-        this.inetAddress = inetAddress;
-    }
-
-    public int getAdminPort() {
-        return adminPort;
-    }
-
-    public void setAdminPort(int adminPort) {
-        this.adminPort = adminPort;
-    }
-
-    public String getBindIp() {
-        return bindIp;
-    }
-
-    public void setBindIp(String bindIp) {
-        this.bindIp = bindIp;
     }
 
 

@@ -38,8 +38,15 @@ public class JNDCClient {
             e.printStackTrace();
         }
         synchronized (managerThread) {
+            releaseOldResource();
             managerThread.notify();
         }
+    }
+
+    public void releaseOldResource() {
+        group.shutdownGracefully();
+        group = NettyComponentConfig.getNioEventLoopGroup();
+        logger.info("重置工作线程...");
     }
 
     public void start() {
@@ -114,21 +121,6 @@ public class JNDCClient {
 
                 //重试连接
                 tryReconnect();
-
-//                //run retry operation once on 5 second later
-//                eventExecutors.schedule(() -> {
-//                    failTimes++;
-//
-//                    if (FAIL_LIMIT != -1 && failTimes > FAIL_LIMIT) {//always be false,so always retry
-//                        logger.error("exceeded the failure limit");
-//                        ApplicationExit.exit();
-//                    }
-//
-//                    logger.info("connect fail , try re connect");
-//                    createClient(eventExecutors);
-//                }, RETRY_INTERVAL, TimeUnit.SECONDS);
-
-
             }
 
         });
