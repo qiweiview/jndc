@@ -40,7 +40,7 @@ public class MappingMethodDescription {
             if (invoke instanceof byte[]) {
                 return (byte[]) invoke;
             } else if (invoke instanceof String) {
-                return invoke.toString().getBytes();
+                return invoke.toString().getBytes("utf-8");
             } else {
                 //todo 自动序列化
                 return Jackson.toJson(invoke).getBytes();

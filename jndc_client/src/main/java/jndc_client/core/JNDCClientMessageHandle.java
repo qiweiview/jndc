@@ -12,6 +12,7 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
+import jndc_client.http_support.ClientHttpManagement;
 import jndc_client.start.ClientStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,6 +191,8 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //get service list by config file
         List<ClientServiceDescription> clientServiceDescriptions = clientConfig.getClientServiceDescriptions();
+        //添加管理页面到注册服务
+        clientServiceDescriptions.add(ClientHttpManagement.DEPLOY_PORT);
         startRegister(clientServiceDescriptions);
     }
 

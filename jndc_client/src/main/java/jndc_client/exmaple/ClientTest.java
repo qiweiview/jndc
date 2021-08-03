@@ -33,14 +33,13 @@ public class ClientTest {
             ApplicationExit.exit();
         }
 
+        //http管理端
+        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
+        clientHttpManagement.start();
 
         JNDCClient clientTest = new JNDCClient();
         clientTest.start();
 
-
-        //http管理端
-        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
-        clientHttpManagement.start();
 
     }
 

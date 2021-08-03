@@ -3,18 +3,25 @@ package jndc.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 @Slf4j
 public class PackageScan {
     private static final ClassLoader classLoader = PackageScan.class.getClassLoader();
     private static final String ClassPath = classLoader.getResource("").getFile();
+
+    static {
+        log.info("class path:---> " + classLoader.getResource("").getPath());
+    }
 
     /**
      * 扫描路径
@@ -30,20 +37,51 @@ public class PackageScan {
         String s = PathUtils.javaPackagePath2SystemPath(scanPath);
 
 
-        URL resource = classLoader.getResource(s);
-        if (resource == null) {
-            log.error("can not found the path: " + scanPath);
+        URL url = classLoader.getResource(s);
+        if (url == null) {
+            log.error("scan class can not found the path: " + s);
             return classes;
         }
-        String file = resource.getFile();
+
+        String protocol = url.getProtocol();
         try {
-            String decode = URLDecoder.decode(file, StandardCharsets.UTF_8.name());
-            loadAllClass(new File(decode), classes);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("decode fail cause" + e);
+            if ("file".equals(protocol)) {
+                //todo 文件
+                String file = url.getFile();
+
+                String decode = URLDecoder.decode(file, StandardCharsets.UTF_8.name());
+                loadAllClass(new File(decode), classes);
+            } else if ("jar".equals(protocol)) {
+                //todo jar包
+                JarFile jarFile = ((JarURLConnection) url.openConnection()).getJarFile();
+                loadAllClassFromJar(jarFile, classes, scanPath);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("scan fail cause" + e);
         }
 
+
         return classes;
+    }
+
+    private static void loadAllClassFromJar(JarFile jarFile, List<Class> classes, String targetPre) {
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry jarEntry = entries.nextElement();
+            String name = PathUtils.systemPath2JavaPackagePath(jarEntry.getName());
+            // 判断是不是class文件
+            if (name.startsWith(targetPre) && name.endsWith(".class")) {
+                //todo 字节码
+                name = name.substring(0, name.length() - 6);
+                try {
+                    Class<?> aClass = classLoader.loadClass(name);
+                    classes.add(aClass);
+                } catch (ClassNotFoundException e) {
+                    log.error("can not load class " + name);
+                }
+            }
+        }
     }
 
     /**
@@ -55,7 +93,7 @@ public class PackageScan {
     private static void loadAllClass(File file, List<Class> classes) {
 
         if (!file.exists()) {
-            log.error("can not found the path: " + file);
+            log.error("load all class can not found the path: " + file);
             return;
         }
         Stream.of(file.listFiles()).forEach(x -> {

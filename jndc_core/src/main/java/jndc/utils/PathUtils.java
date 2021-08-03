@@ -2,8 +2,6 @@ package jndc.utils;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class PathUtils {
 
@@ -15,13 +13,13 @@ public class PathUtils {
     }
 
     public static String systemPath2JavaPackagePath(String systemPath) {
-        String s = systemPath.replaceAll(Pattern.quote(File.separator), ".");
+        String s = systemPath.replaceAll("/", ".").replaceAll("\\\\", ".");
         return s;
 
     }
 
     public static String javaPackagePath2SystemPath(String javaPackage) {
-        String s = javaPackage.replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+        String s = javaPackage.replaceAll("\\.", "/");
         return s;
 
     }

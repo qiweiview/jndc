@@ -68,14 +68,15 @@ public class ClientStart {
             ApplicationExit.exit();
         }
 
+        //http管理端
+        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
+        clientHttpManagement.start();
 
         //核心服务
         JNDCClient jndcClient = new JNDCClient();
         jndcClient.start();
 
-        //http管理端
-        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
-        clientHttpManagement.start();
+
         return;
 
 

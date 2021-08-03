@@ -6,7 +6,10 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import jndc.http_support.model.NettyRequest;
 import jndc.http_support.model.ResponseDescription;
+import jndc.utils.PackageScan;
 import lombok.Data;
+
+import java.util.List;
 
 
 @Data
@@ -19,6 +22,8 @@ public class HttpRequestHandle extends SimpleChannelInboundHandler<FullHttpReque
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) {
         NettyRequest nettyRequest = NettyRequest.of(fullHttpRequest);
+        String s = "jndc_client.http_support";
+        List<Class> classes = PackageScan.scanClass(s);
 
         if (mappingRegisterCenter == null) {
             throw new RuntimeException("can not found the mappingRegisterCenter");
