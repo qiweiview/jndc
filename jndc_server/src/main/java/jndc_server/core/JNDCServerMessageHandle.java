@@ -50,7 +50,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             map.put(s, x);
         });
 
-        //find the old "port service bind"
+        //获取旧的绑定
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and bindClientId is not null  ");
 
@@ -59,9 +59,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             String bindClientId = x.getBindClientId();
             String routeTo = x.getRouteTo();
             if (routeTo==null){
-                logger_static.error(x.getName()+" empty route to");
                 return;
             }
+
             int index = routeTo.lastIndexOf(":") + 1;
             if (index == 0) {
                 //todo  not right route to
@@ -179,6 +179,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         serviceRebind(tcpServiceDescriptionOnServers);
 
 
+        logger_static.info("推送开启刷新");
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
         messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
         messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
@@ -273,6 +274,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 //todo SERVICE_UNREGISTER
                 handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
                 MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                logger_static.info("推送关闭刷新");
                 messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
             }
 
@@ -283,6 +285,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
 
                 MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+                logger_static.info("推送中断刷新");
                 messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
                 messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
             }
@@ -340,6 +343,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         }
 
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        logger_static.info("推送不活动连接刷新");
         messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
         messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
     }
