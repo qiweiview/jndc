@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 public class ClientHttpManagement {
     public static ClientServiceDescription DEPLOY_PORT;
 
+    public static final String CLIENT_MANAGEMENT = "client_management";
 
     public void start() {
         NettyHttpServer nettyHttpServer = new NettyHttpServer();
@@ -25,7 +26,7 @@ public class ClientHttpManagement {
             DEPLOY_PORT = new ClientServiceDescription();
             DEPLOY_PORT.setServiceIp("127.0.0.1");
             DEPLOY_PORT.setServicePort(localPort);
-            DEPLOY_PORT.setServiceName("client_management");
+            DEPLOY_PORT.setServiceName(CLIENT_MANAGEMENT);
             DEPLOY_PORT.setServiceEnable(true);
 
 
