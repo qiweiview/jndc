@@ -8,11 +8,12 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
 import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.core.JNDCServerConfig;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 import jndc_server.web_support.utils.HttpResponseBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest> {
     public static String NAME = "HOST_ROUTE_HANDLE";
 
@@ -28,6 +29,8 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
         HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
         FullHttpResponse fullHttpResponse = null;
         if (httpHostRoute != null) {
+
+
             if (httpHostRoute.fixValueType()) {
                 //todo return fix value
                 fullHttpResponse = HttpResponseBuilder.defaultResponse(httpHostRoute.getFixedResponse().getBytes(), httpHostRoute.getFixedContentType() + ";charset=utf-8");
@@ -41,16 +44,19 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
             if (httpHostRoute.forwardType()) {
                 //todo forward request
-                //overwrite the host
-
-                //bug fix使用访问者的host,不做修改
-                //fullHttpRequest.headers().set(HttpHeaderNames.HOST, httpHostRoute.getForwardHost() + ":" + httpHostRoute.getForwardPort());
 
                 //启动内部访问客户端
-                BlockValueFeature<FullHttpResponse> forward = new LiteHttpProxy(httpHostRoute, fullHttpRequest.retain()).forward();
 
-                //wait for 15 second
-                fullHttpResponse = forward.get(15);
+
+                try (LiteHttpProxy liteHttpProxy = new LiteHttpProxy(httpHostRoute, fullHttpRequest.retain())) {
+                    BlockValueFeature<FullHttpResponse> forward = liteHttpProxy.forward();
+                    //阻塞等待十秒
+                    fullHttpResponse = forward.get(10);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
             }
 
         } else {

@@ -1,26 +1,26 @@
 package jndc_server.web_support.http_module;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.*;
-import io.netty.util.concurrent.ScheduledFuture;
-import javafx.util.Callback;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import jndc.core.NettyComponentConfig;
-import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 
-import java.util.concurrent.*;
+import java.io.Closeable;
+import java.io.IOException;
 
 
-public class LiteHttpProxy {
+public class LiteHttpProxy implements Closeable {
 
 
-    private static final EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
+    private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
     private FullHttpRequest fullHttpRequest;
     private HttpHostRoute httpHostRoute;
     private BlockValueFeature completeFeature;
@@ -34,6 +34,9 @@ public class LiteHttpProxy {
     public void release() {
         fullHttpRequest = null;
         httpHostRoute = null;
+        if (eventLoopGroup != null) {
+            eventLoopGroup.shutdownGracefully();
+        }
     }
 
 
@@ -75,4 +78,8 @@ public class LiteHttpProxy {
     }
 
 
+    @Override
+    public void close() throws IOException {
+        release();
+    }
 }

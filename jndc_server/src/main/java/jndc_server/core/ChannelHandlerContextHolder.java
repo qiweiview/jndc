@@ -2,7 +2,6 @@ package jndc_server.core;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import jndc.core.TcpServiceDescription;
 import jndc.utils.UUIDSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +15,10 @@ import java.util.*;
 public class ChannelHandlerContextHolder {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final long  HEART_BEAT_TIME_OUT=5*60*1000;
+    private static final long HEART_BEAT_TIME_OUT = 5 * 60 * 1000;
 
-    private String id;//the id for the channelHandlerContext
+    //the id for the channelHandlerContext
+    private String id;
 
     private String contextIp;
 
