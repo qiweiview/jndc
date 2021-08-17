@@ -9,7 +9,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
 import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
-import jndc_server.web_support.utils.BlockValueFeature;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,13 +47,8 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
                 //启动内部访问客户端
 
 
-                try (LiteHttpProxy liteHttpProxy = new LiteHttpProxy(httpHostRoute, fullHttpRequest.retain())) {
-                    BlockValueFeature<FullHttpResponse> forward = liteHttpProxy.forward();
-                    //阻塞等待十秒
-                    fullHttpResponse = forward.get(10);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
+                fullHttpResponse = liteHttpProxy.forward(httpHostRoute, fullHttpRequest.retain());
 
 
             }

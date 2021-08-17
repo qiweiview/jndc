@@ -13,34 +13,38 @@ import jndc.utils.InetUtils;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 
-import java.io.Closeable;
-import java.io.IOException;
+import java.util.function.Consumer;
 
 
-public class LiteHttpProxy implements Closeable {
+public class LiteHttpProxy {
 
+    private volatile boolean canBeReUse;
+
+    //回收操作
+    private Consumer<LiteHttpProxy> recycleOption;
 
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
-    private FullHttpRequest fullHttpRequest;
-    private HttpHostRoute httpHostRoute;
-    private BlockValueFeature completeFeature;
 
+    private BlockValueFeature<FullHttpResponse> completeFeature;
 
-    public LiteHttpProxy(HttpHostRoute httpHostRoute, FullHttpRequest fullHttpRequest) {
-        this.httpHostRoute = httpHostRoute;
-        this.fullHttpRequest = fullHttpRequest;
+    public LiteHttpProxy(Consumer<LiteHttpProxy> recycleOption, boolean canBeReUse) {
+        this.recycleOption = recycleOption;
+        this.canBeReUse = canBeReUse;
     }
 
     public void release() {
-        fullHttpRequest = null;
-        httpHostRoute = null;
-        if (eventLoopGroup != null) {
-            eventLoopGroup.shutdownGracefully();
+        eventLoopGroup.shutdownGracefully();
+        eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
+        completeFeature = null;
+
+        if (canBeReUse && recycleOption != null) {
+            //todo 能被继续使用
+            recycleOption.accept(this);
         }
     }
 
 
-    public BlockValueFeature<FullHttpResponse> forward() {
+    public FullHttpResponse forward(HttpHostRoute httpHostRoute, FullHttpRequest fullHttpRequest) {
         LiteHttpProxy liteHttpProxy = this;
         ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
@@ -61,25 +65,26 @@ public class LiteHttpProxy implements Closeable {
                 .handler(channelInitializer);
         ChannelFuture sync = null;
         try {
-          sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
+            Channel channel = sync.channel();
+            channel.writeAndFlush(fullHttpRequest);
+            completeFeature = new BlockValueFeature<>();
+            FullHttpResponse fullHttpResponse = completeFeature.get(10);
+            return fullHttpResponse;
+        } catch (Exception e) {
+            throw new RuntimeException("转发请求异常" + e);
+        } finally {
+            release();
         }
-        Channel channel = sync.channel();
-        channel.writeAndFlush(fullHttpRequest);
-        completeFeature = new BlockValueFeature<>();
-        return completeFeature;
+
 
     }
 
 
     public void writeData(FullHttpResponse data) {
+        //todo 完成阻塞请求
         this.completeFeature.complete(data);
     }
 
 
-    @Override
-    public void close() throws IOException {
-        release();
-    }
 }
