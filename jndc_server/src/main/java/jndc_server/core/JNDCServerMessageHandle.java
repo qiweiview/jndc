@@ -284,10 +284,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
                 ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
 
-                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                logger_static.info("推送中断刷新");
-                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
-                messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
+//                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//                logger_static.info("推送中断刷新");
+//                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+//                messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
             }
 
             /*==================================== NO_ACCESS ====================================*/

@@ -3,7 +3,9 @@ package jndc_server.web_support.http_module;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpResponse> {
     public static String NAME = "LITE_PROXY_HANDLE";
 
@@ -17,12 +19,10 @@ public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpRespons
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpResponse fullHttpResponse) throws Exception {
         if (liteHttpProxy == null) {
+            log.error("liteHttpProxy 为空");
             return;
         }
         liteHttpProxy.writeData(fullHttpResponse.retain());
-
-        //http单工，客户端设计成只执行一次就回收
-        release();
     }
 
     @Override

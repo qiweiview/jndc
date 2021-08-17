@@ -35,7 +35,6 @@ public class LiteHttpProxy {
     public void release() {
         eventLoopGroup.shutdownGracefully();
         eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
-        completeFeature = null;
 
         if (canBeReUse && recycleOption != null) {
             //todo 能被继续使用
@@ -73,8 +72,6 @@ public class LiteHttpProxy {
             return fullHttpResponse;
         } catch (Exception e) {
             throw new RuntimeException("转发请求异常" + e);
-        } finally {
-            release();
         }
 
 

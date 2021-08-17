@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 @Slf4j
 public class LiteHttpProxyPool {
 
-    private static final Integer LIMIT = 20;
+    private static final Integer LIMIT = 10;
 
     private static AtomicInteger blockNum = new AtomicInteger(0);
 

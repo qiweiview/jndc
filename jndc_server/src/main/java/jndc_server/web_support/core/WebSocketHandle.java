@@ -7,11 +7,8 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.LogPrint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WebSocketHandle extends SimpleChannelInboundHandler<TextWebSocketFrame> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     public static final String NAME = "WEB_SOCKET_HANDLE";
 
     @Override

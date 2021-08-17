@@ -49,7 +49,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
                 LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
                 fullHttpResponse = liteHttpProxy.forward(httpHostRoute, fullHttpRequest.retain());
-
+                liteHttpProxy.release();
 
             }
 
