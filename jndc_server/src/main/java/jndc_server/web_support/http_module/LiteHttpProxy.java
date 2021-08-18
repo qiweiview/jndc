@@ -12,13 +12,22 @@ import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 
+@Slf4j
+@Data
 public class LiteHttpProxy {
 
+    private String id = UUID.randomUUID().toString();
+
     private volatile boolean canBeReUse;
+
+    private volatile boolean hasBeenPut = false;
 
     //回收操作
     private Consumer<LiteHttpProxy> recycleOption;
@@ -32,11 +41,27 @@ public class LiteHttpProxy {
         this.canBeReUse = canBeReUse;
     }
 
+    public boolean canBePut() {
+        return hasBeenPut == false;
+    }
+
+    public boolean canBeReuse() {
+        return canBeReUse;
+    }
+
+    public void takeOption() {
+        hasBeenPut = false;
+    }
+
+    public void putOption() {
+        hasBeenPut = true;
+    }
+
     public void release() {
         eventLoopGroup.shutdownGracefully();
         eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
-        if (canBeReUse && recycleOption != null) {
+        if (recycleOption != null) {
             //todo 能被继续使用
             recycleOption.accept(this);
         }
@@ -52,7 +77,7 @@ public class LiteHttpProxy {
 
 
                 pipeline.addLast(new HttpClientCodec());
-                pipeline.addLast(new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
+                pipeline.addLast(new HttpObjectAggregator(20 * 1024 * 1024));//限制缓冲最大值为2mb
                 pipeline.addLast(new LiteProxyHandle(liteHttpProxy));
             }
         };
@@ -72,6 +97,8 @@ public class LiteHttpProxy {
             return fullHttpResponse;
         } catch (Exception e) {
             throw new RuntimeException("转发请求异常" + e);
+        } finally {
+            release();
         }
 
 

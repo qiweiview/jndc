@@ -18,13 +18,11 @@ import jndc_server.web_support.core.MessageNotificationCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -67,7 +65,7 @@ public class ServerPortProtector {
             String endString = split[1];
             startDatePoint = LocalTime.parse(startString);
             endDatePoint = LocalTime.parse(endString);
-            logger.info("set enable range between " + startDatePoint + " to " + endDatePoint);
+            logger.debug("set enable range between " + startDatePoint + " to " + endDatePoint);
         } catch (Exception e) {
             //todo if get any exception, the port will reject all requests
 

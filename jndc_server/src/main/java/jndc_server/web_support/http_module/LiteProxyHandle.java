@@ -3,6 +3,7 @@ package jndc_server.web_support.http_module;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import jndc_server.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -34,7 +35,10 @@ public class LiteProxyHandle extends SimpleChannelInboundHandler<FullHttpRespons
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
+        //todo 异常直接返回异常信息
+        log.error("proxy handle error " + cause);
+        FullHttpResponse fullHttpResponse = HttpResponseBuilder.textResponse(cause.toString().getBytes());
+        liteHttpProxy.writeData(fullHttpResponse);
     }
 
     public void release() {

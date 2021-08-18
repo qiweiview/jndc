@@ -11,32 +11,57 @@ import java.util.stream.IntStream;
 @Slf4j
 public class LiteHttpProxyPool {
 
-    private static final Integer LIMIT = 10;
 
-    private static AtomicInteger blockNum = new AtomicInteger(0);
+    private static final Integer FIX_SIZE = 1;
+
+    private static final Integer INCREASE_STEP = 5;
+
+    private static volatile AtomicInteger freeNum = new AtomicInteger(0);
 
     private static BlockingQueue<LiteHttpProxy> blockingQueue = new LinkedBlockingQueue<>();
 
 
-    private static final Consumer<LiteHttpProxy> tConsumer = (x) -> {
-        try {
-            blockingQueue.put(x);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("获取请求器异常" + e);
-        }
-    };
-
     static {
         //5个请求器对象
-        IntStream.generate(() -> 1).limit(10).forEach(x -> {
+        IntStream.generate(() -> 1).limit(FIX_SIZE).forEach(x -> {
             try {
-                blockingQueue.put(new LiteHttpProxy(tConsumer, true));
+                LiteHttpProxy liteHttpProxy = new LiteHttpProxy(getConsumer(), true);
+                liteHttpProxy.setId("INIT_CLIENT");
+                blockingQueue.put(liteHttpProxy);
+                log.debug("初始化,可用计数可用：" + freeNum.incrementAndGet() + "实际可用：" + blockingQueue.size());
             } catch (InterruptedException e) {
                 throw new RuntimeException("获取请求器异常" + e);
             }
         });
     }
 
+
+    private static Consumer<LiteHttpProxy> getConsumer() {
+        Consumer<LiteHttpProxy> tConsumer = (x) -> {
+            try {
+                if (x.canBeReuse()) {
+
+                    //同步
+                    if (x.canBePut()) {
+                        synchronized (x) {
+                            if (x.canBePut()) {
+                                //todo 可重用且未被回收
+                                freeNum.incrementAndGet();
+                                blockingQueue.put(x);
+                                x.putOption();
+                                log.debug("客户端回收,当前可用客户端计数：" + freeNum.get() + "实际可用：" + blockingQueue.size());
+                            }
+                        }
+                    }
+
+
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException("获取请求器异常" + e);
+            }
+        };
+        return tConsumer;
+    }
 
     /**
      * 获取请求客户端
@@ -45,9 +70,11 @@ public class LiteHttpProxyPool {
      */
     public static LiteHttpProxy getLiteHttpProxy() {
         try {
-            blockCheck(blockNum.incrementAndGet());
+            blockCheck(freeNum.get());
             LiteHttpProxy take = blockingQueue.take();
-            blockNum.decrementAndGet();
+            take.takeOption();
+            log.debug("客户端使用,当前可用客户端计数：" + freeNum.decrementAndGet() + "实际可用：" + blockingQueue.size());
+
             return take;
         } catch (InterruptedException e) {
             throw new RuntimeException("获取请求器异常" + e);
@@ -57,20 +84,20 @@ public class LiteHttpProxyPool {
     /**
      * 阻塞检查
      *
-     * @param i
+     * @param free
      */
-    public static void blockCheck(int i) {
-        if (i > LIMIT) {
-            long v = (long) (i * 0.5);
-            log.info("线程阻塞数量：" + i + ",执行扩容，添加" + v);
+    public static void blockCheck(int free) {
+        if (free == 0) {
             //todo 增加不可回收工作者
-            IntStream.generate(() -> 1).limit(v).forEach(x -> {
+            IntStream.generate(() -> 1).limit(INCREASE_STEP).parallel().forEach(x -> {
                 try {
-                    blockingQueue.put(new LiteHttpProxy(tConsumer, false));
+                    freeNum.incrementAndGet();
+                    blockingQueue.put(new LiteHttpProxy(getConsumer(), false));
                 } catch (InterruptedException e) {
-                    throw new RuntimeException("获取请求器异常" + e);
+                    throw new RuntimeException("扩充请求器异常" + e);
                 }
             });
+            log.info("扩容后,可用客户端计数：" + freeNum.get() + "实际可用：" + blockingQueue.size());
         }
     }
 }

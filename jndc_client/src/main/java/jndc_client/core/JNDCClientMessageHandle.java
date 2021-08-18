@@ -281,7 +281,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             /* ================================== CONNECTION_INTERRUPTED ================================== */
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED 连接由服务端中断
-                logger.info("interrupt  connection " + ndcMessageProtocol);
+                logger.debug("interrupt  connection " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.shutDownClientServiceProvider(ndcMessageProtocol);
                 return;

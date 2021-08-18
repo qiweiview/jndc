@@ -73,7 +73,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             TcpServiceDescriptionOnServer tcpServiceDescription = map.get(s);
             if (tcpServiceDescription != null) {
                 //todo do rebind
-                logger_static.info("rebind:" + map + "----->" + bindClientId);
+                logger_static.debug("rebind:" + map + "----->" + bindClientId);
 
 
                 //rebind the port service

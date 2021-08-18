@@ -16,10 +16,10 @@ public class ServerTest {
 
     public static void main(String[] args) {
 
-        ServerRuntimeConfig.DEBUG_MODEL=true;
+        ServerRuntimeConfig.DEBUG_MODEL = true;
 
-        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
-        //file=new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+//        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 
         YmlParser ymlParser = new YmlParser();
         JNDCServerConfig jndcServerConfig = null;

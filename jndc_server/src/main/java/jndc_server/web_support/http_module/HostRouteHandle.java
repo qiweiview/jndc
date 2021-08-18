@@ -49,8 +49,11 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
                 LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
                 fullHttpResponse = liteHttpProxy.forward(httpHostRoute, fullHttpRequest.retain());
-                liteHttpProxy.release();
-
+                if (fullHttpResponse == null) {
+                    //todo 超时的直接断开
+                    channelHandlerContext.close();
+                    return;
+                }
             }
 
         } else {
