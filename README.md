@@ -103,6 +103,7 @@ loglevel: "info" # 日志打印等级
 serverIp: "127.0.0.1" # 服务端运行监听ip
 serverPort: "81" # 服务端运行端口
 openGui: true
+autoReleaseTimeOut: 1200000 # 客户端连接自动断开时间（毫秒）
 clientServiceDescriptions: # 注册服务
   - serviceName: "desk" # 服务名称(仅作为注册的标识)
     serviceIp: "192.168.216.131" #  服务所在网络ip
