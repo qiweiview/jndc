@@ -14,7 +14,7 @@
 
 
 ## 项目介绍
-* "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的端口映射应用，应用基于netty编写。
+* "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的可视化内网穿透应用，应用基于java netty编写。
 * 应用以Client/Server架构构建,通过"服务注册"思路，由本地client端向server端提供本地服务，由server端管理暴露对应服务 
 * 应用核心由ndc私有协议支撑，提供了"传输数据加密","ip黑白名单","客户端可视化","服务端口定时","域名路由"功能
 * 项目源码目录结构
