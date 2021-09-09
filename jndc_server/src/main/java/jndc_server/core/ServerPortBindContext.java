@@ -1,21 +1,31 @@
 package jndc_server.core;
 
 import jndc.core.NDCMessageProtocol;
-import jndc.core.TcpServiceDescription;
+import lombok.Data;
 
 /**
- * port bind context
+ * 端口绑定上下文
  */
+@Data
 public class ServerPortBindContext {
     private int port;
 
-    private int virtualTag;//0 physics 1 virtual
+    //0 物理端口 1 虚拟端口
+    private int virtualTag;
 
-    private ServerPortProtector serverPortProtector;//port protector
+    //端口监听对象，接收端口所有tcp请求（对外）
+    private ServerPortProtector serverPortProtector;
 
-    private TcpServiceDescriptionOnServer tcpServiceDescription;//bind service description
+    //端口绑定服务描述（对内）
+    private TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer;
+
+
+    public ServerPortBindContext(int port) {
+        this.port = port;
+    }
 
     public void releaseRelatedResources() {
+        //判断是否为物理端口
         if (isPhysics()) {
             serverPortProtector.releaseRelatedResources();
         }
@@ -25,46 +35,6 @@ public class ServerPortBindContext {
         return getVirtualTag() == 0;
     }
 
-
-
-
-    /* --------------------getter setter---------------- */
-
-    public int getVirtualTag() {
-        return virtualTag;
-    }
-
-    public void setVirtualTag(int virtualTag) {
-        this.virtualTag = virtualTag;
-    }
-
-    public ServerPortBindContext(int port) {
-        this.port = port;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public ServerPortProtector getServerPortProtector() {
-        return serverPortProtector;
-    }
-
-    public void setServerPortProtector(ServerPortProtector serverPortProtector) {
-        this.serverPortProtector = serverPortProtector;
-    }
-
-    public TcpServiceDescriptionOnServer getTcpServiceDescription() {
-        return tcpServiceDescription;
-    }
-
-    public void setTcpServiceDescription(TcpServiceDescriptionOnServer tcpServiceDescription) {
-        this.tcpServiceDescription = tcpServiceDescription;
-    }
 
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
         serverPortProtector.receiveMessage(ndcMessageProtocol);

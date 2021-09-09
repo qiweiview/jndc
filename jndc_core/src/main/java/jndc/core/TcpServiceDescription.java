@@ -2,12 +2,15 @@ package jndc.core;
 
 
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 
 /**
  * the description of service supported by client
  */
+@Data
 public class TcpServiceDescription implements Serializable {
 
 
@@ -15,67 +18,15 @@ public class TcpServiceDescription implements Serializable {
 
     private String id;
 
+    //本地客户端服务端口
     private int port;
 
-    private String ip;//the service ip in the client net before NAT
+    //本地客户端服务ip
+    private String ip;
 
     private String name;
 
     private String description;
-
-
-
-    //getter setter
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "TcpServiceDescription{" +
-                "port=" + port +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 
 
 }

@@ -70,14 +70,14 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             String s = bindClientId + routeTo.substring(index);
             logger_static.debug("db old key" + s);
-            TcpServiceDescriptionOnServer tcpServiceDescription = map.get(s);
-            if (tcpServiceDescription != null) {
+            TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = map.get(s);
+            if (tcpServiceDescriptionOnServer != null) {
                 //todo do rebind
                 logger_static.debug("rebind:" + map + "----->" + bindClientId);
 
 
                 //rebind the port service
-                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), x.getEnableDateRange(), tcpServiceDescription);
+                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), x.getEnableDateRange(), tcpServiceDescriptionOnServer);
 
                 if (success) {
                     x.bindEnable();
@@ -111,6 +111,12 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     }
 
 
+    /**
+     * 注销服务
+     *
+     * @param channelHandlerContext
+     * @param ndcMessageProtocol
+     */
     private void handleUnRegisterService(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) {
         //copy message
         NDCMessageProtocol copy = ndcMessageProtocol.copy();
@@ -128,10 +134,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         //registerServiceProvider
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
+        //获取要注销服务列表
         List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
         List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
 
-        //do register
+        //移除对应服务
         ndcServerConfigCenter.removeServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);
     }
 
@@ -146,6 +153,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         NDCMessageProtocol copy = ndcMessageProtocol.copy();
 
 
+        //安全验证
         //===================auth check===========================
         RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
         String auth = registrationMessage.getAuth();
@@ -173,9 +181,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         });
 
         //do register
-        ndcServerConfigCenter.addServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);
+        ndcServerConfigCenter.addServiceByChannelId(channelId, tcpServiceDescriptionOnServers);
 
         /* ============================= restore the bind relation ============================= */
+        //指定
         serviceRebind(tcpServiceDescriptionOnServers);
 
 
@@ -211,7 +220,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder(openChannelMessage.getChannelId());
-        channelHandlerContextHolder.setChannelHandlerContext(channelHandlerContext);
+
+        //设置上下文
+        channelHandlerContextHolder.setChannelHandlerContextWithParse(channelHandlerContext);
+
+        //注册上下文
         ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
 
 

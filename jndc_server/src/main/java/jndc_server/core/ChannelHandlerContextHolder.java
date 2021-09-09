@@ -3,6 +3,7 @@ package jndc_server.core;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.utils.UUIDSimple;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,14 +11,15 @@ import java.net.InetSocketAddress;
 import java.util.*;
 
 /**
- *
+ * 隧道上下文描述对象
  */
+@Data
 public class ChannelHandlerContextHolder {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final long HEART_BEAT_TIME_OUT = 5 * 60 * 1000;
 
-    //the id for the channelHandlerContext
+    //客户端唯一编号
     private String id;
 
     private String contextIp;
@@ -28,6 +30,7 @@ public class ChannelHandlerContextHolder {
 
     private ChannelHandlerContext channelHandlerContext;
 
+    //上下文中注册的服务
     private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = new ArrayList<>();
 
     public ChannelHandlerContextHolder(String channelId) {
@@ -56,19 +59,10 @@ public class ChannelHandlerContextHolder {
         return inactive == channelHandlerContext;
     }
 
-    public boolean sameId(String del) {
-        return id.equals(del);
-    }
-
 
     /**
-     * the id of channel from client
-     * @return
+     * 解析上下文基础信息
      */
-    public String getId() {
-        return id;
-    }
-
     private void parseBaseInfo() {
         Channel channel = this.channelHandlerContext.channel();
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
@@ -82,43 +76,17 @@ public class ChannelHandlerContextHolder {
     }
 
 
+    public void setChannelHandlerContextWithParse(ChannelHandlerContext channelHandlerContext) {
+        setChannelHandlerContext(channelHandlerContext);
 
-    /* ------------------getter setter------------------ */
-
-    public long getLastHearBeatTimeStamp() {
-        return lastHearBeatTimeStamp;
-    }
-
-    public ChannelHandlerContext getChannelHandlerContext() {
-        return channelHandlerContext;
-    }
-
-    public String getContextIp() {
-        return contextIp;
-    }
-
-    public int getContextPort() {
-        return contextPort;
-    }
-
-    public void setTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptions) {
-        this.tcpServiceDescriptions = tcpServiceDescriptions;
-    }
-
-    public void setChannelHandlerContext(ChannelHandlerContext channelHandlerContext) {
-        this.channelHandlerContext = channelHandlerContext;
+        //解析上下文基础信息
         parseBaseInfo();
-    }
-
-    public List<TcpServiceDescriptionOnServer> getTcpServiceDescriptions() {
-        return tcpServiceDescriptions;
     }
 
 
     public void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
         Set<String> strings = new HashSet<>();
         tcpServiceDescriptionOnServers.forEach(x -> {
-            x.setBelongContextIp(contextIp);
             strings.add(x.getRouteTo());
         });
 
@@ -136,20 +104,29 @@ public class ChannelHandlerContextHolder {
 
     }
 
+    /**
+     * @param tcpServiceDescriptionOnServers
+     */
     public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+
+        //遍历已有服务
         Set<String> strings = new HashSet<>();
         tcpServiceDescriptions.forEach(x -> {
             strings.add(x.getRouteTo());
         });
+
+        //遍历新注册服务
         tcpServiceDescriptionOnServers.forEach(x -> {
-            x.setBelongContextIp(contextIp);
+
+            //获取路由规则
             String routeTo = x.getRouteTo();
             if (strings.contains(routeTo)) {
                 logger.error("the service " + routeTo + "is exist");
             } else {
-                x.setBelongContextIp(contextIp);
                 x.setId(UUIDSimple.id());
                 x.setBelongContext(channelHandlerContext);
+
+                //添加到--->上下文中注册的服务
                 tcpServiceDescriptions.add(x);
             }
         });
@@ -161,12 +138,10 @@ public class ChannelHandlerContextHolder {
     }
 
     /**
-     *
      * @return true mean the connection is unreachable / return false mean the connection is still connected
-     *
      */
     public boolean checkUnreachable() {
-        return lastHearBeatTimeStamp +HEART_BEAT_TIME_OUT < System.currentTimeMillis();
+        return lastHearBeatTimeStamp + HEART_BEAT_TIME_OUT < System.currentTimeMillis();
     }
 
 

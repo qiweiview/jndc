@@ -303,12 +303,13 @@ public class ServerManageMapping {
                     List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = x.getTcpServiceDescriptions();
 
                     tcpServiceDescriptions.forEach(y -> {
-                        //y -->TcpServiceDescriptionOnServer
+                        //todo 这里的y是 上下文中注册的服务
                         if (y.getId().equals(channelContextVO.getServiceId())) {//find the service from contextHolder
 
 
-                            //set route to tag
+                            //设置服务路由路径
                             serverPortBind.setRouteTo(y.getRouteTo());
+
                             //set belong id
                             serverPortBind.setBindClientId(x.getId());
 

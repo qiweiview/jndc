@@ -23,10 +23,9 @@ import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * port bind context
+ * 端口监听对象，接收端口所有请求
  */
 public class ServerPortProtector {
 
@@ -44,9 +43,6 @@ public class ServerPortProtector {
 
 
     private Map<String, ServerTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
-
-
-    private ReentrantReadWriteLock reentrantLock=new ReentrantReadWriteLock();
 
 
     public ServerPortProtector(int port) {

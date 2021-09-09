@@ -4,39 +4,49 @@ import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
 import jndc.utils.InetUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
+/**
+ * 服务描述对象
+ */
+@Slf4j
+@Data
 public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private String bindClientId;//the id of current service bound client
 
-    private String belongContextIp;//the channel ip
+    //客户端唯一编号
+    private String bindClientId;
 
+    //服务对应的隧道对象（NAT原因，重连后需要更新）
     private ChannelHandlerContext belongContext;
 
+    //有使用到该服务的监听器，用户后续服务释放时同时释放相应监听器
     private List<ServerPortProtector> serviceReleaseList = new CopyOnWriteArrayList<>();
 
 
-
+    /**
+     * 集合转换
+     *
+     * @param tcpServiceDescriptions
+     * @return
+     */
     public static List<TcpServiceDescriptionOnServer> ofArray(List<TcpServiceDescription> tcpServiceDescriptions) {
-        List<TcpServiceDescriptionOnServer> list = new ArrayList<>();
-        tcpServiceDescriptions.forEach(x -> {
-            list.add(of(x));
-        });
-        return list;
+        List<TcpServiceDescriptionOnServer> collect = tcpServiceDescriptions.stream().map(x -> of(x)).collect(Collectors.toList());
+        return collect;
     }
 
 
-
-
-
+    /**
+     * 对象转换
+     *
+     * @param tcpServiceDescription
+     * @return
+     */
     public static TcpServiceDescriptionOnServer of(TcpServiceDescription tcpServiceDescription) {
         TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = new TcpServiceDescriptionOnServer();
         tcpServiceDescriptionOnServer.setIp(tcpServiceDescription.getIp());
@@ -57,6 +67,9 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     }
 
 
+    /**
+     * @param serverPortProtector
+     */
     public void addToServiceReleaseList(ServerPortProtector serverPortProtector) {
         serviceReleaseList.add(serverPortProtector);
     }
@@ -70,34 +83,15 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     }
 
 
+    /**
+     * 生成路由信息
+     * 客户端唯一编号+服务本地ip+服务本地端口
+     *
+     * @return
+     */
     public String getRouteTo() {
         //context ip + local application ip+ local application port
-        return belongContextIp + "->" + getIp() + ":" + getPort();
-    }
-
-    public String getBindClientId() {
-        return bindClientId;
-    }
-
-    public void setBindClientId(String bindClientId) {
-        this.bindClientId = bindClientId;
-    }
-
-    public String getBelongContextIp() {
-        return belongContextIp;
-    }
-
-    public void setBelongContextIp(String belongContextIp) {
-        this.belongContextIp = belongContextIp;
-    }
-
-
-    public ChannelHandlerContext getBelongContext() {
-        return belongContext;
-    }
-
-    public void setBelongContext(ChannelHandlerContext belongContext) {
-        this.belongContext = belongContext;
+        return bindClientId + "->" + getIp() + ":" + getPort();
     }
 
 
