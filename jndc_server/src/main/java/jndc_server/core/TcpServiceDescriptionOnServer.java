@@ -1,5 +1,6 @@
 package jndc_server.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
@@ -7,7 +8,6 @@ import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,8 +21,9 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
 
     private ChannelHandlerContext belongContext;
 
+    //序列化忽略
+    @JsonIgnore
     private List<ServerPortProtector> serviceReleaseList = new CopyOnWriteArrayList<>();
-
 
 
     public static List<TcpServiceDescriptionOnServer> ofArray(List<TcpServiceDescription> tcpServiceDescriptions) {

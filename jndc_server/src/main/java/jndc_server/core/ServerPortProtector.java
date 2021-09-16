@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * port bind context
@@ -42,11 +41,8 @@ public class ServerPortProtector {
 
     private LocalTime endDatePoint;
 
-
     private Map<String, ServerTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
 
-
-    private ReentrantReadWriteLock reentrantLock=new ReentrantReadWriteLock();
 
 
     public ServerPortProtector(int port) {
