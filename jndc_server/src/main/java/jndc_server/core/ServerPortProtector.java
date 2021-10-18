@@ -23,9 +23,10 @@ import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * 端口监听对象，接收端口所有请求
+ * port bind context
  */
 public class ServerPortProtector {
 

@@ -330,7 +330,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (reConnectTag) {
-            logger.info("client connection interrupted, will restart on 5 second later");
+            logger.debug("client connection interrupted, will restart on 5 second later");
             // TimeUnit.SECONDS.sleep(5);
             client.tryReconnect();
         }

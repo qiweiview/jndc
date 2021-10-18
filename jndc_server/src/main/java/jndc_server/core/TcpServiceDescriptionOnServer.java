@@ -1,5 +1,6 @@
 package jndc_server.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
@@ -7,9 +8,9 @@ import jndc.utils.InetUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 /**
  * 服务描述对象
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
 
 
+
+
     //客户端唯一编号
     private String bindClientId;
 
@@ -26,6 +29,8 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     private ChannelHandlerContext belongContext;
 
     //有使用到该服务的监听器，用户后续服务释放时同时释放相应监听器
+    //序列化忽略
+    @JsonIgnore
     private List<ServerPortProtector> serviceReleaseList = new CopyOnWriteArrayList<>();
 
 
