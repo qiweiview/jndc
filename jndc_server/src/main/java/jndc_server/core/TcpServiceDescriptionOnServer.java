@@ -8,9 +8,9 @@ import jndc.utils.InetUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * 服务描述对象
