@@ -91,7 +91,7 @@ public class JNDCClientConfig {
     public void performParameterVerification() {
 
 
-        serverIpAddress = InetUtils.getByStringIpAddress(serverIp);
+        serverIpAddress = InetUtils.getInetAddressByHost(serverIp);
         serverIpSocketAddress = new InetSocketAddress(serverIpAddress, serverPort);
 
 
