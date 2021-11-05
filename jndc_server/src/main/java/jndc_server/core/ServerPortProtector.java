@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * port bind context
@@ -55,6 +54,11 @@ public class ServerPortProtector {
         return now.isAfter(startDatePoint) && now.isBefore(endDatePoint);
     }
 
+    /**
+     * 解析可用时间
+     *
+     * @param dateRange
+     */
     public void parseEnableDateRange(String dateRange) {
         try {
             String[] split = dateRange.split(",");
@@ -73,6 +77,11 @@ public class ServerPortProtector {
 
     }
 
+    /**
+     * 启动
+     *
+     * @return
+     */
     public boolean start() {
         InnerActiveCallBack innerActiveCallBack = (uniqueTag, serverTCPDataHandle) -> {
             faceTCPMap.put(uniqueTag, serverTCPDataHandle);
@@ -193,9 +202,12 @@ public class ServerPortProtector {
     }
 
 
+    /**
+     * 注册事件
+     */
     public interface InnerActiveCallBack {
 
-        public void register(String uniqueTag, ServerTCPDataHandle serverTCPDataHandle);
+        void register(String uniqueTag, ServerTCPDataHandle serverTCPDataHandle);
     }
 
 

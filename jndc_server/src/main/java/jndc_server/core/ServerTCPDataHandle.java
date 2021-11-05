@@ -9,18 +9,22 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 
+/**
+ * 端口连接事件处理器
+ */
+@Slf4j
 public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+
 
     public static final String NAME = "NDC_SERVER_TCP_DATA_HANDLE";
 
     private ChannelHandlerContext ctx;
 
+    //注册回调
     private ServerPortProtector.InnerActiveCallBack innerActiveCallBack;
 
     public ServerTCPDataHandle(ServerPortProtector.InnerActiveCallBack innerActiveCallBack) {
@@ -29,7 +33,8 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
 
     /**
-     * tcp active
+     * tcp 连接连通
+     *
      * @param ctx
      * @throws Exception
      */
@@ -41,12 +46,11 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         this.innerActiveCallBack.register(server, this);
 
 
-        logger.debug("open face tcp "+this.ctx.channel().remoteAddress());
+        log.debug("open face tcp " + this.ctx.channel().remoteAddress());
 
         Channel channel = ctx.channel();
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
-
 
 
         int serverPort = localAddress.getPort();
@@ -61,6 +65,12 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     }
 
 
+    /**
+     * tcp 连接断开
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
@@ -72,12 +82,19 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         int serverPort = localAddress.getPort();
 
         //发送消息
-        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(),serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CONNECTION_INTERRUPTED);
+        NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CONNECTION_INTERRUPTED);
         ndcMessageProtocol.setData(NDCMessageProtocol.BLANK);
         UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
-        logger.debug("server send interrupt signal ");
+        log.debug("server send interrupt signal ");
     }
 
+    /**
+     * 数据包到达
+     *
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
@@ -88,7 +105,7 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         InetSocketAddress remoteAddress = (InetSocketAddress) channel.remoteAddress();
         InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
 
-        int serverPort =localAddress.getPort();
+        int serverPort = localAddress.getPort();
 
         //发送消息
         NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_DATA);
@@ -99,11 +116,11 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("tcp server get a exception: "+cause);
+        log.error("tcp server get a exception: " + cause);
     }
 
     /**
-     * face tcp receive message
+     * 接收到消息
      *
      * @param byteBuf
      */
@@ -111,11 +128,14 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         this.ctx.writeAndFlush(byteBuf);
     }
 
+    /**
+     * 资源释放
+     */
     public void releaseRelatedResources() {
-        if (this.ctx!=null){
+        if (this.ctx != null) {
             this.ctx.close();
-            logger.debug("close face tcp "+this.ctx.channel().remoteAddress());
-            this.ctx=null;
+            log.debug("close face tcp " + this.ctx.channel().remoteAddress());
+            this.ctx = null;
         }
 
     }

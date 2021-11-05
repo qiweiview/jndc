@@ -39,10 +39,16 @@ public class ClientServiceProvider implements Serializable {
     }
 
 
+    /**
+     * 客户端端口管理器接收消息
+     *
+     * @param ndcMessageProtocol
+     */
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
         InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteInetAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
 
+        //哈希表路由
         String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
         if (clientTCPDataHandle == null) {

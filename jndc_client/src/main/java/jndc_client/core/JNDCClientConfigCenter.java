@@ -49,7 +49,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
 
 
-        //获取对象
+        //哈希表路由
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
 
         if (clientServiceProvider == null) {
