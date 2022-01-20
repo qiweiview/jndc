@@ -34,7 +34,7 @@ public class ScheduledTaskCenter {
 
             //change to  list of TcpServiceDescriptionOnServer
             List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
-            JNDCServerMessageHandle.serviceRebind(tcpServiceDescriptionOnServers);
+            JNDCServerMessageHandle.serviceBind(tcpServiceDescriptionOnServers);
         }, 0, 3, TimeUnit.MINUTES);
 
 

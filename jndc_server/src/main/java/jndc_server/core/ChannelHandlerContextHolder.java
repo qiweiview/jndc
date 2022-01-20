@@ -4,59 +4,93 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.utils.UUIDSimple;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 隧道上下文描述对象
  */
 @Data
+@Slf4j
 public class ChannelHandlerContextHolder {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private volatile boolean released = false;
+
+    //心跳超时时间 5分钟
     private static final long HEART_BEAT_TIME_OUT = 5 * 60 * 1000;
 
     //客户端唯一编号
-    private String id;
+    private String clientId;
 
+    //远程Ip
     private String contextIp;
 
+    //远程端口
     private int contextPort;
 
+    //最后心跳时间
     private long lastHearBeatTimeStamp;
 
+    //隧道上下文
     private ChannelHandlerContext channelHandlerContext;
 
-    //上下文中注册的服务
+    //上下文中，注册的服务集合
     private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = new ArrayList<>();
 
+    /**
+     * 构造 隧道上下文描述对象
+     *
+     * @param channelId 客户端唯一编号
+     */
     public ChannelHandlerContextHolder(String channelId) {
-        id = channelId;
+        this.clientId = channelId;
     }
 
+    /**
+     * 释放上下文描述对象
+     */
     public void releaseRelatedResources() {
+        if (released) {
+            return;
+        }
 
-        logger.debug(contextIp + " unRegister " + serviceNum() + " service");
+
+        log.debug(contextIp + " unRegister " + serviceNum() + " service");
 
         if (tcpServiceDescriptions != null) {
             tcpServiceDescriptions.forEach(x -> {
-                //TcpServiceDescription
+                //释放服务
                 x.releaseRelatedResources();
             });
         }
 
+        //关闭上下文
+        channelHandlerContext.close();
 
+        //释放对象
         channelHandlerContext = null;
         tcpServiceDescriptions = null;
 
 
+        released = true;
+
     }
 
     public boolean contextBelong(ChannelHandlerContext inactive) {
-        return inactive == channelHandlerContext;
+        InetSocketAddress socketAddress = (InetSocketAddress) inactive.channel().remoteAddress();
+
+        //传入上下文ip+端口
+        String inactiveContextStr = socketAddress.getHostString() + socketAddress.getPort();
+
+        //当前上下文ip+端口
+        String currentContextStr = this.contextIp + this.contextPort;
+        return currentContextStr.equals(inactiveContextStr);
     }
 
 
@@ -66,8 +100,8 @@ public class ChannelHandlerContextHolder {
     private void parseBaseInfo() {
         Channel channel = this.channelHandlerContext.channel();
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
-        contextIp = socketAddress.getHostString();
-        contextPort = socketAddress.getPort();
+        this.contextIp = socketAddress.getHostString();
+        this.contextPort = socketAddress.getPort();
 
     }
 
@@ -77,27 +111,32 @@ public class ChannelHandlerContextHolder {
 
 
     public void setChannelHandlerContextWithParse(ChannelHandlerContext channelHandlerContext) {
-        setChannelHandlerContext(channelHandlerContext);
+        this.channelHandlerContext = channelHandlerContext;
 
         //解析上下文基础信息
         parseBaseInfo();
     }
 
 
+    /**
+     * 移除服务
+     *
+     * @param tcpServiceDescriptionOnServers
+     */
     public void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
-        Set<String> strings = new HashSet<>();
-        tcpServiceDescriptionOnServers.forEach(x -> {
-            strings.add(x.getRouteTo());
-        });
+        Set<String> strings = tcpServiceDescriptionOnServers.stream().map(x -> x.getRouteTo()).collect(Collectors.toSet());
 
-        //lock
+        //加索
         synchronized (ChannelHandlerContextHolder.class) {
             Iterator<TcpServiceDescriptionOnServer> iterator = tcpServiceDescriptions.iterator();
             while (iterator.hasNext()) {
-                TcpServiceDescriptionOnServer next = iterator.next();
-                if (strings.contains(next.getRouteTo())) {
+                TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = iterator.next();
+                if (strings.contains(tcpServiceDescriptionOnServer.getRouteTo())) {
+                    //todo 命中
                     iterator.remove();
-                    next.releaseRelatedResources();
+
+                    //释放服务
+                    tcpServiceDescriptionOnServer.releaseRelatedResources();
                 }
             }
         }
@@ -105,15 +144,16 @@ public class ChannelHandlerContextHolder {
     }
 
     /**
-     * @param tcpServiceDescriptionOnServers
+     * 向上下文中添加服务
+     *
+     * @param tcpServiceDescriptionOnServers 注册的服务
      */
     public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
 
-        //遍历已有服务
-        Set<String> strings = new HashSet<>();
-        tcpServiceDescriptions.forEach(x -> {
-            strings.add(x.getRouteTo());
-        });
+        //已有服务放入Set
+        Set<String> strings = tcpServiceDescriptions.stream()
+                .map(x -> x.getRouteTo())
+                .collect(Collectors.toSet());
 
         //遍历新注册服务
         tcpServiceDescriptionOnServers.forEach(x -> {
@@ -121,7 +161,8 @@ public class ChannelHandlerContextHolder {
             //获取路由规则
             String routeTo = x.getRouteTo();
             if (strings.contains(routeTo)) {
-                logger.error("the service " + routeTo + "is exist");
+                //todo 服务已存在
+                log.error("the service " + routeTo + "is exist");
             } else {
                 x.setId(UUIDSimple.id());
                 x.setBelongContext(channelHandlerContext);
@@ -133,6 +174,9 @@ public class ChannelHandlerContextHolder {
     }
 
 
+    /**
+     * 刷新心跳时间
+     */
     public void refreshHeartBeatTimeStamp() {
         lastHearBeatTimeStamp = System.currentTimeMillis();
     }

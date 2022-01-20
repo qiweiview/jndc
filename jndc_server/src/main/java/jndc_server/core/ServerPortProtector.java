@@ -15,8 +15,7 @@ import jndc.utils.UniqueInetTagProducer;
 import jndc_server.core.filter.CustomRulesFilter;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -27,9 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * port bind context
  */
+@Slf4j
 public class ServerPortProtector {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private volatile boolean released = false;
 
     private int port;
 
@@ -41,7 +41,7 @@ public class ServerPortProtector {
 
     private LocalTime endDatePoint;
 
-
+    //访问连接映射
     private Map<String, ServerTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
 
 
@@ -66,11 +66,11 @@ public class ServerPortProtector {
             String endString = split[1];
             startDatePoint = LocalTime.parse(startString);
             endDatePoint = LocalTime.parse(endString);
-            logger.debug("set enable range between " + startDatePoint + " to " + endDatePoint);
+            log.debug("set enable range between " + startDatePoint + " to " + endDatePoint);
         } catch (Exception e) {
             //todo if get any exception, the port will reject all requests
 
-            logger.error("parse the enable date range error,to ensure security, the port will reject all requests");
+            log.error("parse the enable date range error,to ensure security, the port will reject all requests");
             startDatePoint = LocalTime.parse("00:00:00");
             endDatePoint = LocalTime.parse("00:00:00");
         }
@@ -78,7 +78,7 @@ public class ServerPortProtector {
     }
 
     /**
-     * 启动
+     * 启动端口监听器
      *
      * @return
      */
@@ -111,7 +111,7 @@ public class ServerPortProtector {
             serverBootstrap.bind().sync();
             return true;
         } catch (Exception e) {
-            logger.error("bind server port:" + port + " fail cause:" + e);
+            log.error("bind server port:" + port + " fail cause:" + e);
             return false;
         }
     }
@@ -123,7 +123,7 @@ public class ServerPortProtector {
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(client);
         if (serverTCPDataHandle == null) {
             //todo drop
-            logger.error("not found the tcp connection:" + client);
+            log.error("not found the tcp connection:" + client);
             return;
         }
 
@@ -141,22 +141,29 @@ public class ServerPortProtector {
     }
 
     /**
-     * close the port listener and interrupt all tcp connection
+     * 释放端口监听器
      */
     public void releaseRelatedResources() {
+        if (released) {
+            //todo 已释放
+            return;
+        }
+
         if (eventLoopGroup != null) {
             eventLoopGroup.shutdownGracefully().addListener(x -> {
                 if (x.isSuccess()) {
-                    logger.debug(" release serverPortProtector for port " + port + " success");
+                    log.debug(" release serverPortProtector for port " + port + " success");
                     eventLoopGroup = null;
                 } else {
-                    logger.error("serverPortProtector for port " + port + " release fail");
+                    log.error("serverPortProtector for port " + port + " release fail");
                 }
             });
         }
 
         if (faceTCPMap != null) {
+            //循环该端口上的所有连接
             faceTCPMap.forEach((k, v) -> {
+                //关闭往端口监听器建立的连接
                 v.releaseRelatedResources();
             });
             faceTCPMap = null;
@@ -164,20 +171,29 @@ public class ServerPortProtector {
         serverBootstrap = null;
 
 
-        //remove from map
+        //获取注册中心
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        //获取    --->   服务端端口号 ： 服务端口绑定上下文
         Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
-        tcpRouter.remove(port);
+
+        //移除对应端口
+        ServerPortBindContext remove = tcpRouter.remove(port);
+
+        //释放 服务端口绑定上下文
+        remove.releaseRelatedResources();
 
 
-        //update db info
+        //更新端口绑定信息
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update server_port_bind set portEnable=0 where port=?", port);
 
 
-        //notice refresh data
+        //同通刷新服务端口列表
         MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
         messageNotificationCenter.dateRefreshMessage("serverPortList");
+
+        released = true;
     }
 
 
@@ -194,7 +210,7 @@ public class ServerPortProtector {
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(client);
         if (serverTCPDataHandle == null) {
             //todo drop
-            logger.error("not found the tcp connection:" + client);
+            log.error("not found the tcp connection:" + client);
             return;
         }
         serverTCPDataHandle.releaseRelatedResources();

@@ -129,12 +129,14 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * 资源释放
+     * 关闭往端口监听器建立的连接
      */
     public void releaseRelatedResources() {
         if (this.ctx != null) {
+            //关闭往端口监听器建立的连接
             this.ctx.close();
             log.debug("close face tcp " + this.ctx.channel().remoteAddress());
+            //释放引用
             this.ctx = null;
         }
 

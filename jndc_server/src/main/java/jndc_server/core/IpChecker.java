@@ -4,8 +4,7 @@ import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UUIDSimple;
 import jndc_server.databases_object.IpFilterRecord;
 import jndc_server.databases_object.IpFilterRule4V;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +16,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 public class IpChecker {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private  LinkedBlockingQueue<IpRecord> recordQueue = new LinkedBlockingQueue<>();
 
@@ -39,9 +38,6 @@ public class IpChecker {
     private volatile boolean pause = false;
 
     private final long IP_CACHE_EXPIRE=24*60*60*1000L;
-
-
-
 
 
     public void storeRecordData() {
@@ -96,7 +92,7 @@ public class IpChecker {
                             addToMap(take, blockMap);
                         }
                     } catch (InterruptedException e) {
-                        logger.error("recordQueue：" + e);
+                        log.error("recordQueue：" + e);
                     }
                 }
             }
@@ -130,7 +126,7 @@ public class IpChecker {
                 try {
                     recordQueue.put(new IpRecord(ipAddress, IpRecord.RELEASE_STATE));
                 } catch (InterruptedException e) {
-                    logger.error("releaseQueue：" + e);
+                    log.error("releaseQueue：" + e);
                 }
 
                 //release request
@@ -141,7 +137,7 @@ public class IpChecker {
                 try {
                     recordQueue.put(new IpRecord(ipAddress, IpRecord.BLOCK_STATE));
                 } catch (InterruptedException e) {
-                    logger.error("blockQueue：" + e);
+                    log.error("blockQueue：" + e);
                 }
 
                 //block request
@@ -156,7 +152,7 @@ public class IpChecker {
             try {
                 recordQueue.put(new IpRecord(ipAddress, IpRecord.BLOCK_STATE));
             } catch (InterruptedException e) {
-                logger.error("blockQueue：" + e);
+                log.error("blockQueue：" + e);
             }
 
             //block request
@@ -166,7 +162,7 @@ public class IpChecker {
             try {
                 recordQueue.put(new IpRecord(ipAddress, IpRecord.RELEASE_STATE));
             } catch (InterruptedException e) {
-                logger.error("releaseQueue：" + e);
+                log.error("releaseQueue：" + e);
             }
 
             //release request

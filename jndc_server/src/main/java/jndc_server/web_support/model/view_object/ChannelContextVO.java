@@ -20,7 +20,7 @@ public class ChannelContextVO {
     public static ChannelContextVO of(ChannelHandlerContextHolder channelHandlerContextHolder) {
         ChannelContextVO facePortVO = new ChannelContextVO();
 
-        facePortVO.setId(channelHandlerContextHolder.getId());
+        facePortVO.setId(channelHandlerContextHolder.getClientId());
         facePortVO.setSupportServiceNum(channelHandlerContextHolder.serviceNum());
         facePortVO.setChannelClientIp(channelHandlerContextHolder.getContextIp());
         facePortVO.setChannelClientPort(channelHandlerContextHolder.getContextPort());

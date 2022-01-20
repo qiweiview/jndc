@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 @Data
 public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
 
+    private volatile boolean released = false;
 
-
-
-    //客户端唯一编号
+    //来源客户端唯一编号
     private String bindClientId;
 
     //服务对应的隧道对象（NAT原因，重连后需要更新）
     private ChannelHandlerContext belongContext;
 
+    //反向引用
     //有使用到该服务的监听器，用户后续服务释放时同时释放相应监听器
     //序列化忽略
     @JsonIgnore
@@ -63,16 +63,31 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     }
 
 
+    /**
+     * 释放服务
+     */
     public void releaseRelatedResources() {
+        if (released) {
+            //todo 已释放
+            return;
+        }
+
+        //释放引用
         belongContext = null;
+
+
         serviceReleaseList.forEach(x -> {
-            //ServerPortProtector
+            //todo 释放绑定该服务的端口监听器
             x.releaseRelatedResources();
         });
+
+        released = true;
     }
 
 
     /**
+     * 将服务放入服务释放集合内
+     *
      * @param serverPortProtector
      */
     public void addToServiceReleaseList(ServerPortProtector serverPortProtector) {
@@ -84,18 +99,20 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
         //set bind info
         ndcMessageProtocol.setLocalPort(getPort());
         ndcMessageProtocol.setLocalInetAddress(InetUtils.getByStringIpAddress(getIp()));
+
+        //向隧道上下文发送消息
         belongContext.writeAndFlush(ndcMessageProtocol);
     }
 
 
     /**
-     * 生成路由信息
-     * 客户端唯一编号+服务本地ip+服务本地端口
+     * 生成路由唯一编号
+     * 客户端id + 来源服务ip + 来源服务端口
      *
      * @return
      */
     public String getRouteTo() {
-        //context ip + local application ip+ local application port
+        //客户端id + 来源服务ip + 来源服务端口
         return bindClientId + "->" + getIp() + ":" + getPort();
     }
 

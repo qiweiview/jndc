@@ -4,13 +4,19 @@ import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
+import jndc.core.UniqueBeanManage;
+import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.InetUtils;
+import jndc.utils.UUIDSimple;
 import jndc_server.databases_object.ChannelContextCloseRecord;
+import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 
 /**
@@ -24,7 +30,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     private Map<String, ChannelHandlerContextHolder> channelHandlerContextHolderMap = new ConcurrentHashMap<>();
 
 
-    //key 服务端监听端口
+    //服务端端口号 ： 端口监听上下文
     private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
 
@@ -41,7 +47,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
         if (channelHandlerContextHolder == null) {
-            log.error("can not found the holder that id is" + channelId);
+            log.error("无法获取对应客户端上下文描述对象：" + channelId);
         } else {
             channelHandlerContextHolder.removeTcpServiceDescriptions(tcpServiceDescriptionOnServers);
         }
@@ -57,10 +63,12 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         if (channelId == null) {
             throw new RuntimeException("channelId is necessary");
         }
+        //获取id对应上下文
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
         if (channelHandlerContextHolder == null) {
             log.error("can not found the holder that id is" + channelId);
         } else {
+            //向上下文中添加服务
             channelHandlerContextHolder.addTcpServiceDescriptions(tcpServiceDescriptionOnServers);
         }
 
@@ -70,55 +78,74 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         log.debug(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
 
         //这里的id就是客户端的唯一编号
-        String id = channelHandlerContextHolder.getId();
+        String id = channelHandlerContextHolder.getClientId();
         ChannelHandlerContextHolder exist = channelHandlerContextHolderMap.get(id);
         if (exist != null) {
+            //todo 已经存该id的链接
             //执行更新
-            updateContext(exist, channelHandlerContextHolder);
+
+            //移除对应上下文描述对象
+            ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(id);
+
+            //释放上下文描述对象
+            remove.releaseRelatedResources();
         }
 
+        //设置上下文描述对象
         channelHandlerContextHolderMap.put(id, channelHandlerContextHolder);
 
     }
 
-    private void updateContext(ChannelHandlerContextHolder oldContext, ChannelHandlerContextHolder newContext) {
-        log.info("执行上下文替换...");
-        Map<String, TcpServiceDescriptionOnServer> collect = newContext.getTcpServiceDescriptions().stream().collect(Collectors.toMap(x -> x.getBindClientId(), x -> x));
 
+    /**
+     * 取消服务上下文描述
+     *
+     * @param inactive
+     * @return
+     */
+    public void unRegisterContextHolder(ChannelHandlerContext inactive) {
 
-        //旧的服务端描述已经被tcpRouter装载，需要替换其上下文，通过唯一客户端主键
-        List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = oldContext.getTcpServiceDescriptions();
-        tcpServiceDescriptions.forEach(x -> {
-            String bindClientId = x.getBindClientId();
-
-            //此处实际一个隧道中所有服务都使用同一个唯一客户端id
-            TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = collect.get(bindClientId);
-            if (tcpServiceDescriptionOnServer != null) {
-                //执行隧道上下文替换
-                x.setBelongContext(tcpServiceDescriptionOnServer.getBelongContext());
+        //获取移除客户端Id
+        List<String> rmIds = new ArrayList<>();
+        channelHandlerContextHolderMap.forEach((k, v) -> {
+            if (v.contextBelong(inactive)) {
+                rmIds.add(k);
             }
-
         });
 
-    }
 
-    public ChannelContextCloseRecord unRegisterServiceProvider(ChannelHandlerContext inactive) {
-        Set<Map.Entry<String, ChannelHandlerContextHolder>> entries = channelHandlerContextHolderMap.entrySet();
-        Iterator<Map.Entry<String, ChannelHandlerContextHolder>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, ChannelHandlerContextHolder> next = iterator.next();
-            String key = next.getKey();
-            ChannelHandlerContextHolder value = next.getValue();
-            if (value.contextBelong(inactive)) {
-                ChannelContextCloseRecord channelContextCloseRecord = ChannelContextCloseRecord.of(value);
-                value.releaseRelatedResources();
-                channelHandlerContextHolderMap.remove(key);
-                return channelContextCloseRecord;
-            }
+        if (rmIds.size() > 0) {
+            //todo 匹配到上下文描述对象
 
+            //获取异步中心
+            AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
+
+            rmIds.stream().forEach(x -> {
+                ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(x);
+                ChannelContextCloseRecord channelContextCloseRecord = ChannelContextCloseRecord.of(remove);
+                //释放上下文描述对象
+                remove.releaseRelatedResources();
+
+
+                //写入断开日志
+                asynchronousEventCenter.dbJob(() -> {
+                    channelContextCloseRecord.setId(UUIDSimple.id());
+                    channelContextCloseRecord.setTimeStamp(System.currentTimeMillis());
+                    DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(channelContextCloseRecord);
+                    dbWrapper.insert(channelContextCloseRecord);
+                });
+
+            });
+
+            //获取消息中心
+            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+
+            //推送不活动连接刷新
+            messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+            messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
         }
-        log.error("未匹配到对应隧道");
-        return null;
+
+
     }
 
     public void sendHeartBeat(String id) {
@@ -135,7 +162,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     }
 
 
-    public void unRegisterServiceProvider(String id) {
+    public void unRegisterContextHolder(String id) {
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(id);
         if (channelHandlerContextHolder == null) {
             log.error("未匹配到隧道:" + id);
@@ -154,18 +181,23 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @return
      */
     public boolean addTCPRouter(int port, String enableDateRange, TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer) {
-        if (tcpRouter.get(port) != null) {
+        ServerPortBindContext serverPortBindContext1 = tcpRouter.get(port);
+
+        if (serverPortBindContext1 != null) {
             //todo exist a running context
             log.error("exist a context bind the port: " + port);
-            return true;//return true to change the state to success
+            ServerPortBindContext remove = tcpRouter.remove(port);
+            remove.releaseRelatedResources();
         }
 
 
         //创建服务端端口监听上下文（监听器+服务集合）
         ServerPortBindContext serverPortBindContext = new ServerPortBindContext(port);
+
+        //设置注册服务
         serverPortBindContext.setTcpServiceDescriptionOnServer(tcpServiceDescriptionOnServer);
 
-        //端口监听对象，接收端口所有请求
+        //创建端口监听器
         ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
 
         //设置限制事件范围
@@ -184,7 +216,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             return false;
         }
 
-        //将监听器设置到上下文中
+        //设置端口监听器
         serverPortBindContext.setServerPortProtector(serverPortProtector);
 
 
@@ -216,9 +248,15 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     }
 
+    /**
+     * 刷新心跳时间
+     *
+     * @param channelId
+     */
     public void refreshHeartBeatTimeStamp(String channelId) {
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(channelId);
         if (channelHandlerContextHolder != null) {
+            //刷新心跳时间
             channelHandlerContextHolder.refreshHeartBeatTimeStamp();
         }
 
@@ -253,6 +291,11 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     }
 
 
+    /**
+     * 添加消息至发送队列
+     *
+     * @param ndcMessageProtocol
+     */
     @Override
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
         //服务端监听的端口
@@ -261,12 +304,13 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop
-            log.info("can not found bind service for port:" + serverPort);
+            log.error("无法找到端口绑定上下文:" + serverPort);
             return;
         }
 
         //获取到端口上绑定的服务
         TcpServiceDescriptionOnServer tcpServiceDescription = serverPortBindContext.getTcpServiceDescriptionOnServer();
+        //向服务发送消息
         tcpServiceDescription.sendMessage(ndcMessageProtocol);
     }
 
@@ -299,6 +343,11 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         return list;
     }
 
+    /**
+     * 获取    --->   服务端端口号 ： 服务端口绑定上下文
+     *
+     * @return
+     */
     public Map<Integer, ServerPortBindContext> getTcpRouter() {
         return tcpRouter;
     }

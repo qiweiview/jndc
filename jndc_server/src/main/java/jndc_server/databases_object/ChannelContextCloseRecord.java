@@ -20,7 +20,7 @@ public class ChannelContextCloseRecord {
 
     public static ChannelContextCloseRecord of(ChannelHandlerContextHolder value) {
         ChannelContextCloseRecord channelContextCloseRecord = new ChannelContextCloseRecord();
-        channelContextCloseRecord.setChannelId(value.getId());
+        channelContextCloseRecord.setChannelId(value.getClientId());
         channelContextCloseRecord.setIp(value.getContextIp());
         channelContextCloseRecord.setPort(value.getContextPort());
         return channelContextCloseRecord;

@@ -181,7 +181,7 @@ public class ServerManageMapping {
         String id = channelContextVO.getId();
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        bean.unRegisterServiceProvider(id);
+        bean.unRegisterContextHolder(id);
 
         return new ResponseMessage();
 
@@ -288,33 +288,40 @@ public class ServerManageMapping {
             return responseMessage;
         }
 
+        //异步执行中心
         AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
 
         //asynchronous
         asynchronousEventCenter.systemRunningJob(() -> {
+            //todo 异步执行
+
             AtomicBoolean atomicBoolean = new AtomicBoolean(true);
+
+            //配置中心
             NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+            //获取上下文对象集合
             List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
 
-            //for each all context
+            //遍历上下文集合匹配所有服务
             channelHandlerContextHolders.forEach(x -> {
                 if (atomicBoolean.get()) {//find the only one service ,if service has been found,ignore other data
 
                     List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = x.getTcpServiceDescriptions();
 
-                    tcpServiceDescriptions.forEach(y -> {
+                    tcpServiceDescriptions.forEach(service -> {
                         //todo 这里的y是 上下文中注册的服务
-                        if (y.getId().equals(channelContextVO.getServiceId())) {//find the service from contextHolder
+                        if (service.getId().equals(channelContextVO.getServiceId())) {//find the service from contextHolder
 
 
                             //设置服务路由路径
-                            serverPortBind.setRouteTo(y.getRouteTo());
+                            serverPortBind.setRouteTo(service.getRouteTo());
 
                             //set belong id
-                            serverPortBind.setBindClientId(x.getId());
+                            serverPortBind.setBindClientId(x.getClientId());
 
                             //do open-port operation
-                            boolean success = bean.addTCPRouter(serverPortBind.getPort(), serverPortBind.getEnableDateRange(), y);
+                            boolean success = bean.addTCPRouter(serverPortBind.getPort(), serverPortBind.getEnableDateRange(), service);
 
                             if (success) {
                                 //update databases state
@@ -453,7 +460,7 @@ public class ServerManageMapping {
 
 
     /**
-     * do service bind
+     * 停止服务绑定
      *
      * @param jndcHttpRequest
      * @return

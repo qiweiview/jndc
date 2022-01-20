@@ -27,6 +27,7 @@ public class ServerPortBindContext {
     public void releaseRelatedResources() {
         //判断是否为物理端口
         if (isPhysics()) {
+            //todo 释放端口监听器
             serverPortProtector.releaseRelatedResources();
         }
     }

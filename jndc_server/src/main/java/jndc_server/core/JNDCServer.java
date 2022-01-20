@@ -6,13 +6,11 @@ import jndc_server.core.app.JndcCoreServer;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.WebServer;
 import jndc_server.web_support.http_module.JNDCHttpServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * 主服务
+ */
 public class JNDCServer {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-
 
     public JNDCServer() {
     }
@@ -47,7 +45,6 @@ public class JNDCServer {
         //deploy jndc-http server
         JNDCHttpServer jndcHttpServer=new JNDCHttpServer();
         jndcHttpServer.start();
-
 
 
     }
