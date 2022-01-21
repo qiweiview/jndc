@@ -2,6 +2,7 @@ package jndc_server.core;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import jndc.utils.NettyContextUtils;
 import jndc.utils.UUIDSimple;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +62,14 @@ public class ChannelHandlerContextHolder {
         }
 
 
-        log.debug(contextIp + " unRegister " + serviceNum() + " service");
+        //获取断开隧道标识
+        String fingerprintFromContext = NettyContextUtils.getFingerprintFromContext(channelHandlerContext);
+
 
         if (tcpServiceDescriptions != null) {
             tcpServiceDescriptions.forEach(x -> {
-                //释放服务
-                x.releaseRelatedResources();
+                //检测释放服务
+                x.releaseRelatedResourcesWithCheck(fingerprintFromContext);
             });
         }
 
@@ -83,13 +86,12 @@ public class ChannelHandlerContextHolder {
     }
 
     public boolean contextBelong(ChannelHandlerContext inactive) {
-        InetSocketAddress socketAddress = (InetSocketAddress) inactive.channel().remoteAddress();
-
         //传入上下文ip+端口
-        String inactiveContextStr = socketAddress.getHostString() + socketAddress.getPort();
+        String inactiveContextStr = NettyContextUtils.getFingerprintFromContext(inactive);
 
         //当前上下文ip+端口
-        String currentContextStr = this.contextIp + this.contextPort;
+        String currentContextStr = NettyContextUtils.getFingerprintFromContext(channelHandlerContext);
+
         return currentContextStr.equals(inactiveContextStr);
     }
 
@@ -189,4 +191,12 @@ public class ChannelHandlerContextHolder {
     }
 
 
+    /**
+     * 刷新context
+     *
+     * @param tcpServiceDescription
+     */
+    public void refreshContext(TcpServiceDescriptionOnServer tcpServiceDescription) {
+        tcpServiceDescription.refreshContext(channelHandlerContext);
+    }
 }

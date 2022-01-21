@@ -3,7 +3,6 @@ package jndc_server.core;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
-import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.InetUtils;
@@ -17,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -122,11 +122,13 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
             rmIds.stream().forEach(x -> {
                 ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(x);
-                ChannelContextCloseRecord channelContextCloseRecord = ChannelContextCloseRecord.of(remove);
+
                 //释放上下文描述对象
                 remove.releaseRelatedResources();
 
 
+                //创建日志
+                ChannelContextCloseRecord channelContextCloseRecord = ChannelContextCloseRecord.of(remove);
                 //写入断开日志
                 asynchronousEventCenter.dbJob(() -> {
                     channelContextCloseRecord.setId(UUIDSimple.id());
@@ -270,14 +272,17 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         });
     }
 
-    public List<TcpServiceDescription> getCurrentSupportService() {
-        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
+    /**
+     * 获取系统中所有服务
+     *
+     * @return
+     */
+    public List<TcpServiceDescriptionOnServer> getCurrentSupportService() {
         List<ChannelHandlerContextHolder> channelHandlerContextHolders = getChannelHandlerContextHolders();
-        channelHandlerContextHolders.forEach(x -> {
-            tcpServiceDescriptions.addAll(x.getTcpServiceDescriptions());
-        });
-
-        return tcpServiceDescriptions;
+        List<TcpServiceDescriptionOnServer> collect = channelHandlerContextHolders.stream()
+                .flatMap(x -> x.getTcpServiceDescriptions().stream())
+                .collect(Collectors.toList());
+        return collect;
     }
 
 
@@ -300,7 +305,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
         //服务端监听的端口
         int serverPort = ndcMessageProtocol.getServerPort();
-        //获取端口下绑定的服务
+        //通过端口获取 绑定的服务
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop
@@ -310,9 +315,18 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //获取到端口上绑定的服务
         TcpServiceDescriptionOnServer tcpServiceDescription = serverPortBindContext.getTcpServiceDescriptionOnServer();
+
+        //获取隧道编号对应最新隧道
+        //nat原因，可能持有旧的隧道未断开
+        ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(tcpServiceDescription.getBindClientId());
+
+        //刷新context
+        channelHandlerContextHolder.refreshContext(tcpServiceDescription);
+
         //向服务发送消息
         tcpServiceDescription.sendMessage(ndcMessageProtocol);
     }
+
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {

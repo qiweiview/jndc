@@ -110,7 +110,12 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         //发送消息
         NDCMessageProtocol ndcMessageProtocol = NDCMessageProtocol.of(remoteAddress.getAddress(), InetUtils.localInetAddress, remoteAddress.getPort(), serverPort, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.TCP_DATA);
         ndcMessageProtocol.setData(bytes);
-        UniqueBeanManage.getBean(NDCServerConfigCenter.class).addMessageToSendQueue(ndcMessageProtocol);
+
+        //获取配置中心
+        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+
+        //将消息放入发送队列
+        ndcServerConfigCenter.addMessageToSendQueue(ndcMessageProtocol);
 
     }
 

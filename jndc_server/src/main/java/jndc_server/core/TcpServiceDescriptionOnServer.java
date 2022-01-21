@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.TcpServiceDescription;
 import jndc.utils.InetUtils;
+import jndc.utils.NettyContextUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,6 +63,33 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
         return tcpServiceDescriptionOnServer;
     }
 
+    /**
+     * 释放服务
+     */
+    public void releaseRelatedResourcesWithCheck(String id) {
+        if (released) {
+            //todo 已释放
+            return;
+        }
+
+
+        String check = NettyContextUtils.getFingerprintFromContext(belongContext);
+
+        if (id.equals(check)) {
+            //todo 命中则释放服务,可能出现情况：服务持有的隧道不是当前断开的隧道
+            belongContext = null;
+
+
+            serviceReleaseList.forEach(x -> {
+                //todo 释放绑定该服务的端口监听器
+                x.releaseRelatedResources();
+            });
+
+            released = true;
+        }
+
+
+    }
 
     /**
      * 释放服务
@@ -117,4 +145,26 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     }
 
 
+    /**
+     * 刷新context
+     *
+     * @param channelHandlerContext
+     */
+    public void refreshContext(ChannelHandlerContext channelHandlerContext) {
+        String newest = NettyContextUtils.getFingerprintFromContext(channelHandlerContext);
+
+        String current = NettyContextUtils.getFingerprintFromContext(belongContext);
+
+        if (!current.equals(newest)) {
+            log.info("context 替换");
+
+            //关闭当前context
+            belongContext.close();
+
+            //赋值新context
+            belongContext = channelHandlerContext;
+
+        }
+
+    }
 }
