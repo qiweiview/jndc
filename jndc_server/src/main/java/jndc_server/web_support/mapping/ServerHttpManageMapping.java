@@ -189,7 +189,7 @@ public class ServerHttpManageMapping {
         if (StringUtil.isNullOrEmpty(hostRouteDTO.getHostKeyWord())) {
             condition = "";
         } else {
-            condition = "and hostKeyWord like '%" + hostRouteDTO.getHostKeyWord() + "%'";
+            condition = "and (hostKeyWord like '%" + hostRouteDTO.getHostKeyWord() + "%' or forwardPort=" + hostRouteDTO.getHostKeyWord() + ")";
         }
         PageResult<HttpHostRoute> httpHostRoutePageResult = dbWrapper.customQueryByPage("select * from http_host_route where 1=1 " + condition, hostRouteDTO.getPage(), hostRouteDTO.getRows());
 

@@ -223,7 +223,7 @@ public class ServerManageMapping {
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         List<ServerPortBind> serverPortBinds;
         if (0 == serverPortBind.getPort()) {
-            serverPortBinds = dbWrapper.listAll();
+            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind order by portEnable desc ");
         } else {
             serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =? order by portEnable desc ", serverPortBind.getPort());
         }
