@@ -46,7 +46,9 @@ public class MappingMethodDescription {
                 return Jackson.toJson(invoke).getBytes();
             }
         } catch (Exception e) {
-            log.error("mapping handle error,cause " + e);
+            e.printStackTrace();
+
+            log.error("执行控制层异常 " + e);
             throw new RuntimeException("invoke fail cause" + e);
         } finally {
             nettyRequest.release();
