@@ -123,7 +123,7 @@ public class ServerPortProtector {
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(client);
         if (serverTCPDataHandle == null) {
             //todo drop
-            log.error("not found the tcp connection:" + client);
+            log.error("无法找到客户端" + remoteInetAddress);
             return;
         }
 
@@ -210,7 +210,7 @@ public class ServerPortProtector {
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(client);
         if (serverTCPDataHandle == null) {
             //todo drop
-            log.error("not found the tcp connection:" + client);
+            log.error("无法找到客户端" + remoteInetAddress);
             return;
         }
         serverTCPDataHandle.releaseRelatedResources();

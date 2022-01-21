@@ -225,7 +225,7 @@ public class ServerManageMapping {
         if (0 == serverPortBind.getPort()) {
             serverPortBinds = dbWrapper.listAll();
         } else {
-            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =?", serverPortBind.getPort());
+            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =? order by portEnable desc ", serverPortBind.getPort());
         }
 
         return serverPortBinds;

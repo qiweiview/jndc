@@ -1,5 +1,8 @@
 package jndc_server.web_support.model.data_object;
 
+import lombok.Data;
+
+@Data
 public class ManagementLoginUser {
     private String name;
 
@@ -14,19 +17,4 @@ public class ManagementLoginUser {
                 '}';
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPassWord() {
-        return passWord;
-    }
-
-    public void setPassWord(String passWord) {
-        this.passWord = passWord;
-    }
 }

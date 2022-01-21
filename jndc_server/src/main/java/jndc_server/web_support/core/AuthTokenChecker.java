@@ -112,7 +112,6 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
 
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new RuntimeException("凭证解签失败,cause: "+e);
             }
 

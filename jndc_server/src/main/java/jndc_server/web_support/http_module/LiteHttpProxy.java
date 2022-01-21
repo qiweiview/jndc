@@ -96,7 +96,7 @@ public class LiteHttpProxy {
             FullHttpResponse fullHttpResponse = completeFeature.get(10);
             return fullHttpResponse;
         } catch (Exception e) {
-            throw new RuntimeException("转发请求异常" + e);
+            throw new RuntimeException("目标uri" + fullHttpRequest.uri() + "使用规则" + httpHostRoute + "过程发生转发请求异常：" + e);
         } finally {
             release();
         }
