@@ -114,13 +114,14 @@ public class ServerTCPDataHandle extends ChannelInboundHandlerAdapter {
         //获取配置中心
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
+
         //将消息放入发送队列
         ndcServerConfigCenter.addMessageToSendQueue(ndcMessageProtocol);
-
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
         log.error("tcp server get a exception: " + cause);
     }
 

@@ -331,11 +331,19 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //向服务发送消息
         tcpServiceDescription.sendMessage(ndcMessageProtocol);
+
+        //异步执行中心
+        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
+        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_REQUEST);
     }
 
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {
+        //异步执行中心
+        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
+        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_RESPONSE);
+
         int serverPort = ndcMessageProtocol.getServerPort();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
