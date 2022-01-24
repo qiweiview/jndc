@@ -5,13 +5,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import jndc.utils.LogPrint;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 
+@Slf4j
 @ChannelHandler.Sharable
 public class CustomRulesFilter extends ChannelInboundHandlerAdapter {
     public static String NAME = "CUSTOM_RULES_FILTER";
@@ -31,7 +32,7 @@ public class CustomRulesFilter extends ChannelInboundHandlerAdapter {
             CustomRule next = iterator.next();
             if (!next.ruleCheck(ctx)) {
                 //todo not pass
-                LogPrint.debug("request be block because the " + next.getRuleName());
+                log.debug("request be block because the " + next.getRuleName());
                 ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListeners(ChannelFutureListener.CLOSE);
                 return;
             }
@@ -40,7 +41,6 @@ public class CustomRulesFilter extends ChannelInboundHandlerAdapter {
         //pass all rules
         ctx.fireChannelActive();
     }
-
 
 
 }

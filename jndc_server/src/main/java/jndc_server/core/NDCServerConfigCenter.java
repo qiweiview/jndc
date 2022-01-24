@@ -88,7 +88,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(id);
 
             //释放上下文描述对象
-            remove.releaseRelatedResources();
+            if (remove != null) {
+                remove.releaseRelatedResources();
+            }
         }
 
         //设置上下文描述对象
@@ -124,7 +126,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
                 ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(x);
 
                 //释放上下文描述对象
-                remove.releaseRelatedResources();
+                if (remove != null) {
+                    remove.releaseRelatedResources();
+                }
 
 
                 //创建日志
@@ -189,7 +193,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             //todo exist a running context
             log.error("exist a context bind the port: " + port);
             ServerPortBindContext remove = tcpRouter.remove(port);
-            remove.releaseRelatedResources();
+            if (remove != null) {
+                remove.releaseRelatedResources();
+            }
         }
 
 
@@ -325,11 +331,19 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //向服务发送消息
         tcpServiceDescription.sendMessage(ndcMessageProtocol);
+
+        //异步执行中心
+        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
+        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_REQUEST);
     }
 
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {
+        //异步执行中心
+        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
+        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_RESPONSE);
+
         int serverPort = ndcMessageProtocol.getServerPort();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {

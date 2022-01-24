@@ -181,7 +181,9 @@ public class ServerPortProtector {
         ServerPortBindContext remove = tcpRouter.remove(port);
 
         //释放 服务端口绑定上下文
-        remove.releaseRelatedResources();
+        if (remove != null) {
+            remove.releaseRelatedResources();
+        }
 
 
         //更新端口绑定信息

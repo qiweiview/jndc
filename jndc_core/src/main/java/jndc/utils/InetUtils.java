@@ -25,7 +25,6 @@ public class InetUtils {
     public static InetAddress getInetAddressByHost(String host) {
         try {
             InetAddress address = InetAddress.getByName(host);
-
             return address;
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -38,10 +37,10 @@ public class InetUtils {
         try {
             byte[] bytes = IPAddressUtil.textToNumericFormatV4(ipAddress);
             if (bytes == null) {
-                logger.error("un support ip address:" + ipAddress);
-                ApplicationExit.exit();
+                byAddress = getInetAddressByHost(ipAddress);
+            } else {
+                byAddress = InetAddress.getByAddress(bytes);
             }
-            byAddress = InetAddress.getByAddress(bytes);
         } catch (Exception e) {
             logger.error("un know host :" + ipAddress);
             ApplicationExit.exit();

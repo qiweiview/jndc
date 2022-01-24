@@ -53,6 +53,7 @@ public class AESUtils {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return cipher.doFinal(bytes);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new SecreteDecodeFailException();
         }
     }

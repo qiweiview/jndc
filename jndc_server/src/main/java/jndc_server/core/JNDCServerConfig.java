@@ -101,10 +101,13 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(new IpChecker());
         UniqueBeanManage.registerBean(new MappingRegisterCenter());
         UniqueBeanManage.registerBean(new DataStore(getRuntimeDir()));
-        UniqueBeanManage.registerBean(new AsynchronousEventCenter());
+        AsynchronousEventCenter asynchronousEventCenter = new AsynchronousEventCenter();
+
+        UniqueBeanManage.registerBean(asynchronousEventCenter);
         UniqueBeanManage.registerBean(new MessageNotificationCenter());
         UniqueBeanManage.registerBean(new ScheduledTaskCenter());
         UniqueBeanManage.registerBean(new HostRouterComponent());
+        UniqueBeanManage.registerBean(new DataFlowAnalysisCenter(asynchronousEventCenter));
 
         //do server init
         init();

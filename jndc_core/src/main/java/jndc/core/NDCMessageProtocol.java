@@ -3,7 +3,7 @@ package jndc.core;
 import jndc.utils.ByteArrayUtils;
 import jndc.utils.HexUtils;
 import jndc.utils.ObjectSerializableUtils;
-import sun.misc.HexDumpEncoder;
+import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * No Distance Connection Protocol
  */
+@Data
 public class NDCMessageProtocol {
 
 
@@ -73,7 +74,6 @@ public class NDCMessageProtocol {
     public static final byte OPEN_CHANNEL = 0X0A;//client register message
 
 
-
     /*--------------------- static variable ---------------------*/
     public static final int UN_USED_PORT = 0;//the single package length
 
@@ -118,6 +118,10 @@ public class NDCMessageProtocol {
      * need optimization
      */
     public NDCMessageProtocol copy() {
+        return copy(true);
+    }
+
+    private NDCMessageProtocol copy(boolean withData) {
         NDCMessageProtocol ndcMessageProtocol = new NDCMessageProtocol();
         ndcMessageProtocol.setVersion(getVersion());
         ndcMessageProtocol.setLocalInetAddress(getLocalInetAddress());
@@ -127,20 +131,32 @@ public class NDCMessageProtocol {
         ndcMessageProtocol.setRemotePort(getRemotePort());
         ndcMessageProtocol.setType(getType());
 
-        //clean data
-        ndcMessageProtocol.setData("".getBytes());
+        //clear data
+        if (withData) {
+            //todo 清除数据
+            ndcMessageProtocol.setData("".getBytes());
+        } else {
+            //todo 复制数据
+            ndcMessageProtocol.setData(getData());
+        }
+
         return ndcMessageProtocol;
+    }
+
+    public NDCMessageProtocol copyWithData() {
+        return copy(false);
     }
 
 
     /**
      * fast create message
+     *
      * @param remoteInetAddress the connector  ip
-     * @param localInetAddress the map service ip
-     * @param remotePort the connector port
-     * @param serverPort the server port
-     * @param localPort the map service port
-     * @param type the message type
+     * @param localInetAddress  the map service ip
+     * @param remotePort        the connector port
+     * @param serverPort        the server port
+     * @param localPort         the map service port
+     * @param type              the message type
      * @return
      */
     public static NDCMessageProtocol of(InetAddress remoteInetAddress, InetAddress localInetAddress, int remotePort, int serverPort, int localPort, byte type) {
@@ -156,11 +172,9 @@ public class NDCMessageProtocol {
     }
 
 
-
-
-
     /**
      * parse the fix part of data
+     *
      * @param bytes
      * @return
      */
@@ -225,6 +239,7 @@ public class NDCMessageProtocol {
 
     /**
      * need verification
+     *
      * @param bytes
      */
     public void setDataWithVerification(byte[] bytes) {
@@ -252,6 +267,20 @@ public class NDCMessageProtocol {
     }
 
     /**
+     * 裁剪字节数组
+     *
+     * @param bytes
+     * @param length
+     * @return
+     */
+    private byte[] cropByteArray(byte[] bytes, int length) {
+        if (bytes.length <= length) {
+            return bytes;
+        }
+        return Arrays.copyOf(bytes, length);
+    }
+
+    /**
      * encode
      *
      * @return
@@ -262,8 +291,8 @@ public class NDCMessageProtocol {
             byteArrayOutputStream.write(MAGIC);//3 byte
             byteArrayOutputStream.write(version);//1 byte   -->4
             byteArrayOutputStream.write(type);//1 byte -->5
-            byteArrayOutputStream.write(localInetAddress.getAddress());//4 byte -->9
-            byteArrayOutputStream.write(remoteInetAddress.getAddress());//4 byte -->13
+            byteArrayOutputStream.write(cropByteArray(localInetAddress.getAddress(), 4));//4 byte -->9
+            byteArrayOutputStream.write(cropByteArray(remoteInetAddress.getAddress(), 4));//4 byte -->13
             byteArrayOutputStream.write(HexUtils.int2ByteArray(localPort));//4 byte -->17
             byteArrayOutputStream.write(HexUtils.int2ByteArray(serverPort));//4 byte -->21
             byteArrayOutputStream.write(HexUtils.int2ByteArray(remotePort));//4 byte -->25
@@ -283,13 +312,14 @@ public class NDCMessageProtocol {
 
     /**
      * byte array to object
+     *
      * @param tClass
      * @param <T>
      * @return
      */
     public <T> T getObject(Class<T> tClass) {
         byte[] data = getData();
-        if (data == null||data.length==0) {
+        if (data == null || data.length == 0) {
             throw new RuntimeException("byte empty");
         }
         T t = ObjectSerializableUtils.bytes2object(data, tClass);
@@ -297,93 +327,4 @@ public class NDCMessageProtocol {
     }
 
 
-    /* --------------------------getter setter-------------------------- */
-
-
-    @Override
-    public String toString() {
-        return "NDCMessageProtocol{" +
-                "version=" + version +
-                ", type=" + type +
-                ", remoteInetAddress=" + remoteInetAddress +
-                ", localInetAddress=" + localInetAddress +
-                ", remotePort=" + remotePort +
-                ", serverPort=" + serverPort +
-                ", localPort=" + localPort +
-                ", dataSize=" + dataSize +
-                '}';
-    }
-
-    public byte getVersion() {
-        return version;
-    }
-
-
-    public void setVersion(byte version) {
-        this.version = version;
-    }
-
-    public byte getType() {
-        return type;
-    }
-
-    public void setType(byte type) {
-        this.type = type;
-    }
-
-    public InetAddress getRemoteInetAddress() {
-        return remoteInetAddress;
-    }
-
-    public void setRemoteInetAddress(InetAddress remoteInetAddress) {
-        this.remoteInetAddress = remoteInetAddress;
-    }
-
-    public InetAddress getLocalInetAddress() {
-        return localInetAddress;
-    }
-
-    public void setLocalInetAddress(InetAddress localInetAddress) {
-        this.localInetAddress = localInetAddress;
-    }
-
-    public int getRemotePort() {
-        return remotePort;
-    }
-
-    public void setRemotePort(int remotePort) {
-        this.remotePort = remotePort;
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
-
-    public int getLocalPort() {
-        return localPort;
-    }
-
-    public void setLocalPort(int localPort) {
-        this.localPort = localPort;
-    }
-
-    public int getDataSize() {
-        return dataSize;
-    }
-
-    public void setDataSize(int dataSize) {
-        this.dataSize = dataSize;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
 }
