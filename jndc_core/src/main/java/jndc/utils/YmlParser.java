@@ -10,11 +10,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
- *         <dependency>
- *             <groupId>org.yaml</groupId>
- *             <artifactId>snakeyaml</artifactId>
- *             <version>1.25</version>
- *         </dependency>
+ * <dependency>
+ * <groupId>org.yaml</groupId>
+ * <artifactId>snakeyaml</artifactId>
+ * <version>1.26</version>
+ * </dependency>
  */
 public class YmlParser {
     private static final Yaml yaml = new Yaml();
