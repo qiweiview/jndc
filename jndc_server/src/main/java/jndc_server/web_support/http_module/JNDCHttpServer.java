@@ -13,10 +13,12 @@ import jndc.core.UniqueBeanManage;
 import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServerConfig;
 import jndc_server.core.app.ServerApp;
+import jndc_server.web_support.core.CustomSslHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,8 +26,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * jndc server core functions
  */
+@Slf4j
 public class JNDCHttpServer implements ServerApp {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
     @Override
@@ -41,6 +43,13 @@ public class JNDCHttpServer implements ServerApp {
                 String http = "http";//HttpServerCodec
                 String oag = "oag";//HttpObjectAggregator
 
+                if (serverConfig.getWebConfig().isUseSsl()) {
+                    SSLContext serverSSLContext = serverConfig.getWebConfig().getServerSSLContext();
+                    SSLEngine sslEngine = serverSSLContext.createSSLEngine();
+                    sslEngine.setUseClientMode(false);//设置为服务器模式
+                    pipeline.addFirst(CustomSslHandler.NAME, new CustomSslHandler(sslEngine));
+                }
+
 
                 pipeline.addLast(http, new HttpServerCodec());
                 pipeline.addAfter(http, oag, new HttpObjectAggregator(2 * 1024 * 1024));//限制缓冲最大值为2mb
@@ -55,10 +64,14 @@ public class JNDCHttpServer implements ServerApp {
                 .childHandler(channelInitializer);
 
         b.bind().addListener(x -> {
+            String protocol = "http";
+            if (serverConfig.getWebConfig().isUseSsl()) {
+                protocol = "https";
+            }
             if (x.isSuccess()) {
-                logger.info("bind http  : " + serverConfig.getHttpInetSocketAddress() + " success");
+                log.info("bind " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " success");
             } else {
-                logger.error("bind http : " + serverConfig.getHttpInetSocketAddress() + " fail,cause");
+                log.error("bind " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " fail,cause");
             }
 
         });
@@ -70,16 +83,16 @@ public class JNDCHttpServer implements ServerApp {
 
     public void loadRouteNotFoundPage() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-        File file = new File(serverConfig.getWebConfig().getRoutNotFoundPage());
+        File file = new File(serverConfig.getWebConfig().getNotFoundPage());
         if (file.exists()) {
             try {
                 String s = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                 ServerRuntimeConfig.ROUTE_NOT_FOUND_CONTENT = s;
             } catch (IOException e) {
-                logger.error("load route not found page fail ,cause:" + e);
+                log.error("load route not found page fail ,cause:" + e);
             }
         } else {
-            logger.info("not found the route not found page");
+            log.info("not found the route not found page");
         }
 
     }

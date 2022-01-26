@@ -7,7 +7,6 @@ import jndc_server.core.JNDCServerConfig;
 import jndc_server.web_support.http_module.JNDCHttpServer;
 
 import java.io.File;
-import java.net.URL;
 
 public class Single_HttpServerTest {
 
@@ -15,9 +14,9 @@ public class Single_HttpServerTest {
 
         ServerRuntimeConfig.DEBUG_MODEL=true;
 
+        File file;
 
-
-        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+//         file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 
         file=new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
 

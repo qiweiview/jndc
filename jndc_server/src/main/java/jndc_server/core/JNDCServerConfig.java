@@ -36,10 +36,8 @@ public class JNDCServerConfig {
     //日志等级
     private String loglevel;
 
-    //管理页面api 端口
-    private int managementApiPort;
 
-    //管理页面api 端口
+    //核心服务端口
     private int servicePort;
 
     //运行绑定网卡
@@ -53,6 +51,9 @@ public class JNDCServerConfig {
 
     //http配置
     private ServeHTTPConfig webConfig;
+
+    //管理api配置
+    private ServeManageConfig manageConfig;
 
     /* ------------非配置属性------------ */
 
@@ -77,12 +78,12 @@ public class JNDCServerConfig {
         inetSocketAddress = new InetSocketAddress(inetAddress, servicePort);
         httpInetSocketAddress = new InetSocketAddress(inetAddress, webConfig.getHttpPort());
 
-        if (UN_SUPPORT_VALUE.equals(webConfig.getLoginName()) && UN_SUPPORT_VALUE.equals(webConfig.getLoginPassWord())) {
+        if (UN_SUPPORT_VALUE.equals(manageConfig.getLoginName()) && UN_SUPPORT_VALUE.equals(manageConfig.getLoginPassWord())) {
             LogPrint.err("the default name and password 'jndc' is not safe,please edit the config file and retry");
             ApplicationExit.exit();
         }
-        AuthUtils.name = webConfig.getLoginName();
-        AuthUtils.passWord = webConfig.getLoginPassWord();
+        AuthUtils.name = manageConfig.getLoginName();
+        AuthUtils.passWord = manageConfig.getLoginPassWord();
 
         //perform ssl file
         performSslInWebApi();
@@ -125,17 +126,8 @@ public class JNDCServerConfig {
      * 验证ssl
      */
     private void performSslInWebApi() {
-        if (webConfig.isUseSsl()) {
-            try {
-                webConfig.reloadSslContext();
-                log.info("open ssl in the web api");
-            } catch (Exception e) {
-                webConfig.setUseSsl(false);
-                log.error("init ssl context  fail cause:" + e);
-            }
-
-
-        }
+        webConfig.reloadSslContext();
+        manageConfig.reloadSslContext();
     }
 
 

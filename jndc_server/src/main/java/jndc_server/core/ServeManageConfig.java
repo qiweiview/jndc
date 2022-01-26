@@ -14,10 +14,16 @@ import java.io.File;
  */
 @Slf4j
 @Data
-public class ServeHTTPConfig {
+public class ServeManageConfig {
 
-    //http 端口
-    private int httpPort;
+    //管理页面api 端口
+    private int managementApiPort;
+
+    //登录用户名
+    private String loginName;
+
+    //登录密码
+    private String loginPassWord;
 
     //使用ssl
     private boolean useSsl;
@@ -28,25 +34,20 @@ public class ServeHTTPConfig {
     //证书密码
     private String jksPass;
 
-    //是否扫描目录
-    private boolean scanFrontPages = false;
-
-
-
-    //404 页面地址
-    private String notFoundPage = "\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found";
-
     //证书上下文
     private SSLContext serverSSLContext;
 
+
     public void reloadSslContext() {
+
+
         if (isUseSsl()) {
             try {
                 try {
                     char[] keyStorePass = getJksPass().toCharArray();
                     byte[] keyStore = FileUtils.readFileToByteArray(new File(getJksPath()));
                     serverSSLContext = SslOneWayContextFactory.getServerContext(new ByteArrayInputStream(keyStore), keyStorePass);
-                    log.info("open ssl in the web api");
+                    log.info("open ssl in the manage api");
                 } catch (Exception e) {
                     setUseSsl(false);
                     log.error("load ssl context  fail cause:" + e);
@@ -62,6 +63,4 @@ public class ServeHTTPConfig {
 
 
     }
-
-
 }

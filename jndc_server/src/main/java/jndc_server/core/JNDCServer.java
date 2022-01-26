@@ -4,7 +4,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc_server.core.app.JndcCoreServer;
 import jndc_server.databases_object.ServerPortBind;
-import jndc_server.web_support.core.WebServer;
+import jndc_server.web_support.core.ManagementServer;
 import jndc_server.web_support.http_module.JNDCHttpServer;
 
 /**
@@ -35,8 +35,8 @@ public class JNDCServer {
         dbWrapper.customExecute("update server_port_bind set portEnable = 0", null);
 
         //admin管理页面
-        WebServer webServer = new WebServer();
-        webServer.start();//start
+        ManagementServer managementServer = new ManagementServer();
+        managementServer.start();//start
 
         //核心服务
         JndcCoreServer jndcCoreServer = new JndcCoreServer();

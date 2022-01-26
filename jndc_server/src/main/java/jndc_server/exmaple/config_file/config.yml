@@ -4,15 +4,21 @@ blackList: # ip访问黑名单
 #- "192.168.1.1"
 whiteList: # 白名单
 #- "192.168.1.2"
-managementApiPort: 777 #管理api端口
 servicePort: 81 # jndc服务端运行监听端口
-bindIp: "0.0.0.0" # jndc服务端运行ip
-webConfig: # http配置
-  routNotFoundPage: ""
-  httpPort: 80 # http应用端口
+bindIp: "127.0.0.1" # jndc服务端运行ip
+
+manageConfig: # 管理端接口
+  managementApiPort: 777 #管理api端口
+  useSsl: false # 是否使用ssl
+  jksPath: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\qw607.com.jks" #jks 证书地址
+  jksPass: "3unpdl4r1rdkg3o" # jks 证书密码
   loginName: "xxx" # 登录用户名
   loginPassWord: "xxx" # 登录密码
-  useSsl: false # 是否使用ssl
+
+webConfig: # http配置
+  notFoundPage: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\404.html"
+  httpPort: 80 # http应用端口
+  useSsl: true # 是否使用ssl
   scanFrontPages: false # 是否扫描 项目目录下的management文件夹
-  jksPath: "" #jks 证书地址
-  jksPass: "" # jks 证书密码
+  jksPath: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\qw607.com.jks" #jks 证书地址
+  jksPass: "3unpdl4r1rdkg3o" # jks 证书密码

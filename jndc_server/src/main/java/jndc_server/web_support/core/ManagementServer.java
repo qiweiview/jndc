@@ -15,6 +15,7 @@ import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc_server.core.JNDCServerConfig;
+import jndc_server.core.ServeManageConfig;
 import jndc_server.core.app.ServerApp;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +29,7 @@ import java.net.InetSocketAddress;
  * web management server
  */
 @Slf4j
-public class WebServer implements ServerApp {
+public class ManagementServer implements ServerApp {
     private static final String MANAGEMENT_PROJECT = "management";
 
 
@@ -38,7 +39,7 @@ public class WebServer implements ServerApp {
     @Override
     public void start() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-        int manageCenterPort = serverConfig.getManagementApiPort();
+        int manageCenterPort = serverConfig.getManageConfig().getManagementApiPort();
         InetAddress localInetAddress = InetUtils.localInetAddress;
         InetSocketAddress inetSocketAddress = new InetSocketAddress(localInetAddress, manageCenterPort);
 
@@ -55,8 +56,9 @@ public class WebServer implements ServerApp {
                 String ws = "ws";//WebSocketServerProtocolHandler
 
 
-                if (serverConfig.getWebConfig().isUseSsl()) {
-                    SSLContext serverSSLContext = serverConfig.getWebConfig().getServerSSLContext();
+                ServeManageConfig manageConfig = serverConfig.getManageConfig();
+                if (manageConfig.isUseSsl()) {
+                    SSLContext serverSSLContext = manageConfig.getServerSSLContext();
                     SSLEngine sslEngine = serverSSLContext.createSSLEngine();
                     sslEngine.setUseClientMode(false);//设置为服务器模式
                     pipeline.addFirst(CustomSslHandler.NAME, new CustomSslHandler(sslEngine));
