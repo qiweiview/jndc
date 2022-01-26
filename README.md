@@ -81,20 +81,25 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 
 ### server 配置
 ```yaml
-secrete: "jndc" # server端密钥，client端配置需要持有相同字符串。很重要务必在使用前更改,不允许默认密码为‘jndc’运行
-loglevel: "info" # 日志打印等级
-blackList: # ip访问黑名单，ip限制覆盖除管理端口（即managementApiPort）外的所有端口监听
-  #- "192.168.1.1"
-whiteList: # ip访问白名单
-  #- "192.168.1.2"
-loginName: "jndc" # 内部管理api登录所需用户名，不允许默认值‘jndc’
-loginPassWord: "jndc" # 内部管理api登录所需密码，不允许默认值‘jndc’
-useSsl: false
-keyStoreFile: '/home/xxx.cn.jks' # 证书文件，仅支持jks格式，校验失败控制台会提示
-keystorePass: 'xxx' # jks文件密钥，校验失败控制台会提示
-managementApiPort: "443" #管理api端口
-adminPort: "81" # jndc建立隧道端口，端口用于支持ndc协议调用
+secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
+loglevel: "info"
+blackList: # ip访问黑名单
+#- "192.168.1.1"
+whiteList: # 白名单
+#- "192.168.1.2"
+managementApiPort: 777 #管理api端口
+servicePort: 81 # jndc服务端运行监听端口
 bindIp: "0.0.0.0" # jndc服务端运行ip
+webConfig: # http配置
+  routNotFoundPage: ""
+  httpPort: 80 # http应用端口
+  loginName: "xxx" # 登录用户名
+  loginPassWord: "xxx" # 登录密码
+  useSsl: false # 是否使用ssl
+  scanFrontPages: false # 是否扫描 项目目录下的management文件夹
+  jksPath: "" #jks 证书地址
+  jksPass: "" # jks 证书密码
+
 ```
 
 ### client 配置
@@ -118,7 +123,6 @@ clientServiceDescriptions: # 注册服务
 ```
 
 ## 小结
-* 学识尚浅，功能可能存在“重复造轮子”问题
 * 如若有好的功能需求，或代码存在的bug欢迎在issue里提出
 
 ## 开发计划
