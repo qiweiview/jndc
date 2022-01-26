@@ -33,7 +33,6 @@ other      ------->                                      ---------->local_app
 ```
 
 ## 项目使用范例
-* [![fomGHU.png](https://z3.ax1x.com/2021/08/18/fomGHU.png)](https://imgtu.com/i/fomGHU)
 * [范例](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
 
 

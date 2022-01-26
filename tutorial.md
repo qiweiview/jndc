@@ -29,17 +29,25 @@ release20201216_server.zip # 服务端压缩包
 * 将linux_server文件夹拷贝至公网服务器目录/usr/local/jndc(举例),
 * 启动前需要修改config.yml文件
 ```yaml
-secrete: "scdfat!`" # 尽量复杂，不支持初始密码‘jndc’
+secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
 loglevel: "info"
 blackList: # ip访问黑名单
-# - "192.168.1.1"
+#- "192.168.1.1"
 whiteList: # 白名单
-# - "192.168.1.2"
-loginName: "test33" # 管理界面用户名
-loginPassWord: "test_pass1`" # 管理界面密码
-managementApiPort: "82" # 管理界面访问端口
-adminPort: "81" # jndc服务端运行监听端口
-bindIp: "118.29.31.43" # jndc服务端运行ip
+#- "192.168.1.2"
+managementApiPort: 777 #管理api端口
+servicePort: 81 # jndc服务端运行监听端口
+bindIp: "0.0.0.0" # jndc服务端运行ip
+webConfig: # http配置
+  routNotFoundPage: ""
+  httpPort: 80 # http应用端口
+  loginName: "xxx" # 登录用户名
+  loginPassWord: "xxx" # 登录密码
+  useSsl: false # 是否使用ssl
+  scanFrontPages: false # 是否扫描 项目目录下的management文件夹
+  jksPath: "" #jks 证书地址
+  jksPass: "" # jks 证书密码
+
 ```
 
 * 修改前端项目中配置
