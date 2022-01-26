@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -71,7 +70,7 @@ public class JNDCHttpServer implements ServerApp {
 
     public void loadRouteNotFoundPage() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-        File file = new File(serverConfig.getRoutNotFoundPage());
+        File file = new File(serverConfig.getWebConfig().getRoutNotFoundPage());
         if (file.exists()) {
             try {
                 String s = FileUtils.readFileToString(file, StandardCharsets.UTF_8);

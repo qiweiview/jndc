@@ -2,7 +2,10 @@ package jndc_server.core.filter;
 
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.UniqueBeanManage;
-import jndc_server.core.*;
+import jndc_server.core.JNDCServerConfig;
+import jndc_server.core.NDCServerConfigCenter;
+import jndc_server.core.ServerPortBindContext;
+import jndc_server.core.ServerPortProtector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +28,7 @@ public class AllowTimeRule implements CustomRule {
             synchronized (AllowTimeRule.class) {
                 if (ndcServerConfigCenter == null) {
                     ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-                    ignorePort=UniqueBeanManage.getBean(JNDCServerConfig.class).getAdminPort();
+                    ignorePort = UniqueBeanManage.getBean(JNDCServerConfig.class).getServicePort();
                 }
             }
         }

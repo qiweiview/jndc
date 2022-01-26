@@ -10,15 +10,9 @@ import jndc_server.web_support.core.MappingRegisterCenter;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.utils.AuthUtils;
-import jndc_server.web_support.utils.SslOneWayContextFactory;
 import lombok.Data;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.net.ssl.SSLContext;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -27,30 +21,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+@Slf4j
 @Data
 public class JNDCServerConfig {
 
     private static final String UN_SUPPORT_VALUE = "jndc";
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    //运行目录
+    private String runtimeDir = "";
 
-    private String runtimeDir="";
-
+    //密码
     private String secrete;
 
+    //日志等级
     private String loglevel;
 
-    private String routNotFoundPage="\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found";
-
-    private boolean scanFrontPages = false;
-
+    //管理页面api 端口
     private int managementApiPort;
 
-    private int httpPort;
+    //管理页面api 端口
+    private int servicePort;
 
-    private int adminPort;
-
+    //运行绑定网卡
     private String bindIp;
+
+    //黑名单
+    private String[] blackList;
+
+    //白名单
+    private String[] whiteList;
+
+    //http配置
+    private ServeHTTPConfig webConfig;
+
+    /* ------------非配置属性------------ */
+
 
     private InetAddress inetAddress;
 
@@ -58,37 +63,26 @@ public class JNDCServerConfig {
 
     private InetSocketAddress httpInetSocketAddress;
 
-    private String[] blackList;
 
-    private String[] whiteList;
-
-    private String loginName;
-
-    private String loginPassWord;
-
-    private boolean useSsl;
-
-    private String keyStoreFile;
-
-    private String keystorePass;
-
-    private SSLContext serverSSLContext;
-
+    static {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.INFO);
+    }
 
     /**
      * 参数校验
      */
     public void performParameterVerification() {
         inetAddress = InetUtils.getByStringIpAddress(bindIp);
-        inetSocketAddress = new InetSocketAddress(inetAddress, adminPort);
-        httpInetSocketAddress=new InetSocketAddress(inetAddress, httpPort);
+        inetSocketAddress = new InetSocketAddress(inetAddress, servicePort);
+        httpInetSocketAddress = new InetSocketAddress(inetAddress, webConfig.getHttpPort());
 
-        if (UN_SUPPORT_VALUE.equals(getLoginName()) && UN_SUPPORT_VALUE.equals(getLoginPassWord())) {
+        if (UN_SUPPORT_VALUE.equals(webConfig.getLoginName()) && UN_SUPPORT_VALUE.equals(webConfig.getLoginPassWord())) {
             LogPrint.err("the default name and password 'jndc' is not safe,please edit the config file and retry");
             ApplicationExit.exit();
         }
-        AuthUtils.name = getLoginName();
-        AuthUtils.passWord = getLoginPassWord();
+        AuthUtils.name = webConfig.getLoginName();
+        AuthUtils.passWord = webConfig.getLoginPassWord();
 
         //perform ssl file
         performSslInWebApi();
@@ -114,12 +108,10 @@ public class JNDCServerConfig {
     }
 
 
-    static{
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-        root.setLevel(Level.INFO);
-    }
-
-    private void init(){
+    /**
+     * 初始化
+     */
+    private void init() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
 
@@ -129,28 +121,20 @@ public class JNDCServerConfig {
 
     }
 
+    /**
+     * 验证ssl
+     */
     private void performSslInWebApi() {
-        if (isUseSsl()) {
+        if (webConfig.isUseSsl()) {
             try {
-                byte[]  bytes = FileUtils.readFileToByteArray(new File(getKeyStoreFile()));
-                reloadSslContext(bytes, getKeystorePass().toCharArray());
-                logger.info("open ssl in the web api");
+                webConfig.reloadSslContext();
+                log.info("open ssl in the web api");
             } catch (Exception e) {
-                setUseSsl(false);
-                logger.error("init ssl context  fail cause:" + e);
+                webConfig.setUseSsl(false);
+                log.error("init ssl context  fail cause:" + e);
             }
 
 
-        }
-    }
-
-    public void reloadSslContext(byte[] keyStore, char[] keyStorePass) {
-        try {
-            serverSSLContext = SslOneWayContextFactory.getServerContext(new ByteArrayInputStream(keyStore),keyStorePass);
-        } catch (Exception e) {
-            setUseSsl(false);
-            logger.error("load ssl context  fail cause:" + e);
-            throw new RuntimeException(e);
         }
     }
 
@@ -165,7 +149,10 @@ public class JNDCServerConfig {
     }
 
 
-    private void initIpChecker(){
+    /**
+     * 初始化ip检测器
+     */
+    private void initIpChecker() {
         DBWrapper<IpFilterRule4V> dbWrapper = DBWrapper.getDBWrapper(IpFilterRule4V.class);
         List<IpFilterRule4V> ipFilterRule4VS = dbWrapper.listAll();
         Map<String, IpFilterRule4V> blackMap = new HashMap<>();
@@ -215,7 +202,7 @@ public class JNDCServerConfig {
 
         if (storeList.size() > 0) {
             dbWrapper.insertBatch(storeList);
-            logger.info("add new ip filter rule:" + storeList);
+            log.info("add new ip filter rule:" + storeList);
         }
 
         ipChecker.loadRule(blackMap, whiteMap);
@@ -224,7 +211,7 @@ public class JNDCServerConfig {
     @Override
     public String toString() {
         return "ServerConfig{" +
-                "adminPort=" + adminPort +
+                "adminPort=" + servicePort +
                 ", bindIp='" + bindIp + '\'' +
                 '}';
     }

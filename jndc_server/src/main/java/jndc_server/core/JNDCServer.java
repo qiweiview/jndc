@@ -26,24 +26,24 @@ public class JNDCServer {
 
 
     public void createServer() {
-        //do server init
+        //服务端初始化事件
         initBelongOnlyInServer();
 
 
-        //reset service bind state
+        //重置所有端口使用信息
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         dbWrapper.customExecute("update server_port_bind set portEnable = 0", null);
 
-        //deploy the server management api
-        WebServer serverTest = new WebServer();
-        serverTest.start();//start
+        //admin管理页面
+        WebServer webServer = new WebServer();
+        webServer.start();//start
 
-        //deploy jndc-core service
-        JndcCoreServer jndcCoreServer=new JndcCoreServer();
+        //核心服务
+        JndcCoreServer jndcCoreServer = new JndcCoreServer();
         jndcCoreServer.start();
 
-        //deploy jndc-http server
-        JNDCHttpServer jndcHttpServer=new JNDCHttpServer();
+        //http层服务
+        JNDCHttpServer jndcHttpServer = new JNDCHttpServer();
         jndcHttpServer.start();
 
 

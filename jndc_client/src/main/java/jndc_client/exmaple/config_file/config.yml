@@ -1,15 +1,15 @@
 secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
 loglevel: "INFO"
-serverIp: "1.1.1.1" # 服务端运行监听ip
+serverIp: "127.0.0.1" # 服务端运行监听ip
 serverPort: "81" # 服务端运行端口
 openGui: false
 autoReleaseTimeOut: 1200000 # 客户端自动断开时间（毫秒）
 clientServiceDescriptions: # 注册服务
-  - serviceName: "mysql"
+  - serviceName: "lite"
     serviceIp: "127.0.0.1"
-    servicePort: "3306"
+    servicePort: "778"
     serviceEnable: true
   - serviceName: "pi_win"
     serviceIp: "192.168.1.102"
     servicePort: "22"
-    serviceEnable: true
+    serviceEnable: false

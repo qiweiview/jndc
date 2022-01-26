@@ -1,10 +1,9 @@
 package jndc_server.start;//package jndc.core;
 
 
-import jndc.core.UniqueBeanManage;
-import jndc_server.core.JNDCServer;
 import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
+import jndc_server.core.JNDCServer;
 import jndc_server.core.JNDCServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +70,7 @@ public class ServerStart {
         }
 
 
-
-
+        //启动相关服务
         JNDCServer serverTest =new JNDCServer();
         serverTest.createServer();
         return;

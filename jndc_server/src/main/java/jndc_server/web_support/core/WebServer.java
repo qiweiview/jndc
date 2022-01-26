@@ -16,8 +16,7 @@ import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc_server.core.JNDCServerConfig;
 import jndc_server.core.app.ServerApp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -28,10 +27,10 @@ import java.net.InetSocketAddress;
 /**
  * web management server
  */
+@Slf4j
 public class WebServer implements ServerApp {
     private static final String MANAGEMENT_PROJECT = "management";
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
@@ -56,8 +55,8 @@ public class WebServer implements ServerApp {
                 String ws = "ws";//WebSocketServerProtocolHandler
 
 
-                if (serverConfig.isUseSsl()) {
-                    SSLContext serverSSLContext = serverConfig.getServerSSLContext();
+                if (serverConfig.getWebConfig().isUseSsl()) {
+                    SSLContext serverSSLContext = serverConfig.getWebConfig().getServerSSLContext();
                     SSLEngine sslEngine = serverSSLContext.createSSLEngine();
                     sslEngine.setUseClientMode(false);//设置为服务器模式
                     pipeline.addFirst(CustomSslHandler.NAME, new CustomSslHandler(sslEngine));
@@ -84,18 +83,19 @@ public class WebServer implements ServerApp {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.info("bind manage center : " + inetSocketAddress + " success");
+                log.info("bind manage center : " + inetSocketAddress + " success");
             } else {
-                logger.error("bind manage center : " + inetSocketAddress + " fail");
+                log.error("bind manage center : " + inetSocketAddress + " fail");
             }
 
         });
 
-        //check if scan the front project
-        if (serverConfig.isScanFrontPages()) {
+        //判断是否扫扫描前端项目目录
+        if (serverConfig.getWebConfig().isScanFrontPages()) {
+            //todo 扫描
             scanFrontProject();
         } else {
-            LogPrint.info("will not deploy front management project");
+            log.info("will not deploy front management project");
         }
 
 
@@ -115,7 +115,7 @@ public class WebServer implements ServerApp {
         }
 
         FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-        LogPrint.info("deploy front management project");
+        log.info("deploy front management project");
     }
 
 }

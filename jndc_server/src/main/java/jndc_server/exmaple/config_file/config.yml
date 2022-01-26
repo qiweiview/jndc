@@ -1,18 +1,18 @@
-secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
+secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
 loglevel: "info"
 blackList: # ip访问黑名单
 #- "192.168.1.1"
 whiteList: # 白名单
 #- "192.168.1.2"
-loginName: "xxx"
-loginPassWord: "xxx"
-useSsl: false
-scanFrontPages: false # 是否扫描 项目目录下的management文件夹
-keyStoreFile: 'C:\Users\xxx\Desktop\xxx.cn\Tomcat\xxx.cn.jks'
-keystorePass: 'xxx'
-httpPort: "80" # http应用端口
-managementApiPort: "777" #管理api端口
-adminPort: "81" # jndc服务端运行监听端口
+managementApiPort: 777 #管理api端口
+servicePort: 81 # jndc服务端运行监听端口
 bindIp: "0.0.0.0" # jndc服务端运行ip
-
-routNotFoundPage: ''
+webConfig: # http配置
+  routNotFoundPage: ""
+  httpPort: 80 # http应用端口
+  loginName: "xxx" # 登录用户名
+  loginPassWord: "xxx" # 登录密码
+  useSsl: false # 是否使用ssl
+  scanFrontPages: false # 是否扫描 项目目录下的management文件夹
+  jksPath: "" #jks 证书地址
+  jksPass: "" # jks 证书密码
