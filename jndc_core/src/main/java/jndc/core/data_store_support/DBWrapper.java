@@ -311,6 +311,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         DBWrapper dbWrapper = dBWrapperCache.get(tClass);
         if (dbWrapper == null) {
             dbWrapper = new DBWrapper(tClass);
+            dBWrapperCache.put(tClass, dbWrapper);
         }
         return dbWrapper;
     }

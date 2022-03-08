@@ -2,6 +2,11 @@ package jndc.core.data_store_support;
 
 import java.util.List;
 
+/**
+ * 基础数据库操作
+ *
+ * @param <T>
+ */
 public interface BasicDatabaseOperations<T> {
     public void insert(T t);
 
