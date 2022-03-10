@@ -74,28 +74,29 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     }
 
-    public void registerServiceProvider(ChannelHandlerContextHolder channelHandlerContextHolder) {
-        log.debug(channelHandlerContextHolder.getContextIp() + " register " + channelHandlerContextHolder.serviceNum() + " service");
+    public void registerServiceProvider(ChannelHandlerContextHolder latestContext) {
+        log.debug(latestContext.getContextIp() + " register " + latestContext.serviceNum() + " service");
 
         //这里的id就是客户端的唯一编号
-        String id = channelHandlerContextHolder.getClientId();
-        ChannelHandlerContextHolder exist = channelHandlerContextHolderMap.get(id);
-        if (exist != null && !channelHandlerContextHolder.contextBelong(exist.getChannelHandlerContext())) {
-            //todo 已经存该id的链接 且不相同的隧道
+        String id = latestContext.getClientId();
+        ChannelHandlerContextHolder oldContext = channelHandlerContextHolderMap.get(id);
+        if (oldContext == null) {
+            //todo 不存在隧道
+            log.info("暂无已有隧道");
 
-            log.info("移除同id,失效隧道...");
+            //设置上下文描述对象
+            channelHandlerContextHolderMap.put(id, latestContext);
 
-            //移除对应上下文描述对象
-            ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(id);
-
-            //释放上下文描述对象
-            if (remove != null) {
-                remove.releaseRelatedResources();
+        } else {
+            if (!latestContext.checkSame(oldContext.getChannelHandlerContext())) {
+                //todo 隧道和当前隧道来源不同
+                log.info("释放非同源隧道:" + oldContext.getFingerprint() + "--->" + latestContext.getFingerprint());
+                channelHandlerContextHolderMap.put(id, latestContext);
+                log.info("放入:" + latestContext.getFingerprint());
+                oldContext.releaseRelatedResources();
             }
         }
 
-        //设置上下文描述对象
-        channelHandlerContextHolderMap.put(id, channelHandlerContextHolder);
 
     }
 
@@ -111,7 +112,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         //获取移除客户端Id
         List<String> rmIds = new ArrayList<>();
         channelHandlerContextHolderMap.forEach((k, v) -> {
-            if (v.contextBelong(inactive)) {
+            if (v.checkSame(inactive)) {
                 rmIds.add(k);
             }
         });
@@ -150,6 +151,8 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             //推送不活动连接刷新
             messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
             messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+        } else {
+            log.info("无服务隧道...");
         }
 
 

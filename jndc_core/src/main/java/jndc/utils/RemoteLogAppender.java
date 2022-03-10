@@ -20,7 +20,7 @@ public class RemoteLogAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
         //todo 日志发送至远程
-        System.out.println("RemoteLogAppender:" + iLoggingEvent);
+        //   System.out.println("RemoteLogAppender:" + iLoggingEvent);
 
     }
 

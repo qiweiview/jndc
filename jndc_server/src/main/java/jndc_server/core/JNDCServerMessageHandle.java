@@ -291,9 +291,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 ndcServerConfigCenter.addMessageToReceiveQueue(ndcMessageProtocol);
             }
 
-            /*==================================== OPEN_CHANNEL ====================================*/
+            /*==================================== 打开通道 ====================================*/
             if (type == NDCMessageProtocol.OPEN_CHANNEL) {
-                //todo OPEN_CHANNEL 打开通道
+                //todo  打开通道
+                log.info("注册隧道...");
                 handleOpenChannel(channelHandlerContext, ndcMessageProtocol);
             }
 
@@ -370,6 +371,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //取消服务上下文描述
+        log.info("客户端断开链接...");
         ndcServerConfigCenter.unRegisterContextHolder(ctx);
 
     }

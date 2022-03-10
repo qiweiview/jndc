@@ -77,6 +77,9 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
 
         if (id.equals(check)) {
             //todo 命中则释放服务,可能出现情况：服务持有的隧道不是当前断开的隧道
+
+            log.info("服务内隧道命中...");
+
             belongContext = null;
 
 

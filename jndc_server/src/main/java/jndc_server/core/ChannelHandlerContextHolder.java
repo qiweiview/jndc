@@ -85,7 +85,15 @@ public class ChannelHandlerContextHolder {
 
     }
 
-    public boolean contextBelong(ChannelHandlerContext inactive) {
+    public String getFingerprint() {
+        return contextIp + contextPort;
+    }
+
+    /**
+     * @param inactive
+     * @return
+     */
+    public boolean checkSame(ChannelHandlerContext inactive) {
         //传入上下文ip+端口
         String inactiveContextStr = NettyContextUtils.getFingerprintFromContext(inactive);
 
