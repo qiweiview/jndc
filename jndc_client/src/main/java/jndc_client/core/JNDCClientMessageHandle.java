@@ -14,8 +14,7 @@ import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
 import jndc_client.http_support.ClientHttpManagement;
 import jndc_client.start.ClientStart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private JNDCClient client;
 
@@ -67,7 +66,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     public void stopRegister(ClientServiceDescription... list) {
         if (list == null || list.length < 1) {
-            logger.error("ignore empty list");
+            log.error("ignore empty list");
             return;
         }
         stopRegister(Stream.of(list).collect(Collectors.toList()));
@@ -75,7 +74,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     public void startRegister(ClientServiceDescription... list) {
         if (list == null || list.length < 1) {
-            logger.error("ignore empty list");
+            log.error("ignore empty list");
             return;
         }
         startRegister(Stream.of(list).collect(Collectors.toList()));
@@ -87,7 +86,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
 
         if (list == null || list.size() < 1) {
-            logger.error("ignore empty list");
+            log.error("ignore empty list");
             return;
         }
 
@@ -119,7 +118,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             //send data
             ctx.writeAndFlush(tqs);
         } catch (UnknownHostException e) {
-            logger.error(e + "");
+            log.error(e + "");
         }
     }
 
@@ -128,7 +127,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         JNDCClientConfigCenter jndcClientConfigCenter = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
 
         if (list == null || list.size() < 1) {
-            logger.error("ignore empty list");
+            log.error("ignore empty list");
             return;
         }
 
@@ -142,12 +141,12 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 jndcClientConfigCenter.initService(x);//init the support service
 
             } else {
-                logger.info("ignore the mapping:" + x.getServiceName());
+                log.info("ignore the mapping:" + x.getServiceName());
             }
         });
 
         if (tcpServiceDescriptions.size() < 1) {
-            logger.info("do not send register message ,because  there is not any enable service  on config file ");
+            log.info("do not send register message ,because  there is not any enable service  on config file ");
             return;
         }
 
@@ -169,7 +168,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             //send data
             ctx.writeAndFlush(tqs);
         } catch (UnknownHostException e) {
-            logger.error(e + "");
+            log.error(e + "");
         }
 
 
@@ -185,7 +184,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
         if (clientConfig == null) {
-            logger.error("can not load service support config");
+            log.error("can not load service support config");
             return;
         }
 
@@ -224,6 +223,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             jndcClientConfigCenter.addMessageToSendQueue(tqs);
         }, 0, 60, TimeUnit.SECONDS);
 
+        log.info("准备启动服务注册...");
         //send register message
         sendServiceRegisterMessage();
     }
@@ -238,13 +238,13 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
                 //todo CHANNEL_HEART_BEAT
                 //just accept
-                logger.info("get heart beat from server");
+                log.info("get heart beat from server");
 
             }
 
             if (type == NDCMessageProtocol.TCP_DATA) {
                 //todo TCP_DATA
-                logger.debug("get tcp data from server: " + ndcMessageProtocol);
+                log.debug("get tcp data from server: " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.addMessageToReceiveQueue(ndcMessageProtocol);
                 return;
@@ -253,7 +253,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             if (type == NDCMessageProtocol.TCP_ACTIVE) {
                 //todo TCP_ACTIVE
-                logger.debug("get active from server: " + ndcMessageProtocol);
+                log.debug("get active from server: " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.addMessageToReceiveQueue(ndcMessageProtocol);
                 return;
@@ -269,19 +269,19 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.SERVICE_REGISTER) {
                 //todo SERVICE_REGISTER
 
-                logger.info("not expect get  a register message from server");
+                log.info("not expect get  a register message from server");
 
             }
 
             if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
                 //todo SERVICE_UNREGISTER
-                logger.info("unregister success");
+                log.info("unregister success");
             }
 
             /* ================================== CONNECTION_INTERRUPTED ================================== */
             if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
                 //todo CONNECTION_INTERRUPTED 连接由服务端中断
-                logger.debug("interrupt  connection " + ndcMessageProtocol);
+                log.debug("interrupt  connection " + ndcMessageProtocol);
                 JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
                 bean.shutDownClientServiceProvider(ndcMessageProtocol);
                 return;
@@ -293,9 +293,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 channelHandlerContext.close();
                 channelHandlerContext.channel().eventLoop().shutdownGracefully().addListener(x -> {
                     if (x.isSuccess()) {
-                        logger.error("register auth fail, the client will close later...");
+                        log.error("register auth fail, the client will close later...");
                     } else {
-                        logger.error("shutdown fail");
+                        log.error("shutdown fail");
                     }
                 });
                 return;
@@ -304,13 +304,13 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.USER_ERROR) {
                 //todo USER_ERROR
                 UserError userError = ndcMessageProtocol.getObject(UserError.class);
-                logger.error(userError.toString());
+                log.error(userError.toString());
                 return;
             }
 
             if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
                 //todo UN_CATCHABLE_ERROR
-                logger.error(new String(ndcMessageProtocol.getData()));
+                log.error(new String(ndcMessageProtocol.getData()));
                 return;
             }
 
@@ -320,7 +320,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             copy.setData(NDCMessageProtocol.BLANK);
             UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
 
-            logger.error(type + ": client get a unCatchable Error:" + e);
+            log.error(type + ": client get a unCatchable Error:" + e);
         }
 
 
@@ -330,7 +330,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (reConnectTag) {
-            logger.debug("client connection interrupted, will restart on 5 second later");
+            log.debug("client connection interrupted, will restart on 5 second later");
             // TimeUnit.SECONDS.sleep(5);
             client.tryReconnect();
         }
@@ -343,13 +343,13 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         if (cause instanceof DecoderException) {
             if (cause.getCause() instanceof SecreteDecodeFailException) {
                 //auth fail
-                logger.error("secrete check error when decode,please check the secrete later...");
+                log.error("secrete check error when decode,please check the secrete later...");
                 cause.printStackTrace();
                 //ApplicationExit.exit();
 
             }
             channelHandlerContext.close();
-            logger.error("unCatchable client error：" + cause.getMessage());
+            log.error("unCatchable client error：" + cause.getMessage());
         }
     }
 

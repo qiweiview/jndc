@@ -18,8 +18,12 @@ public class ServerTest {
 
         ServerRuntimeConfig.DEBUG_MODEL = true;
 
+        String path = ServerTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
+        String s = path.substring(1, path.indexOf("/target")) + "/src/main/java/jndc_server/exmaple/config_file/config.yml";
+
 //        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
-        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
+        File file = new File(s);
 
         YmlParser ymlParser = new YmlParser();
         JNDCServerConfig jndcServerConfig = null;

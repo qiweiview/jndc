@@ -80,9 +80,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         //这里的id就是客户端的唯一编号
         String id = channelHandlerContextHolder.getClientId();
         ChannelHandlerContextHolder exist = channelHandlerContextHolderMap.get(id);
-        if (exist != null) {
-            //todo 已经存该id的链接
-            //执行更新
+        if (exist != null && !channelHandlerContextHolder.contextBelong(exist.getChannelHandlerContext())) {
+            //todo 已经存该id的链接 且不相同的隧道
+
+            log.info("移除同id,失效隧道...");
 
             //移除对应上下文描述对象
             ChannelHandlerContextHolder remove = channelHandlerContextHolderMap.remove(id);
