@@ -5,6 +5,7 @@ import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
 import jndc_server.core.JNDCServer;
 import jndc_server.core.JNDCServerConfig;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +62,11 @@ public class ServerStart {
         JNDCServerConfig jndcServerConfig = null;
         try {
             jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
+            if (jndcServerConfig == null) {
+                String configContent = FileUtils.readFileToString(file, "utf-8");
+                logger.error("please check the content:\n=====content_start=====\n" + configContent + "\n=====content_end=====\n on config.yml" + file);
+                ApplicationExit.exit();
+            }
             jndcServerConfig.setRuntimeDir(file.getParent());
             jndcServerConfig.performParameterVerification();
             jndcServerConfig.lazyInitAfterVerification();

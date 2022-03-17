@@ -6,6 +6,7 @@ import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
 import jndc_client.http_support.ClientHttpManagement;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +59,18 @@ public class ClientStart {
         JNDCClientConfig jndcClientConfig = null;
         try {
             jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
+            if (jndcClientConfig == null) {
+                String configContent = FileUtils.readFileToString(file, "utf-8");
+                logger.error("please check the content:\n=====content_start=====\n" + configContent + "\n=====content_end=====\n on config.yml" + file);
+                ApplicationExit.exit();
+            }
             jndcClientConfig.performParameterVerification();
             jndcClientConfig.setRuntimeDir(file.getParent());
             jndcClientConfig.loadClientId();
             logger.info(tag + CLIENT_ID);
             logger.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("parse config file:" + file + "fail" + e);
             ApplicationExit.exit();
         }
