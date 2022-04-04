@@ -126,9 +126,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
         logger.error("catch exception in auth check,cause: " + cause);
         FullHttpResponse fullHttpResponse = HttpResponseBuilder.textResponse(cause.getMessage().getBytes());
         fullHttpResponse.setStatus(HttpResponseStatus.FORBIDDEN);
-        fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-        fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS, "POST,OPTIONS");
-        fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
+
         ctx.writeAndFlush(fullHttpResponse).addListeners(ChannelFutureListener.CLOSE);
     }
 

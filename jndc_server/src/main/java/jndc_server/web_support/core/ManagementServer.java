@@ -85,16 +85,16 @@ public class ManagementServer implements ServerApp {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                log.info("服务端启动 : " + inetSocketAddress + " 成功");
+                log.info("管理端服务 http://" + inetSocketAddress + " 成功");
             } else {
-                log.error("服务端启动 : " + inetSocketAddress + " 失败");
+                log.error("管理端服务 http://" + inetSocketAddress + " 失败");
             }
 
         });
 
         //判断是否扫扫描前端项目目录
-        if (serverConfig.getWebConfig().isScanFrontPages()) {
-            //todo 扫描
+        if (serverConfig.getManageConfig().isAdminEnable()) {
+            //todo 启动管理页面
             scanFrontProject();
         } else {
             log.info("忽略静态页面部署");
@@ -104,20 +104,26 @@ public class ManagementServer implements ServerApp {
     }
 
     /**
-     * scan the front project
+     * 扫描管理页文件
      */
     public void scanFrontProject() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
+        String runtimeDir = "";
+        String runtimeDir1 = serverConfig.getRuntimeDir() + File.separator + "resources" + File.separator + "frontend" + File.separator;
 
-        String runtimeDir = serverConfig.getRuntimeDir() + File.separator + MANAGEMENT_PROJECT + File.separator;
+        String runtimeDir2 = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\frontend";
 
-        if (!new File(runtimeDir).exists()) {
-            LogPrint.err("can not found the management project in \"" + runtimeDir + "\" please check later...");
+        if (new File(runtimeDir1).exists()) {
+            runtimeDir = runtimeDir1;
+        } else if (new File(runtimeDir2).exists()) {
+            runtimeDir = runtimeDir2;
+        } else {
+            LogPrint.err("管理页目录不存在：" + runtimeDir1);
             ApplicationExit.exit();
         }
 
         FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-        log.info("deploy front management project");
+        log.info("扫描管理页完成...");
     }
 
 }

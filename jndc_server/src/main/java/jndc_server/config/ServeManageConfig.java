@@ -37,6 +37,9 @@ public class ServeManageConfig {
     //证书上下文
     private SSLContext serverSSLContext;
 
+    //是否扫描目录
+    private boolean adminEnable = false;
+
 
     public void reloadSslContext() {
 

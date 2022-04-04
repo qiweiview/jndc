@@ -28,10 +28,6 @@ public class ServeHTTPConfig {
     //证书密码
     private String jksPass;
 
-    //是否扫描目录
-    private boolean scanFrontPages = false;
-
-
 
     //404 页面地址
     private String notFoundPage = "\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found";

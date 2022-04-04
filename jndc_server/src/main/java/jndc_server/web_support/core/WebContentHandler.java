@@ -7,17 +7,18 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.AsciiString;
 import jndc.core.UniqueBeanManage;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.File;
 import java.util.regex.Matcher;
 
 
+/**
+ * 管理端api处理器
+ */
 public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpRequest> {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     public static String NAME = "WEB_CONTENT_HANDLER";
@@ -40,8 +41,6 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
             }
 
             String s = fullPathStr.replaceAll("/", SEPARATOR);
-
-
 
 
             //jndc inner front project
@@ -73,35 +72,19 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
             FullHttpResponse fullHttpResponse;
             if (data == null) {
                 fullHttpResponse = HttpResponseBuilder.notFoundResponse();
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
             } else {
+                //todo 没有对应mapping
                 fullHttpResponse = HttpResponseBuilder.jsonResponse(data);
-
-                //configuration during development
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
-                fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST");
             }
             fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }
 
-        if (HttpMethod.OPTIONS.equals(jndcHttpRequest.getMethod())) {
-            //todo post
-            FullHttpResponse fullHttpResponse = HttpResponseBuilder.emptyResponse();
 
-            //configuration during development
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"POST,OPTIONS");
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With,auth-token");
-            fullHttpResponse.headers().set(HttpHeaderNames.ACCESS_CONTROL_MAX_AGE,"3600");
-            channelHandlerContext.writeAndFlush(fullHttpResponse);
-            return;
-        }
-
+        //不支持请求类型
         FullHttpResponse fullHttpResponse = HttpResponseBuilder.emptyResponse();
-        fullHttpResponse.setStatus(HttpResponseStatus.BAD_REQUEST);
+        fullHttpResponse.setStatus(HttpResponseStatus.UNSUPPORTED_MEDIA_TYPE);
         channelHandlerContext.writeAndFlush(fullHttpResponse);
 
     }

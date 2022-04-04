@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 
 /**
@@ -282,28 +281,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         });
     }
 
-    /**
-     * 获取系统中所有服务
-     *
-     * @return
-     */
-    public List<TcpServiceDescriptionOnServer> getCurrentSupportService() {
-        List<ChannelHandlerContextHolder> channelHandlerContextHolders = getChannelHandlerContextHolders();
-        List<TcpServiceDescriptionOnServer> collect = channelHandlerContextHolders.stream()
-                .flatMap(x -> x.getTcpServiceDescriptions().stream())
-                .collect(Collectors.toList());
-        return collect;
-    }
-
-
-    /**
-     * inner
-     *
-     * @param <T>
-     */
-    private interface InnerCondition<T> {
-        public boolean check(ChannelHandlerContextHolder channelHandlerContextHolder, T t);
-    }
 
 
     /**
@@ -331,7 +308,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         ChannelHandlerContextHolder channelHandlerContextHolder = channelHandlerContextHolderMap.get(tcpServiceDescription.getBindClientId());
 
         //刷新context
-        channelHandlerContextHolder.refreshContext(tcpServiceDescription);
+        if (channelHandlerContextHolder != null) {
+            channelHandlerContextHolder.refreshContext(tcpServiceDescription);
+        }
+
 
         //向服务发送消息
         tcpServiceDescription.sendMessage(ndcMessageProtocol);

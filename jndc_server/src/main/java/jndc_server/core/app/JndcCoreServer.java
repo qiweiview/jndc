@@ -49,9 +49,9 @@ public class JndcCoreServer implements ServerApp{
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.info("配置服务: " + serverConfig.getInetSocketAddress() + " 启动成功");
+                logger.info("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动成功");
             } else {
-                logger.error("配置服务: " + serverConfig.getInetSocketAddress() + " 启动失败");
+                logger.error("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动失败");
             }
 
         });

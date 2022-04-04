@@ -202,6 +202,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             clientServiceDescriptions.add(ClientHttpManagement.DEPLOY_PORT);
         }
         startRegister(clientServiceDescriptions);
+        log.info("注册完成...");
     }
 
     private void handleOpenChannelResponse(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {

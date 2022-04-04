@@ -2,9 +2,8 @@ package jndc_server.web_support.core;
 
 
 import jndc.utils.ApplicationExit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,16 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-
+@Slf4j
 public class FrontProjectLoader {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     public static FrontProjectLoader jndcStaticProject;
 
+    //递归深度限制
     private final int DEEP_LIMIT = 15;
 
     private String rootPath;
 
+    //文件路径映射
     private Map<String, InnerFileDescription> fileDescriptionMap = new HashMap<>();
 
     private int subStringIndex = 0;
@@ -29,8 +28,15 @@ public class FrontProjectLoader {
     private volatile boolean reloadInterrupt = false;
 
 
+    /**
+     * 加载目录项目
+     *
+     * @param path
+     * @return
+     */
     public static FrontProjectLoader loadProject(String path) {
         FrontProjectLoader frontProjectLoader = new FrontProjectLoader(path);
+        //加载文件
         frontProjectLoader.reloadProject();
         return frontProjectLoader;
 
@@ -39,10 +45,13 @@ public class FrontProjectLoader {
 
     public void reloadProject() {
 
-        logger.info("load front project: " + rootPath);
+        log.debug("load front project: " + rootPath);
+
+        //销毁旧文件
         destroyOldVersion();
 
 
+        //记录文件
         recordFile(new File(rootPath), 0);
 
         reloadInterrupt = false;
@@ -71,12 +80,12 @@ public class FrontProjectLoader {
 
     private void recordFile(File file, Integer recursionDepth) {
         if (recursionDepth > DEEP_LIMIT) {
-            logger.error("over limit deep");
+            log.error("over limit deep");
             ApplicationExit.exit();
         }
 
         if (!file.exists()) {
-            logger.error("file not be found:" + file);
+            log.error("file not be found:" + file);
             ApplicationExit.exit();
         }
 
@@ -123,7 +132,8 @@ public class FrontProjectLoader {
             this.rootPath = rootPath;
             this.fullPath = file.getAbsolutePath();
             if (subStringIndex == 0) {
-                subStringIndex = findTheDifferentIndex(this.rootPath, this.fullPath)-1;
+//                subStringIndex = findTheDifferentIndex(this.rootPath, this.fullPath)-1;
+                subStringIndex = rootPath.length();
             }
             this.shortPath = this.fullPath.substring(subStringIndex);
             this.fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
