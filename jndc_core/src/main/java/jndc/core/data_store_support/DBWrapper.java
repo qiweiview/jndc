@@ -4,6 +4,7 @@ package jndc.core.data_store_support;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.JSONUtils;
 import jndc.utils.ReflectionCache;
+import lombok.Data;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,7 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DBWrapper<T> implements BasicDatabaseOperations<T> {
+/**
+ * 数据库操作装饰器
+ *
+ * @param <T>
+ */
+@Data
+public class DBWrapper<T> implements DBOperationI<T> {
 
     private static final Map<Class, DBWrapper> dBWrapperCache = new ConcurrentHashMap<>();
 
@@ -24,7 +31,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     private Field primaryFile;
 
-    private String keyString = "";
+    private StringBuilder keyString = new StringBuilder();
 
     private String keyString4Update = "";
 
@@ -32,6 +39,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
 
     private Map<String, Field> filedMap = new HashMap<>();
+
+    private Map<String, String> aliasMap = new HashMap<>();
 
     private List<String> keys = new ArrayList<>();
 
@@ -47,10 +56,17 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     public DBWrapper(Class<T> t) {
         this.tClass = t;
+
+        //解析类
         parseClass();
+
+        //创建sql
         createSql();
     }
 
+    /**
+     * 创建sql
+     */
     private void createSql() {
         insert = "insert into " + tableName + " (" + keyString + ") values(" + valueString + ");";
 
@@ -60,9 +76,12 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
         update = "update " + tableName + " set " + keyString4Update + " where " + primaryName + " = ?;";
 
-        count  = "select count(*) count from " + tableName +" ;";
+        count = "select count(*) count from " + tableName + " ;";
     }
 
+    /**
+     * 解析类
+     */
     private void parseClass() {
         DSTable annotation2 = (DSTable) tClass.getAnnotation(DSTable.class);
         if (annotation2 == null) {
@@ -79,20 +98,26 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         fields.forEach(x -> {
             DSKey annotation = x.getAnnotation(DSKey.class);
             if (annotation != null) {
-                isKey(x, annotation);
+                markAsKey(x, annotation);
                 return;
             }
-            DSFile annotation1 = x.getAnnotation(DSFile.class);
-            isFile(x, annotation1);
+            DSFiled annotation1 = x.getAnnotation(DSFiled.class);
+            markAsFiled(x, annotation1);
         });
-        keyString = keyString + primaryName;
+        keyString.append(primaryName);
         keyString4Update = keyString4Update + primaryName + "=?";
         valueString = valueString + "?";
         keys.add(primaryName);
         filedMap.put(primaryName, primaryFile);
     }
 
-    private void isKey(Field x, DSKey annotation) {
+    /**
+     * 标记为key
+     *
+     * @param x
+     * @param annotation
+     */
+    private void markAsKey(Field x, DSKey annotation) {
         primaryName = x.getName();
         String name = annotation.name();
         if (name.length() > 0) {
@@ -102,20 +127,27 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     }
 
-    private void isFile(Field x, DSFile annotation) {
+    /**
+     * 标记为属性
+     *
+     * @param x
+     * @param annotation
+     */
+    private void markAsFiled(Field x, DSFiled annotation) {
         String name = x.getName();
         x.setAccessible(true);
 
         if (annotation != null) {
-            if (!annotation.useFile()) {
+            if (!annotation.useFiled()) {
                 return;
             }
-            String name1 = annotation.name();
-            if (name1.length() > 0) {
-                name = name1;
+            String overWriteName = annotation.name();
+            if (overWriteName.length() > 0) {
+                aliasMap.put(overWriteName, name);
+                name = overWriteName;
             }
         }
-        keyString += name + ",";
+        keyString.append(name + ",");
 
         keyString4Update += name + "=?,";
 
@@ -127,7 +159,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void insert(T t) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
         List<String> keys = getKeys();
         Object[] objects = new Object[keys.size()];
         for (int i = 0; i < keys.size(); i++) {
@@ -138,7 +170,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void insertBatch(List<T> t) {
-        if (t!=null&&t.size()>0){
+        if (t != null && t.size() > 0) {
             t.forEach(x -> {
                 insert(x);
             });
@@ -148,7 +180,7 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void updateByPrimaryKey(T t) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
         List<String> keys = getKeys();
         Object[] objects = new Object[keys.size() + 1];
         for (int i = 0; i < keys.size(); i++) {
@@ -161,22 +193,22 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public List<T> listAll() {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
-        List<Map> maps = dataStore.executeQuery(getSelectAll(), null);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
+        List<Map> maps = dataStore.executeQuery(getSelectAll(), null, aliasMap);
         return parseResult(maps);
     }
 
     @Override
     public List<T> customQuery(String sql, Object... params) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
-        List<Map> maps = dataStore.executeQuery(sql, params);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
+        List<Map> maps = dataStore.executeQuery(sql, params, aliasMap);
         return parseResult(maps);
     }
 
     @Override
     public PageResult<T> customQueryByPage(String sql, int page, int rows, Object... params) {
 
-        PageResult<T> pageResult=new PageResult();
+        PageResult<T> pageResult = new PageResult();
         //min limit
         if (page < 1) {
             page = 1;
@@ -191,18 +223,18 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
         }
 
 
-        int noOfRows = (page-1) * rows;
-        String newSql = "select * from (" +sql+ ") g limit " + noOfRows + "," + rows;
+        int noOfRows = (page - 1) * rows;
+        String newSql = "select * from (" + sql + ") g limit " + noOfRows + "," + rows;
         List<T> list = customQuery(newSql, params);
         pageResult.setData(list);
-        Integer count = customQuerySingleValue("count",  "select count(*) count from (" +sql+ ")", Integer.class);
-        pageResult.setTotal(count);
+        Number count = customQuerySingleValue("count", "select count(*) as count from (" + sql + ") g", Number.class);
+        pageResult.setTotal(count.intValue());
         return pageResult;
     }
 
     @Override
     public Integer count() {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
         List<Map> maps = dataStore.executeQuery(count, null);
         Map map = maps.get(0);
         Integer count = (Integer) map.get("count");
@@ -212,8 +244,8 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public T customQuerySingle(String sql, Object... params) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
-        List<Map> maps = dataStore.executeQuery(sql, params);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
+        List<Map> maps = dataStore.executeQuery(sql, params, aliasMap);
         List<T> list = parseResult(maps);
         if (list.size() > 0) {
             return list.get(0);
@@ -222,22 +254,22 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
     }
 
     @Override
-    public <V> V customQuerySingleValue(String valueKey,String sql, Class<V> f, Object... params) {
-        Object defaultValue=null;
-        if (Integer.class==f){
-            defaultValue=0;
+    public <V> V customQuerySingleValue(String valueKey, String sql, Class<V> f, Object... params) {
+        Object defaultValue = null;
+        if (Integer.class == f) {
+            defaultValue = 0;
         }
-        if (String.class==f){
-            defaultValue="";
+        if (String.class == f) {
+            defaultValue = "";
         }
 
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
-        List<Map> maps = dataStore.executeQuery(sql, params);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
+        List<Map> maps = dataStore.executeQuery(sql, params, aliasMap);
         if (maps.size() > 0) {
             Object o = maps.get(0).get(valueKey);
-           if (o==null){
-               o=defaultValue;
-           }
+            if (o == null) {
+                o = defaultValue;
+            }
             return (V) o;
         }
         return null;
@@ -245,13 +277,13 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     @Override
     public void customExecute(String sql, Object... params) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
         dataStore.execute(sql, params);
     }
 
     @Override
     public void deleteByPrimaryKey(T t) {
-        DataStore dataStore = UniqueBeanManage.getBean(DataStore.class);
+        DataStoreAbstract dataStore = UniqueBeanManage.getBean(DataStoreAbstract.class);
         Object filedValue = getFiledValue(primaryName, t);
         Object[] d = {filedValue};
         dataStore.execute(getDelete(), d);
@@ -283,25 +315,6 @@ public class DBWrapper<T> implements BasicDatabaseOperations<T> {
 
     /* ========================getter setter======================== */
 
-    private String getInsert() {
-        return insert;
-    }
-
-    private String getDelete() {
-        return delete;
-    }
-
-    private List<String> getKeys() {
-        return keys;
-    }
-
-    private String getSelectAll() {
-        return selectAll;
-    }
-
-    private String getUpdate() {
-        return update;
-    }
 
     public static <T> DBWrapper<T> getDBWrapper(Class<? extends T> tClass) {
         if (tClass == null) {

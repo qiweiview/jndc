@@ -2,8 +2,8 @@ package jndc_server.exmaple;
 
 import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.core.JNDCServerConfig;
 import jndc_server.web_support.http_module.JNDCHttpServer;
 
 import java.io.File;

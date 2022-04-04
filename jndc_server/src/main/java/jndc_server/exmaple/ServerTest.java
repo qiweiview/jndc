@@ -1,40 +1,40 @@
 package jndc_server.exmaple;
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.JNDCServer;
-import jndc_server.core.JNDCServerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 
+@Slf4j
 public class ServerTest {
 
-    private   static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
 
     public static void main(String[] args) {
 
         ServerRuntimeConfig.DEBUG_MODEL = true;
 
-        String path = ServerTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String runTimePath = PathUtils.getRunTimePath();
+        log.info("读取运行目录： " + runTimePath);
 
-        String s = path.substring(1, path.indexOf("/target")) + "/src/main/java/jndc_server/exmaple/config_file/config.yml";
+        String devPath = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\config.yml";
+        File file = new File(devPath);
 
-//        File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\src\\main\\java\\jndc_server\\exmaple\\config_file\\config.yml");
-        File file = new File(s);
 
         YmlParser ymlParser = new YmlParser();
         JNDCServerConfig jndcServerConfig = null;
         try {
             jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
-            jndcServerConfig.setRuntimeDir(file.getParent());
+            jndcServerConfig.setRuntimeDir(runTimePath);
             jndcServerConfig.performParameterVerification();
             jndcServerConfig.lazyInitAfterVerification();
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("config file:" + file + " parse fail：" + e);
+            log.error("config file parse fail：" + e);
             ApplicationExit.exit();
         }
         JNDCServer serverTest =new JNDCServer();

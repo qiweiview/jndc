@@ -2,7 +2,9 @@ package jndc_server.databases_object;
 
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
+import lombok.Data;
 
+@Data
 @DSTable(name = "server_ip_filter_rule")
 public class IpFilterRule4V {
     @DSKey
@@ -15,6 +17,7 @@ public class IpFilterRule4V {
     public void black(){
         this.type=1;
     }
+
     public void white(){
         this.type=0;
     }
@@ -23,37 +26,5 @@ public class IpFilterRule4V {
         return type==1;
     }
 
-    @Override
-    public String toString() {
-        return "IpFilterRule4V{" +
-                "ip='" + ip + '\'' +
-                ", type=" + type +
-                '}';
-    }
 
-    /* -------getter setter------- */
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
 }

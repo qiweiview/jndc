@@ -3,16 +3,15 @@ package jndc_server.web_support.http_module;
 import io.netty.util.internal.StringUtil;
 import jndc.core.data_store_support.DBWrapper;
 import jndc_server.web_support.model.data_object.HttpHostRoute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 域名路由
+ */
 public class HostRouterComponent {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Map<String, HttpHostRoute> map = new ConcurrentHashMap<>();
     private volatile boolean initFinished = false;
 
@@ -31,9 +30,7 @@ public class HostRouterComponent {
     }
 
 
-
     public static String parseHost(String host) {
-       // logger.debug("accept host:" + host);
         String[] split = host.split("\\.");
         if (split.length<3){
             return "";

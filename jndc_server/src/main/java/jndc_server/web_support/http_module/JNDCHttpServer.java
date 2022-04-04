@@ -10,8 +10,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.core.JNDCServerConfig;
 import jndc_server.core.app.ServerApp;
 import jndc_server.web_support.core.CustomSslHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +69,9 @@ public class JNDCHttpServer implements ServerApp {
                 protocol = "https";
             }
             if (x.isSuccess()) {
-                log.info("bind " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " success");
+                log.info("启动web服务 " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " 成功");
             } else {
-                log.error("bind " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " fail,cause");
+                log.error("启动web服务 " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " 失败");
             }
 
         });
@@ -88,11 +88,12 @@ public class JNDCHttpServer implements ServerApp {
             try {
                 String s = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                 ServerRuntimeConfig.ROUTE_NOT_FOUND_CONTENT = s;
+                log.info("使用外部配置404页面：" + file.getName());
             } catch (IOException e) {
-                log.error("load route not found page fail ,cause:" + e);
+                log.error("加载404页面失败 ,cause:" + e);
             }
         } else {
-            log.info("not found the route not found page");
+            log.info("没有找到配置的404页面,使用默认页面");
         }
 
     }

@@ -100,8 +100,8 @@ public class ServerHttpManageMapping {
     public boolean checkHostKeyExist(String hostKey){
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
 
-        Integer count = dbWrapper.customQuerySingleValue("count", "select count(*) count from http_host_route where hostKeyWord= ?", Integer.class,hostKey);
-        return count>0;
+        Number count = dbWrapper.customQuerySingleValue("count", "select count(*) count from http_host_route where host_key_word= ?", Number.class, hostKey);
+        return count.intValue() > 0;
     }
 
     @WebMapping(path = UrlConstant.ServerHttp.updateHostRouteRule)

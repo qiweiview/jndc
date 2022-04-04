@@ -14,8 +14,8 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
-import jndc_server.core.JNDCServerConfig;
-import jndc_server.core.ServeManageConfig;
+import jndc_server.config.JNDCServerConfig;
+import jndc_server.config.ServeManageConfig;
 import jndc_server.core.app.ServerApp;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,9 +85,9 @@ public class ManagementServer implements ServerApp {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                log.info("bind manage center : " + inetSocketAddress + " success");
+                log.info("服务端启动 : " + inetSocketAddress + " 成功");
             } else {
-                log.error("bind manage center : " + inetSocketAddress + " fail");
+                log.error("服务端启动 : " + inetSocketAddress + " 失败");
             }
 
         });
@@ -97,7 +97,7 @@ public class ManagementServer implements ServerApp {
             //todo 扫描
             scanFrontProject();
         } else {
-            log.info("will not deploy front management project");
+            log.info("忽略静态页面部署");
         }
 
 

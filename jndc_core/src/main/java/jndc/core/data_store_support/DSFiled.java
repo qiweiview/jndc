@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface DSFile {
+public @interface DSFiled {
     String name() default "";
 
-    boolean useFile() default true;
+    boolean useFiled() default true;
 }

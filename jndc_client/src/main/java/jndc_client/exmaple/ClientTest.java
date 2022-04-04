@@ -16,8 +16,13 @@ public class ClientTest {
     private   static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args) {
-        //File file = new File("D:\\NewWorkSpace\\Tools\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
-        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
+
+        String path = ClientTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
+        String s = path.substring(1, path.indexOf("/target")) + "/src/main/java/jndc_client/exmaple/config_file/config.yml";
+
+        File file = new File(s);
+//        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
 
         YmlParser ymlParser = new YmlParser();
         JNDCClientConfig jndcClientConfig = null;

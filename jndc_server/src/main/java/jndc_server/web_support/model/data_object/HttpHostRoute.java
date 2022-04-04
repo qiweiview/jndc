@@ -1,6 +1,7 @@
 package jndc_server.web_support.model.data_object;
 
 
+import jndc.core.data_store_support.DSFiled;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
@@ -12,24 +13,31 @@ public class HttpHostRoute {
     @DSKey
     private String id;
 
+    @DSFiled(name = "host_key_word")
     private String hostKeyWord;
 
     //0 redirect
     //1 fixed value
     //2 forward
+    @DSFiled(name = "route_type")
     private int routeType;
 
+    @DSFiled(name = "fixed_response")
     private String fixedResponse;
 
+    @DSFiled(name = "fixed_content_type")
     private String fixedContentType;
 
+    @DSFiled(name = "redirect_address")
     private String redirectAddress;
 
+    @DSFiled(name = "forward_host")
     private String forwardHost;
 
+    @DSFiled(name = "forward_port")
     private int forwardPort;
 
-
+    @DSFiled(name = "forward_protocol")
     private String forwardProtocol;
 
     public String getForwardProtocol() {

@@ -32,7 +32,7 @@ public class JNDCServer {
 
         //重置所有端口使用信息
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        dbWrapper.customExecute("update server_port_bind set portEnable = 0", null);
+        dbWrapper.customExecute("update server_port_bind set port_enable = 0", null);
 
         //admin管理页面
         ManagementServer managementServer = new ManagementServer();

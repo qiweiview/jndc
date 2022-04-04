@@ -2,7 +2,7 @@ package jndc_server.core.filter;
 
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.UniqueBeanManage;
-import jndc_server.core.JNDCServerConfig;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerPortBindContext;
 import jndc_server.core.ServerPortProtector;

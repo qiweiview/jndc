@@ -2,33 +2,26 @@ package jndc_server.start;//package jndc.core;
 
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.JNDCServer;
-import jndc_server.core.JNDCServerConfig;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
+import java.io.InputStream;
 
 
+@Slf4j
 public class ServerStart {
-
-
-    private  static final Logger logger = LoggerFactory.getLogger(ServerStart.class);
-
-
-
-
 
     public static final YmlParser ymlParser = new YmlParser();
 
     public static void main(String[] args) {
 
-        Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            logger.info("Good night everyone ");
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log.info("Good night everyone ");
         }));
-
 
 
         String tag = "\n" +
@@ -40,47 +33,46 @@ public class ServerStart {
                 "  \\____/  |_| \\_|_____/ \\_____|          |_____/|______|_|  \\_\\  \\/   |______|_|  \\_\\\n" +
                 "                                                                                     \n" +
                 "                                                                                     ";
-        logger.info(tag);
+        log.info(tag);
 
 
-        if (args.length < 1) {
-            logger.error("missing startup parameters");
-            ApplicationExit.exit();
-        }
+        String runTimePath = PathUtils.getRunTimePath();
+        log.info("读取运行目录： " + runTimePath);
 
-        String configFile = args[0];
-
-
-        File file = new File(configFile);
-        if (!file.exists()) {
-            logger.error("can not found:" + file );
+        InputStream resourceAsStream = ServerStart.class.getClassLoader().getResourceAsStream("config.yml");
+        if (resourceAsStream == null) {
+            log.error("读取配置文件失败,请检查resources目录下是否存在config.yml文件");
             ApplicationExit.exit();
         }
 
 
-
-        JNDCServerConfig jndcServerConfig = null;
+        JNDCServerConfig jndcServerConfig;
         try {
-            jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
+            jndcServerConfig = ymlParser.parseFile(resourceAsStream, JNDCServerConfig.class);
             if (jndcServerConfig == null) {
-                String configContent = FileUtils.readFileToString(file, "utf-8");
-                logger.error("please check the content:\n=====content_start=====\n" + configContent + "\n=====content_end=====\n on config.yml" + file);
+//                String configContent = FileUtils.readFileToString(file, "utf-8");
+                log.error("please check the content:\n=====content_start=====\n" + IOUtils.toByteArray(resourceAsStream) + "\n=====content_end=====\n on config.yml");
+//                log.error("yml配置文件解析异常");
                 ApplicationExit.exit();
             }
-            jndcServerConfig.setRuntimeDir(file.getParent());
+            //设置运行目录
+            jndcServerConfig.setRuntimeDir(runTimePath);
+
+            //参数校验
             jndcServerConfig.performParameterVerification();
+
+            //懒加载组件
             jndcServerConfig.lazyInitAfterVerification();
         } catch (Exception e) {
-            logger.error("parse config file:" + file + "fail" + e);
+            log.error("解析配置文件失败" + e);
             ApplicationExit.exit();
         }
 
 
         //启动相关服务
-        JNDCServer serverTest =new JNDCServer();
+        JNDCServer serverTest = new JNDCServer();
         serverTest.createServer();
         return;
-
 
 
     }

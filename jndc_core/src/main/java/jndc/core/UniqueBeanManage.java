@@ -27,20 +27,20 @@ public class UniqueBeanManage {
     static {
 
 
-
     }
 
 
     public static void registerBean(Object o) {
-        if (null == o) {
-            return;
-        }
-        Object o1 = map.get(o.getClass());
-        if (o1!=null){
-            throw new RuntimeException("exist a bean "+o1);
+        registerBean(o.getClass(), o);
+    }
+
+    public static void registerBean(Class tClass, Object o) {
+
+        Object o1 = map.get(tClass);
+        if (o1 != null) {
+            throw new RuntimeException("exist a bean " + o1);
         }
 
-        Class<?> aClass = o.getClass();
-        map.put(aClass, o);
+        map.put(tClass, o);
     }
 }

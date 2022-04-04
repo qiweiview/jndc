@@ -45,15 +45,15 @@ public class IpChecker {
         List<IpFilterRecord> list = new ArrayList<>();
         releaseMap.forEach((k, v) -> {
             IpFilterRecord ipFilterRecord = v.toIpFilterRecord();
-            if (ipFilterRecord.getvCount()>0){
+            if (ipFilterRecord.getVCount() > 0) {
                 ipFilterRecord.setRecordType(IpRecord.RELEASE_STATE);
                 ipFilterRecord.setId(UUIDSimple.id());
                 list.add(ipFilterRecord);
                 v.reset();
-            }else {
+            } else {
                 //todo remove expire key
                 long timeStamp = ipFilterRecord.getTimeStamp();
-                if (timeStamp+IP_CACHE_EXPIRE<System.currentTimeMillis()){
+                if (timeStamp + IP_CACHE_EXPIRE < System.currentTimeMillis()) {
                     releaseMap.remove(k);
                 }
             }
@@ -61,15 +61,15 @@ public class IpChecker {
 
         blockMap.forEach((k, v) -> {
             IpFilterRecord ipFilterRecord = v.toIpFilterRecord();
-            if (ipFilterRecord.getvCount()>0){
+            if (ipFilterRecord.getVCount() > 0) {
                 ipFilterRecord.setRecordType(IpRecord.BLOCK_STATE);
                 ipFilterRecord.setId(UUIDSimple.id());
                 list.add(ipFilterRecord);
                 v.reset();
-            }else {
+            } else {
                 //todo remove expire key
                 long timeStamp = ipFilterRecord.getTimeStamp();
-                if (timeStamp+IP_CACHE_EXPIRE<System.currentTimeMillis()){
+                if (timeStamp + IP_CACHE_EXPIRE < System.currentTimeMillis()) {
                     blockMap.remove(k);
                 }
             }
@@ -191,7 +191,7 @@ public class IpChecker {
         public IpFilterRecord toIpFilterRecord() {
             IpFilterRecord ipFilterRecord = new IpFilterRecord();
             ipFilterRecord.setIp(ip);
-            ipFilterRecord.setvCount(count.get());
+            ipFilterRecord.setVCount(count.get());
             ipFilterRecord.setTimeStamp(lastTimeStamp);
             return ipFilterRecord;
         }

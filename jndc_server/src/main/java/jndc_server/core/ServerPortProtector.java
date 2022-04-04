@@ -188,7 +188,7 @@ public class ServerPortProtector {
 
         //更新端口绑定信息
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        dbWrapper.customExecute("update server_port_bind set portEnable=0 where port=?", port);
+        dbWrapper.customExecute("update server_port_bind set port_enable=0 where port=?", port);
 
 
         //同通刷新服务端口列表

@@ -1,15 +1,11 @@
-secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
-loglevel: "INFO"
-serverIp: "127.0.0.1" # 服务端运行监听ip
+secrete: "zzdivxat!`" # 服务端密钥，很重要务必在使用前更改
+loglevel: "info" # 日志打印等级
+serverIp: "101.34.166.251" # 服务端运行监听ip
 serverPort: "81" # 服务端运行端口
 openGui: false
-autoReleaseTimeOut: 1200000 # 客户端自动断开时间（毫秒）
+autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）
 clientServiceDescriptions: # 注册服务
-  - serviceName: "lite"
+  - serviceName: "mysql_win"
     serviceIp: "127.0.0.1"
-    servicePort: "778"
+    servicePort: "3306"
     serviceEnable: true
-  - serviceName: "pi_win"
-    serviceIp: "192.168.1.102"
-    servicePort: "22"
-    serviceEnable: false

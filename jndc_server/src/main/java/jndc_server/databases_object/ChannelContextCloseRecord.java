@@ -1,21 +1,27 @@
 package jndc_server.databases_object;
 
+import jndc.core.data_store_support.DSFiled;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 import jndc_server.core.ChannelHandlerContextHolder;
+import lombok.Data;
 
+@Data
 @DSTable(name = "channel_context_record")
 public class ChannelContextCloseRecord {
 
     @DSKey
     private String id;
 
+
+    @DSFiled(name = "channel_id")
     private String channelId;
 
     private String ip;
 
     private int port;
 
+    @DSFiled(name = "time_stamp")
     private long timeStamp;
 
     public static ChannelContextCloseRecord of(ChannelHandlerContextHolder value) {
@@ -27,43 +33,4 @@ public class ChannelContextCloseRecord {
     }
 
 
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
 }

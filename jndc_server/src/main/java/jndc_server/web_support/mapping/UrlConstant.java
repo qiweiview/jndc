@@ -1,36 +1,36 @@
 package jndc_server.web_support.mapping;
 
 public class UrlConstant {
-    public  class DevelopDebug{
-        public static final String reloadFront="/reloadFront";//reload front project
+    public interface DevelopDebug {
+        public static final String reloadFront = "/reloadFront";//reload front project
 
-        public static final String getDeviceIp="/getDeviceIp";//get device ip
+        public static final String getDeviceIp = "/getDeviceIp";//get device ip
     }
 
 
-    public  class ServerHttp{
-        public static final String saveHostRouteRule="/saveHostRouteRule";//
+    public interface ServerHttp {
+        public static final String saveHostRouteRule = "/saveHostRouteRule";//
 
-        public static final String updateHostRouteRule="/updateHostRouteRule";//
+        public static final String updateHostRouteRule = "/updateHostRouteRule";//
 
-        public static final String deleteHostRouteRule="/deleteHostRouteRule";//
+        public static final String deleteHostRouteRule = "/deleteHostRouteRule";//
 
-        public static final String listHostRouteRule="/listHostRouteRule";//
+        public static final String listHostRouteRule = "/listHostRouteRule";//
 
     }
 
-    public  class ServerManage{
-        public static final String login="/login";//
+    public interface ServerManage {
+        public static final String login = "/login";//登录
 
-        public static final String getServerChannelTable="/getServerChannelTable";//渠道列表
+        public static final String getServerChannelTable = "/getServerChannelTable";//渠道列表
 
-        public static final String getChannelRecord="/getChannelRecord";//
+        public static final String getChannelRecord = "/getChannelRecord";//
 
-        public static final String clearChannelRecord="/clearChannelRecord";//
+        public static final String clearChannelRecord = "/clearChannelRecord";//
 
-        public static final String sendHeartBeat="/sendHeartBeat";//
+        public static final String sendHeartBeat = "/sendHeartBeat";//
 
-        public static final String closeChannelByServer="/closeChannelByServer";//
+        public static final String closeChannelByServer = "/closeChannelByServer";//
 
         public static final String getServiceList="/getServiceList";//
 

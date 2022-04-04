@@ -1,5 +1,6 @@
 package jndc_server.databases_object;
 
+import jndc.core.data_store_support.DSFiled;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
 import lombok.Data;
@@ -19,14 +20,18 @@ public class ServerPortBind {
 
     private int port;
 
+    @DSFiled(name = "enable_date_range")
     private String enableDateRange;
 
     //客户端唯一编号
+    @DSFiled(name = "bind_client_id")
     private String bindClientId;
 
+    @DSFiled(name = "port_enable")
     private int portEnable;//1 enable 0 disable 2 preparing
 
     //服务路由路径
+    @DSFiled(name = "route_to")
     private String routeTo;
 
     /**

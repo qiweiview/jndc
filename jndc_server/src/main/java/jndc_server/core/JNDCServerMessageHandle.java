@@ -12,6 +12,7 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //获取旧的绑定
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where portEnable=0 and bindClientId is not null  ");
+        List<ServerPortBind> serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port_enable=0 and bind_client_id is not null  ");
 
         //获取库内规则进行匹配
         serverPortBinds.forEach(x -> {

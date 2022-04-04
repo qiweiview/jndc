@@ -10,7 +10,7 @@ import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
-import jndc_server.core.JNDCServerConfig;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.JNDCServerMessageHandle;
 import jndc_server.core.filter.CustomRulesFilter;
 import org.slf4j.Logger;
@@ -48,9 +48,9 @@ public class JndcCoreServer implements ServerApp{
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.info("bind admin : " + serverConfig.getInetSocketAddress() + " success");
+                logger.info("配置服务: " + serverConfig.getInetSocketAddress() + " 启动成功");
             } else {
-                logger.error("bind admin : " + serverConfig.getInetSocketAddress() + " fail");
+                logger.error("配置服务: " + serverConfig.getInetSocketAddress() + " 启动失败");
             }
 
         });

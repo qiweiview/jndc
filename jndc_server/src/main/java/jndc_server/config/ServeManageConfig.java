@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.config;
 
 import jndc_server.web_support.utils.SslOneWayContextFactory;
 import lombok.Data;

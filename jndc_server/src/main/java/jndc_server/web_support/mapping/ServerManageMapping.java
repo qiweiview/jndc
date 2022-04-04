@@ -117,7 +117,7 @@ public class ServerManageMapping {
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
 
         DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
-        PageResult<ChannelContextCloseRecord> channelContextCloseRecordPageResult = dbWrapper.customQueryByPage("select * from channel_context_record order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
+        PageResult<ChannelContextCloseRecord> channelContextCloseRecordPageResult = dbWrapper.customQueryByPage("select * from channel_context_record order by time_stamp desc", pageDTO.getPage(), pageDTO.getRows());
 
         //create vo
         PageListVO<ChannelContextCloseRecord> channelContextCloseRecordPageListVO = new PageListVO<>();
@@ -223,9 +223,9 @@ public class ServerManageMapping {
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
         List<ServerPortBind> serverPortBinds;
         if (0 == serverPortBind.getPort()) {
-            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind order by portEnable desc ");
+            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind order by port_enable desc ");
         } else {
-            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =? order by portEnable desc ", serverPortBind.getPort());
+            serverPortBinds = dbWrapper.customQuery("select * from server_port_bind where port =? order by port_enable desc ", serverPortBind.getPort());
         }
 
         return serverPortBinds;
@@ -451,7 +451,7 @@ public class ServerManageMapping {
         ServiceBindDTO channelContextVO = JSONUtils.str2Object(s, ServiceBindDTO.class);
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
-        dbWrapper.customExecute("update  server_port_bind set routeTo=null where id=?", channelContextVO.getServerPortId());
+        dbWrapper.customExecute("update  server_port_bind set route_to=null where id=?", channelContextVO.getServerPortId());
 
 
         return responseMessage;
@@ -678,12 +678,12 @@ public class ServerManageMapping {
         String s = new String(body);
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
-        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=0 GROUP BY ip order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
+        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(time_stamp) timeStamp,sum(v_count) vCount from ip_filter_record where record_type=0 GROUP BY ip order by time_stamp desc", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
         ipFilterRecordPageResult.getData().forEach(x -> {
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
-            ipRecordVO.setCount(x.getvCount());
+            ipRecordVO.setCount(x.getVCount());
             ipRecordVO.setLastTimeStamp(x.getTimeStamp());
             ipRecordVOS.add(ipRecordVO);
         });
@@ -712,12 +712,12 @@ public class ServerManageMapping {
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
 
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
-        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(timeStamp) timeStamp,sum(vCount) vCount from ip_filter_record where recordType=1 GROUP BY ip order by timeStamp desc", pageDTO.getPage(), pageDTO.getRows());
+        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(time_stamp) timeStamp,sum(v_count) vCount from ip_filter_record where record_type=1 GROUP BY ip order by time_stamp desc", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
         ipFilterRecordPageResult.getData().forEach(x -> {
             IpRecordVO ipRecordVO = new IpRecordVO();
             ipRecordVO.setIp(x.getIp());
-            ipRecordVO.setCount(x.getvCount());
+            ipRecordVO.setCount(x.getVCount());
             ipRecordVO.setLastTimeStamp(x.getTimeStamp());
             ipRecordVOS.add(ipRecordVO);
         });
@@ -756,11 +756,11 @@ public class ServerManageMapping {
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
         if (pageDTO.clearByDateLimit()) {
             //todo clear by date limit
-            dbWrapper.customExecute("delete from ip_filter_record where timeStamp<=? and recordType = ? ", pageDTO.getClearDateLimit(), pageDTO.getRecordType());
+            dbWrapper.customExecute("delete from ip_filter_record where time_stamp<=? and record_type = ? ", pageDTO.getClearDateLimit(), pageDTO.getRecordType());
         } else {
             //todo save only top ten
-            List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, recordType , max(timeStamp) AS timeStamp, max(vCount) AS vCount FROM ip_filter_record WHERE recordType = ? GROUP BY ip, recordType ORDER BY max(vCount) DESC LIMIT 10", pageDTO.getRecordType());
-            dbWrapper.customExecute("delete from ip_filter_record where recordType = ? ", pageDTO.getRecordType());
+            List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, recordType , max(time_stamp) AS timeStamp, max(v_count) AS vCount FROM ip_filter_record WHERE record_type = ? GROUP BY ip, record_type ORDER BY max(v_count) DESC LIMIT 10", pageDTO.getRecordType());
+            dbWrapper.customExecute("delete from ip_filter_record where record_type = ? ", pageDTO.getRecordType());
             dbWrapper.insertBatch(ipFilterRecords);
         }
 

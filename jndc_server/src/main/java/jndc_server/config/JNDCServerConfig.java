@@ -1,10 +1,13 @@
-package jndc_server.core;
+package jndc_server.config;
 
 import ch.qos.logback.classic.Level;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
-import jndc.core.data_store_support.DataStore;
+import jndc.core.data_store_support.DataStoreAbstract;
+import jndc.core.data_store_support.MysqlDataStore;
+import jndc.core.data_store_support.SQLiteDataStore;
 import jndc.utils.*;
+import jndc_server.core.*;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.core.MappingRegisterCenter;
 import jndc_server.web_support.core.MessageNotificationCenter;
@@ -55,6 +58,9 @@ public class JNDCServerConfig {
     //管理api配置
     private ServeManageConfig manageConfig;
 
+    //数据库配置
+    private DBConfig dbConfig;
+
     /* ------------非配置属性------------ */
 
 
@@ -78,33 +84,65 @@ public class JNDCServerConfig {
         inetSocketAddress = new InetSocketAddress(inetAddress, servicePort);
         httpInetSocketAddress = new InetSocketAddress(inetAddress, webConfig.getHttpPort());
 
+        //验证账号密码是否默认
         if (UN_SUPPORT_VALUE.equals(manageConfig.getLoginName()) && UN_SUPPORT_VALUE.equals(manageConfig.getLoginPassWord())) {
             LogPrint.err("the default name and password 'jndc' is not safe,please edit the config file and retry");
             ApplicationExit.exit();
         }
+
+        //设置登录用户名密码
         AuthUtils.name = manageConfig.getLoginName();
         AuthUtils.passWord = manageConfig.getLoginPassWord();
 
-        //perform ssl file
+        //验证ssl文件
         performSslInWebApi();
 
 
-        //register bean
+        //注册对象
         UniqueBeanManage.registerBean(this);
 
+        //配置中心
         UniqueBeanManage.registerBean(new NDCServerConfigCenter());
-        UniqueBeanManage.registerBean(new IpChecker());
-        UniqueBeanManage.registerBean(new MappingRegisterCenter());
-        UniqueBeanManage.registerBean(new DataStore(getRuntimeDir()));
-        AsynchronousEventCenter asynchronousEventCenter = new AsynchronousEventCenter();
 
+        //IP过滤
+        UniqueBeanManage.registerBean(new IpChecker());
+
+        //隧道映射注册
+        UniqueBeanManage.registerBean(new MappingRegisterCenter());
+
+        //数据存储组件
+        if (dbConfig.useMysql()) {
+            //todo 使用mysql存储
+            DataStoreAbstract mysqlDataStore = new MysqlDataStore(dbConfig.getUrl(), dbConfig.getName(), dbConfig.getPassword());
+            mysqlDataStore.init();
+            UniqueBeanManage.registerBean(DataStoreAbstract.class, mysqlDataStore);
+            log.info("使用mysql数据库存储：" + dbConfig.getUrl());
+        } else {
+            //todo 使用sqlite存储
+            DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
+            sqLiteDataStore.init();
+            UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
+            log.info("使用sqlite数据库存储");
+        }
+
+
+        //异步执行中心
+        AsynchronousEventCenter asynchronousEventCenter = new AsynchronousEventCenter();
         UniqueBeanManage.registerBean(asynchronousEventCenter);
+
+        //websocket消息通知中心
         UniqueBeanManage.registerBean(new MessageNotificationCenter());
+
+        //定时执行
         UniqueBeanManage.registerBean(new ScheduledTaskCenter());
+
+        //域名路由
         UniqueBeanManage.registerBean(new HostRouterComponent());
+
+        //流量分析
         UniqueBeanManage.registerBean(new DataFlowAnalysisCenter(asynchronousEventCenter));
 
-        //do server init
+        //初始化
         init();
     }
 
@@ -113,6 +151,7 @@ public class JNDCServerConfig {
      * 初始化
      */
     private void init() {
+        //设置日志等级
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
 
