@@ -129,6 +129,10 @@ clientServiceDescriptions: # 注册服务
 * 流量监控
 * 查询语法优化
 
+## supporting
+* Thanks to jetbrains for supporting this open source project
+* [OpenSourceSupport](https://jb.gg/OpenSourceSupport)
+* ![jetbrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_ga=2.159595956.84150952.1649035676-1273448.1647342519&_gl=1*1v0d1hp*_ga*MTI3MzQ0OC4xNjQ3MzQyNTE5*_ga_V0XZL7QHEB*MTY0OTAzNTY3NS4xLjEuMTY0OTAzODA2Ni42MA..)
 
 
 
