@@ -6,21 +6,20 @@ import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerPortBindContext;
 import jndc_server.core.ServerPortProtector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+@Slf4j
 public class AllowTimeRule implements CustomRule {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private volatile NDCServerConfigCenter ndcServerConfigCenter;
 
     private volatile int ignorePort;
 
     @Override
-    public boolean ruleCheck(ChannelHandlerContext ctx) {
+    public String ruleCheck(ChannelHandlerContext ctx) {
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
         InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().localAddress();
         int port = socketAddress.getPort();
@@ -32,18 +31,23 @@ public class AllowTimeRule implements CustomRule {
                 }
             }
         }
-        if (port==ignorePort){
-            return true;
+
+        if (port==ignorePort) {
+            //todo 通过
+            return null;
         }
 
         Map<Integer, ServerPortBindContext> tcpRouter = ndcServerConfigCenter.getTcpRouter();
         ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
         ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
+        //确认时间
         boolean b = serverPortProtector.checkBetweenEnableTimeRange();
-        if (!b){
-            logger.error("reject request from "+remoteAddress+" ,because out of service available time");
+        if (!b) {
+            //todo false
+            log.error("reject request from " + remoteAddress + " ,because out of service available time");
+            return getRuleName() + "端口非可用时段";
         }
-        return b;
+        return null;
     }
 
     @Override

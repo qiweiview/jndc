@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `jndc`.`channel_context_record`  (
   `ip` varchar(255) NULL COMMENT 'ip地址',
   `channel_id` varchar(255) NULL COMMENT '隧道id',
   `port` int(8) NULL COMMENT '端口',
-  `time_stamp` int(16) NULL COMMENT '时间戳',
+  `time_stamp` bigint(20) NULL COMMENT '时间戳',
   PRIMARY KEY (`id`)
 ) COMMENT = '隧道记录表';
 
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `jndc`.`ip_filter_record`  (
   `id` varchar(32) NOT NULL COMMENT '编号',
   `ip` varchar(255) NULL COMMENT 'ip地址',
   `v_count` int(32) NULL COMMENT '记录值',
-  `time_stamp` int(16) NULL COMMENT '时间',
+  `time_stamp` bigint(20) NULL COMMENT '时间',
   `record_type` int(1) NULL COMMENT '记录类型',
   PRIMARY KEY (`id`)
 ) COMMENT = 'IP过滤记录表';

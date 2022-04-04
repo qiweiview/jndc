@@ -83,7 +83,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
         JNDCClientConfig jndcClientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
         boolean b = times > jndcClientConfig.getAutoReleaseTimeOut();
         if (b) {
-            log.info("now:" + l + " last active time:" + lastActiveTime + " difference:" + times + " time out limit:" + jndcClientConfig.getAutoReleaseTimeOut());
+            log.debug("now:" + l + " last active time:" + lastActiveTime + " difference:" + times + " time out limit:" + jndcClientConfig.getAutoReleaseTimeOut());
         }
         return b;
     }

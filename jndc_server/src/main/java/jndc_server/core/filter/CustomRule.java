@@ -4,7 +4,13 @@ import io.netty.channel.ChannelHandlerContext;
 
 public interface CustomRule {
 
-    public boolean ruleCheck(ChannelHandlerContext context);
+    /**
+     * 规则确认
+     *
+     * @param context
+     * @return
+     */
+    public String ruleCheck(ChannelHandlerContext context);
 
 
     public String getRuleName();

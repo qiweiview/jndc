@@ -2,22 +2,21 @@ package jndc_client.start;//package jndc.core;
 
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
 import jndc_client.http_support.ClientHttpManagement;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
+import java.io.InputStream;
 
 
+@Slf4j
 public class ClientStart {
 
     public static  String CLIENT_ID;
-
-    private  static final Logger logger = LoggerFactory.getLogger(ClientStart.class);
 
 
     public static final YmlParser ymlParser = new YmlParser();
@@ -25,9 +24,8 @@ public class ClientStart {
     public static void main(String[] args) {
 
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
-            logger.info("Good night everyone ");
+            log.info("Good night everyone ");
         }));
-
 
 
         String tag = "\n" +
@@ -42,36 +40,32 @@ public class ClientStart {
                 "client_id: ";
 
 
+        String runTimePath = PathUtils.getRunTimePath();
+        log.info("读取运行目录： " + runTimePath);
 
-        if (args.length < 1) {
-            logger.error("missing startup parameters");
+        InputStream resourceAsStream = ClientStart.class.getClassLoader().getResourceAsStream("config.yml");
+        if (resourceAsStream == null) {
+            log.error("读取配置文件失败,请检查resources目录下是否存在config.yml文件");
             ApplicationExit.exit();
         }
 
-        String configFile = args[0];
 
-
-        File file = new File(configFile);
-        if (!file.exists()) {
-            logger.error("can not found:" + file );
-            ApplicationExit.exit();
-        }
         JNDCClientConfig jndcClientConfig = null;
         try {
-            jndcClientConfig = ymlParser.parseFile(file, JNDCClientConfig.class);
+            jndcClientConfig = ymlParser.parseFile(resourceAsStream, JNDCClientConfig.class);
             if (jndcClientConfig == null) {
-                String configContent = FileUtils.readFileToString(file, "utf-8");
-                logger.error("please check the content:\n=====content_start=====\n" + configContent + "\n=====content_end=====\n on config.yml" + file);
+
+                log.error("please check the content:\n=====content_start=====\n" + new String(IOUtils.toByteArray(resourceAsStream)) + "\n=====content_end=====\n on config.yml");
                 ApplicationExit.exit();
             }
             jndcClientConfig.performParameterVerification();
-            jndcClientConfig.setRuntimeDir(file.getParent());
+            jndcClientConfig.setRuntimeDir(runTimePath);
             jndcClientConfig.loadClientId();
-            logger.info(tag + CLIENT_ID);
-            logger.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
+            log.info(tag + CLIENT_ID);
+            log.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("parse config file:" + file + "fail" + e);
+            log.error("parse config file fail" + e);
             ApplicationExit.exit();
         }
 

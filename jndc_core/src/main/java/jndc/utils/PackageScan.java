@@ -20,7 +20,7 @@ public class PackageScan {
     private static final String ClassPath = classLoader.getResource("").getFile();
 
     static {
-        log.info("class path:---> " + classLoader.getResource("").getPath());
+        log.debug("class path:---> " + classLoader.getResource("").getPath());
     }
 
     /**

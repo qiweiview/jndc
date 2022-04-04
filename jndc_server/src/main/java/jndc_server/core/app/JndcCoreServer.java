@@ -33,10 +33,11 @@ public class JndcCoreServer implements ServerApp{
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
 
-                pipeline.addFirst(CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
-                pipeline.addAfter(CustomRulesFilter.NAME, NDCPCodec.NAME, new NDCPCodec());
+
+                pipeline.addFirst(NDCPCodec.NAME, new NDCPCodec());
                 pipeline.addAfter(NDCPCodec.NAME, SecreteCodec.NAME, new SecreteCodec());
-                pipeline.addAfter(SecreteCodec.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
+                pipeline.addAfter(SecreteCodec.NAME, CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
+                pipeline.addAfter(CustomRulesFilter.NAME, JNDCServerMessageHandle.NAME, new JNDCServerMessageHandle());
             }
         };
 

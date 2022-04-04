@@ -1,8 +1,11 @@
 package jndc.core.message;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 
+@Data
 public class UserError implements Serializable {
     public static final int SERVER_ERROR = 500;
 
@@ -12,27 +15,5 @@ public class UserError implements Serializable {
 
     private String description;
 
-    @Override
-    public String toString() {
-        return "UserError{" +
-                "code=" + code +
-                ", description='" + description + '\'' +
-                '}';
-    }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }

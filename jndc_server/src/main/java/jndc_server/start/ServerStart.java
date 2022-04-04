@@ -51,7 +51,7 @@ public class ServerStart {
             jndcServerConfig = ymlParser.parseFile(resourceAsStream, JNDCServerConfig.class);
             if (jndcServerConfig == null) {
 //                String configContent = FileUtils.readFileToString(file, "utf-8");
-                log.error("please check the content:\n=====content_start=====\n" + IOUtils.toByteArray(resourceAsStream) + "\n=====content_end=====\n on config.yml");
+                log.error("please check the content:\n=====content_start=====\n" + new String(IOUtils.toByteArray(resourceAsStream)) + "\n=====content_end=====\n on config.yml");
 //                log.error("yml配置文件解析异常");
                 ApplicationExit.exit();
             }

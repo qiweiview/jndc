@@ -71,7 +71,7 @@ public class JNDCClient {
     }
 
     private void createClient(EventLoopGroup group) {
-        logger.info("do once connect...");
+        logger.debug("do once connect...");
 
         Bootstrap b = new Bootstrap();
         JNDCClient jndcClient = this;
@@ -111,10 +111,10 @@ public class JNDCClient {
                 //set success tag
                 jndcClientConfigCenter.successToConnectToServer();
 
-                logger.info("connect success to the jndc server : " + clientConfig.getServerIpSocketAddress());
+                logger.info("连接 jndc 服务 : " + clientConfig.getServerIpSocketAddress());
             } else {
                 //todo connect fail
-                logger.info("connect fail , try re connect");
+                logger.info("连接 jndc 服务失败 , 重试");
 
                 //set fail tag
                 jndcClientConfigCenter.failToConnectToServer();

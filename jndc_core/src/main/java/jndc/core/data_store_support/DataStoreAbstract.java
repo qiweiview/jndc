@@ -85,6 +85,7 @@ public abstract class DataStoreAbstract {
             for (int i = 0; i < objects.length; i++) {
                 preparedStatement.setObject(i + 1, objects[i]);
             }
+            log.debug("sql 打印" + preparedStatement.toString());
             preparedStatement.execute();
 
         } catch (SQLException sqlException) {

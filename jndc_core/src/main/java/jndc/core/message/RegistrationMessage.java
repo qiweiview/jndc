@@ -1,13 +1,15 @@
 package jndc.core.message;
 
 import jndc.core.TcpServiceDescription;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * 请求响应共体
+ * 注册消息
  */
+@Data
 public class RegistrationMessage implements Serializable {
 
     private static final long serialVersionUID = 2323315614144754699L;
@@ -33,56 +35,5 @@ public class RegistrationMessage implements Serializable {
     }
 
 
-    //-------------------------- getter setter --------------------------
 
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
-    }
-
-    public byte getType() {
-        return type;
-    }
-
-    public void setType(byte type) {
-        this.type = type;
-    }
-
-    public String getAuth() {
-        return auth;
-    }
-
-    public void setAuth(String auth) {
-        this.auth = auth;
-    }
-
-    public List<TcpServiceDescription> getTcpServiceDescriptions() {
-        return tcpServiceDescriptions;
-    }
-
-    public void setTcpServiceDescriptions(List<TcpServiceDescription> tcpServiceDescriptions) {
-        this.tcpServiceDescriptions = tcpServiceDescriptions;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-
-    @Override
-    public String toString() {
-        return "RegistrationMessage{" +
-                "auth='" + auth + '\'' +
-                ", tcpServiceDescriptions=" + tcpServiceDescriptions +
-                ", message='" + message + '\'' +
-                '}';
-    }
 }

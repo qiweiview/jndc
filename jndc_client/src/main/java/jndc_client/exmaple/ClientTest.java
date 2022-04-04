@@ -17,12 +17,8 @@ public class ClientTest {
 
     public static void main(String[] args) {
 
-        String path = ClientTest.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-        String s = path.substring(1, path.indexOf("/target")) + "/src/main/java/jndc_client/exmaple/config_file/config.yml";
-
-        File file = new File(s);
-//        File file = new File("D:\\JAVA_WORK_SPACE\\jndc\\jndc_client\\src\\main\\java\\jndc_client\\exmaple\\config_file\\config.yml");
+        String devPath = System.getProperty("user.dir") + File.separator + "jndc_client\\src\\main\\resources\\config.yml";
+        File file = new File(devPath);
 
         YmlParser ymlParser = new YmlParser();
         JNDCClientConfig jndcClientConfig = null;

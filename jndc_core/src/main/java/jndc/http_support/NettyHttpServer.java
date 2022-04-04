@@ -72,9 +72,9 @@ public class NettyHttpServer {
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                log.info("bind http  : " + port + " success");
+                log.info("启动http服务  : " + port + " 成功");
             } else {
-                log.error("bind http : " + port + " fail,cause " + x);
+                log.error("启动http服务 : " + port + " 失败,原因 " + x);
             }
 
         });
