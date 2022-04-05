@@ -73,9 +73,6 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 --------------------------------
 ```
 
-## 功能说明
-* [功能介绍](https://github.com/qiweiview/jndc/blob/master/function_introduction.md)
-
 ## 配置文件说明
 
 ### server 配置
