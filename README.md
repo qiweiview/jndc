@@ -86,39 +86,46 @@ blackList: # ip访问黑名单
 #- "192.168.1.1"
 whiteList: # 白名单
 #- "192.168.1.2"
-managementApiPort: 777 #管理api端口
 servicePort: 81 # jndc服务端运行监听端口
-bindIp: "0.0.0.0" # jndc服务端运行ip
-webConfig: # http配置
-  routNotFoundPage: ""
-  httpPort: 80 # http应用端口
+bindIp: "127.0.0.1" # jndc服务端运行ip
+
+dbConfig:
+  type: "mysql" # 可选值：mysql和sqlite
+  #  type: "sqlite" # 可选值：mysql和sqlite
+  url: "jdbc:mysql://127.0.0.1:3306/jndc?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
+  name: "root"
+  password: "xxx"
+
+manageConfig: # 管理端api服务
+  managementApiPort: 777 #管理api端口
+  useSsl: false # 是否使用ssl
+  jksPath: "/xx.jks" #jks 证书地址
+  jksPass: "xxx" # jks 证书密码
   loginName: "xxx" # 登录用户名
   loginPassWord: "xxx" # 登录密码
-  useSsl: false # 是否使用ssl
-  scanFrontPages: false # 是否扫描 项目目录下的management文件夹
-  jksPath: "" #jks 证书地址
-  jksPass: "" # jks 证书密码
+  adminEnable: true # 是否启动静态页面
 
+webConfig: # http web服务
+  notFoundPage: "/404.html"
+  httpPort: 80 # http应用端口
+  useSsl: false # 是否使用ssl
+  jksPath: "/xx.jks" #jks 证书地址
+  jksPass: "ddd" # jks 证书密码
 ```
 
 ### client 配置
 ```yaml
-secrete: "xxx" # client端配置需要持有相同字符串。很重要务必在使用前更改,不允许默认密码为‘jndc’运行
+secrete: "xxx1" # 服务端密钥，很重要务必在使用前更改
 loglevel: "info" # 日志打印等级
 serverIp: "127.0.0.1" # 服务端运行监听ip
 serverPort: "81" # 服务端运行端口
-openGui: true
-autoReleaseTimeOut: 1200000 # 客户端连接自动断开时间（毫秒）
+openGui: false
+autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）
 clientServiceDescriptions: # 注册服务
-  - serviceName: "desk" # 服务名称(仅作为注册的标识)
-    serviceIp: "192.168.216.131" #  服务所在网络ip
-    servicePort: "3389" #  服务监听端口
-    serviceEnable: true # 该服务是否在客户端启动后自动注册，即:'true'则会在客户端启动后自动将该服务注册到服务端,反之
-  - serviceName: "echo"
-    serviceIp: "127.0.0.1"
-    servicePort: "888"
-    serviceEnable: false
-
+  - serviceName: "xx"
+    serviceIp: "xx.com"
+    servicePort: "80"
+    serviceEnable: true
 ```
 
 ## 小结
