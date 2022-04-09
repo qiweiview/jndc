@@ -1,13 +1,12 @@
 package jndc.core.message;
 
-import jndc.core.TcpServiceDescription;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * 注册消息
+ * 服务注册消息
  */
 @Data
 public class RegistrationMessage implements Serializable {

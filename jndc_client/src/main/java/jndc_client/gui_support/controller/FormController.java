@@ -4,10 +4,8 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.TextFormatter;
 import javafx.util.converter.NumberStringConverter;
-import jndc.core.TcpServiceDescription;
 import jndc_client.core.ClientServiceDescription;
 import jndc_client.gui_support.utils.AlertUtils;
 import jndc_client.gui_support.utils.DialogClose;
@@ -16,10 +14,7 @@ import jndc_client.gui_support.utils.MenuItemPackagingListStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class FormController implements Initializable {

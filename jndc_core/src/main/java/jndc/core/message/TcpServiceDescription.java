@@ -1,4 +1,4 @@
-package jndc.core;
+package jndc.core.message;
 
 
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 
 /**
- * the description of service supported by client
+ * 服务描述
  */
 @Data
 public class TcpServiceDescription implements Serializable {

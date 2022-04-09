@@ -1,7 +1,7 @@
 package jndc_client.core;
 
 
-import jndc.core.TcpServiceDescription;
+import jndc.core.message.TcpServiceDescription;
 import jndc.utils.InetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

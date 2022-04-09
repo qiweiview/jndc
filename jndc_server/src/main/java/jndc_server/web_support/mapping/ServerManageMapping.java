@@ -1,10 +1,10 @@
 package jndc_server.web_support.mapping;
 
 
-import jndc.core.TcpServiceDescription;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
+import jndc.core.message.TcpServiceDescription;
 import jndc.utils.JSONUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;

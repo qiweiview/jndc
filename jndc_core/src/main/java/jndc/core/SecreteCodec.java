@@ -15,7 +15,8 @@ import java.util.List;
 public class SecreteCodec extends MessageToMessageCodec<NDCMessageProtocol, NDCMessageProtocol> {
     public static final String NAME = "SECRETE_CODEC";
 
-    private static DataEncryption dataEncryption = new AESDataEncryption();//Can be changed to a more secure encryption algorithm
+    //对称加密
+    private static DataEncryption dataEncryption = new AESDataEncryption();
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol, List<Object> list) throws Exception {

@@ -3,7 +3,7 @@ package jndc_server.core;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCMessageProtocol;
-import jndc.core.TcpServiceDescription;
+import jndc.core.message.TcpServiceDescription;
 import jndc.utils.InetUtils;
 import jndc.utils.NettyContextUtils;
 import lombok.Data;
