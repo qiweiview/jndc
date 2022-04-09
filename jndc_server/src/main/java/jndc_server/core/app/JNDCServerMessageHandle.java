@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.core.app;
 
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,6 +13,9 @@ import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
 import jndc_server.config.JNDCServerConfig;
+import jndc_server.core.ChannelHandlerContextHolder;
+import jndc_server.core.NDCServerConfigCenter;
+import jndc_server.core.TcpServiceDescriptionOnServer;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -384,6 +387,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
 
         if (cause.getCause() instanceof SecreteDecodeFailException) {
+            //todo 密码错误
             NDCMessageProtocol of = NDCMessageProtocol.of(localAddress.getAddress(), remoteAddress.getAddress(), 0, localAddress.getPort(), remoteAddress.getPort(), NDCMessageProtocol.NO_ACCESS);
             ctx.writeAndFlush(of).addListeners(ChannelFutureListener.CLOSE);
             log.error("The \"" + remoteAddress + "\" is broken due to incorrect credentials");

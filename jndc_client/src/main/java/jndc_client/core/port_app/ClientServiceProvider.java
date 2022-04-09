@@ -1,4 +1,4 @@
-package jndc_client.core;
+package jndc_client.core.port_app;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;

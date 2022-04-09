@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.core.port_app;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
@@ -12,6 +12,8 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UniqueInetTagProducer;
+import jndc_server.core.AsynchronousEventCenter;
+import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.filter.CustomRulesFilter;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
@@ -175,10 +177,10 @@ public class ServerPortProtector {
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //获取    --->   服务端端口号 ： 服务端口绑定上下文
-        Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
+        Map<Integer, AsynchronousEventCenter.ServerPortBindContext> tcpRouter = bean.getTcpRouter();
 
         //移除对应端口
-        ServerPortBindContext remove = tcpRouter.remove(port);
+        AsynchronousEventCenter.ServerPortBindContext remove = tcpRouter.remove(port);
 
         //释放 服务端口绑定上下文
         if (remove != null) {

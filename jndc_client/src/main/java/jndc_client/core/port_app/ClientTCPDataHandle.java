@@ -1,4 +1,4 @@
-package jndc_client.core;
+package jndc_client.core.port_app;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -6,6 +6,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
+import jndc_client.core.JNDCClientConfig;
+import jndc_client.core.JNDCClientConfigCenter;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

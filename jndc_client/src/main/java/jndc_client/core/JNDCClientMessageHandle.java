@@ -11,6 +11,7 @@ import jndc.core.message.RegistrationMessage;
 import jndc.core.message.TcpServiceDescription;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
+import jndc.utils.ApplicationExit;
 import jndc.utils.ObjectSerializableUtils;
 import jndc_client.http_support.ClientHttpManagement;
 import jndc_client.start.ClientStart;
@@ -341,10 +342,10 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) throws Exception {
         if (cause instanceof DecoderException) {
             if (cause.getCause() instanceof SecreteDecodeFailException) {
-                //auth fail
-                log.error("secrete check error when decode,please check the secrete later...");
-                cause.printStackTrace();
-                //ApplicationExit.exit();
+                //todo auth fail
+                JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+                log.error("密钥\"" + clientConfig.getSecrete() + "\"错误，请与密钥提供者确认,程序即将退出...");
+                ApplicationExit.exit();
 
             }
             channelHandlerContext.close();

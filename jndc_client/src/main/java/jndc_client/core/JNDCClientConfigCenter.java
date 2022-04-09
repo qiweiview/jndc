@@ -6,6 +6,7 @@ import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
+import jndc_client.core.port_app.ClientServiceProvider;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

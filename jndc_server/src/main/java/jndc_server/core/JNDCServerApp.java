@@ -10,9 +10,9 @@ import jndc_server.web_support.http_module.JNDCHttpServer;
 /**
  * 主服务
  */
-public class JNDCServer {
+public class JNDCServerApp {
 
-    public JNDCServer() {
+    public JNDCServerApp() {
     }
 
 

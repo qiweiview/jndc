@@ -10,8 +10,7 @@ import jndc_client.gui_support.GuiStart;
 import jndc_client.gui_support.utils.GuiLogAppender;
 import jndc_client.start.ClientStart;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,9 +27,8 @@ import java.util.Map;
  * JNDC client config
  */
 @Data
+@Slf4j
 public class JNDCClientConfig {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String runtimeDir = "";
 
@@ -103,7 +101,7 @@ public class JNDCClientConfig {
 
 
                     if (clientServiceDescriptionMap.containsKey(x.getUniqueTag())) {
-                        logger.error("duplicate service:" + x.getUniqueTag());
+                        log.error("duplicate service:" + x.getUniqueTag());
                         ApplicationExit.exit();
                     }
                     x.performParameterVerification();
@@ -122,7 +120,7 @@ public class JNDCClientConfig {
             GuiLogAppender.printIntoGui = true;
             new Thread(() -> {
                 new GuiStart().start();
-                logger.info("init gui");
+                log.info("init gui");
             }).start();
         }
 
@@ -183,14 +181,14 @@ public class JNDCClientConfig {
                 int read = fileInputStream.read(clientId);
                 ClientStart.CLIENT_ID = new String(clientId);
             } catch (Exception e) {
-                logger.error("load client id fail,cause " + e);
+                log.error("load client id fail,cause " + e);
                 ApplicationExit.exit();
             } finally {
                 if (fileInputStream != null) {
                     try {
                         fileInputStream.close();
                     } catch (IOException e) {
-                        logger.error("load client id fail,cause " + e);
+                        log.error("load client id fail,cause " + e);
                         ApplicationExit.exit();
                     }
                 }
@@ -202,14 +200,14 @@ public class JNDCClientConfig {
                 fileOutputStream = new FileOutputStream(file);
                 fileOutputStream.write(ClientStart.CLIENT_ID.getBytes());
             } catch (Exception e) {
-                logger.error("load client id fail,cause " + e);
+                log.error("load client id fail,cause " + e);
                 ApplicationExit.exit();
             } finally {
                 if (fileOutputStream != null) {
                     try {
                         fileOutputStream.close();
                     } catch (IOException e) {
-                        logger.error("load client id fail,cause " + e);
+                        log.error("load client id fail,cause " + e);
                         ApplicationExit.exit();
                     }
                 }

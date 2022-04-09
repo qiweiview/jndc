@@ -3,14 +3,16 @@ package jndc_server.core;
 import io.netty.channel.EventLoopGroup;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jndc_server.core.filter.IpChecker;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 定时任务中心
+ */
 public class ScheduledTaskCenter {
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+
 
     public void start() {
 
@@ -26,8 +28,6 @@ public class ScheduledTaskCenter {
         eventLoopGroup.scheduleWithFixedDelay(() -> {
             ndcServerConfigCenter.checkChannelHealthy();
         }, 0, 5, TimeUnit.MINUTES);
-
-
 
 
     }

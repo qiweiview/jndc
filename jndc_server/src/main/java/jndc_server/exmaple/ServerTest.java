@@ -5,7 +5,7 @@ import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.core.JNDCServer;
+import jndc_server.core.JNDCServerApp;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class ServerTest {
             log.error("config file parse fail：" + e);
             ApplicationExit.exit();
         }
-        JNDCServer serverTest =new JNDCServer();
+        JNDCServerApp serverTest = new JNDCServerApp();
 
         serverTest.createServer();//start
     }

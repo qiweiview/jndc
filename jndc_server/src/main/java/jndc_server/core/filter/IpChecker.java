@@ -1,4 +1,4 @@
-package jndc_server.core;
+package jndc_server.core.filter;
 
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UUIDSimple;

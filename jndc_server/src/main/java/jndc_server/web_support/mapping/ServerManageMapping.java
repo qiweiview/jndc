@@ -8,7 +8,12 @@ import jndc.core.message.TcpServiceDescription;
 import jndc.utils.JSONUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
-import jndc_server.core.*;
+import jndc_server.core.AsynchronousEventCenter;
+import jndc_server.core.ChannelHandlerContextHolder;
+import jndc_server.core.NDCServerConfigCenter;
+import jndc_server.core.TcpServiceDescriptionOnServer;
+import jndc_server.core.filter.IpChecker;
+import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import jndc_server.databases_object.IpFilterRecord;
 import jndc_server.databases_object.IpFilterRule4V;
@@ -389,8 +394,8 @@ public class ServerManageMapping {
         }
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPortBind.getPort());
+        Map<Integer, AsynchronousEventCenter.ServerPortBindContext> tcpRouter = bean.getTcpRouter();
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPortBind.getPort());
 
         if (serverPortBindContext != null) {
             ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
@@ -483,8 +488,8 @@ public class ServerManageMapping {
 
         int port = serverPortBind.getPort();
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-        Map<Integer, ServerPortBindContext> tcpRouter = bean.getTcpRouter();
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
+        Map<Integer, AsynchronousEventCenter.ServerPortBindContext> tcpRouter = bean.getTcpRouter();
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
 
 
         if (serverPortBindContext != null) {

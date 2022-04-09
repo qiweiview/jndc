@@ -11,16 +11,14 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import jndc_server.config.JNDCServerConfig;
-import jndc_server.core.JNDCServerMessageHandle;
 import jndc_server.core.filter.CustomRulesFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * jndc server core functions
  */
+@Slf4j
 public class JndcCoreServer implements ServerApp{
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
     @Override
@@ -49,9 +47,9 @@ public class JndcCoreServer implements ServerApp{
 
         b.bind().addListener(x -> {
             if (x.isSuccess()) {
-                logger.info("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动成功");
+                log.info("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动成功");
             } else {
-                logger.error("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动失败");
+                log.error("核心服务: jndc://" + serverConfig.getInetSocketAddress() + " 启动失败");
             }
 
         });

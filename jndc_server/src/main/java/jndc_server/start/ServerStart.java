@@ -5,7 +5,7 @@ import jndc.utils.ApplicationExit;
 import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
 import jndc_server.config.JNDCServerConfig;
-import jndc_server.core.JNDCServer;
+import jndc_server.core.JNDCServerApp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -70,7 +70,7 @@ public class ServerStart {
 
 
         //启动相关服务
-        JNDCServer serverTest = new JNDCServer();
+        JNDCServerApp serverTest = new JNDCServerApp();
         serverTest.createServer();
         return;
 

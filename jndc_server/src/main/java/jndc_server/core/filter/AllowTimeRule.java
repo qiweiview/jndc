@@ -3,9 +3,9 @@ package jndc_server.core.filter;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.UniqueBeanManage;
 import jndc_server.config.JNDCServerConfig;
+import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.ServerPortBindContext;
-import jndc_server.core.ServerPortProtector;
+import jndc_server.core.port_app.ServerPortProtector;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -32,13 +32,13 @@ public class AllowTimeRule implements CustomRule {
             }
         }
 
-        if (port==ignorePort) {
+        if (port == ignorePort) {
             //todo 通过
             return null;
         }
 
-        Map<Integer, ServerPortBindContext> tcpRouter = ndcServerConfigCenter.getTcpRouter();
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
+        Map<Integer, AsynchronousEventCenter.ServerPortBindContext> tcpRouter = ndcServerConfigCenter.getTcpRouter();
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(port);
         ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
         //确认时间
         boolean b = serverPortProtector.checkBetweenEnableTimeRange();

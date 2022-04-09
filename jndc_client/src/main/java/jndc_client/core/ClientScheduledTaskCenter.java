@@ -3,6 +3,8 @@ package jndc_client.core;
 import io.netty.channel.EventLoopGroup;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
+import jndc_client.core.port_app.ClientServiceProvider;
+import jndc_client.core.port_app.ClientTCPDataHandle;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;

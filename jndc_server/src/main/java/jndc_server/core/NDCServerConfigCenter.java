@@ -7,6 +7,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.InetUtils;
 import jndc.utils.UUIDSimple;
+import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
 
     //服务端端口号 ： 端口监听上下文
-    private Map<Integer, ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
+    private Map<Integer, AsynchronousEventCenter.ServerPortBindContext> tcpRouter = new ConcurrentHashMap<>();
 
 
     /**
@@ -190,12 +191,12 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @return
      */
     public boolean addTCPRouter(int port, String enableDateRange, TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer) {
-        ServerPortBindContext serverPortBindContext1 = tcpRouter.get(port);
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext1 = tcpRouter.get(port);
 
         if (serverPortBindContext1 != null) {
             //todo exist a running context
             log.error("exist a context bind the port: " + port);
-            ServerPortBindContext remove = tcpRouter.remove(port);
+            AsynchronousEventCenter.ServerPortBindContext remove = tcpRouter.remove(port);
             if (remove != null) {
                 remove.releaseRelatedResources();
             }
@@ -203,7 +204,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
 
         //创建服务端端口监听上下文（监听器+服务集合）
-        ServerPortBindContext serverPortBindContext = new ServerPortBindContext(port);
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = new AsynchronousEventCenter.ServerPortBindContext(port);
 
         //设置注册服务
         serverPortBindContext.setTcpServiceDescriptionOnServer(tcpServiceDescriptionOnServer);
@@ -248,7 +249,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      */
     public void connectionInterrupt(NDCMessageProtocol ndcMessageProtocol) {
         int serverPort = ndcMessageProtocol.getServerPort();
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop
             log.error("can not found the ServerPortBindContext for port :" + serverPort);
@@ -293,7 +294,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         //服务端监听的端口
         int serverPort = ndcMessageProtocol.getServerPort();
         //通过端口获取 绑定的服务
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop
             log.error("无法找到端口绑定上下文:" + serverPort);
@@ -329,7 +330,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_RESPONSE);
 
         int serverPort = ndcMessageProtocol.getServerPort();
-        ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
+        AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop message
             log.info("drop the message cause the port" + serverPort + "has not be listened");
@@ -360,7 +361,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      *
      * @return
      */
-    public Map<Integer, ServerPortBindContext> getTcpRouter() {
+    public Map<Integer, AsynchronousEventCenter.ServerPortBindContext> getTcpRouter() {
         return tcpRouter;
     }
 }

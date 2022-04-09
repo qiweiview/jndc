@@ -4,9 +4,9 @@ import jndc.core.UniqueBeanManage;
 import jndc.http_support.WebMapping;
 import jndc.http_support.model.NettyRequest;
 import jndc.http_support.model.UrlQueryKV;
-import jndc_client.core.ClientServiceProvider;
-import jndc_client.core.ClientTCPDataHandle;
 import jndc_client.core.JNDCClientConfigCenter;
+import jndc_client.core.port_app.ClientServiceProvider;
+import jndc_client.core.port_app.ClientTCPDataHandle;
 
 import java.util.ArrayList;
 import java.util.List;
