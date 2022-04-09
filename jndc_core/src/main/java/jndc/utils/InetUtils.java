@@ -1,15 +1,13 @@
 package jndc.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import sun.net.util.IPAddressUtil;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-
+@Slf4j
 public class InetUtils {
-    private static final Logger logger = LoggerFactory.getLogger(InetUtils.class);
 
     public static InetAddress localInetAddress;
 
@@ -42,7 +40,7 @@ public class InetUtils {
                 byAddress = InetAddress.getByAddress(bytes);
             }
         } catch (Exception e) {
-            logger.error("un know host :" + ipAddress);
+            log.error("un know host :" + ipAddress);
             ApplicationExit.exit();
         }
         return byAddress;
@@ -56,7 +54,7 @@ public class InetUtils {
         try {
             localInetAddress = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
-            logger.error("get local adress error");
+            log.error("get local adress error");
             ApplicationExit.exit();
 
         }
