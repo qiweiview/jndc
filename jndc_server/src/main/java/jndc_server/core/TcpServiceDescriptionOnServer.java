@@ -129,7 +129,7 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
     public void sendMessage(NDCMessageProtocol ndcMessageProtocol) {
         //set bind info
         ndcMessageProtocol.setLocalPort(getPort());
-        ndcMessageProtocol.setLocalInetAddress(InetUtils.getByStringIpAddress(getIp()));
+        ndcMessageProtocol.setLocalAddress(InetUtils.getByStringIpAddress(getIp()));
 
         //向隧道上下文发送消息
         belongContext.writeAndFlush(ndcMessageProtocol);

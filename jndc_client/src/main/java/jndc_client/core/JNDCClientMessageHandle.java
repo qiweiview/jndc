@@ -294,14 +294,6 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 channelHandlerContext.close();
                 log.error("连接密码错误...");
                 System.exit(1);
-//                channelHandlerContext.channel().eventLoop().shutdownGracefully().addListener(x -> {
-//                    if (x.isSuccess()) {
-//                        log.error("register auth fail, the client will close later...");
-//                    } else {
-//                        log.error("shutdown fail");
-//                    }
-//                });
-//                return;
             }
 
             if (type == NDCMessageProtocol.USER_ERROR) {

@@ -43,7 +43,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
 
         int localPort = ndcMessageProtocol.getLocalPort();
-        InetAddress localInetAddress = ndcMessageProtocol.getLocalInetAddress();
+        InetAddress localInetAddress = ndcMessageProtocol.getLocalAddress();
 
         //ip+端口 确定一个唯一的服务提供者标识
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
@@ -75,7 +75,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
      */
     public void shutDownClientServiceProvider(NDCMessageProtocol ndcMessageProtocol) {
         int localPort = ndcMessageProtocol.getLocalPort();
-        InetAddress localInetAddress = ndcMessageProtocol.getLocalInetAddress();
+        InetAddress localInetAddress = ndcMessageProtocol.getLocalAddress();
 
         //唯一key: 本地客户端ip+本地客户端端口(唯一的一个服务提供者)
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
@@ -86,7 +86,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         }
 
         int remotePort = ndcMessageProtocol.getRemotePort();
-        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteInetAddress();
+        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
 
         //唯一key: 远程客户端ip+远程客户端端口（唯一的一个访问者）
         String client1 = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);

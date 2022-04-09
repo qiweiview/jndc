@@ -117,7 +117,7 @@ public class ServerPortProtector {
     }
 
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
-        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteInetAddress();
+        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
         String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
         ServerTCPDataHandle serverTCPDataHandle = faceTCPMap.get(client);
@@ -205,7 +205,7 @@ public class ServerPortProtector {
      * @param ndcMessageProtocol
      */
     public void connectionInterrupt(NDCMessageProtocol ndcMessageProtocol) {
-        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteInetAddress();
+        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
         String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
 

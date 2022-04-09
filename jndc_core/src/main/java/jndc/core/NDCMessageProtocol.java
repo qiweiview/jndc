@@ -53,25 +53,25 @@ public class NDCMessageProtocol {
 
     /*--------------------- message types ---------------------*/
 
-    public static final byte TCP_DATA = 0x01;//tcp data transmission message
+    public static final byte TCP_DATA = 0x01;//数据包
 
-    public static final byte TCP_ACTIVE = 0x02;//tcp active message
+    public static final byte TCP_ACTIVE = 0x02;//通道打开数据包
 
-    public static final byte SERVICE_REGISTER = 0x03;//client register message
+    public static final byte SERVICE_REGISTER = 0x03;//服务注册数据包
 
-    public static final byte SERVICE_UNREGISTER = 0x04;//client unregister message
+    public static final byte SERVICE_UNREGISTER = 0x04;//服务取消注册数据包
 
-    public static final byte CONNECTION_INTERRUPTED = 0x05;//server or client connection interrupted
+    public static final byte CONNECTION_INTERRUPTED = 0x05;//服务中断数据包
 
-    public static final byte NO_ACCESS = 0x06;//auth fail
+    public static final byte NO_ACCESS = 0x06;//鉴权不通过数据包
 
-    public static final byte USER_ERROR = 0x07;//throw by user
+    public static final byte USER_ERROR = 0x07;//业务异常数据包
 
-    public static final byte UN_CATCHABLE_ERROR = 0x08;//runtime unCatch
+    public static final byte UN_CATCHABLE_ERROR = 0x08;//系统异常数据包
 
-    public static final byte CHANNEL_HEART_BEAT = 0x09;//the channel heart beat
+    public static final byte CHANNEL_HEART_BEAT = 0x09;//心跳数据包
 
-    public static final byte OPEN_CHANNEL = 0X0A;//client register message
+    public static final byte OPEN_CHANNEL = 0X0A;//通道打开数据包
 
 
     /*--------------------- static variable ---------------------*/
@@ -95,9 +95,9 @@ public class NDCMessageProtocol {
 
     private byte type;//data type
 
-    private InetAddress remoteInetAddress;//remote ip
+    private InetAddress remoteAddress;//remote ip
 
-    private InetAddress localInetAddress;//local ip
+    private InetAddress localAddress;//local ip
 
     private int remotePort;
 
@@ -124,8 +124,8 @@ public class NDCMessageProtocol {
     private NDCMessageProtocol copy(boolean withData) {
         NDCMessageProtocol ndcMessageProtocol = new NDCMessageProtocol();
         ndcMessageProtocol.setVersion(getVersion());
-        ndcMessageProtocol.setLocalInetAddress(getLocalInetAddress());
-        ndcMessageProtocol.setRemoteInetAddress(getRemoteInetAddress());
+        ndcMessageProtocol.setLocalAddress(getLocalAddress());
+        ndcMessageProtocol.setRemoteAddress(getRemoteAddress());
         ndcMessageProtocol.setLocalPort(getLocalPort());
         ndcMessageProtocol.setServerPort(getServerPort());
         ndcMessageProtocol.setRemotePort(getRemotePort());
@@ -151,18 +151,18 @@ public class NDCMessageProtocol {
     /**
      * fast create message
      *
-     * @param remoteInetAddress the connector  ip
-     * @param localInetAddress  the map service ip
-     * @param remotePort        the connector port
-     * @param serverPort        the server port
-     * @param localPort         the map service port
-     * @param type              the message type
+     * @param remoteAddress the connector  ip
+     * @param localAddress  the map service ip
+     * @param remotePort    the connector port
+     * @param serverPort    the server port
+     * @param localPort     the map service port
+     * @param type          the message type
      * @return
      */
-    public static NDCMessageProtocol of(InetAddress remoteInetAddress, InetAddress localInetAddress, int remotePort, int serverPort, int localPort, byte type) {
+    public static NDCMessageProtocol of(InetAddress remoteAddress, InetAddress localAddress, int remotePort, int serverPort, int localPort, byte type) {
         NDCMessageProtocol NDCMessageProtocol = new NDCMessageProtocol();
-        NDCMessageProtocol.setRemoteInetAddress(remoteInetAddress);
-        NDCMessageProtocol.setLocalInetAddress(localInetAddress);
+        NDCMessageProtocol.setRemoteAddress(remoteAddress);
+        NDCMessageProtocol.setLocalAddress(localAddress);
         NDCMessageProtocol.setLocalPort(localPort);
         NDCMessageProtocol.setServerPort(serverPort);
         NDCMessageProtocol.setRemotePort(remotePort);
@@ -211,8 +211,8 @@ public class NDCMessageProtocol {
         NDCMessageProtocol.setVersion(version);
         NDCMessageProtocol.setType(type);
         try {
-            NDCMessageProtocol.setLocalInetAddress(InetAddress.getByAddress(localInetAddress));
-            NDCMessageProtocol.setRemoteInetAddress(InetAddress.getByAddress(remoteInetAddress));
+            NDCMessageProtocol.setLocalAddress(InetAddress.getByAddress(localInetAddress));
+            NDCMessageProtocol.setRemoteAddress(InetAddress.getByAddress(remoteInetAddress));
         } catch (UnknownHostException e) {
             throw new RuntimeException("UnknownHostException");
         }
@@ -291,8 +291,8 @@ public class NDCMessageProtocol {
             byteArrayOutputStream.write(MAGIC);//3 byte
             byteArrayOutputStream.write(version);//1 byte   -->4
             byteArrayOutputStream.write(type);//1 byte -->5
-            byteArrayOutputStream.write(cropByteArray(localInetAddress.getAddress(), 4));//4 byte -->9
-            byteArrayOutputStream.write(cropByteArray(remoteInetAddress.getAddress(), 4));//4 byte -->13
+            byteArrayOutputStream.write(cropByteArray(localAddress.getAddress(), 4));//4 byte -->9
+            byteArrayOutputStream.write(cropByteArray(remoteAddress.getAddress(), 4));//4 byte -->13
             byteArrayOutputStream.write(HexUtils.int2ByteArray(localPort));//4 byte -->17
             byteArrayOutputStream.write(HexUtils.int2ByteArray(serverPort));//4 byte -->21
             byteArrayOutputStream.write(HexUtils.int2ByteArray(remotePort));//4 byte -->25

@@ -45,7 +45,7 @@ public class ClientServiceProvider implements Serializable {
      * @param ndcMessageProtocol
      */
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
-        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteInetAddress();
+        InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
 
         //哈希表路由
