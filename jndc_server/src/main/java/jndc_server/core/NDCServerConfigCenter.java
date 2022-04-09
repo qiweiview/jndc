@@ -82,7 +82,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         ChannelHandlerContextHolder oldContext = channelHandlerContextHolderMap.get(id);
         if (oldContext == null) {
             //todo 不存在隧道
-            log.info("暂无已有隧道");
+            log.debug("暂无已有隧道");
 
             //设置上下文描述对象
             channelHandlerContextHolderMap.put(id, latestContext);

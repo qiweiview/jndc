@@ -298,7 +298,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             /*==================================== 打开通道 ====================================*/
             if (type == NDCMessageProtocol.OPEN_CHANNEL) {
                 //todo  打开通道
-                log.info("注册隧道...");
+                log.debug("注册隧道...");
                 handleOpenChannel(channelHandlerContext, ndcMessageProtocol);
             }
 
