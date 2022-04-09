@@ -8,14 +8,12 @@ import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
-
+@Slf4j
 public class JNDCClient {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static int FAIL_LIMIT = -1;
 
@@ -46,7 +44,7 @@ public class JNDCClient {
     public void releaseOldResource() {
         group.shutdownGracefully();
         group = NettyComponentConfig.getNioEventLoopGroup();
-        logger.info("重置工作线程...");
+        log.info("重置工作线程...");
     }
 
     public void start() {
@@ -71,7 +69,7 @@ public class JNDCClient {
     }
 
     private void createClient(EventLoopGroup group) {
-        logger.debug("do once connect...");
+        log.debug("do once connect...");
 
         Bootstrap b = new Bootstrap();
         JNDCClient jndcClient = this;
@@ -111,10 +109,10 @@ public class JNDCClient {
                 //set success tag
                 jndcClientConfigCenter.successToConnectToServer();
 
-                logger.info("连接 jndc 服务 : " + clientConfig.getServerIpSocketAddress());
+                log.info("连接 jndc 服务 : " + clientConfig.getServerIpSocketAddress());
             } else {
                 //todo connect fail
-                logger.info("连接 jndc 服务失败 , 重试");
+                log.info("连接 jndc 服务失败 , 重试");
 
                 //set fail tag
                 jndcClientConfigCenter.failToConnectToServer();

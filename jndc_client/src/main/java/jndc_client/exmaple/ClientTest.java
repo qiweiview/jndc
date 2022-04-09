@@ -6,14 +6,13 @@ import jndc.utils.YmlParser;
 import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
 import jndc_client.http_support.ClientHttpManagement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 
 
+@Slf4j
 public class ClientTest {
-    private   static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args) {
 
@@ -27,10 +26,10 @@ public class ClientTest {
             jndcClientConfig.performParameterVerification();
             jndcClientConfig.setRuntimeDir(file.getParent());
             jndcClientConfig.loadClientId();
-            logger.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
+            log.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("config file:" + file + " parse fail：" + e);
+            log.error("config file:" + file + " parse fail：" + e);
             ApplicationExit.exit();
         }
 

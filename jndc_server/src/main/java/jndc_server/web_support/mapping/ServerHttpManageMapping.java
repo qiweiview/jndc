@@ -17,8 +17,6 @@ import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
 import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
 import jndc_server.web_support.model.view_object.HttpHostRouteVO;
 import jndc_server.web_support.model.view_object.PageListVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.List;
  * singleton， thread unsafe
  */
 public class ServerHttpManageMapping {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     @WebMapping(path = UrlConstant.ServerHttp.saveHostRouteRule)

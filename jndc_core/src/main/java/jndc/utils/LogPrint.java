@@ -1,11 +1,10 @@
 package jndc.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 public class LogPrint {
-    final static Logger logger = LoggerFactory.getLogger(LogPrint.class);
 
     public static  void info(Object msg, Object source){
         if (source!=null){
@@ -14,7 +13,7 @@ public class LogPrint {
         if (msg==null){
             msg="";
         }
-        logger.info(msg.toString());
+        log.info(msg.toString());
     }
 
     public static  void info(Object msg){
@@ -28,7 +27,7 @@ public class LogPrint {
         if (msg==null){
             msg="";
         }
-        logger.error(msg.toString());
+        log.error(msg.toString());
     }
 
     public static  void err(Object msg){
@@ -36,7 +35,7 @@ public class LogPrint {
     }
 
     public static void debug(Object msg) {
-        logger.debug(msg.toString());
+        log.debug(msg.toString());
     }
 
     public static  void debug(Object msg, Object source){
@@ -46,7 +45,7 @@ public class LogPrint {
         if (msg==null){
             msg="";
         }
-        logger.debug(msg.toString());
+        log.debug(msg.toString());
     }
 
 }

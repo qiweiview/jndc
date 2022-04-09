@@ -8,8 +8,7 @@ import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
 import jndc_client.core.port_app.ClientServiceProvider;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.util.Map;
@@ -20,8 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * client config center
  */
 @Data
+@Slf4j
 public class JNDCClientConfigCenter implements NDCConfigCenter {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     private JNDCClientMessageHandle currentHandler;
@@ -54,7 +53,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
 
         if (clientServiceProvider == null) {
-            logger.error("cant fount the service:" + client);
+            log.error("cant fount the service:" + client);
             throw new RuntimeException("cant fount the service");
         }
 
@@ -82,7 +81,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         String client = UniqueInetTagProducer.get4Client(localInetAddress, localPort);
         ClientServiceProvider clientServiceProvider = portProtectorMap.get(client);
         if (clientServiceProvider == null) {
-            logger.error("无法获取服务提供者：" + client);
+            log.error("无法获取服务提供者：" + client);
             return;
         }
 
@@ -111,14 +110,14 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
         ClientServiceProvider existProvider = portProtectorMap.get(clientTag);
         if (existProvider != null) {
-            logger.error("the service " + clientTag + " has been register in this map");
+            log.error("the service " + clientTag + " has been register in this map");
 
             //移除所有已建立的本地连接
             existProvider.releaseAllRelatedResources();
             return;
         }
 
-        logger.debug("init local service:" + x + "--->" + clientTag);
+        log.debug("init local service:" + x + "--->" + clientTag);
 
         //创建新的服务提供者
         ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
@@ -130,7 +129,7 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
         ClientServiceProvider remove = portProtectorMap.remove(clientTag);
         if (remove == null) {
-            logger.error("can not found service " + clientTag + " in local");
+            log.error("can not found service " + clientTag + " in local");
             return;
         } else {
             remove.releaseAllRelatedResources();

@@ -8,8 +8,7 @@ import io.netty.util.AsciiString;
 import jndc_server.web_support.utils.AuthUtils;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import jndc_server.web_support.utils.UriUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -20,8 +19,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpRequest> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+
 
     public static String NAME = "AUTH_TOKEN_HANDLER";
 
@@ -123,7 +123,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
-        logger.error("catch exception in auth check,cause: " + cause);
+        log.error("catch exception in auth check,cause: " + cause);
         FullHttpResponse fullHttpResponse = HttpResponseBuilder.textResponse(cause.getMessage().getBytes());
         fullHttpResponse.setStatus(HttpResponseStatus.FORBIDDEN);
 

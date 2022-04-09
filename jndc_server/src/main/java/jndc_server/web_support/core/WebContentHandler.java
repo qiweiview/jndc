@@ -9,8 +9,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import jndc.core.UniqueBeanManage;
 import jndc_server.web_support.utils.HttpResponseBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -19,8 +18,8 @@ import java.util.regex.Matcher;
 /**
  * 管理端api处理器
  */
+@Slf4j
 public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpRequest> {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     public static String NAME = "WEB_CONTENT_HANDLER";
     private static final String SEPARATOR = Matcher.quoteReplacement(File.separator);
 
@@ -92,7 +91,7 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("unCatchableException: "+cause);
+        log.error("unCatchableException: " + cause);
 
     }
 }

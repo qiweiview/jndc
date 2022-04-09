@@ -2,14 +2,13 @@ package jndc.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class JSONUtils {
-    private static final Logger logger = LoggerFactory.getLogger(JSONUtils.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -37,7 +36,7 @@ public class JSONUtils {
             return objectMapper.readValue(str, tClass);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            logger.error("deserialization fail ,cause"+e);
+            log.error("deserialization fail ,cause" + e);
             throw new RuntimeException(e);
         }
     }
@@ -53,7 +52,7 @@ public class JSONUtils {
             }
             return list;
         } catch (JsonProcessingException e) {
-            logger.error("deserialization array fail ,cause"+e);
+            log.error("deserialization array fail ,cause" + e);
             throw new RuntimeException(e);
         }
     }

@@ -1,7 +1,8 @@
 package jndc_client.gui_support.controller;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextArea;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,8 +17,7 @@ import jndc_client.core.JNDCClientConfig;
 import jndc_client.core.JNDCClientConfigCenter;
 import jndc_client.core.JNDCClientMessageHandle;
 import jndc_client.gui_support.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.net.URI;
@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.LinkedBlockingQueue;
 
+@Slf4j
 public class IndexController implements Initializable {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @FXML
     private JFXTextArea logArea;
@@ -67,7 +67,7 @@ public class IndexController implements Initializable {
         try {
             Desktop.getDesktop().browse(new URI("https://github.com/qiweiview/jndc"));
         } catch (Exception e) {
-          logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ public class IndexController implements Initializable {
                     String text = logArea.getText();
                     logArea.setText("[" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "]" + take + "\n\r" + text);
                 } catch (InterruptedException e) {
-                  logger.error(e+"");
+                    log.error(e + "");
                 }
             }
         }).start();
@@ -133,7 +133,7 @@ public class IndexController implements Initializable {
                 //about jndc_client
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.startRegister(clientServiceDescription);
-                logger.info("register service '"+clientServiceDescription.getServiceName()+"' to server");
+                log.info("register service '" + clientServiceDescription.getServiceName() + "' to server");
 
             };
 
@@ -155,8 +155,6 @@ public class IndexController implements Initializable {
             ClientServiceDescription clientServiceDescription = (ClientServiceDescription) x.getValue();
 
 
-
-
             EventHandler<ActionEvent> del = z -> {
                 //----------------- about gui -----------------
                 MenuItemPackagingListStore.deleteItem(x);
@@ -165,7 +163,7 @@ public class IndexController implements Initializable {
                 //about jndc
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.stopRegister(clientServiceDescription);
-                logger.info("unregister service '"+clientServiceDescription.getServiceName()+"' to server");
+                log.info("unregister service '" + clientServiceDescription.getServiceName() + "' to server");
 
             };
 
@@ -200,12 +198,10 @@ public class IndexController implements Initializable {
                 //about jndc
                 JNDCClientMessageHandle currentHandler = jndcClientConfigCenter.getCurrentHandler();
                 currentHandler.stopRegister(clientServiceDescription);
-                logger.info("unregister service '"+clientServiceDescription.getServiceName()+"' to server");
+                log.info("unregister service '" + clientServiceDescription.getServiceName() + "' to server");
 
             };
             DialogBuilder.openMessageDialog(anchorPane, "确认暂停服务 \"" + x + "\" ？ 暂停后，客户端将不再向服务端注册该服务，已建立连接也将中断", new DialogBuilder.InnerAutoCloseButton("停用", pauseCallBack));
-
-
 
 
         });

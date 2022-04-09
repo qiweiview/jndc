@@ -3,8 +3,8 @@ package jndc_client.core;
 
 import jndc.core.message.TcpServiceDescription;
 import jndc.utils.InetUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -13,8 +13,8 @@ import java.net.InetSocketAddress;
 /**
  * client service capability description
  */
+@Slf4j
 public class ClientServiceDescription {
-    private   final Logger logger = LoggerFactory.getLogger(getClass());
 
 
     private String serviceName;
@@ -58,7 +58,7 @@ public class ClientServiceDescription {
     /* -------getter setter-------- */
 
     public Logger getLogger() {
-        return logger;
+        return log;
     }
 
     public String getServiceName() {

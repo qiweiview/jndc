@@ -1,6 +1,6 @@
 package jndc.utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -8,21 +8,30 @@ import java.util.concurrent.*;
 /**
  * thread safe
  */
+@Slf4j
 public class ThreadQueue {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private String name;//队列名
+
     private LinkedBlockingQueue<InnerTask> linkedBlockingQueue = new LinkedBlockingQueue();//任务队列
+
     private LinkedBlockingQueue<InnerTask> deathQueue = new LinkedBlockingQueue();//死信队列
+
     private ExecutorService executorService;//线程池
+
     private final ThreadLocal<InnerTask> threadLocal = new ThreadLocal();//线程变量
+
     private Thread worker;//启动线程
+
     private volatile boolean workerEnable=true;
+
     private ThreadQueue nextFailThreadQueue;//下一级失败队列
+
     private ThreadQueue successLogThreadQueue;//日志队列
+
     private volatile boolean init = false;//初始化标志
+
     private ProxyAction proxyAction;
+
     private final int DEFAULT_FAIL_TIMES=3;
 
     public ThreadQueue() {
@@ -69,7 +78,7 @@ public class ThreadQueue {
                     }
 
                 } catch (InterruptedException e) {
-                    logger.error(e+"");
+                    log.error(e + "");
                 }
 
             }

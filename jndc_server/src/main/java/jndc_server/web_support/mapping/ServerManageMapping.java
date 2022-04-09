@@ -28,8 +28,7 @@ import jndc_server.web_support.model.view_object.DeviceInfo;
 import jndc_server.web_support.model.view_object.IpRecordVO;
 import jndc_server.web_support.model.view_object.PageListVO;
 import jndc_server.web_support.utils.AuthUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -42,8 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * singleton， thread unsafe
  */
+@Slf4j
 public class ServerManageMapping {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * do login
@@ -405,7 +404,7 @@ public class ServerManageMapping {
             serverPortProtector.resetAllConnection();
 
         } else {
-            logger.debug("can not found the service on server port " + serverPortBind.getPort());
+            log.debug("can not found the service on server port " + serverPortBind.getPort());
         }
 
         //do db info update
