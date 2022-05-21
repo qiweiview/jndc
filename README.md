@@ -2,49 +2,49 @@
 ![jdk12](https://img.shields.io/badge/jdk-8-orange.svg)
 
 
-## 文档摘要
-* [常见问题](https://github.com/qiweiview/jndc/blob/master/QA.md)
-* [项目介绍](#项目介绍)
-* [项目使用范例](#项目使用范例)
-* [协议说明](#协议说明)
-* [功能说明](#功能说明)
-* [配置文件说明](#配置文件说明)
-* [小结](#小结)
+## Documentation summary|[中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
+* [FAQ](https://github.com/qiweiview/jndc/blob/master/QA.md)
+* [Project introduction](#project introduction)
+* [Project usage example](#Project usage example)
+* [protocol description](#protocol description)
+* [Function description](#Function description)
+* [Configuration file description](#Configuration file description)
+* [Summary](#Summary)
 
 
 
-## 项目介绍
-* "J NDC" 是 "java no distance connection"的缩写，意在提供简便易用的可视化内网穿透应用，应用基于java netty编写。
-* 应用以Client/Server架构构建,通过"服务注册"思路，由本地client端向server端提供本地服务，由server端管理暴露对应服务 
-* 应用核心由ndc私有协议支撑，提供了"传输数据加密","ip黑白名单","客户端可视化","服务端口定时","域名路由"功能
-* 项目源码目录结构
+## Project Introduction
+* "J NDC" is the abbreviation of "java no distance connection", which is intended to provide an easy-to-use visual intranet penetration application. The application is written based on java netty.
+* The application is built with the Client/Server architecture. Through the idea of "service registration", the local client side provides local services to the server side, and the server side manages and exposes the corresponding services
+* The application core is supported by the ndc private protocol, providing "transmission data encryption", "ip black and white list", "client visualization", "service port timing", "domain name routing" functions
+* Project source code directory structure
 ```
 - jndc
- - jndc_core # 核心公共实现
- - jndc_server # 服务端实现
- - jndc_client # 客户端实现
+  - jndc_core # core public implementation
+  - jndc_server # server implementation
+  - jndc_client # client implementation
 ```
 
-* TCP数据流向
+* TCP data flow
 ```
 broser     ------->               (tunnel)               ---------->local_app
 client     -------> jndc server <----------> jndc client ---------->local_app
 other      ------->                                      ---------->local_app
 ```
 
-## 项目使用范例
-* [范例](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
+## Project usage example
+* [Example](https://github.com/qiweiview/jndc/blob/master/tutorial.md)
 
 
-## 协议说明
-* NDC协议
-* 协议设计为仅支持ipv4
-* 单包数据长度限制,超出将自动拆包
+## Protocol description
+* NDC protocol
+* The protocol is designed to only support ipv4
+* The data length limit of a single packet, beyond which will be automatically unpacked
 ```
 public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```
 
-* 协议说明：
+* Agreement description:
 ```
 --------------------------------
   3byte      1byte      1byte
@@ -72,66 +72,65 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 |            data              |
 --------------------------------
 ```
+## Configuration file description
 
-## 配置文件说明
-
-### server 配置
-```yaml
-secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
+### server configuration
+````yaml
+secrete: "xxx" # Server secret, very important, be sure to change it before use
 loglevel: "info"
-blackList: # ip访问黑名单
+blackList: # ip access blacklist
 #- "192.168.1.1"
-whiteList: # 白名单
+whiteList: # whitelist
 #- "192.168.1.2"
-servicePort: 81 # jndc服务端运行监听端口
-bindIp: "127.0.0.1" # jndc服务端运行ip
+servicePort: 81 # jndc server running listening port
+bindIp: "127.0.0.1" # jndc server running ip
 
 dbConfig:
-  type: "mysql" # 可选值：mysql和sqlite
-  #  type: "sqlite" # 可选值：mysql和sqlite
+  type: "mysql" # optional values: mysql and sqlite
+  # type: "sqlite" # optional values: mysql and sqlite
   url: "jdbc:mysql://127.0.0.1:3306/jndc?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
   name: "root"
   password: "xxx"
 
-manageConfig: # 管理端api服务
-  managementApiPort: 777 #管理api端口
-  useSsl: false # 是否使用ssl
-  jksPath: "/xx.jks" #jks 证书地址
-  jksPass: "xxx" # jks 证书密码
-  loginName: "xxx" # 登录用户名
-  loginPassWord: "xxx" # 登录密码
-  adminEnable: true # 是否启动静态页面
+manageConfig: # management-side api service
+  managementApiPort: 777 #Management api port
+  useSsl: false # Whether to use ssl
+  jksPath: "/xx.jks" #jks certificate address
+  jksPass: "xxx" # jks certificate password
+  loginName: "xxx" # login user name
+  loginPassWord: "xxx" # login password
+  adminEnable: true # Whether to start a static page
 
-webConfig: # http web服务
+webConfig: # http web service
   notFoundPage: "/404.html"
-  httpPort: 80 # http应用端口
-  useSsl: false # 是否使用ssl
-  jksPath: "/xx.jks" #jks 证书地址
-  jksPass: "ddd" # jks 证书密码
-```
+  httpPort: 80 # http application port
+  useSsl: false # Whether to use ssl
+  jksPath: "/xx.jks" #jks certificate address
+  jksPass: "ddd" # jks certificate password
+````
 
-### client 配置
-```yaml
-secrete: "xxx1" # 服务端密钥，很重要务必在使用前更改
-loglevel: "info" # 日志打印等级
-serverIp: "127.0.0.1" # 服务端运行监听ip
-serverPort: "81" # 服务端运行端口
+### client configuration
+````yaml
+secrete: "xxx1" # Server secret, it is very important to change it before use
+loglevel: "info" # log print level
+serverIp: "127.0.0.1" # Server running listening ip
+serverPort: "81" # server running port
 openGui: false
-autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）
-clientServiceDescriptions: # 注册服务
+autoReleaseTimeOut: 600000 # Client auto disconnect time (milliseconds)
+clientServiceDescriptions: # register service
   - serviceName: "xx"
     serviceIp: "xx.com"
     servicePort: "80"
     serviceEnable: true
-```
+````
 
-## 小结
-* 如若有好的功能需求，或代码存在的bug欢迎在issue里提出
+## Summary
+* If you have good functional requirements, or bugs in the code, please submit them in the issue
 
-## 开发计划
-* http证书配置支持
-* 流量监控
-* 查询语法优化
+## Development Plan
+* http certificate configuration support
+* data monitoring
+* Query syntax optimization
 
 ## supporting
 * Thanks to jetbrains for supporting this open source project
