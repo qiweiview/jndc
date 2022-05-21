@@ -2,14 +2,7 @@
 ![jdk12](https://img.shields.io/badge/jdk-8-orange.svg)
 
 
-## Documentation summary|[中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
-* [FAQ](https://github.com/qiweiview/jndc/blob/master/QA.md)
-* [Project introduction](#Project Introduction)
-* [Project usage example](#Project usage example)
-* [Protocol description](#Protocol description)
-* [Configuration file description](#Configuration file description)
-* [Summary](#Summary)
-
+## [中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
 
 
 ## Project Introduction
