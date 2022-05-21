@@ -4,10 +4,9 @@
 
 ## Documentation summary|[中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
 * [FAQ](https://github.com/qiweiview/jndc/blob/master/QA.md)
-* [Project introduction](#project introduction)
+* [Project introduction](#Project Introduction)
 * [Project usage example](#Project usage example)
-* [protocol description](#protocol description)
-* [Function description](#Function description)
+* [Protocol description](#Protocol description)
 * [Configuration file description](#Configuration file description)
 * [Summary](#Summary)
 
