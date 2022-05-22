@@ -18,11 +18,21 @@ import java.net.InetSocketAddress;
 public class ClientServiceDescription extends TcpServiceDescription {
 
     private boolean serviceEnable;
+
     /* ---------prepare  field-----*/
     private InetAddress ipAddress;
 
     private InetSocketAddress ipSocketAddress;
 
+
+    /**
+     * 获取唯一标志位
+     *
+     * @return
+     */
+    public String getUniqueTag() {
+        return getServiceIp() + ":" + getServicePort();
+    }
 
     /**
      * 参数校验
