@@ -16,7 +16,6 @@ import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.filter.CustomRulesFilter;
 import jndc_server.databases_object.ServerPortBind;
-import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
@@ -193,9 +192,9 @@ public class ServerPortProtector {
         dbWrapper.customExecute("update server_port_bind set port_enable=0 where port=?", port);
 
 
-        //同通刷新服务端口列表
-        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-        messageNotificationCenter.dateRefreshMessage("serverPortList");
+//        //同通刷新服务端口列表
+//        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//        messageNotificationCenter.dateRefreshMessage("serverPortList");
 
         released = true;
     }

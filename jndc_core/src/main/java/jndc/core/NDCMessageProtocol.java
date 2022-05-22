@@ -110,10 +110,6 @@ public class NDCMessageProtocol {
     private byte[] data;
 
 
-    private NDCMessageProtocol() {
-
-    }
-
     /**
      * need optimization
      */

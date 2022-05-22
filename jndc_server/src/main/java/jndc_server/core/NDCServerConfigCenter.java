@@ -149,8 +149,8 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
 
             //推送不活动连接刷新
-            messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
-            messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+//            messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+//            messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
         } else {
             log.info("无服务隧道...");
         }

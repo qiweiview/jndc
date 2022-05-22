@@ -344,7 +344,7 @@ public class ServerManageMapping {
                             //notice refresh data
                             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
                             if (success) {
-                                messageNotificationCenter.dateRefreshMessage("serverPortList");
+//                                messageNotificationCenter.dateRefreshMessage("serverPortList");
                             } else {
                                 messageNotificationCenter.noticeMessage(serverPortBind.getPort() + "端口服务关联失败");
                             }

@@ -17,7 +17,6 @@ import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerServiceDescription;
 import jndc_server.databases_object.ServerPortBind;
-import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -205,10 +204,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         serviceBind(serverServiceDescriptions);
 
 
-        log.info("推送开启刷新");
-        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-        messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
-        messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
+//        log.info("推送开启刷新");
+//        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//        messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+//        messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
     }
 
     /**
@@ -256,8 +255,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         channelHandlerContext.writeAndFlush(copy);
 
         //通知前端刷新列表
-        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-        messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
+//        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//        messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
     }
 
     /**
@@ -314,10 +313,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
                 //todo SERVICE_UNREGISTER 服务取消注册消息
                 handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
 
-                //消息通知中心
-                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-                log.debug("推送关闭刷新");
-                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
+//                //消息通知中心
+//                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//                log.debug("推送关闭刷新");
+//                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
             }
 
             /*==================================== CONNECTION_INTERRUPTED ====================================*/
