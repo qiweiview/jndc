@@ -42,7 +42,7 @@ public class ChannelHandlerContextHolder {
     private ChannelHandlerContext channelHandlerContext;
 
     //上下文中，注册的服务集合
-    private List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = new ArrayList<>();
+    private List<ServerServiceDescription> tcpServiceDescriptions = new ArrayList<>();
 
     /**
      * 构造 隧道上下文描述对象
@@ -131,22 +131,22 @@ public class ChannelHandlerContextHolder {
     /**
      * 移除服务
      *
-     * @param tcpServiceDescriptionOnServers
+     * @param serverServiceDescriptions
      */
-    public void removeTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
-        Set<String> strings = tcpServiceDescriptionOnServers.stream().map(x -> x.getRouteTo()).collect(Collectors.toSet());
+    public void removeTcpServiceDescriptions(List<ServerServiceDescription> serverServiceDescriptions) {
+        Set<String> strings = serverServiceDescriptions.stream().map(x -> x.getRouteTo()).collect(Collectors.toSet());
 
         //加索
         synchronized (ChannelHandlerContextHolder.class) {
-            Iterator<TcpServiceDescriptionOnServer> iterator = tcpServiceDescriptions.iterator();
+            Iterator<ServerServiceDescription> iterator = tcpServiceDescriptions.iterator();
             while (iterator.hasNext()) {
-                TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = iterator.next();
-                if (strings.contains(tcpServiceDescriptionOnServer.getRouteTo())) {
+                ServerServiceDescription serverServiceDescription = iterator.next();
+                if (strings.contains(serverServiceDescription.getRouteTo())) {
                     //todo 命中
                     iterator.remove();
 
                     //释放服务
-                    tcpServiceDescriptionOnServer.releaseRelatedResources();
+                    serverServiceDescription.releaseRelatedResources();
                 }
             }
         }
@@ -156,9 +156,9 @@ public class ChannelHandlerContextHolder {
     /**
      * 向上下文中添加服务
      *
-     * @param tcpServiceDescriptionOnServers 注册的服务
+     * @param serverServiceDescriptions 注册的服务
      */
-    public void addTcpServiceDescriptions(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+    public void addTcpServiceDescriptions(List<ServerServiceDescription> serverServiceDescriptions) {
 
         //已有服务放入Set
         Set<String> strings = tcpServiceDescriptions.stream()
@@ -166,7 +166,7 @@ public class ChannelHandlerContextHolder {
                 .collect(Collectors.toSet());
 
         //遍历新注册服务
-        tcpServiceDescriptionOnServers.forEach(x -> {
+        serverServiceDescriptions.forEach(x -> {
 
             //获取路由规则
             String routeTo = x.getRouteTo();
@@ -204,7 +204,7 @@ public class ChannelHandlerContextHolder {
      *
      * @param tcpServiceDescription
      */
-    public void refreshContext(TcpServiceDescriptionOnServer tcpServiceDescription) {
+    public void refreshContext(ServerServiceDescription tcpServiceDescription) {
         tcpServiceDescription.refreshContext(channelHandlerContext);
     }
 

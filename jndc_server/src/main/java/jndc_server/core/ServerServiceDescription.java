@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Data
-public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
+public class ServerServiceDescription extends TcpServiceDescription {
 
     private volatile boolean released = false;
 
@@ -42,8 +42,8 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
      * @param tcpServiceDescriptions
      * @return
      */
-    public static List<TcpServiceDescriptionOnServer> ofArray(List<TcpServiceDescription> tcpServiceDescriptions) {
-        List<TcpServiceDescriptionOnServer> collect = tcpServiceDescriptions.stream().map(x -> of(x)).collect(Collectors.toList());
+    public static List<ServerServiceDescription> ofArray(List<TcpServiceDescription> tcpServiceDescriptions) {
+        List<ServerServiceDescription> collect = tcpServiceDescriptions.stream().map(x -> of(x)).collect(Collectors.toList());
         return collect;
     }
 
@@ -54,14 +54,14 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
      * @param tcpServiceDescription
      * @return
      */
-    public static TcpServiceDescriptionOnServer of(TcpServiceDescription tcpServiceDescription) {
-        TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = new TcpServiceDescriptionOnServer();
-        tcpServiceDescriptionOnServer.setIp(tcpServiceDescription.getIp());
-        tcpServiceDescriptionOnServer.setName(tcpServiceDescription.getName());
-        tcpServiceDescriptionOnServer.setPort(tcpServiceDescription.getPort());
-        tcpServiceDescriptionOnServer.setDescription(tcpServiceDescription.getDescription());
-        tcpServiceDescriptionOnServer.setId(tcpServiceDescription.getId());
-        return tcpServiceDescriptionOnServer;
+    public static ServerServiceDescription of(TcpServiceDescription tcpServiceDescription) {
+        ServerServiceDescription serverServiceDescription = new ServerServiceDescription();
+        serverServiceDescription.setServiceIp(tcpServiceDescription.getServiceIp());
+        serverServiceDescription.setServiceName(tcpServiceDescription.getServiceName());
+        serverServiceDescription.setServicePort(tcpServiceDescription.getServicePort());
+        serverServiceDescription.setDescription(tcpServiceDescription.getDescription());
+        serverServiceDescription.setId(tcpServiceDescription.getId());
+        return serverServiceDescription;
     }
 
     /**
@@ -129,8 +129,8 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
 
     public void sendMessage(NDCMessageProtocol ndcMessageProtocol) {
         //set bind info
-        ndcMessageProtocol.setLocalPort(getPort());
-        ndcMessageProtocol.setLocalAddress(InetUtils.getByStringIpAddress(getIp()));
+        ndcMessageProtocol.setLocalPort(getServicePort());
+        ndcMessageProtocol.setLocalAddress(InetUtils.getByStringIpAddress(getServiceIp()));
 
         //向隧道上下文发送消息
         belongContext.writeAndFlush(ndcMessageProtocol);
@@ -145,7 +145,7 @@ public class TcpServiceDescriptionOnServer extends TcpServiceDescription {
      */
     public String getRouteTo() {
         //客户端id + 来源服务ip + 来源服务端口
-        return bindClientId + "->" + getIp() + ":" + getPort();
+        return bindClientId + "->" + getServiceIp() + ":" + getServicePort();
     }
 
 

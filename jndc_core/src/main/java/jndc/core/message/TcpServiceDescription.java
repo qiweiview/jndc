@@ -20,13 +20,13 @@ public class TcpServiceDescription implements Serializable {
     private String id;
 
     //本地客户端服务端口
-    private int port;
+    private int servicePort;
 
     //本地客户端服务ip
-    private String ip;
+    private String serviceIp;
 
     //服务名称
-    private String name;
+    private String serviceName;
 
     //服务描述
     private String description;

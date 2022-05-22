@@ -11,7 +11,7 @@ import jndc.utils.UUIDSimple;
 import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.TcpServiceDescriptionOnServer;
+import jndc_server.core.ServerServiceDescription;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
@@ -311,7 +311,7 @@ public class ServerManageMapping {
             channelHandlerContextHolders.forEach(x -> {
                 if (atomicBoolean.get()) {//find the only one service ,if service has been found,ignore other data
 
-                    List<TcpServiceDescriptionOnServer> tcpServiceDescriptions = x.getTcpServiceDescriptions();
+                    List<ServerServiceDescription> tcpServiceDescriptions = x.getTcpServiceDescriptions();
 
                     tcpServiceDescriptions.forEach(service -> {
                         //todo 这里的y是 上下文中注册的服务

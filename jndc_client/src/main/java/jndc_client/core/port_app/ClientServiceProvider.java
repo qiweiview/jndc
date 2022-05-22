@@ -20,16 +20,20 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * a local service provider
+ * 客户端服务
  */
 @Data
 @Slf4j
 public class ClientServiceProvider implements Serializable {
 
     private final String pId = UUID.randomUUID().toString();
+
     private int port;
+
     private String serviceIp;
+
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();//much client use the same EventLoopGroup
+
     private Map<String, ClientTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
 
 

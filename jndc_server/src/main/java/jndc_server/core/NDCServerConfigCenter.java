@@ -38,9 +38,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * 通过客户端固定编号获取上下文，移除对应服务
      *
      * @param channelId
-     * @param tcpServiceDescriptionOnServers
+     * @param serverServiceDescriptions
      */
-    public void removeServiceByChannelId(String channelId, List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+    public void removeServiceByChannelId(String channelId, List<ServerServiceDescription> serverServiceDescriptions) {
         if (channelId == null) {
             throw new RuntimeException("channelId is necessary");
         }
@@ -49,7 +49,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         if (channelHandlerContextHolder == null) {
             log.error("无法获取对应客户端上下文描述对象：" + channelId);
         } else {
-            channelHandlerContextHolder.removeTcpServiceDescriptions(tcpServiceDescriptionOnServers);
+            channelHandlerContextHolder.removeTcpServiceDescriptions(serverServiceDescriptions);
         }
     }
 
@@ -57,9 +57,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * 通过客户端唯一编号找到客户的上下文，进而注册客户端服务
      *
      * @param channelId
-     * @param tcpServiceDescriptionOnServers
+     * @param serverServiceDescriptions
      */
-    public void addServiceByChannelId(String channelId, List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+    public void addServiceByChannelId(String channelId, List<ServerServiceDescription> serverServiceDescriptions) {
         if (channelId == null) {
             throw new RuntimeException("channelId is necessary");
         }
@@ -69,7 +69,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             log.error("can not found the holder that id is" + channelId);
         } else {
             //向上下文中添加服务
-            channelHandlerContextHolder.addTcpServiceDescriptions(tcpServiceDescriptionOnServers);
+            channelHandlerContextHolder.addTcpServiceDescriptions(serverServiceDescriptions);
         }
 
     }
@@ -190,7 +190,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
      * @param enableDateRange
      * @return
      */
-    public boolean addTCPRouter(int port, String enableDateRange, TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer) {
+    public boolean addTCPRouter(int port, String enableDateRange, ServerServiceDescription serverServiceDescription) {
         AsynchronousEventCenter.ServerPortBindContext serverPortBindContext1 = tcpRouter.get(port);
 
         if (serverPortBindContext1 != null) {
@@ -207,7 +207,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = new AsynchronousEventCenter.ServerPortBindContext(port);
 
         //设置注册服务
-        serverPortBindContext.setTcpServiceDescriptionOnServer(tcpServiceDescriptionOnServer);
+        serverPortBindContext.setServerServiceDescription(serverServiceDescription);
 
         //创建端口监听器
         ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
@@ -223,7 +223,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         if (!success) {
             //todo bind port fail
             //do rollback
-            serverPortBindContext.setTcpServiceDescriptionOnServer(null);
+            serverPortBindContext.setServerServiceDescription(null);
             serverPortProtector.releaseRelatedResources();
             return false;
         }
@@ -234,7 +234,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //将服务放入服务集合内
         //用于后续服务释放
-        tcpServiceDescriptionOnServer.addToServiceReleaseList(serverPortProtector);
+        serverServiceDescription.addToServiceReleaseList(serverPortProtector);
 
         //通过服务端监听端口放置监听上下文
         tcpRouter.put(port, serverPortBindContext);
@@ -302,7 +302,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         }
 
         //获取到端口上绑定的服务
-        TcpServiceDescriptionOnServer tcpServiceDescription = serverPortBindContext.getTcpServiceDescriptionOnServer();
+        ServerServiceDescription tcpServiceDescription = serverPortBindContext.getServerServiceDescription();
 
         //获取隧道编号对应最新隧道
         //nat原因，可能持有旧的隧道未断开

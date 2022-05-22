@@ -132,6 +132,5 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
             channelHandlerContext.close();
             channelHandlerContext = null;
         }
-        //log.info("release local connection");
     }
 }

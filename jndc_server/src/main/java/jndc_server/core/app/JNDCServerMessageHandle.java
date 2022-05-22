@@ -15,7 +15,7 @@ import jndc.utils.ObjectSerializableUtils;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.TcpServiceDescriptionOnServer;
+import jndc_server.core.ServerServiceDescription;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +39,15 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     /**
      * 服务绑定
      *
-     * @param tcpServiceDescriptionOnServers
+     * @param serverServiceDescriptions
      */
-    public static void serviceBind(List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers) {
+    public static void serviceBind(List<ServerServiceDescription> serverServiceDescriptions) {
         //配置中心
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //服务转map
-        Map<String, TcpServiceDescriptionOnServer> map = tcpServiceDescriptionOnServers.stream()
-                .collect(Collectors.toMap(x -> x.getBindClientId() + x.getPort(), x -> x));
+        Map<String, ServerServiceDescription> map = serverServiceDescriptions.stream()
+                .collect(Collectors.toMap(x -> x.getBindClientId() + x.getServicePort(), x -> x));
 
 
         //获取旧的绑定
@@ -72,14 +72,14 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
             log.debug("db old key" + s);
 
-            TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer = map.get(s);
-            if (tcpServiceDescriptionOnServer != null) {
+            ServerServiceDescription serverServiceDescription = map.get(s);
+            if (serverServiceDescription != null) {
                 //todo 重新绑定
                 log.debug("rebind:" + map + "----->" + bindClientId);
 
 
                 //rebind the port service
-                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), x.getEnableDateRange(), tcpServiceDescriptionOnServer);
+                boolean success = ndcServerConfigCenter.addTCPRouter(x.getPort(), x.getEnableDateRange(), serverServiceDescription);
 
                 if (success) {
                     x.bindEnable();
@@ -148,10 +148,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
 
         //转化为复杂服务对象
-        List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+        List<ServerServiceDescription> serverServiceDescriptions = ServerServiceDescription.ofArray(tcpServiceDescriptions);
 
         //移除对应服务
-        ndcServerConfigCenter.removeServiceByChannelId(registrationMessage.getChannelId(), tcpServiceDescriptionOnServers);
+        ndcServerConfigCenter.removeServiceByChannelId(registrationMessage.getChannelId(), serverServiceDescriptions);
     }
 
     /**
@@ -189,20 +189,20 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
 
         //转化为服务端服务对象（复杂）集合
-        List<TcpServiceDescriptionOnServer> tcpServiceDescriptionOnServers = TcpServiceDescriptionOnServer.ofArray(tcpServiceDescriptions);
+        List<ServerServiceDescription> serverServiceDescriptions = ServerServiceDescription.ofArray(tcpServiceDescriptions);
 
         //绑定客户端Id
-        tcpServiceDescriptionOnServers.forEach(x -> {
+        serverServiceDescriptions.forEach(x -> {
             x.setBindClientId(channelId);
         });
 
         //服务绑定
-        ndcServerConfigCenter.addServiceByChannelId(channelId, tcpServiceDescriptionOnServers);
+        ndcServerConfigCenter.addServiceByChannelId(channelId, serverServiceDescriptions);
 
         /* ============================= restore the bind relation ============================= */
 
         //服务绑定
-        serviceBind(tcpServiceDescriptionOnServers);
+        serviceBind(serverServiceDescriptions);
 
 
         log.info("推送开启刷新");

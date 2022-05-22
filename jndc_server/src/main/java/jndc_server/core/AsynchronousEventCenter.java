@@ -52,7 +52,7 @@ public class AsynchronousEventCenter {
         private ServerPortProtector serverPortProtector;
 
         //端口绑定服务描述（对内）
-        private TcpServiceDescriptionOnServer tcpServiceDescriptionOnServer;
+        private ServerServiceDescription serverServiceDescription;
 
 
         public ServerPortBindContext(int port) {

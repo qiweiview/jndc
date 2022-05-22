@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 定时组件
+ */
 @Slf4j
 public class ClientScheduledTaskCenter {
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
