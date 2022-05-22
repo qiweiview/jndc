@@ -9,7 +9,6 @@ import jndc.utils.InetUtils;
 import jndc.utils.UUIDSimple;
 import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
-import jndc_server.web_support.core.MessageNotificationCenter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -146,13 +145,13 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             });
 
             //获取消息中心
-            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
 
             //推送不活动连接刷新
 //            messageNotificationCenter.dateRefreshMessage("channelList");//notice the channel list refresh
 //            messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
         } else {
-            log.info("无服务隧道...");
+            log.debug("无服务隧道...");
         }
 
 
@@ -281,7 +280,6 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             }
         });
     }
-
 
 
     /**

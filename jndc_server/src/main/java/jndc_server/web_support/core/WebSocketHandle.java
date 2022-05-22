@@ -20,7 +20,7 @@ public class WebSocketHandle extends SimpleChannelInboundHandler<TextWebSocketFr
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+//        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class AESUtils {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             return cipher.doFinal(bytes);
         } catch (Exception e) {
-            log.info("解码异常" + e);
+            log.error("解码异常" + e + "，即将断开链接...");
             throw new SecreteDecodeFailException();
         }
     }
