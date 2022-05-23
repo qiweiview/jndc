@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Data
 @Slf4j
-public class DataFlowAnalysisCenter {
+public class TCPDataFlowAnalysisCenter {
 
     public static final String METHOD_REQUEST = "METHOD_REQUEST";
 
@@ -17,7 +17,7 @@ public class DataFlowAnalysisCenter {
 
     private AsynchronousEventCenter asynchronousEventCenter;
 
-    public DataFlowAnalysisCenter(AsynchronousEventCenter asynchronousEventCenter) {
+    public TCPDataFlowAnalysisCenter(AsynchronousEventCenter asynchronousEventCenter) {
         this.asynchronousEventCenter = asynchronousEventCenter;
     }
 

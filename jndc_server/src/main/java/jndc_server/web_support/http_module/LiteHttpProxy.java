@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
-import jndc_server.web_support.model.data_object.HttpHostRoute;
+import jndc_server.web_support.model.d_o.HttpHostRoute;
 import jndc_server.web_support.utils.BlockValueFeature;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

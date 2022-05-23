@@ -4,7 +4,7 @@ import jndc.utils.JSONUtils;
 import jndc_server.web_support.mapping.DevelopDebugMapping;
 import jndc_server.web_support.mapping.ServerHttpManageMapping;
 import jndc_server.web_support.mapping.ServerManageMapping;
-import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
+import jndc_server.web_support.model.dto.ResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -59,8 +59,8 @@ public class MappingRegisterCenter {
     }
 
     public byte[] invokeMapping(JNDCHttpRequest jndcHttpRequest) {
-        StringBuilder fullPath = jndcHttpRequest.getFullPath();
-        MappingMethodDescription mappingMethodDescription = mappingMap.get(fullPath.toString());
+        String fullPath = jndcHttpRequest.getFullPath();
+        MappingMethodDescription mappingMethodDescription = mappingMap.get(fullPath);
         if (mappingMethodDescription == null) {
             return null;
         }

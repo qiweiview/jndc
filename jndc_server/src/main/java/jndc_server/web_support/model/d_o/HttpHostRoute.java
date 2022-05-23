@@ -1,10 +1,10 @@
-package jndc_server.web_support.model.data_object;
+package jndc_server.web_support.model.d_o;
 
 
 import jndc.core.data_store_support.DSFiled;
 import jndc.core.data_store_support.DSKey;
 import jndc.core.data_store_support.DSTable;
-import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
+import jndc_server.web_support.model.dto.HostRouteDTO;
 import lombok.Data;
 
 @Data

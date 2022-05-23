@@ -8,14 +8,18 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.AsciiString;
 import jndc.utils.JSONUtils;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-
+@Slf4j
+@Data
 public class JNDCHttpRequest {
     private FullHttpRequest fullHttpRequest;
 
@@ -31,12 +35,9 @@ public class JNDCHttpRequest {
 
     private String hostName;
 
-    private List<String> pathList;
+    private String fullPath;
 
-    private StringBuilder fullPath;
-
-
-    private Map<String, InnerQueryValue> queryMap;
+    private Map<String, QueryKV> queryMap;
 
     /**
      * 获取对应对象
@@ -55,9 +56,8 @@ public class JNDCHttpRequest {
         ByteBuf content = fullHttpRequest.content();
         this.body = ByteBufUtil.getBytes(content);
         this.method = fullHttpRequest.method();
-        this.pathList = new ArrayList<>();
         this.queryMap = new HashMap<>();
-        this.fullPath = new StringBuilder();
+        this.fullPath = "";
         this.fullHttpRequest = fullHttpRequest;
         this.headers = fullHttpRequest.headers();
         parseRequest();
@@ -72,101 +72,31 @@ public class JNDCHttpRequest {
     }
 
 
-
     private void parseUri() {
-        StringBuilder stringBuilder = new StringBuilder();
-        char[] chars = this.uri.toCharArray();
-        InnerQueryValue innerQueryValue = new InnerQueryValue();
-        boolean overQuery = false;
-        boolean pathEnd = false;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '/' && !pathEnd) {
-                if (stringBuilder.length() != 0) {
-                    crateLevelPath(stringBuilder);
+        try {
+            URL url = new URL(this.uri);
+            String query = url.getQuery();
+            Stream.of(query.split("&")).forEach(x -> {
+                String[] split = x.split("=");
+                QueryKV queryKV = new QueryKV();
+                if (split.length == 1) {
+                    queryKV.setKey(split[0]);
+                    queryKV.setValue("");
+                    queryMap.put(queryKV.getKey(), queryKV);
+                } else if (split.length > 1) {
+                    queryKV.setKey(split[0]);
+                    queryKV.setValue(split[1]);
+                    queryMap.put(queryKV.getKey(), queryKV);
                 }
-                stringBuilder.append(chars[i]);
-            } else if (chars[i] == '?') {
-                crateLevelPath(stringBuilder);
-                overQuery = true;
-                pathEnd = true;
-            } else if (chars[i] == '=') {
-                innerQueryValue.setKey(stringBuilder.toString());
-                stringBuilder.setLength(0);
-            } else if (chars[i] == '&') {
-                innerQueryValue.setValue(stringBuilder.toString());
-                queryMap.put(innerQueryValue.getKey(), innerQueryValue);
-                stringBuilder.setLength(0);
-                innerQueryValue = new InnerQueryValue();
-            } else {
-                stringBuilder.append(chars[i]);
-            }
+            });
+
+
+            //创建地址
+            String path = url.getPath();
+            setFullPath(path);
+        } catch (MalformedURLException e) {
+            log.error("ur解析异常");
         }
-        if (stringBuilder.length() > 0) {
-            if (overQuery) {
-                if (innerQueryValue.getKey() == null) {
-                    innerQueryValue.setKey(stringBuilder.toString());
-                } else {
-                    innerQueryValue.setValue(stringBuilder.toString());
-
-                }
-                queryMap.put(innerQueryValue.getKey(), innerQueryValue);
-            } else {
-                crateLevelPath(stringBuilder);
-            }
-        }
-
-
-    }
-
-
-    private void crateLevelPath(StringBuilder stringBuilder) {
-        pathList.add(stringBuilder.toString());
-        fullPath.append(stringBuilder.toString());
-        stringBuilder.setLength(0);
-    }
-
-
-    /*getter setter*/
-
-    public InetAddress getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    public void setRemoteAddress(InetAddress remoteAddress) {
-        this.remoteAddress = remoteAddress;
-    }
-
-    public byte[] getBody() {
-        return body;
-    }
-
-    public void setBody(byte[] body) {
-        this.body = body;
-    }
-
-    public HttpMethod getMethod() {
-        return method;
-    }
-
-    public StringBuilder getFullPath() {
-        return fullPath;
-    }
-
-
-    public FullHttpRequest getFullHttpRequest() {
-        return fullHttpRequest;
-    }
-
-    public void setFullHttpRequest(FullHttpRequest fullHttpRequest) {
-        this.fullHttpRequest = fullHttpRequest;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
     }
 
     public String getStringHeader(AsciiString name) {
@@ -177,58 +107,61 @@ public class JNDCHttpRequest {
         return headers.getInt(name);
     }
 
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public Map<String, InnerQueryValue> getQueryMap() {
-        return queryMap;
-    }
-
-    public void setQueryMap(Map<String, InnerQueryValue> queryMap) {
-        this.queryMap = queryMap;
-    }
-
-    public List<String> getPathList() {
-        return pathList;
-    }
-
-    public void setPathList(List<String> pathList) {
-        this.pathList = pathList;
-    }
-
-
-    /*inner class*/
-
-    public class InnerQueryValue {
-        private String key;
-        private String value;
-
-        @Override
-        public String toString() {
-            return value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
+//    private void parseUri() {
+//        StringBuilder stringBuilder = new StringBuilder();
+//        char[] chars = this.uri.toCharArray();
+//        InnerQueryValue innerQueryValue = new InnerQueryValue();
+//        boolean overQuery = false;
+//        boolean pathEnd = false;
+//        for (int i = 0; i < chars.length; i++) {
+//            if (chars[i] == '/' && !pathEnd) {
+//                if (stringBuilder.length() != 0) {
+//                    crateLevelPath(stringBuilder);
+//                }
+//                stringBuilder.append(chars[i]);
+//            } else if (chars[i] == '?') {
+//                crateLevelPath(stringBuilder);
+//                overQuery = true;
+//                pathEnd = true;
+//            } else if (chars[i] == '=') {
+//                innerQueryValue.setKey(stringBuilder.toString());
+//                stringBuilder.setLength(0);
+//            } else if (chars[i] == '&') {
+//                innerQueryValue.setValue(stringBuilder.toString());
+//                queryMap.put(innerQueryValue.getKey(), innerQueryValue);
+//                stringBuilder.setLength(0);
+//                innerQueryValue = new InnerQueryValue();
+//            } else {
+//                stringBuilder.append(chars[i]);
+//            }
+//        }
+//        if (stringBuilder.length() > 0) {
+//            if (overQuery) {
+//                if (innerQueryValue.getKey() == null) {
+//                    innerQueryValue.setKey(stringBuilder.toString());
+//                } else {
+//                    innerQueryValue.setValue(stringBuilder.toString());
+//
+//                }
+//                queryMap.put(innerQueryValue.getKey(), innerQueryValue);
+//            } else {
+//                crateLevelPath(stringBuilder);
+//            }
+//        }
+//
+//
+//    }
 
 
-    }
+//    private void crateLevelPath(String  stringBuilder) {
+//        pathList.add(stringBuilder );
+//        fullPath.append(stringBuilder );
+//    }
+//
+//    private void crateLevelPath(StringBuilder stringBuilder) {
+//       crateLevelPath(stringBuilder.toString());
+//        stringBuilder.setLength(0);
+//    }
+
+
 }

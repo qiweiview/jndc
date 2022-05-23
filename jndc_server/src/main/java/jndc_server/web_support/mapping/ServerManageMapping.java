@@ -21,12 +21,12 @@ import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.MessageNotificationCenter;
 import jndc_server.web_support.core.WebMapping;
-import jndc_server.web_support.model.data_object.ManagementLoginUser;
-import jndc_server.web_support.model.data_transfer_object.*;
-import jndc_server.web_support.model.view_object.ChannelContextVO;
-import jndc_server.web_support.model.view_object.DeviceInfo;
-import jndc_server.web_support.model.view_object.IpRecordVO;
-import jndc_server.web_support.model.view_object.PageListVO;
+import jndc_server.web_support.model.d_o.ManagementLoginUser;
+import jndc_server.web_support.model.dto.*;
+import jndc_server.web_support.model.vo.ChannelContextVO;
+import jndc_server.web_support.model.vo.DeviceInfo;
+import jndc_server.web_support.model.vo.IpRecordVO;
+import jndc_server.web_support.model.vo.PageListVO;
 import jndc_server.web_support.utils.AuthUtils;
 import lombok.extern.slf4j.Slf4j;
 

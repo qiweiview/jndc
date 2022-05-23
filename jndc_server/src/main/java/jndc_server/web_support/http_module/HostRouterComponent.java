@@ -2,7 +2,7 @@ package jndc_server.web_support.http_module;
 
 import io.netty.util.internal.StringUtil;
 import jndc.core.data_store_support.DBWrapper;
-import jndc_server.web_support.model.data_object.HttpHostRoute;
+import jndc_server.web_support.model.d_o.HttpHostRoute;
 
 import java.util.List;
 import java.util.Map;

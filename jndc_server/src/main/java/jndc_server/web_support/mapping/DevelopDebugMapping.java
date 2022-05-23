@@ -4,7 +4,7 @@ package jndc_server.web_support.mapping;
 import jndc_server.web_support.core.FrontProjectLoader;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.WebMapping;
-import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
+import jndc_server.web_support.model.dto.ResponseMessage;
 
 import java.net.InetAddress;
 import java.util.HashMap;

@@ -1,8 +1,7 @@
 package jndc_server.web_support.utils;
 
 import jndc.utils.AESUtils;
-import jndc_server.web_support.model.data_object.ManagementLoginUser;
-
+import jndc_server.web_support.model.d_o.ManagementLoginUser;
 
 import java.util.Base64;
 

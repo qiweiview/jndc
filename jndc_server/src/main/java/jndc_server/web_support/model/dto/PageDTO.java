@@ -1,4 +1,4 @@
-package jndc_server.web_support.model.data_transfer_object;
+package jndc_server.web_support.model.dto;
 
 public class PageDTO {
     private int page;

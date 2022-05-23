@@ -1,4 +1,4 @@
-package jndc_server.web_support.model.view_object;
+package jndc_server.web_support.model.vo;
 
 public class IdVO {
     private String id;

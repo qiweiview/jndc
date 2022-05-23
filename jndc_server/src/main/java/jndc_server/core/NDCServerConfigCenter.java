@@ -316,16 +316,16 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         tcpServiceDescription.sendMessage(ndcMessageProtocol);
 
         //异步执行中心
-        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
-        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_REQUEST);
+        TCPDataFlowAnalysisCenter TCPDataFlowAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
+        TCPDataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), TCPDataFlowAnalysisCenter.METHOD_REQUEST);
     }
 
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {
         //异步执行中心
-        DataFlowAnalysisCenter dataFlowAnalysisCenter = UniqueBeanManage.getBean(DataFlowAnalysisCenter.class);
-        dataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), DataFlowAnalysisCenter.METHOD_RESPONSE);
+        TCPDataFlowAnalysisCenter TCPDataFlowAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
+        TCPDataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), TCPDataFlowAnalysisCenter.METHOD_RESPONSE);
 
         int serverPort = ndcMessageProtocol.getServerPort();
         AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);

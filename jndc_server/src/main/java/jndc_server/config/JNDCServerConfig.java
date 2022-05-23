@@ -8,9 +8,9 @@ import jndc.core.data_store_support.MysqlDataStore;
 import jndc.core.data_store_support.SQLiteDataStore;
 import jndc.utils.*;
 import jndc_server.core.AsynchronousEventCenter;
-import jndc_server.core.DataFlowAnalysisCenter;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ScheduledTaskCenter;
+import jndc_server.core.TCPDataFlowAnalysisCenter;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.core.MappingRegisterCenter;
@@ -144,7 +144,7 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(new HostRouterComponent());
 
         //流量分析
-        UniqueBeanManage.registerBean(new DataFlowAnalysisCenter(asynchronousEventCenter));
+        UniqueBeanManage.registerBean(new TCPDataFlowAnalysisCenter(asynchronousEventCenter));
 
         //初始化
         init();

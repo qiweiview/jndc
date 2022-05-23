@@ -12,11 +12,11 @@ import jndc.utils.UUIDSimple;
 import jndc_server.web_support.core.JNDCHttpRequest;
 import jndc_server.web_support.core.WebMapping;
 import jndc_server.web_support.http_module.HostRouterComponent;
-import jndc_server.web_support.model.data_object.HttpHostRoute;
-import jndc_server.web_support.model.data_transfer_object.HostRouteDTO;
-import jndc_server.web_support.model.data_transfer_object.ResponseMessage;
-import jndc_server.web_support.model.view_object.HttpHostRouteVO;
-import jndc_server.web_support.model.view_object.PageListVO;
+import jndc_server.web_support.model.d_o.HttpHostRoute;
+import jndc_server.web_support.model.dto.HostRouteDTO;
+import jndc_server.web_support.model.dto.ResponseMessage;
+import jndc_server.web_support.model.vo.HttpHostRouteVO;
+import jndc_server.web_support.model.vo.PageListVO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,7 +188,8 @@ public class ServerHttpManageMapping {
         } else {
             condition = "and (hostKeyWord like '%" + hostRouteDTO.getHostKeyWord() + "%' or forwardPort=" + hostRouteDTO.getHostKeyWord() + ")";
         }
-        PageResult<HttpHostRoute> httpHostRoutePageResult = dbWrapper.customQueryByPage("select * from http_host_route where 1=1 " + condition, hostRouteDTO.getPage(), hostRouteDTO.getRows());
+        String order = " order by host_key_word";
+        PageResult<HttpHostRoute> httpHostRoutePageResult = dbWrapper.customQueryByPage("select * from http_host_route where 1=1 " + condition + order, hostRouteDTO.getPage(), hostRouteDTO.getRows());
 
 
         List<HttpHostRouteVO> httpHostRouteVOS = new ArrayList<>();

@@ -8,10 +8,14 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
 import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.web_support.model.data_object.HttpHostRoute;
+import jndc_server.web_support.core.JNDCHttpRequest;
+import jndc_server.web_support.model.d_o.HttpHostRoute;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 服务器路由
+ */
 @Slf4j
 public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest> {
     public static String NAME = "HOST_ROUTE_HANDLE";
@@ -23,6 +27,7 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
         HttpHeaders headers = fullHttpRequest.headers();
 
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
+        //提取host头
         String host = headers.get(HttpHeaderNames.HOST);
         // host="blog.ab.com";
         HttpHostRoute httpHostRoute = hostRouterComponent.matchHost(host);
@@ -31,23 +36,22 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
 
 
             if (httpHostRoute.fixValueType()) {
-                //todo return fix value
+                //todo 固定值
                 fullHttpResponse = HttpResponseBuilder.defaultResponse(httpHostRoute.getFixedResponse().getBytes(), httpHostRoute.getFixedContentType() + ";charset=utf-8");
             }
 
             if (httpHostRoute.redirectType()) {
-                //todo return redirect tag
+                //todo 重定向
                 fullHttpResponse = HttpResponseBuilder.redirectResponse(httpHostRoute.getForwardProtocol() + httpHostRoute.getRedirectAddress());
             }
 
 
             if (httpHostRoute.forwardType()) {
-                //todo forward request
+                //todo 转发
 
-                //启动内部访问客户端
-
-
+                //从连接器池中获取访问客户端
                 LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
+                new JNDCHttpRequest(fullHttpRequest.copy());
                 fullHttpResponse = liteHttpProxy.forward(httpHostRoute, fullHttpRequest.retain());
                 if (fullHttpResponse == null) {
                     //todo 超时的直接断开

@@ -31,9 +31,7 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
         if (HttpMethod.GET.equals(jndcHttpRequest.getMethod())) {
             //todo get
 
-            StringBuilder fullPath = jndcHttpRequest.getFullPath();
-
-            String fullPathStr = fullPath.toString();
+            String fullPathStr = jndcHttpRequest.getFullPath();
 
             if ("/".equals(fullPathStr)){
                 fullPathStr="/index.html";
