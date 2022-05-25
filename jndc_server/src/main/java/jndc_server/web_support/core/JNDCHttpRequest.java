@@ -74,7 +74,9 @@ public class JNDCHttpRequest {
 
     private void parseUri() {
         try {
-            URL url = new URL(this.uri);
+            String uri = "http://hi" + this.uri;
+
+            URL url = new URL(uri);
             String query = url.getQuery();
             Stream.of(query.split("&")).forEach(x -> {
                 String[] split = x.split("=");
@@ -95,7 +97,7 @@ public class JNDCHttpRequest {
             String path = url.getPath();
             setFullPath(path);
         } catch (MalformedURLException e) {
-            log.error("ur解析异常");
+            log.error("ur解析异常：" + e + "/" + uri);
         }
     }
 

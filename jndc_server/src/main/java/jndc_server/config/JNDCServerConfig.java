@@ -118,13 +118,13 @@ public class JNDCServerConfig {
         if (dbConfig.useMysql()) {
             //todo 使用mysql存储
             DataStoreAbstract mysqlDataStore = new MysqlDataStore(dbConfig.getUrl(), dbConfig.getName(), dbConfig.getPassword());
-            mysqlDataStore.init();
+            mysqlDataStore.init(dbConfig.isFlywayEnable());
             UniqueBeanManage.registerBean(DataStoreAbstract.class, mysqlDataStore);
             log.info("使用mysql数据库存储：" + dbConfig.getUrl());
         } else {
             //todo 使用sqlite存储
             DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
-            sqLiteDataStore.init();
+            sqLiteDataStore.init(dbConfig.isFlywayEnable());
             UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
             log.info("使用sqlite数据库存储");
         }

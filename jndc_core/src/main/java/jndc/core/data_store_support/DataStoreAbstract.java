@@ -17,10 +17,13 @@ public abstract class DataStoreAbstract {
     private volatile boolean initialized = false;
 
 
-    public void init() {
+    public void init(boolean flyway) {
         if (!initialized) {
             synchronized (DataStoreAbstract.class) {
-                flywayInit();
+                if (flyway) {
+                    flywayInit();
+                }
+
             }
         }
 

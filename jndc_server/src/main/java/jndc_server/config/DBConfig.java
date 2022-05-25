@@ -31,6 +31,8 @@ public class DBConfig {
      */
     private String password;
 
+    private boolean flywayEnable;
+
     public boolean useMysql() {
         String type = getType();
         if (type == null) {
