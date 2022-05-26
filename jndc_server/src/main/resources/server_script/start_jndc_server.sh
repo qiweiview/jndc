@@ -1,1 +1,1 @@
-java -jar ../../jndc_server.jar hi_im_view
+ java -Dfile.encoding=UTF-8   -classpath ".:lib/*:resources:jndc_server.jar" jndc_server.start.ServerStart

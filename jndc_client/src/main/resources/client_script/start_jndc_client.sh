@@ -1,1 +1,1 @@
-java -jar ../../jndc_client.jar hi_im_view
+ java -Dfile.encoding=UTF-8   -classpath ".:lib/*:resources:jndc_client.jar" jndc_client.start.ClientStart

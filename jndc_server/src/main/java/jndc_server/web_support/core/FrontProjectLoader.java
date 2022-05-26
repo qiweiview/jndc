@@ -45,7 +45,7 @@ public class FrontProjectLoader {
 
     public void reloadProject() {
 
-        log.debug("load front project: " + rootPath);
+        log.info("load front project: " + rootPath);
 
         //销毁旧文件
         destroyOldVersion();
@@ -132,7 +132,6 @@ public class FrontProjectLoader {
             this.rootPath = rootPath;
             this.fullPath = file.getAbsolutePath();
             if (subStringIndex == 0) {
-//                subStringIndex = findTheDifferentIndex(this.rootPath, this.fullPath)-1;
                 subStringIndex = rootPath.length();
             }
             this.shortPath = this.fullPath.substring(subStringIndex);

@@ -38,6 +38,7 @@ public class SQLiteDataStore extends DataStoreAbstract {
         }
 
         url = PROTOCOL + this.dbWorkDirect + SQL_LITE_DB;
+        log.info("sqlite url:" + url);
     }
 
 

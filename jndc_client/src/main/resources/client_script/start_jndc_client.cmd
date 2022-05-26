@@ -1,1 +1,1 @@
-java -jar ../../jndc_client.jar
+java -Dfile.encoding=UTF-8   -classpath "./jndc_client.jar" jndc_client.start.ClientStart

@@ -300,7 +300,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             if (type == NDCMessageProtocol.USER_ERROR) {
                 //todo USER_ERROR
                 UserError userError = ndcMessageProtocol.getObject(UserError.class);
-                if (userError.getDescription().startsWith("Ip Address Rule")) {
+                if (userError.getDescription() != null && userError.getDescription().startsWith("Ip Address Rule")) {
                     log.error(userError.getDescription());
                     System.exit(1);
                 }
@@ -319,7 +319,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
             copy.setData(NDCMessageProtocol.BLANK);
             UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
-
+            e.printStackTrace();
             log.error(type + ": client get a unCatchable Error:" + e);
         }
 

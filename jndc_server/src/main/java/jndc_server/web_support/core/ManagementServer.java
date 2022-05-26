@@ -14,6 +14,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
+import jndc.utils.OSUtils;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServeManageConfig;
 import jndc_server.core.app.ServerApp;
@@ -107,11 +108,21 @@ public class ManagementServer implements ServerApp {
      * 扫描管理页文件
      */
     public void scanFrontProject() {
-        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         String runtimeDir = "";
-        String runtimeDir1 = serverConfig.getRuntimeDir() + File.separator + "resources" + File.separator + "frontend" + File.separator;
 
+        String runtimeDir1 = System.getProperty("user.dir") + File.separator + "resources" + File.separator + "frontend";
+        log.info("runtimeDir1--->" + runtimeDir1);
         String runtimeDir2 = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\frontend";
+        log.info("runtimeDir2--->" + runtimeDir2);
+
+        if (OSUtils.isLinux()) {
+            if (!runtimeDir1.startsWith("/")) {
+                runtimeDir1 = "/" + runtimeDir1;
+            }
+            if (!runtimeDir2.startsWith("/")) {
+                runtimeDir2 = "/" + runtimeDir1;
+            }
+        }
 
         if (new File(runtimeDir1).exists()) {
             runtimeDir = runtimeDir1;
@@ -123,7 +134,7 @@ public class ManagementServer implements ServerApp {
         }
 
         FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-        log.info("扫描管理页完成...");
+        log.info("扫描管理页完成--->" + runtimeDir);
     }
 
 }

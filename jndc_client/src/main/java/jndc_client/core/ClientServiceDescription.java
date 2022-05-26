@@ -43,7 +43,14 @@ public class ClientServiceDescription extends TcpServiceDescription {
     }
 
 
+
     public TcpServiceDescription toTcpServiceDescription() {
-        return this;
+        TcpServiceDescription tcpServiceDescription = new TcpServiceDescription();
+        tcpServiceDescription.setId(getId());
+        tcpServiceDescription.setServiceIp(getServiceIp());
+        tcpServiceDescription.setServiceName(getServiceName());
+        tcpServiceDescription.setServicePort(getServicePort());
+        tcpServiceDescription.setDescription(getDescription());
+        return tcpServiceDescription;
     }
 }

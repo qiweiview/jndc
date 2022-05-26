@@ -1,6 +1,6 @@
-secrete: "xxx1" # 服务端密钥，很重要务必在使用前更改
+secrete: "xxx" # 服务端密钥，很重要务必在使用前更改
 loglevel: "info" # 日志打印等级
-serverIp: "127.0.0.1" # 服务端运行监听ip
+serverIp: "101.34.166.251" # 服务端运行监听ip
 serverPort: "81" # 服务端运行端口
 openGui: false
 autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）

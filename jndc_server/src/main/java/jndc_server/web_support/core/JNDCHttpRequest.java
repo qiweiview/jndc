@@ -78,19 +78,21 @@ public class JNDCHttpRequest {
 
             URL url = new URL(uri);
             String query = url.getQuery();
-            Stream.of(query.split("&")).forEach(x -> {
-                String[] split = x.split("=");
-                QueryKV queryKV = new QueryKV();
-                if (split.length == 1) {
-                    queryKV.setKey(split[0]);
-                    queryKV.setValue("");
-                    queryMap.put(queryKV.getKey(), queryKV);
-                } else if (split.length > 1) {
-                    queryKV.setKey(split[0]);
-                    queryKV.setValue(split[1]);
-                    queryMap.put(queryKV.getKey(), queryKV);
-                }
-            });
+            if (query != null) {
+                Stream.of(query.split("&")).forEach(x -> {
+                    String[] split = x.split("=");
+                    QueryKV queryKV = new QueryKV();
+                    if (split.length == 1) {
+                        queryKV.setKey(split[0]);
+                        queryKV.setValue("");
+                        queryMap.put(queryKV.getKey(), queryKV);
+                    } else if (split.length > 1) {
+                        queryKV.setKey(split[0]);
+                        queryKV.setValue(split[1]);
+                        queryMap.put(queryKV.getKey(), queryKV);
+                    }
+                });
+            }
 
 
             //创建地址

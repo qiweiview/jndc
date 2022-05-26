@@ -30,7 +30,7 @@ public class ServeHTTPConfig {
 
 
     //404 页面地址
-    private String notFoundPage = "\uD83D\uDEEB\uD83D\uDEEB\uD83D\uDEEBNot Found";
+    private String notFoundPage = "The page piu~ ,not found";
 
     //证书上下文
     private SSLContext serverSSLContext;

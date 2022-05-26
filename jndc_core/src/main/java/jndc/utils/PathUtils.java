@@ -31,7 +31,13 @@ public class PathUtils {
                 file = file.substring(0, file.lastIndexOf("/"));
             }
             RUN_TIME_PATH = file;
+            if (OSUtils.isLinux()) {
+                if (!RUN_TIME_PATH.startsWith("/")) {
+                    RUN_TIME_PATH = "/" + RUN_TIME_PATH;
+                }
+            }
         }
+
 
         return RUN_TIME_PATH;
 
