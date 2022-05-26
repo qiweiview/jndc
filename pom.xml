@@ -9,9 +9,12 @@
     <packaging>pom</packaging>
     <version>1.0</version>
     <modules>
-        <module>jndc_client</module>
         <module>jndc_core</module>
+        <module>jndc_client</module>
         <module>jndc_server</module>
+
+        <!--        需要编译前端时打开-->
+        <!--        <module>jndc_frontend</module>-->
     </modules>
 
     <properties>
@@ -97,42 +100,14 @@
             </dependency>
 
 
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.16</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-
-
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-    </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.fxml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.css</include>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
-    </build>
 
 
 </project>

@@ -64,7 +64,7 @@
                         <exclude>*.sql</exclude>
                     </excludes>
                     <!-- 指定项目打成jar包输出位置 -->
-                    <outputDirectory>${project.build.directory}/output</outputDirectory>
+                    <outputDirectory>${project.build.directory}/jndc_client/lib/</outputDirectory>
                 </configuration>
             </plugin>
             <!-- 拷贝依赖jar包！插件maven-jar-plugin只是打包排除文件，
@@ -80,7 +80,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/output/lib/</outputDirectory>
+                            <outputDirectory>${project.build.directory}/jndc_client/lib/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -104,7 +104,7 @@
                                 </resource>
                             </resources>
                             <!-- 把“<resource><directory>”指定目录中的文件输出到此处指定目录 -->
-                            <outputDirectory>${project.build.directory}/output/resources</outputDirectory>
+                            <outputDirectory>${project.build.directory}/jndc_client</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

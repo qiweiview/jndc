@@ -17,11 +17,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class PackageScan {
     private static final ClassLoader classLoader = PackageScan.class.getClassLoader();
-    private static final String ClassPath = classLoader.getResource("").getFile();
 
-    static {
-        log.debug("class path:---> " + classLoader.getResource("").getPath());
-    }
 
     /**
      * 扫描路径
@@ -123,7 +119,12 @@ public class PackageScan {
      * @return
      */
     private static String toJavaClassPath(String path) {
-        String substring = path.substring(ClassPath.length() - 1, path.length() - 6);
+        URL resource = classLoader.getResource(".");
+        log.info((classLoader.getResource(".") == null) + "");
+        log.info((classLoader.getResource("") == null) + "");
+        log.info((classLoader.getResource("/") == null) + "");
+
+        String substring = path.substring(resource.getFile().length() - 1, path.length() - 6);
         String s = PathUtils.systemPath2JavaPackagePath(substring);
         log.debug(path + "--->" + s);
         return s;

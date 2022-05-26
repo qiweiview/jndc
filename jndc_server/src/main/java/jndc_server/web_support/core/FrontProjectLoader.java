@@ -44,9 +44,6 @@ public class FrontProjectLoader {
 
 
     public void reloadProject() {
-
-        log.info("load front project: " + rootPath);
-
         //销毁旧文件
         destroyOldVersion();
 

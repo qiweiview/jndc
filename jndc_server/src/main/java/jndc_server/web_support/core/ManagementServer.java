@@ -14,7 +14,7 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
-import jndc.utils.OSUtils;
+import jndc.utils.PathUtils;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServeManageConfig;
 import jndc_server.core.app.ServerApp;
@@ -108,33 +108,21 @@ public class ManagementServer implements ServerApp {
      * 扫描管理页文件
      */
     public void scanFrontProject() {
-        String runtimeDir = "";
 
-        String runtimeDir1 = System.getProperty("user.dir") + File.separator + "resources" + File.separator + "frontend";
-        log.info("runtimeDir1--->" + runtimeDir1);
-        String runtimeDir2 = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\frontend";
-        log.info("runtimeDir2--->" + runtimeDir2);
 
-        if (OSUtils.isLinux()) {
-            if (!runtimeDir1.startsWith("/")) {
-                runtimeDir1 = "/" + runtimeDir1;
-            }
-            if (!runtimeDir2.startsWith("/")) {
-                runtimeDir2 = "/" + runtimeDir1;
-            }
-        }
+        String runTimePath = PathUtils.getRunTimePath();
 
-        if (new File(runtimeDir1).exists()) {
-            runtimeDir = runtimeDir1;
-        } else if (new File(runtimeDir2).exists()) {
-            runtimeDir = runtimeDir2;
-        } else {
-            LogPrint.err("管理页目录不存在：" + runtimeDir1);
+        String runtimeDir = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+        log.info("扫描管理页--->" + runtimeDir);
+
+
+        if (!new File(runtimeDir).exists()) {
+            LogPrint.err("管理页目录不存在--->" + runtimeDir);
             ApplicationExit.exit();
         }
 
         FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-        log.info("扫描管理页完成--->" + runtimeDir);
+
     }
 
 }

@@ -4,7 +4,6 @@ package jndc_server.web_support.mapping;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
-import jndc.core.message.TcpServiceDescription;
 import jndc.utils.JSONUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
@@ -37,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * singleton， thread unsafe
@@ -199,18 +199,20 @@ public class ServerManageMapping {
      * @return
      */
     @WebMapping(path = UrlConstant.ServerManage.getServiceList)
-    public List<TcpServiceDescription> getServiceList(JNDCHttpRequest jndcHttpRequest) {
+    public List<ServerServiceDescription> getServiceList(JNDCHttpRequest jndcHttpRequest) {
 
-
-        List<TcpServiceDescription> tcpServiceDescriptions = new ArrayList<>();
-
+        ServerServiceDescription param = jndcHttpRequest.getObject(ServerServiceDescription.class);
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
-
-        channelHandlerContextHolders.forEach(x -> {
-            tcpServiceDescriptions.addAll(x.getTcpServiceDescriptions());
-        });
-        return tcpServiceDescriptions;
+        List<ServerServiceDescription> collect = channelHandlerContextHolders.stream().flatMap(x -> {
+            List<ServerServiceDescription> tcpServiceDescriptions1 = x.getTcpServiceDescriptions();
+            return tcpServiceDescriptions1.stream().filter(z -> {
+                //todo 过滤
+                String bindClientId = z.getBindClientId();
+                return "".equals(param.getBindClientId()) || bindClientId.equals(param.getBindClientId());
+            });
+        }).collect(Collectors.toList());
+        return collect;
 
     }
 

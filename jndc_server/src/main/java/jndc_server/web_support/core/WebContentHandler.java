@@ -89,7 +89,6 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
         log.error("unCatchableException: " + cause);
 
     }

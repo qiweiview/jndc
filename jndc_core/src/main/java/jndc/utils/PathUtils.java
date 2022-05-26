@@ -2,7 +2,6 @@ package jndc.utils;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.net.URL;
 
 public class PathUtils {
     private static final ClassLoader classLoader = PathUtils.class.getClassLoader();
@@ -20,17 +19,7 @@ public class PathUtils {
      */
     public static String getRunTimePath() {
         if (RUN_TIME_PATH == null) {
-            URL resource = classLoader.getResource("");
-            String protocol = resource.getProtocol();
-            String file = resource.getFile();
-            if ("file".equals(protocol)) {
-                file = file.substring(1, file.length() - 1);
-                file = file.substring(0, file.lastIndexOf("/"));
-            } else if ("jar".equals(protocol)) {
-                file = file.substring(6, file.indexOf(".jar"));
-                file = file.substring(0, file.lastIndexOf("/"));
-            }
-            RUN_TIME_PATH = file;
+            RUN_TIME_PATH = System.getProperty("user.dir");
             if (OSUtils.isLinux()) {
                 if (!RUN_TIME_PATH.startsWith("/")) {
                     RUN_TIME_PATH = "/" + RUN_TIME_PATH;

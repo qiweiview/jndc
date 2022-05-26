@@ -50,7 +50,7 @@ public class ClientServiceDescription extends TcpServiceDescription {
         tcpServiceDescription.setServiceIp(getServiceIp());
         tcpServiceDescription.setServiceName(getServiceName());
         tcpServiceDescription.setServicePort(getServicePort());
-        tcpServiceDescription.setDescription(getDescription());
+        tcpServiceDescription.setDescription(getServiceName());
         return tcpServiceDescription;
     }
 }

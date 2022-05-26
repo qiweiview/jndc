@@ -9,8 +9,8 @@ import jndc_server.core.JNDCServerApp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
-import java.io.InputStream;
-
+import java.io.File;
+import java.io.FileInputStream;
 
 @Slf4j
 public class ServerStart {
@@ -39,19 +39,20 @@ public class ServerStart {
         String runTimePath = PathUtils.getRunTimePath();
         log.info("读取运行目录： " + runTimePath);
 
-        InputStream resourceAsStream = ServerStart.class.getClassLoader().getResourceAsStream("config.yml");
-        if (resourceAsStream == null) {
-            log.error("读取配置文件失败,请检查resources目录下是否存在config.yml文件");
+        String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
+        File file = new File(configPath);
+        if (!file.exists()) {
+            log.error("读取配置文件失败,请检查 " + configPath + " 目录下是否存在");
             ApplicationExit.exit();
         }
 
 
         JNDCServerConfig jndcServerConfig;
         try {
-            jndcServerConfig = ymlParser.parseFile(resourceAsStream, JNDCServerConfig.class);
+            jndcServerConfig = ymlParser.parseFile(file, JNDCServerConfig.class);
             if (jndcServerConfig == null) {
 //                String configContent = FileUtils.readFileToString(file, "utf-8");
-                log.error("please check the content:\n=====content_start=====\n" + new String(IOUtils.toByteArray(resourceAsStream)) + "\n=====content_end=====\n on config.yml");
+                log.error("please check the content:\n=====content_start=====\n" + new String(IOUtils.toByteArray(new FileInputStream(file))) + "\n=====content_end=====\n on config.yml");
 //                log.error("yml配置文件解析异常");
                 ApplicationExit.exit();
             }

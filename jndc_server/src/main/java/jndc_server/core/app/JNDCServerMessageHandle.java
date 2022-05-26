@@ -347,7 +347,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("unCatchableError--> " + e);
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
             UserError userError = new UserError();

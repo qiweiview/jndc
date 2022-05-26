@@ -66,7 +66,8 @@ public class SQLiteDataStore extends DataStoreAbstract {
 
     @Override
     public void flywayInit() {
-        String devPath = "filesystem:" + System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\db\\migration_sqlite";
+        String devPath = "filesystem:" + System.getProperty("user.dir") + File.separator + ".." + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
+        log.info("flyway 读取路径：" + devPath);
         Flyway flyway = Flyway.configure()
                 .locations("classpath:db/migration_sqlite", devPath)
                 .baselineOnMigrate(true)

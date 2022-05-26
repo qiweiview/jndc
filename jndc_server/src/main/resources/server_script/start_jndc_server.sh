@@ -1,1 +1,0 @@
- java -Dfile.encoding=UTF-8   -classpath ".:lib/*:resources:jndc_server.jar" jndc_server.start.ServerStart

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXListView?>
-<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
-
-<AnchorPane fx:id="anchorPane" minHeight="650.0" minWidth="1280.0" prefHeight="650.0" prefWidth="1280.0" stylesheets="@/css/jfoenix-components.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jndc_client.gui_support.controller.IndexController">
+<?import javafx.scene.text.*?>
+<AnchorPane fx:id="anchorPane" minHeight="650.0" minWidth="1280.0" prefHeight="650.0" prefWidth="1280.0"
+            stylesheets="@/conf/css/jfoenix-components.css" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="jndc_client.gui_support.controller.IndexController">
    <children>
-      <JFXListView fx:id="jfxListView" layoutX="14.0" layoutY="99.0" prefHeight="538.0" prefWidth="200.0" style="-fx-border-color: grey;" styleClass="jfx-list-view">
+      <JFXListView fx:id="jfxListView" layoutX="14.0" layoutY="99.0" prefHeight="538.0" prefWidth="200.0"
+                   style="-fx-border-color: grey;" styleClass="jfx-list-view">
          <opaqueInsets>
-            <Insets />
-         </opaqueInsets></JFXListView>
+            <Insets/>
+         </opaqueInsets>
+      </JFXListView>
       <Label layoutX="14.0" layoutY="65.0" prefHeight="27.0" prefWidth="108.0" text="服务列表">
          <font>
-            <Font size="20.0" />
+            <Font size="20.0"/>
          </font>
       </Label>
       <Label layoutX="260.0" layoutY="228.0" prefHeight="27.0" prefWidth="90.0" text="服务IP">

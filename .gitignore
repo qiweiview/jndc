@@ -16,3 +16,10 @@ jndc.iml
 sonar.bat
 output.log
 jndc.iml
+/jndc_frontend/package-lock.json
+/jndc_frontend/node_modules/
+/jndc_frontend/vue.config.js
+/jndc_frontend/jndc_frontend.iml
+/jndc_frontend/node/
+/jndc_frontend/compare_dist/
+/jndc_server/src/main/resources/compare_dist/

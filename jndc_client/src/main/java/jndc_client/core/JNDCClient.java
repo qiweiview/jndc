@@ -10,6 +10,7 @@ import jndc.core.SecreteCodec;
 import jndc.core.UniqueBeanManage;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -101,7 +102,8 @@ public class JNDCClient {
 
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
 
-        ChannelFuture connect = b.connect(clientConfig.getServerIpSocketAddress());
+        InetSocketAddress serverIpSocketAddress = clientConfig.getServerIpSocketAddress();
+        ChannelFuture connect = b.connect(serverIpSocketAddress);
         connect.addListeners(x -> {
             if (x.isSuccess()) {
                 //todo connect successFully
@@ -112,7 +114,7 @@ public class JNDCClient {
                 log.info("连接 jndc 服务 : " + clientConfig.getServerIpSocketAddress());
             } else {
                 //todo connect fail
-                log.info("连接 jndc 服务失败 , 重试");
+                log.info("连接 jndc 服务--->" + serverIpSocketAddress + "失败 , 重试");
 
                 //set fail tag
                 jndcClientConfigCenter.failToConnectToServer();

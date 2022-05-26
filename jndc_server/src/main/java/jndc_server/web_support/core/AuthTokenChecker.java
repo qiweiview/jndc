@@ -122,7 +122,6 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace();
         log.error("catch exception in auth check,cause: " + cause);
         FullHttpResponse fullHttpResponse = HttpResponseBuilder.textResponse(cause.getMessage().getBytes());
         fullHttpResponse.setStatus(HttpResponseStatus.FORBIDDEN);
