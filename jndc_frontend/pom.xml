@@ -27,7 +27,7 @@
                         </fileset>
                         <fileset>
                             <!-- Vue项目打包自动生成的dist目录 -->
-                            <directory>${project.parent.basedir}/jndc_server/src/main/resources/compare_dist</directory>
+                            <directory>${project.parent.basedir}/jndc_server/target/jndc_server/compare_dist</directory>
                         </fileset>
                     </filesets>
                 </configuration>

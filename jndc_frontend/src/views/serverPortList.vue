@@ -158,17 +158,17 @@
             <el-dialog title="选择端口关联服务" :visible.sync="portBindDialog" width="45%" :close-on-click-modal="false">
                 <el-table :data="serverChannelList" max-height="450">
                     <el-table-column label="服务名称">
-                        <template slot-scope="scope"><span :title="scope.row.id" style="text-align: left">{{ scope.row.name }}</span>
+                        <template slot-scope="scope"><span :title="scope.row.id" style="text-align: left">{{ scope.row.serviceName }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="服务本地端口">
                         <template slot-scope="scope"><span
-                                style="text-align: center">{{ scope.row.port }}</span>
+                                style="text-align: center">{{ scope.row.servicePort }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="隧道来源">
                         <template slot-scope="scope"><span
-                                style="text-align: center">{{ scope.row.belongContextIp }}</span>
+                                style="text-align: center">{{ scope.row.routeTo }}</span>
                         </template>
                     </el-table-column>
 
