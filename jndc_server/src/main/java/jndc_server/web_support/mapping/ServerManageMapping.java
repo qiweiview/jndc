@@ -209,7 +209,7 @@ public class ServerManageMapping {
             return tcpServiceDescriptions1.stream().filter(z -> {
                 //todo 过滤
                 String bindClientId = z.getBindClientId();
-                return "".equals(param.getBindClientId()) || bindClientId.equals(param.getBindClientId());
+                return param.getBindClientId() == null || "".equals(param.getBindClientId()) || bindClientId.equals(param.getBindClientId());
             });
         }).collect(Collectors.toList());
         return collect;

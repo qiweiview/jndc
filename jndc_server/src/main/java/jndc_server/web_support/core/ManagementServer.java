@@ -113,6 +113,7 @@ public class ManagementServer implements ServerApp {
         String runTimePath = PathUtils.getRunTimePath();
 
         String runtimeDir = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+//        String runtimeDir ="D:\\NewWorkSpace\\Tools\\jndc\\jndc_server\\target\\jndc_server\\compare_dist";
         log.info("扫描管理页--->" + runtimeDir);
 
 

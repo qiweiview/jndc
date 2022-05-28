@@ -21,7 +21,7 @@ public class ServerTest {
         String runTimePath = PathUtils.getRunTimePath();
         log.info("读取运行目录： " + runTimePath);
 
-        String devPath = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\config.yml";
+        String devPath = System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\conf\\config.yml";
         File file = new File(devPath);
 
 
