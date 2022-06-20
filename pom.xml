@@ -12,9 +12,6 @@
         <module>jndc_core</module>
         <module>jndc_client</module>
         <module>jndc_server</module>
-
-        <!--        需要编译前端时打开-->
-        <!--        <module>jndc_frontend</module>-->
     </modules>
 
     <properties>

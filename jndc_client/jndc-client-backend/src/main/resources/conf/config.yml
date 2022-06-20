@@ -1,0 +1,10 @@
+secrete: "zzdivxat!`" # 服务端密钥，很重要务必在使用前更改
+loglevel: "info" # 日志打印等级
+serverIp: "101.34.166.251" # 服务端运行监听ip
+serverPort: "81" # 服务端运行端口
+autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）
+clientServiceDescriptions: # 注册服务
+  - serviceName: "qw607"
+    serviceIp: "qw607.com"
+    servicePort: "80"
+    serviceEnable: false

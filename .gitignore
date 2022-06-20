@@ -23,3 +23,13 @@ jndc.iml
 /jndc_frontend/compare_dist/
 /jndc_server/src/main/resources/compare_dist/
 /jndc_frontend/target/
+/jndc_server/jndc-server-frontend/jndc-server-frontend.iml
+/jndc_server/jndc-server-backend/jndc-server-backend.iml
+/jndc_client/jndc-client-frontend/jndc-client-frontend.iml
+/jndc_client/jndc-client-backend/jndc-client-backend.iml
+/jndc_server/jndc-server-frontend/package-lock.json
+/jndc_server/jndc-server-backend/target/
+/jndc_server/jndc-server-frontend/node/
+/jndc_server/jndc-server-frontend/node_modules/
+/jndc_server/jndc-server-frontend/target/
+/jndc_client/jndc-client-frontend/package-lock.json

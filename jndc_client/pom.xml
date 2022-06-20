@@ -12,103 +12,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jndc_client</artifactId>
-    <dependencies>
-        <dependency>
-            <groupId>org.view</groupId>
-            <artifactId>jndc_core</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
+    <packaging>pom</packaging>
+    <modules>
+        <module>jndc-client-backend</module>
+        <module>jndc-client-frontend</module>
+    </modules>
 
-        <dependency>
-            <groupId>com.jfoenix</groupId>
-            <artifactId>jfoenix</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-        </dependency>
-    </dependencies>
-
-
-    <build>
-        <finalName>jndc_client</finalName>
-        <plugins>
-            <!--打jar包，排除资源文件和依赖jar，同时外部的lib、resource目录加入到classpath中，
-                用命令java -jar运行jar时就不需要用-Dloader.path指定外部资源路径了！
-                不需要spring-boot-maven-plugin插件 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <!--MANIFEST.MF 中 Class-Path 加入前缀！用命令java -jar运行jar时就不用-Dloader.path指定外部资源路径了-->
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <!--jar包名字是否包含唯一版本标识-->
-                            <useUniqueVersions>false</useUniqueVersions>
-                            <!--指定含main方法的主类入口-->
-                            <mainClass>jndc_client.start.ClientStart</mainClass>
-                        </manifest>
-                        <manifestEntries>
-                            <!--MANIFEST.MF 中 Class-Path 加入资源文件目录！用命令java -jar时就不用-Dloader.path指定外部资源路径了 -->
-                            <Class-Path>resources/</Class-Path>
-                        </manifestEntries>
-                    </archive>
-                    <!-- 打包时从jar包里排除资源文件 -->
-                    <excludes>
-                        <exclude>*.yml</exclude>
-                        <exclude>*.properties</exclude>
-                        <exclude>*.sql</exclude>
-                    </excludes>
-                    <!-- 指定项目打成jar包输出位置 -->
-                    <outputDirectory>${project.build.directory}/jndc_client/lib/</outputDirectory>
-                </configuration>
-            </plugin>
-            <!-- 拷贝依赖jar包！插件maven-jar-plugin只是打包排除文件，
-                而把依赖jar包拷贝到外部lib目录就需要maven-dependency-plugin插件 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/jndc_client/lib/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--拷贝资源文件！ 插件maven-jar-plugin只负责打包时排除文件，
-                而把资源文件拷贝到外部resource目录就需要maven-dependency-plugin插件-->
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <!--拷贝此目录下的所有文件到指定的外部目录。只负责拷贝，而不是从jar包中排除！-->
-                                    <directory>src/main/resources</directory>
-                                </resource>
-                            </resources>
-                            <!-- 把“<resource><directory>”指定目录中的文件输出到此处指定目录 -->
-                            <outputDirectory>${project.build.directory}/jndc_client</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
