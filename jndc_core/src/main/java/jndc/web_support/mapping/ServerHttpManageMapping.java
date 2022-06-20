@@ -1,4 +1,4 @@
-package jndc_server.web_support.mapping;
+package jndc.web_support.mapping;
 
 
 import io.netty.util.internal.StringUtil;
@@ -9,8 +9,8 @@ import jndc.utils.BeanUtils;
 import jndc.utils.JSONUtils;
 import jndc.utils.StringUtils4V;
 import jndc.utils.UUIDSimple;
-import jndc.web_support.core.JNDCHttpRequest;
-import jndc.web_support.core.WebMapping;
+import jndc_server.web_support.core.JNDCHttpRequest;
+import jndc_server.web_support.core.WebMapping;
 import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.model.d_o.HttpHostRoute;
 import jndc_server.web_support.model.dto.HostRouteDTO;
@@ -33,7 +33,7 @@ public class ServerHttpManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         HostRouteDTO hostRouteDTO = JSONUtils.str2Object(s, HostRouteDTO.class);
-        if (StringUtils4V.isBlank( hostRouteDTO.getHostKeyWord())){
+        if (StringUtils4V.isBlank(hostRouteDTO.getHostKeyWord())) {
             responseMessage.error();
             responseMessage.setMessage("包含字符不能为空");
             return responseMessage;
@@ -41,15 +41,15 @@ public class ServerHttpManageMapping {
         HttpHostRoute httpHostRoute = HttpHostRoute.of(hostRouteDTO);
         httpHostRoute.setId(UUIDSimple.id());
 
-        if (!("http://".equals(hostRouteDTO.getForwardProtocol())||"https://".equals(hostRouteDTO.getForwardProtocol()))) {
+        if (!("http://".equals(hostRouteDTO.getForwardProtocol()) || "https://".equals(hostRouteDTO.getForwardProtocol()))) {
             responseMessage.error();
             responseMessage.setMessage("不支持协议类型");
             return responseMessage;
         }
 
-        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
+        if (hostRouteDTO.getHostKeyWord().length() > 50) {
             responseMessage.error();
-            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
+            responseMessage.setMessage("路由键值长度超出限制：" + hostRouteDTO.getHostKeyWord().length());
             return responseMessage;
         }
 
@@ -68,8 +68,7 @@ public class ServerHttpManageMapping {
         }
 
 
-
-        if (httpHostRoute.forwardType()){
+        if (httpHostRoute.forwardType()) {
             httpHostRoute.setForwardHost("127.0.0.1");
         }
 
@@ -94,7 +93,7 @@ public class ServerHttpManageMapping {
     }
 
 
-    public boolean checkHostKeyExist(String hostKey){
+    public boolean checkHostKeyExist(String hostKey) {
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
 
         Number count = dbWrapper.customQuerySingleValue("count", "select count(*) count from http_host_route where host_key_word= ?", Number.class, hostKey);
@@ -120,10 +119,9 @@ public class ServerHttpManageMapping {
         newRule.setId(oldRule.getId());
 
 
-
-        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
+        if (hostRouteDTO.getHostKeyWord().length() > 50) {
             responseMessage.error();
-            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
+            responseMessage.setMessage("路由键值长度超出限制：" + hostRouteDTO.getHostKeyWord().length());
             return responseMessage;
         }
 
@@ -135,7 +133,7 @@ public class ServerHttpManageMapping {
 
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
 
-        if (!oldRule.getHostKeyWord().equals(newRule.getHostKeyWord())&&checkHostKeyExist(newRule.getHostKeyWord())) {
+        if (!oldRule.getHostKeyWord().equals(newRule.getHostKeyWord()) && checkHostKeyExist(newRule.getHostKeyWord())) {
             responseMessage.error();
             responseMessage.setMessage("关键字\"" + newRule.getHostKeyWord() + "\" 已存在");
             return responseMessage;

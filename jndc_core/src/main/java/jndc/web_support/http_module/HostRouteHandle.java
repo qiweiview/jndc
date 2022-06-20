@@ -1,4 +1,4 @@
-package jndc_server.web_support.http_module;
+package jndc.web_support.http_module;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -8,9 +8,8 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
 import jndc.web_support.core.JNDCHttpRequest;
-import jndc_server.config.ServerRuntimeConfig;
-import jndc_server.web_support.model.d_o.HttpHostRoute;
-import jndc_server.web_support.utils.HttpResponseBuilder;
+import jndc.web_support.model.d_o.HttpHostRoute;
+import jndc.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 
 /**

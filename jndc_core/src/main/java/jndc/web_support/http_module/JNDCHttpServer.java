@@ -1,4 +1,4 @@
-package jndc_server.web_support.http_module;
+package jndc.web_support.http_module;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -10,10 +10,10 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
-import jndc.web_support.core.CustomSslHandler;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.app.ServerApp;
+import jndc_server.web_support.core.CustomSslHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 

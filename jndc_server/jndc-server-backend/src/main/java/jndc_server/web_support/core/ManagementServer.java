@@ -15,6 +15,7 @@ import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.PathUtils;
+import jndc.web_support.core.*;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.config.ServeManageConfig;
 import jndc_server.core.app.ServerApp;
@@ -80,7 +81,7 @@ public class ManagementServer implements ServerApp {
                 //websocket报文处理器
                 pipeline.addAfter(WebContentHandler.NAME, ws, new WebSocketServerProtocolHandler("/ws"));
 
-                //websocket业务内容处理器
+                //websocket通道注册处理器
                 pipeline.addAfter(ws, WebSocketHandle.NAME, new WebSocketHandle());
 
             }

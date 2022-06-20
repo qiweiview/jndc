@@ -1,9 +1,9 @@
-package jndc_server.web_support.mapping;
+package jndc.web_support.mapping;
 
 
-import jndc.web_support.core.FrontProjectLoader;
-import jndc.web_support.core.JNDCHttpRequest;
-import jndc.web_support.core.WebMapping;
+import jndc_server.web_support.core.FrontProjectLoader;
+import jndc_server.web_support.core.JNDCHttpRequest;
+import jndc_server.web_support.core.WebMapping;
 import jndc_server.web_support.model.dto.ResponseMessage;
 
 import java.net.InetAddress;

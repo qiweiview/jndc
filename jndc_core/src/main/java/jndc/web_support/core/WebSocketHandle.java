@@ -1,0 +1,38 @@
+package jndc.web_support.core;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import jndc.core.UniqueBeanManage;
+import jndc.utils.LogPrint;
+
+/**
+ * websocket处理器
+ */
+public class WebSocketHandle extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+    public static final String NAME = "WEB_SOCKET_HANDLE";
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) throws Exception {
+        LogPrint.info("channelRead0" + textWebSocketFrame);
+        channelHandlerContext.writeAndFlush(textWebSocketFrame.retain());
+    }
+
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
+            Channel channel = ctx.channel();
+            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+            //通道注册
+            messageNotificationCenter.websocketRegister(channel);
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+    }
+}
