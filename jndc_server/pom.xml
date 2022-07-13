@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>jndc-server-backend</module>
-        <module>jndc-server-frontend</module>
+<!--        <module>jndc-server-frontend</module>-->
     </modules>
 
 </project>

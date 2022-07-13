@@ -12,6 +12,17 @@ public class PathUtils {
         return getDesktopPath(File.separator);
     }
 
+
+    public static String findExistPath(String... address) {
+        for (int i = 0; i < address.length; i++) {
+            if (new File(address[i]).exists()) {
+                return (address[i]);
+            }
+        }
+        throw new RuntimeException("数组中没有有效地址");
+    }
+
+
     /**
      * 获取运行时路径
      *

@@ -33,3 +33,4 @@ jndc.iml
 /jndc_server/jndc-server-frontend/node_modules/
 /jndc_server/jndc-server-frontend/target/
 /jndc_client/jndc-client-frontend/package-lock.json
+/jndc_client/jndc-client-frontend/node/

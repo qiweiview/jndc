@@ -1,6 +1,7 @@
 package jndc.core.data_store_support;
 
 
+import jndc.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 
@@ -38,7 +39,7 @@ public class SQLiteDataStore extends DataStoreAbstract {
         }
 
         url = PROTOCOL + this.dbWorkDirect + SQL_LITE_DB;
-        log.info("sqlite url:" + url);
+        log.info("SQLite 工作目录:" + url);
     }
 
 
@@ -66,7 +67,9 @@ public class SQLiteDataStore extends DataStoreAbstract {
 
     @Override
     public void flywayInit() {
-        String devPath = "filesystem:" + System.getProperty("user.dir") + File.separator + ".." + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
+        String p1 = System.getProperty("user.dir") + File.separator + ".." + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
+        String p2 = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
+        String devPath = "filesystem:" + PathUtils.findExistPath(p1, p2);
         log.info("flyway 读取路径：" + devPath);
         Flyway flyway = Flyway.configure()
                 .locations("classpath:db/migration_sqlite", devPath)

@@ -1,9 +1,6 @@
 package jndc.web_support.core;
 
 import jndc.utils.JSONUtils;
-import jndc.web_support.mapping.DevelopDebugMapping;
-import jndc.web_support.mapping.ServerHttpManageMapping;
-import jndc.web_support.mapping.ServerManageMapping;
 import jndc.web_support.model.dto.ResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,21 +17,6 @@ public class MappingRegisterCenter {
     private Map<String, MappingMethodDescription> mappingMap = new HashMap<>();
 
 
-
-    public MappingRegisterCenter() {
-        doInit();
-    }
-
-    /**
-     * register jndc mapping
-     */
-    private void doInit() {
-        registerMapping(new ServerManageMapping());
-        registerMapping(new DevelopDebugMapping());
-        registerMapping(new ServerHttpManageMapping());
-
-
-    }
 
 
     public void registerMapping(Object mappingBean) {

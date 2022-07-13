@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'JNC Client',
+  title: 'Vue Admin Template',
 
   /**
    * @type {boolean} true | false

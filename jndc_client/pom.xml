@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>jndc-client-backend</module>
-        <module>jndc-client-frontend</module>
+<!--        <module>jndc-client-frontend</module>-->
     </modules>
 
 </project>

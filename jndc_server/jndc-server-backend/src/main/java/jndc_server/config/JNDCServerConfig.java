@@ -7,6 +7,8 @@ import jndc.core.data_store_support.DataStoreAbstract;
 import jndc.core.data_store_support.MysqlDataStore;
 import jndc.core.data_store_support.SQLiteDataStore;
 import jndc.utils.*;
+import jndc.web_support.config.ServeHTTPConfig;
+import jndc.web_support.config.ServeManageConfig;
 import jndc.web_support.core.MappingRegisterCenter;
 import jndc.web_support.core.MessageNotificationCenter;
 import jndc_server.core.AsynchronousEventCenter;
@@ -16,6 +18,9 @@ import jndc_server.core.TCPDataFlowAnalysisCenter;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.web_support.http_module.HostRouterComponent;
+import jndc_server.web_support.mapping.DevelopDebugMapping;
+import jndc_server.web_support.mapping.ServerHttpManageMapping;
+import jndc_server.web_support.mapping.ServerManageMapping;
 import jndc_server.web_support.utils.AuthUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +106,6 @@ public class JNDCServerConfig {
         //验证ssl文件
         performSslInWebApi();
 
-
         //注册对象
         UniqueBeanManage.registerBean(this);
 
@@ -112,7 +116,11 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(new IpChecker());
 
         //隧道映射注册
-        UniqueBeanManage.registerBean(new MappingRegisterCenter());
+        MappingRegisterCenter mappingRegisterCenter = new MappingRegisterCenter();
+        mappingRegisterCenter.registerMapping(new DevelopDebugMapping());
+        mappingRegisterCenter.registerMapping(new ServerHttpManageMapping());
+        mappingRegisterCenter.registerMapping(new ServerManageMapping());
+        UniqueBeanManage.registerBean(mappingRegisterCenter);
 
         //数据存储组件
         if (dbConfig.useMysql()) {
@@ -169,8 +177,9 @@ public class JNDCServerConfig {
      * 验证ssl
      */
     private void performSslInWebApi() {
-        webConfig.reloadSslContext();
-        manageConfig.reloadSslContext();
+        webConfig.initSsl();
+
+        manageConfig.initSsl();
     }
 
 

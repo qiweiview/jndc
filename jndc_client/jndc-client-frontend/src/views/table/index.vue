@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
     <el-table
-            v-loading="listLoading"
-            :data="list"
-            element-loading-text="Loading"
-            border
-            fit
-            highlight-current-row
+      v-loading="listLoading"
+      :data="list"
+      element-loading-text="Loading"
+      border
+      fit
+      highlight-current-row
     >
       <el-table-column align="center" label="ID" width="95">
         <template slot-scope="scope">

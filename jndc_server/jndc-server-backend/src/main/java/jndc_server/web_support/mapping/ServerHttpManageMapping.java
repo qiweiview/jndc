@@ -11,12 +11,13 @@ import jndc.utils.StringUtils4V;
 import jndc.utils.UUIDSimple;
 import jndc.web_support.core.JNDCHttpRequest;
 import jndc.web_support.core.WebMapping;
+import jndc.web_support.model.dto.ResponseMessage;
 import jndc_server.web_support.http_module.HostRouterComponent;
 import jndc_server.web_support.model.d_o.HttpHostRoute;
 import jndc_server.web_support.model.dto.HostRouteDTO;
-import jndc_server.web_support.model.dto.ResponseMessage;
 import jndc_server.web_support.model.vo.HttpHostRouteVO;
 import jndc_server.web_support.model.vo.PageListVO;
+import jndc_server.web_support.utils.ServerUrlConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.List;
 public class ServerHttpManageMapping {
 
 
-    @WebMapping(path = UrlConstant.ServerHttp.saveHostRouteRule)
+    @WebMapping(path = ServerUrlConstant.ServerHttp.saveHostRouteRule)
     public ResponseMessage saveHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -101,7 +102,7 @@ public class ServerHttpManageMapping {
         return count.intValue() > 0;
     }
 
-    @WebMapping(path = UrlConstant.ServerHttp.updateHostRouteRule)
+    @WebMapping(path = ServerUrlConstant.ServerHttp.updateHostRouteRule)
     public ResponseMessage updateHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -149,7 +150,7 @@ public class ServerHttpManageMapping {
 
     }
 
-    @WebMapping(path = UrlConstant.ServerHttp.deleteHostRouteRule)
+    @WebMapping(path = ServerUrlConstant.ServerHttp.deleteHostRouteRule)
     public ResponseMessage deleteHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -174,7 +175,7 @@ public class ServerHttpManageMapping {
         return responseMessage;
     }
 
-    @WebMapping(path = UrlConstant.ServerHttp.listHostRouteRule)
+    @WebMapping(path = ServerUrlConstant.ServerHttp.listHostRouteRule)
     public Object listHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();

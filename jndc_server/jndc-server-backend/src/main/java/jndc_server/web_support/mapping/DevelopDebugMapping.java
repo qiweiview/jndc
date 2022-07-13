@@ -4,7 +4,8 @@ package jndc_server.web_support.mapping;
 import jndc.web_support.core.FrontProjectLoader;
 import jndc.web_support.core.JNDCHttpRequest;
 import jndc.web_support.core.WebMapping;
-import jndc_server.web_support.model.dto.ResponseMessage;
+import jndc.web_support.model.dto.ResponseMessage;
+import jndc_server.web_support.utils.ServerUrlConstant;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 public class DevelopDebugMapping {
 
 
-    @WebMapping(path = UrlConstant.DevelopDebug.reloadFront)
+    @WebMapping(path = ServerUrlConstant.DevelopDebug.reloadFront)
     public HashMap run(JNDCHttpRequest jndcHttpRequest) {
         FrontProjectLoader.jndcStaticProject.reloadProject();
         HashMap objectObjectHashMap = new HashMap<>();
@@ -24,7 +25,7 @@ public class DevelopDebugMapping {
 
     }
 
-    @WebMapping(path = UrlConstant.DevelopDebug.getDeviceIp)
+    @WebMapping(path = ServerUrlConstant.DevelopDebug.getDeviceIp)
     public ResponseMessage getDeviceIp(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 

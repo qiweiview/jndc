@@ -4,8 +4,8 @@ package jndc_client;
 import jndc.utils.ApplicationExit;
 import jndc.utils.YmlParser;
 import jndc_client.core.ClientDirectManager;
-import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
+import jndc_client.core.JNDClientApp;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -19,11 +19,14 @@ public class ClientTest {
     public void run() {
 
         ClientDirectManager.idPath = "C:\\Users\\liuqiwei\\Desktop\\client_id";
-        ClientDirectManager.ymlConfig = "D:\\JAVA_WORK_SPACE\\jndc\\jndc_client\\jndc-client-backend\\src\\main\\resources\\conf\\config.yml";
+
+        String devPath = System.getProperty("user.dir") + File.separator + "src\\main\\resources\\conf\\config.yml";
+        ClientDirectManager.ymlConfig = devPath;
 
 
         String ymlConfig = ClientDirectManager.ymlConfig;
         File file = new File(ymlConfig);
+
 
         YmlParser ymlParser = new YmlParser();
         JNDCClientConfig jndcClientConfig;
@@ -39,8 +42,8 @@ public class ClientTest {
         }
 
 
-        JNDCClient clientTest = new JNDCClient();
-        clientTest.start();
+        JNDClientApp jndClientApp = new JNDClientApp();
+        jndClientApp.createClient();
 
 
         Thread thread = Thread.currentThread();

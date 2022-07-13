@@ -12,7 +12,6 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 import jndc.web_support.core.CustomSslHandler;
 import jndc_server.config.JNDCServerConfig;
-import jndc_server.config.ServerRuntimeConfig;
 import jndc_server.core.app.ServerApp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -81,6 +80,9 @@ public class JNDCHttpServer implements ServerApp {
 
     }
 
+    /**
+     * 加载404页面
+     */
     public void loadRouteNotFoundPage() {
         JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         File file = new File(serverConfig.getWebConfig().getNotFoundPage());

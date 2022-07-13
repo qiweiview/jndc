@@ -1,7 +1,7 @@
 package jndc_server.web_support.utils;
 
 import jndc.utils.AESUtils;
-import jndc_server.web_support.model.d_o.ManagementLoginUser;
+import jndc.web_support.model.dto.LoginUser;
 
 import java.util.Base64;
 
@@ -15,12 +15,11 @@ public class AuthUtils {
     public static String passWord="";
 
     /**
-     *
      * @param managementLoginUser
      * @return
      */
-    public static boolean doLogin(ManagementLoginUser managementLoginUser){
-        if (name.equals(managementLoginUser.getName())&&passWord.equals(managementLoginUser.getPassWord())){
+    public static boolean doLogin(LoginUser managementLoginUser) {
+        if (name.equals(managementLoginUser.getName()) && passWord.equals(managementLoginUser.getPassWord())) {
             return true;
         }
         return false;

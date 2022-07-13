@@ -4,8 +4,8 @@ package jndc_client.start;//package jndc.core;
 import jndc.utils.ApplicationExit;
 import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
-import jndc_client.core.JNDCClient;
 import jndc_client.core.JNDCClientConfig;
+import jndc_client.core.JNDClientApp;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -25,8 +25,6 @@ public class ClientStart {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Good night everyone ");
         }));
-
-
 
 
         String runTimePath = PathUtils.getRunTimePath();
@@ -56,13 +54,17 @@ public class ClientStart {
             ApplicationExit.exit();
         }
 
-//http管理端
-//        ClientHttpManagement clientHttpManagement = new ClientHttpManagement();
-//        clientHttpManagement.start();
 
-        //核心服务
-        JNDCClient jndcClient = new JNDCClient();
-        jndcClient.start();
+        JNDClientApp jndClientApp = new JNDClientApp();
+        jndClientApp.createClient();
+
+//        //http管理端
+//        ManagementServer managementServer = new ManagementServer();
+//        managementServer.start();//start
+//
+//        //核心服务
+//        JNDCClient jndcClient = new JNDCClient();
+//        jndcClient.start();
 
     }
 }
