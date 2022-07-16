@@ -34,3 +34,6 @@ jndc.iml
 /jndc_server/jndc-server-frontend/target/
 /jndc_client/jndc-client-frontend/package-lock.json
 /jndc_client/jndc-client-frontend/node/
+/jndc_client/jndc-client-backend/target/
+/jndc_server/jndc-server-frontend/compare_dist/
+/jndc_server/jndc-server-backend/jnc_db.db
