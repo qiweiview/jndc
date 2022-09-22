@@ -73,7 +73,7 @@ public class MappingRegisterCenter {
                     return JSONUtils.object2JSON(invoke);
                 }
             } catch (Exception e) {
-                log.error("执行控制层异常 " + e);
+                log.error("执行控制层异常 ", e);
                 ResponseMessage responseMessage = new ResponseMessage();
                 responseMessage.error(e.getCause().getMessage());
                 return JSONUtils.object2JSON(responseMessage);

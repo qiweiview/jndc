@@ -52,7 +52,7 @@ public class JSONUtils {
             }
             return list;
         } catch (JsonProcessingException e) {
-            log.error("deserialization array fail ,cause" + e);
+            log.error("deserialization array fail ,cause", e);
             throw new RuntimeException(e);
         }
     }

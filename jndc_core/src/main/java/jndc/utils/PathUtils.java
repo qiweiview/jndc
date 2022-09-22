@@ -13,6 +13,12 @@ public class PathUtils {
     }
 
 
+    /**
+     * 从多个地址中获取至少一个有效地址
+     *
+     * @param address
+     * @return
+     */
     public static String findExistPath(String... address) {
         for (int i = 0; i < address.length; i++) {
             if (new File(address[i]).exists()) {

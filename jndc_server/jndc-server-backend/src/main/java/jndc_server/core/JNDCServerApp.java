@@ -44,11 +44,15 @@ public class JNDCServerApp {
         ServeManageConfig manageConfig = jndcServerConfig.getManageConfig();
 
         //处理静态项目地址
-        String runTimePath = PathUtils.getRunTimePath();
-        String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
-        String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_server" + File.separator + "compare_dist";
-        String runtimeDir = PathUtils.findExistPath(p1, p2);
-        manageConfig.setAdminProjectPath(runtimeDir);
+        if (manageConfig.isAdminEnable()) {
+            //todo 确认静态项目地址
+            String runTimePath = PathUtils.getRunTimePath();
+            String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+            String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_server" + File.separator + "compare_dist";
+            String runtimeDir = PathUtils.findExistPath(p1, p2);
+            manageConfig.setAdminProjectPath(runtimeDir);
+        }
+
 
         //admin管理页面
         ManagementServer managementServer = new ManagementServer();

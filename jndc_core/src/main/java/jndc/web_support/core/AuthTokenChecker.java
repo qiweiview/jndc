@@ -63,7 +63,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
                 /*验证密码*/
                 String stringHeader = fullHttpRequest.headers().get(AsciiString.of(AUTH_TOKEN));
-                verificationToken(stringHeader, channelHandlerContext);
+//                verificationToken(stringHeader, channelHandlerContext);
             }
 
         }
@@ -114,7 +114,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
 
             } catch (Exception e) {
-                throw new RuntimeException("凭证解签失败,cause: "+e);
+                throw new RuntimeException("凭证解签失败,cause: ", e);
             }
 
 
