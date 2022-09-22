@@ -698,7 +698,7 @@ public class ServerManageMapping {
         String s = new String(body);
         PageDTO pageDTO = JSONUtils.str2Object(s, PageDTO.class);
         DBWrapper<IpFilterRecord> dbWrapper = DBWrapper.getDBWrapper(IpFilterRecord.class);
-        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(time_stamp) timeStamp,sum(v_count) vCount from ip_filter_record where record_type=0 GROUP BY ip order by time_stamp desc", pageDTO.getPage(), pageDTO.getRows());
+        PageResult<IpFilterRecord> ipFilterRecordPageResult = dbWrapper.customQueryByPage("select ip,max(time_stamp) timeStamp,sum(v_count) vCount from ip_filter_record where record_type=0 GROUP BY ip order by max( time_stamp ) desc", pageDTO.getPage(), pageDTO.getRows());
         List<IpRecordVO> ipRecordVOS = new ArrayList<>();
         ipFilterRecordPageResult.getData().forEach(x -> {
             IpRecordVO ipRecordVO = new IpRecordVO();
