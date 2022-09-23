@@ -779,7 +779,7 @@ public class ServerManageMapping {
             dbWrapper.customExecute("delete from ip_filter_record where time_stamp<=? and record_type = ? ", pageDTO.getClearDateLimit(), pageDTO.getRecordType());
         } else {
             //todo save only top ten
-            List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, recordType , max(time_stamp) AS timeStamp, max(v_count) AS vCount FROM ip_filter_record WHERE record_type = ? GROUP BY ip, record_type ORDER BY max(v_count) DESC LIMIT 10", pageDTO.getRecordType());
+            List<IpFilterRecord> ipFilterRecords = dbWrapper.customQuery("SELECT max(id) AS id, ip, record_type as \"recordType\" , max(time_stamp) AS timeStamp, max(v_count) AS vCount FROM ip_filter_record WHERE record_type = ? GROUP BY ip, record_type ORDER BY max(v_count) DESC LIMIT 10", pageDTO.getRecordType());
             dbWrapper.customExecute("delete from ip_filter_record where record_type = ? ", pageDTO.getRecordType());
             dbWrapper.insertBatch(ipFilterRecords);
         }

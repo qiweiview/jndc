@@ -70,6 +70,8 @@
                     </archive>
                     <!-- 打包时从jar包里排除资源文件 -->
                     <excludes>
+                        <exclude>conf/**</exclude>
+                        <exclude>bin/**</exclude>
                         <exclude>*.yml</exclude>
                         <exclude>*.properties</exclude>
                         <exclude>*.sql</exclude>
