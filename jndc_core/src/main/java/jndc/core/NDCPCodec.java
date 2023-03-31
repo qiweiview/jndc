@@ -7,6 +7,9 @@ import io.netty.util.ResourceLeakDetector;
 
 import java.util.List;
 
+/**
+ * 接编码器
+ */
 public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
 
     public static final String NAME="NDC";
