@@ -37,3 +37,6 @@ jndc.iml
 /jndc_client/jndc-client-backend/target/
 /jndc_server/jndc-server-frontend/compare_dist/
 /jndc_server/jndc-server-backend/jnc_db.db
+/jndc-server/jndc-server-backend/jndc-server-backend.iml
+/jndc-client/jndc-client-backend/jndc-client-backend.iml
+/jndc-server/jndc-server-sv/jndc-server-sv.iml

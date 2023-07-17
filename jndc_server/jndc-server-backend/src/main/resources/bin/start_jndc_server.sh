@@ -1,1 +1,0 @@
-java -classpath "../lib/*" jndc_server.start.ServerStart
