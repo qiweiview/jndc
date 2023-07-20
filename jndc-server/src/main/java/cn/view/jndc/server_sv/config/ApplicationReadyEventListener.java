@@ -4,7 +4,6 @@ package cn.view.jndc.server_sv.config;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ApplicationReadyEventListener implements ApplicationListener<ApplicationEvent> {
 
-    private final ApplicationContext context;
+    public static Integer RUNNING_PORT;
 
 
     @Override
@@ -31,8 +30,8 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
 
 
         WebServerInitializedEvent webServerInitializedEvent = (WebServerInitializedEvent) event;
-        int port = webServerInitializedEvent.getWebServer().getPort();
-        log.info(logo + "\n" + "---------------启动成功--------------- document address http://127.0.0.1:" + port + "/swagger-ui.html");
+        RUNNING_PORT = webServerInitializedEvent.getWebServer().getPort();
+        log.info(logo + "\n" + "---------------启动成功--------------- document address http://127.0.0.1:" + RUNNING_PORT + "/swagger-ui.html");
 
 
     }

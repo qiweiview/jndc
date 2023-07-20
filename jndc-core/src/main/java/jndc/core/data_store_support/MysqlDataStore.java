@@ -1,7 +1,6 @@
 package jndc.core.data_store_support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.Flyway;
 
 import java.io.File;
 import java.sql.Connection;
@@ -47,12 +46,12 @@ public class MysqlDataStore extends DataStoreAbstract {
     @Override
     public void flywayInit() {
         String devPath = "filesystem:" + System.getProperty("user.dir") + File.separator + "jndc_server\\src\\main\\resources\\db\\migration_mysql";
-        Flyway flyway = Flyway.configure()
-                .locations("classpath:db/migration_mysql", devPath)
-                .baselineOnMigrate(true)
-                .dataSource(url, name, password)
-                .load();
-
-        flyway.migrate();
+//        Flyway flyway = Flyway.configure()
+//                .locations("classpath:db/migration_mysql", devPath)
+//                .baselineOnMigrate(true)
+//                .dataSource(url, name, password)
+//                .load();
+//
+//        flyway.migrate();
     }
 }

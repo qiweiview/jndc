@@ -1,5 +1,6 @@
 package cn.view.jndc.server_sv.web_support.http_module;
 
+import cn.view.jndc.server_sv.core.app.ServerApp;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -9,18 +10,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import jndc.core.NettyComponentConfig;
-import jndc.core.UniqueBeanManage;
 import jndc.web_support.core.CustomSslHandler;
-import jndc_server.config.JNDCServerConfig;
-import jndc_server.core.app.ServerApp;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
 
 /**
  * jndc server core functions
@@ -31,7 +26,7 @@ public class JNDCHttpServer implements ServerApp {
 
     @Override
     public void start() {
-        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
+
 
         ChannelInitializer<Channel> channelInitializer = new ChannelInitializer<Channel>() {
 
@@ -42,8 +37,9 @@ public class JNDCHttpServer implements ServerApp {
                 String http = "http";//HttpServerCodec
                 String oag = "oag";//HttpObjectAggregator
 
-                if (serverConfig.getWebConfig().isUseSsl()) {
-                    SSLContext serverSSLContext = serverConfig.getWebConfig().getServerSSLContext();
+                //todo fix
+                if (false) {
+                    SSLContext serverSSLContext = null;
                     SSLEngine sslEngine = serverSSLContext.createSSLEngine();
                     sslEngine.setUseClientMode(false);//设置为服务器模式
                     pipeline.addFirst(CustomSslHandler.NAME, new CustomSslHandler(sslEngine));
@@ -59,18 +55,18 @@ public class JNDCHttpServer implements ServerApp {
         ServerBootstrap b = new ServerBootstrap();
         b.group(eventLoopGroup)
                 .channel(NioServerSocketChannel.class)//
-                .localAddress(serverConfig.getHttpInetSocketAddress())//　
+//                .localAddress(serverConfig.getHttpInetSocketAddress())//　
                 .childHandler(channelInitializer);
 
         b.bind().addListener(x -> {
             String protocol = "http";
-            if (serverConfig.getWebConfig().isUseSsl()) {
+            if (false) {
                 protocol = "https";
             }
             if (x.isSuccess()) {
-                log.info("启动web服务 " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " 成功");
+                log.info(protocol + "启动web服务成功");
             } else {
-                log.error("启动web服务 " + protocol + "://" + serverConfig.getHttpInetSocketAddress() + " 失败");
+                log.error(protocol + "启动web服务失败");
             }
 
         });
@@ -84,16 +80,9 @@ public class JNDCHttpServer implements ServerApp {
      * 加载404页面
      */
     public void loadRouteNotFoundPage() {
-        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-        File file = new File(serverConfig.getWebConfig().getNotFoundPage());
-        if (file.exists()) {
-            try {
-                String s = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-                ServerRuntimeConfig.ROUTE_NOT_FOUND_CONTENT = s;
-                log.info("使用外部配置404页面：" + file.getName());
-            } catch (IOException e) {
-                log.error("加载404页面失败 ,cause:" + e);
-            }
+        if (false) {
+            ServerRuntimeConfig.ROUTE_NOT_FOUND_CONTENT = "404 page";
+            log.info("使用外部配置404页面：");
         } else {
             log.info("没有找到配置的404页面,使用默认页面");
         }

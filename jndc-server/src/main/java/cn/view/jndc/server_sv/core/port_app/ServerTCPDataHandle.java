@@ -1,5 +1,6 @@
 package cn.view.jndc.server_sv.core.port_app;
 
+import cn.view.jndc.server_sv.core.NDCServerConfigCenter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,7 +10,6 @@ import jndc.core.UniqueBeanManage;
 import jndc.utils.ByteBufUtil4V;
 import jndc.utils.InetUtils;
 import jndc.utils.UniqueInetTagProducer;
-import jndc_server.core.NDCServerConfigCenter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;

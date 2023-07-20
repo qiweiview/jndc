@@ -10,7 +10,6 @@
         <module>jndc-core</module>
         <module>jndc-client</module>
         <module>jndc-server</module>
-        <module>rr</module>
     </modules>
 
     <parent>

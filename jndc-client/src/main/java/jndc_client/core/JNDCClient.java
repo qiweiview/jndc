@@ -2,6 +2,7 @@ package jndc_client.core;
 
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;

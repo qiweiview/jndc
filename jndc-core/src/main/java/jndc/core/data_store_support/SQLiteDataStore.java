@@ -3,7 +3,6 @@ package jndc.core.data_store_support;
 
 import jndc.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.Flyway;
 
 import java.io.File;
 import java.sql.Connection;
@@ -71,11 +70,11 @@ public class SQLiteDataStore extends DataStoreAbstract {
         String p2 = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
         String devPath = "filesystem:" + PathUtils.findExistPath(p1, p2);
         log.info("flyway 读取路径：" + devPath);
-        Flyway flyway = Flyway.configure()
-                .locations("classpath:db/migration_sqlite", devPath)
-                .baselineOnMigrate(true)
-                .dataSource(url, "", "")
-                .load();
-        flyway.migrate();
+//        Flyway flyway = Flyway.configure()
+//                .locations("classpath:db/migration_sqlite", devPath)
+//                .baselineOnMigrate(true)
+//                .dataSource(url, "", "")
+//                .load();
+//        flyway.migrate();
     }
 }

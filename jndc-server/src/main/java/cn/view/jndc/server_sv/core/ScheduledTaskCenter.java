@@ -1,9 +1,9 @@
 package cn.view.jndc.server_sv.core;
 
+import cn.view.jndc.server_sv.core.filter.ip_checker.IpChecker;
 import io.netty.channel.EventLoopGroup;
 import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
-import jndc_server.core.filter.IpChecker;
 
 import java.util.concurrent.TimeUnit;
 

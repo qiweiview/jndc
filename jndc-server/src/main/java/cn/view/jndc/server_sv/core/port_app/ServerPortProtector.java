@@ -1,5 +1,9 @@
 package cn.view.jndc.server_sv.core.port_app;
 
+import cn.view.jndc.server_sv.core.AsynchronousEventCenter;
+import cn.view.jndc.server_sv.core.NDCServerConfigCenter;
+import cn.view.jndc.server_sv.core.filter.CustomRulesFilter;
+import cn.view.jndc.server_sv.databases_object.ServerPortBind;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -12,10 +16,6 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UniqueInetTagProducer;
-import jndc_server.core.AsynchronousEventCenter;
-import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.filter.CustomRulesFilter;
-import jndc_server.databases_object.ServerPortBind;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
@@ -45,9 +45,11 @@ public class ServerPortProtector {
     //访问连接映射
     private Map<String, ServerTCPDataHandle> faceTCPMap = new ConcurrentHashMap<>();//store tcp
 
+    private CustomRulesFilter customRulesFilter;
 
-    public ServerPortProtector(int port) {
+    public ServerPortProtector(int port, CustomRulesFilter customRulesFilter) {
         this.port = port;
+        this.customRulesFilter = customRulesFilter;
     }
 
     public boolean checkBetweenEnableTimeRange() {
@@ -94,7 +96,7 @@ public class ServerPortProtector {
             @Override
             protected void initChannel(Channel channel) throws Exception {
                 ChannelPipeline pipeline = channel.pipeline();
-                pipeline.addFirst(CustomRulesFilter.NAME, CustomRulesFilter.STATIC_INSTANCE);
+                pipeline.addFirst(CustomRulesFilter.NAME, customRulesFilter);
                 pipeline.addAfter(CustomRulesFilter.NAME, ServerTCPDataHandle.NAME, new ServerTCPDataHandle(innerActiveCallBack));
             }
         };

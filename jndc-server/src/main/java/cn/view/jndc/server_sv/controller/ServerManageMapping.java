@@ -1,6 +1,25 @@
-package cn.view.jndc.server_sv.web_support.mapping;
+package cn.view.jndc.server_sv.controller;
 
 
+import cn.view.jndc.server_sv.core.AsynchronousEventCenter;
+import cn.view.jndc.server_sv.core.ChannelHandlerContextHolder;
+import cn.view.jndc.server_sv.core.NDCServerConfigCenter;
+import cn.view.jndc.server_sv.core.ServerServiceDescription;
+import cn.view.jndc.server_sv.core.filter.ip_checker.IpChecker;
+import cn.view.jndc.server_sv.core.port_app.ServerPortProtector;
+import cn.view.jndc.server_sv.databases_object.ChannelContextCloseRecord;
+import cn.view.jndc.server_sv.databases_object.IpFilterRecord;
+import cn.view.jndc.server_sv.databases_object.IpFilterRule4V;
+import cn.view.jndc.server_sv.databases_object.ServerPortBind;
+import cn.view.jndc.server_sv.web_support.model.dto.ClearRecordOptionDTO;
+import cn.view.jndc.server_sv.web_support.model.dto.IpDTO;
+import cn.view.jndc.server_sv.web_support.model.dto.PageDTO;
+import cn.view.jndc.server_sv.web_support.model.dto.ServiceBindDTO;
+import cn.view.jndc.server_sv.web_support.model.vo.ChannelContextVO;
+import cn.view.jndc.server_sv.web_support.model.vo.DeviceInfo;
+import cn.view.jndc.server_sv.web_support.model.vo.IpRecordVO;
+import cn.view.jndc.server_sv.web_support.model.vo.PageListVO;
+import cn.view.jndc.server_sv.web_support.utils.ServerUrlConstant;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
@@ -9,30 +28,13 @@ import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
 import jndc.web_support.core.JNDCHttpRequest;
 import jndc.web_support.core.MessageNotificationCenter;
-import jndc.web_support.core.WebMapping;
 import jndc.web_support.model.dto.LoginUser;
 import jndc.web_support.model.dto.ResponseMessage;
-import jndc_server.core.AsynchronousEventCenter;
-import jndc_server.core.ChannelHandlerContextHolder;
-import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.ServerServiceDescription;
-import jndc_server.core.filter.IpChecker;
-import jndc_server.core.port_app.ServerPortProtector;
-import jndc_server.databases_object.ChannelContextCloseRecord;
-import jndc_server.databases_object.IpFilterRecord;
-import jndc_server.databases_object.IpFilterRule4V;
-import jndc_server.databases_object.ServerPortBind;
-import jndc_server.web_support.model.dto.ClearRecordOptionDTO;
-import jndc_server.web_support.model.dto.IpDTO;
-import jndc_server.web_support.model.dto.PageDTO;
-import jndc_server.web_support.model.dto.ServiceBindDTO;
-import jndc_server.web_support.model.vo.ChannelContextVO;
-import jndc_server.web_support.model.vo.DeviceInfo;
-import jndc_server.web_support.model.vo.IpRecordVO;
-import jndc_server.web_support.model.vo.PageListVO;
-import jndc_server.web_support.utils.AuthUtils;
-import jndc_server.web_support.utils.ServerUrlConstant;
+import jndc.web_support.utils.AuthUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -47,6 +49,8 @@ import java.util.stream.Collectors;
  * singleton， thread unsafe
  */
 @Slf4j
+@RequiredArgsConstructor
+@RestController
 public class ServerManageMapping {
 
     /**
@@ -55,7 +59,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.login)
+    @RequestMapping(ServerUrlConstant.ServerManage.login)
     public HashMap login(JNDCHttpRequest jndcHttpRequest) {
         HashMap objectObjectHashMap = new HashMap<>();
 
@@ -97,7 +101,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.getServerChannelTable)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public List<ChannelContextVO> getServerChannelTable(JNDCHttpRequest jndcHttpRequest) {
 
         List<ChannelContextVO> list = new ArrayList<>();
@@ -127,7 +131,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.getChannelRecord)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public PageListVO<ChannelContextCloseRecord> getChannelRecord(JNDCHttpRequest jndcHttpRequest) {
 
         byte[] body = jndcHttpRequest.getBody();
@@ -154,7 +158,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.clearChannelRecord)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage clearChannelRecord(JNDCHttpRequest jndcHttpRequest) {
 
         DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
@@ -170,7 +174,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.sendHeartBeat)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage sendHeartBeat(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -191,7 +195,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.closeChannelByServer)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage closeChannelByServer(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -212,7 +216,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.getServiceList)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public List<ServerServiceDescription> getServiceList(JNDCHttpRequest jndcHttpRequest) {
 
         ServerServiceDescription param = jndcHttpRequest.getObject(ServerServiceDescription.class);
@@ -235,7 +239,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.getServerPortList)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public List<ServerPortBind> getServerPortList(JNDCHttpRequest jndcHttpRequest) {
 
 
@@ -257,7 +261,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.createPortMonitoring)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage createPortMonitoring(JNDCHttpRequest jndcHttpRequest) {
 
 
@@ -292,7 +296,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.doServiceBind)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage doServiceBind(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
@@ -392,7 +396,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.doDateRangeEdit)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage doDateRangeEdit(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
@@ -439,7 +443,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.deleteServiceBindRecord)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage deleteServiceBindRecord(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
@@ -462,7 +466,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.resetBindRecord)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage resetBindRecord(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
@@ -485,7 +489,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.stopServiceBind)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage stopServiceBind(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
 
@@ -529,7 +533,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.blackList)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public PageListVO<IpFilterRule4V> blackList(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -553,7 +557,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.whiteList)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public PageListVO<IpFilterRule4V> whiteList(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -576,7 +581,7 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.addToIpWhiteList)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage addToIpWhiteList(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -616,7 +621,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.addToIpBlackList)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage addToIpBlackList(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -655,7 +661,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.deleteIpRuleByPrimaryKey)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public ResponseMessage deleteIpRuleByPrimaryKey(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -692,7 +699,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.releaseRecord)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public Object releaseRecord(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -725,7 +733,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.blockRecord)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public Object blockRecord(JNDCHttpRequest jndcHttpRequest) {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
@@ -758,7 +767,8 @@ public class ServerManageMapping {
      * @param jndcHttpRequest
      * @return
      */
-    @WebMapping(path = ServerUrlConstant.ServerManage.getCurrentDeviceIp)
+
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public DeviceInfo getCurrentDeviceIp(JNDCHttpRequest jndcHttpRequest) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setIp(jndcHttpRequest.getRemoteAddress().getHostAddress());
@@ -766,7 +776,7 @@ public class ServerManageMapping {
 
     }
 
-    @WebMapping(path = ServerUrlConstant.ServerManage.clearIpRecord)
+    @RequestMapping(ServerUrlConstant.ServerManage.getServerChannelTable)
     public DeviceInfo clearIpRecord(JNDCHttpRequest jndcHttpRequest) {
         DeviceInfo deviceInfo = new DeviceInfo();
         byte[] body = jndcHttpRequest.getBody();

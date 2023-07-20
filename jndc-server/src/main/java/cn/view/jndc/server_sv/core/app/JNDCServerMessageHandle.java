@@ -1,5 +1,9 @@
 package cn.view.jndc.server_sv.core.app;
 
+import cn.view.jndc.server_sv.core.ChannelHandlerContextHolder;
+import cn.view.jndc.server_sv.core.NDCServerConfigCenter;
+import cn.view.jndc.server_sv.core.ServerServiceDescription;
+import cn.view.jndc.server_sv.databases_object.ServerPortBind;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -12,11 +16,6 @@ import jndc.core.message.TcpServiceDescription;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
 import jndc.utils.ObjectSerializableUtils;
-import jndc_server.config.JNDCServerConfig;
-import jndc_server.core.ChannelHandlerContextHolder;
-import jndc_server.core.NDCServerConfigCenter;
-import jndc_server.core.ServerServiceDescription;
-import jndc_server.databases_object.ServerPortBind;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -33,15 +32,15 @@ import java.util.stream.Collectors;
 public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMessageProtocol> {
     public static final String NAME = "NDC_SERVER_HANDLE";
 
+    private NDCServerConfigCenter ndcServerConfigCenter;
 
     /**
      * 服务绑定
      *
      * @param serverServiceDescriptions
      */
-    public static void serviceBind(List<ServerServiceDescription> serverServiceDescriptions) {
-        //配置中心
-        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+    public void serviceBind(List<ServerServiceDescription> serverServiceDescriptions) {
+
 
         //服务转map
         Map<String, ServerServiceDescription> map = serverServiceDescriptions.stream()
@@ -103,10 +102,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
      * @return
      */
     private NDCMessageProtocol authCheck(NDCMessageProtocol message, String tokenFromRequest) {
-        JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
-        String secrete = jndcServerConfig.getSecrete();
 
-        if (tokenFromRequest == null || !secrete.equals(tokenFromRequest)) {
+
+        //todo fix
+        if (false) {
             //todo auth fail
             message.setType(NDCMessageProtocol.NO_ACCESS);
             UserError userError = new UserError();
@@ -203,10 +202,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         serviceBind(serverServiceDescriptions);
 
 
-//        log.info("推送开启刷新");
-//        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-//        messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
-//        messageNotificationCenter.dateRefreshMessage("serverPortList");//notice the server port list refresh
     }
 
     /**
@@ -232,8 +227,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         /* -------------------- 鉴权 -------------------- */
 
 
-        //获取注册中心
-        NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
 
         //构建上下文描述对象
         ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder(openChannelMessage.getChannelId());

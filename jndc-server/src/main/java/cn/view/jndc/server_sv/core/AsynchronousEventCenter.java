@@ -1,8 +1,8 @@
 package cn.view.jndc.server_sv.core;
 
+import cn.view.jndc.server_sv.core.port_app.ServerPortProtector;
 import jndc.core.NDCMessageProtocol;
 import jndc.utils.ThreadQueue;
-import jndc_server.core.port_app.ServerPortProtector;
 import lombok.Data;
 
 /**

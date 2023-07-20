@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * simple object management,can use spring or other tools replace
  */
 @Slf4j
+@Deprecated
 public class UniqueBeanManage {
 
     private static Map<Class, Object> map = new ConcurrentHashMap<>();

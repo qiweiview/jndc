@@ -5,11 +5,13 @@ import cn.view.jndc.server_sv.core.filter.ip_checker.IpChecker;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.UniqueBeanManage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
+@Component
 @Slf4j
 public class IpAddressRule implements CustomRule {
     private volatile IpChecker ipChecker;

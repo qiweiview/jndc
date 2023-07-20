@@ -1,6 +1,12 @@
-package cn.view.jndc.server_sv.web_support.mapping;
+package cn.view.jndc.server_sv.controller;
 
 
+import cn.view.jndc.server_sv.web_support.http_module.HostRouterComponent;
+import cn.view.jndc.server_sv.web_support.model.d_o.HttpHostRoute;
+import cn.view.jndc.server_sv.web_support.model.dto.HostRouteDTO;
+import cn.view.jndc.server_sv.web_support.model.vo.HttpHostRouteVO;
+import cn.view.jndc.server_sv.web_support.model.vo.PageListVO;
+import cn.view.jndc.server_sv.web_support.utils.ServerUrlConstant;
 import io.netty.util.internal.StringUtil;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
@@ -10,25 +16,22 @@ import jndc.utils.JSONUtils;
 import jndc.utils.StringUtils4V;
 import jndc.utils.UUIDSimple;
 import jndc.web_support.core.JNDCHttpRequest;
-import jndc.web_support.core.WebMapping;
 import jndc.web_support.model.dto.ResponseMessage;
-import jndc_server.web_support.http_module.HostRouterComponent;
-import jndc_server.web_support.model.d_o.HttpHostRoute;
-import jndc_server.web_support.model.dto.HostRouteDTO;
-import jndc_server.web_support.model.vo.HttpHostRouteVO;
-import jndc_server.web_support.model.vo.PageListVO;
-import jndc_server.web_support.utils.ServerUrlConstant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * singleton， thread unsafe
- */
+
+@RequiredArgsConstructor
+@RestController
 public class ServerHttpManageMapping {
 
+    private final HostRouterComponent hostRouterComponent;
 
-    @WebMapping(path = ServerUrlConstant.ServerHttp.saveHostRouteRule)
+    @RequestMapping(ServerUrlConstant.ServerHttp.saveHostRouteRule)
     public ResponseMessage saveHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -75,7 +78,6 @@ public class ServerHttpManageMapping {
         }
 
         dbWrapper.insert(httpHostRoute);
-        HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
         hostRouterComponent.addRule(httpHostRoute);
         return responseMessage;
 
@@ -102,7 +104,7 @@ public class ServerHttpManageMapping {
         return count.intValue() > 0;
     }
 
-    @WebMapping(path = ServerUrlConstant.ServerHttp.updateHostRouteRule)
+    @RequestMapping(ServerUrlConstant.ServerHttp.updateHostRouteRule)
     public ResponseMessage updateHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -150,7 +152,7 @@ public class ServerHttpManageMapping {
 
     }
 
-    @WebMapping(path = ServerUrlConstant.ServerHttp.deleteHostRouteRule)
+    @RequestMapping(ServerUrlConstant.ServerHttp.deleteHostRouteRule)
     public ResponseMessage deleteHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();
@@ -175,7 +177,7 @@ public class ServerHttpManageMapping {
         return responseMessage;
     }
 
-    @WebMapping(path = ServerUrlConstant.ServerHttp.listHostRouteRule)
+    @RequestMapping(ServerUrlConstant.ServerHttp.listHostRouteRule)
     public Object listHostRouteRule(JNDCHttpRequest jndcHttpRequest) {
         ResponseMessage responseMessage = new ResponseMessage();
         byte[] body = jndcHttpRequest.getBody();

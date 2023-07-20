@@ -5,27 +5,6 @@ spring:
     password: "wdwdwd"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-jndc:
-  secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
-  loglevel: "info"
-  blackList: # ip访问黑名单
-  #- "192.168.1.1"
-  whiteList: # 白名单
-  #- "192.168.1.2"
-  servicePort: 81 # jndc服务端运行监听端口
-  bindIp: "127.0.0.1" # jndc服务端运行ip
-  manageConfig: # 管理端api服务
-    managementApiPort: 777 #管理api端口
-    useSsl: false # 是否使用ssl
-    jksPath: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\qw607.com.jks" #jks 证书地址
-    jksPass: "3unpdl4r1rdkg3o" # jks 证书密码
-    loginName: "xxx" # 登录用户名
-    loginPassWord: "xxx" # 登录密码
-    adminEnable: true # 是否启动静态页面
-  webConfig: # http web服务
-    notFoundPage: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\404.html"
-    httpPort: 80 # http应用端口
-    useSsl: false # 是否使用ssl
-    jksPath: "C:\\Users\\liuqiwei\\Desktop\\qw607.com_jks\\qw607.com.jks" #jks 证书地址
-    jksPass: "3unpdl4r1rdkg3o" # jks 证书密码
+
+
 

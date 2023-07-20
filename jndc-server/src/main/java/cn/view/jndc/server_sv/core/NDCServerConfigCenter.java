@@ -1,5 +1,7 @@
 package cn.view.jndc.server_sv.core;
 
+import cn.view.jndc.server_sv.core.port_app.ServerPortProtector;
+import cn.view.jndc.server_sv.databases_object.ChannelContextCloseRecord;
 import io.netty.channel.ChannelHandlerContext;
 import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
@@ -7,8 +9,6 @@ import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.InetUtils;
 import jndc.utils.UUIDSimple;
-import jndc_server.core.port_app.ServerPortProtector;
-import jndc_server.databases_object.ChannelContextCloseRecord;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -209,7 +209,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         serverPortBindContext.setServerServiceDescription(serverServiceDescription);
 
         //创建端口监听器
-        ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort());
+        ServerPortProtector serverPortProtector = new ServerPortProtector(serverPortBindContext.getPort(), null);
 
         //设置限制事件范围
         serverPortProtector.parseEnableDateRange(enableDateRange);

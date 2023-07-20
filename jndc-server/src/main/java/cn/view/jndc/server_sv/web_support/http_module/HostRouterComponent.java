@@ -1,8 +1,9 @@
 package cn.view.jndc.server_sv.web_support.http_module;
 
+import cn.view.jndc.server_sv.web_support.model.d_o.HttpHostRoute;
 import io.netty.util.internal.StringUtil;
 import jndc.core.data_store_support.DBWrapper;
-import jndc_server.web_support.model.d_o.HttpHostRoute;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 域名路由
  */
+@Component
 public class HostRouterComponent {
     private final Map<String, HttpHostRoute> map = new ConcurrentHashMap<>();
     private volatile boolean initFinished = false;

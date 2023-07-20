@@ -2,6 +2,7 @@ package jndc_client.core.port_app;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.NettyComponentConfig;
