@@ -10,9 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import jndc.core.NDCPCodec;
 import jndc.core.NettyComponentConfig;
 import jndc.core.SecreteCodec;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
@@ -20,12 +18,10 @@ import java.net.InetSocketAddress;
  * jndc server core functions
  */
 @Slf4j
-@Component
-@RequiredArgsConstructor
-public class JndcCoreServer implements ServerApp {
+public class JNDCServer implements ServerApp {
     private EventLoopGroup eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
-    private final CustomRulesFilter customRulesFilter;
+    private CustomRulesFilter customRulesFilter;
 
     @Override
     public void start() {

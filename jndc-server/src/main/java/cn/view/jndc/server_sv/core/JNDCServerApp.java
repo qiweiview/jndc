@@ -1,6 +1,6 @@
 package cn.view.jndc.server_sv.core;
 
-import cn.view.jndc.server_sv.core.app.JndcCoreServer;
+import cn.view.jndc.server_sv.core.app.JNDCServer;
 import cn.view.jndc.server_sv.databases_object.ServerPortBind;
 import cn.view.jndc.server_sv.web_support.http_module.JNDCHttpServer;
 import jndc.core.UniqueBeanManage;
@@ -34,12 +34,9 @@ public class JNDCServerApp {
         dbWrapper.customExecute("update server_port_bind set port_enable = 0", null);
 
 
-
-
-
         //核心服务
-        JndcCoreServer jndcCoreServer = new JndcCoreServer(null);
-        jndcCoreServer.start();
+        JNDCServer JNDCServer = new JNDCServer(null);
+        JNDCServer.start();
 
         //http层服务
         JNDCHttpServer jndcHttpServer = new JNDCHttpServer();
