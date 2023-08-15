@@ -41,3 +41,8 @@ jndc.iml
 /jndc-client/jndc-client-backend/jndc-client-backend.iml
 /jndc-server/jndc-server-sv/jndc-server-sv.iml
 /jndc-server/jndc-server.iml
+/jndc-client/target/
+/jndc-core/target/
+/jndc-server/target/
+/jndc-core-v2/target/
+/jndc-core-v2/jndc-core-v2.iml
