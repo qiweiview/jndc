@@ -10,6 +10,9 @@ import org.junit.Test;
 public class ConvertTest {
 
 
+    /**
+     * 端口转字节数组
+     */
     @Test
     public void port2ByteArray() {
 
@@ -23,6 +26,9 @@ public class ConvertTest {
 
     }
 
+    /**
+     * ip 转字节数组
+     */
     @Test
     public void ip2ByteArray() {
         String ip = "192.168.1.1";

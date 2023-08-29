@@ -11,6 +11,7 @@
         <module>jndc-client</module>
         <module>jndc-server</module>
         <module>jndc-core-v2</module>
+        <module>jndc-server-v2</module>
     </modules>
 
     <parent>

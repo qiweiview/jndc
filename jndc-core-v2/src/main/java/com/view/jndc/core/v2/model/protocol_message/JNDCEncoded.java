@@ -4,19 +4,22 @@ package com.view.jndc.core.v2.model.protocol_message;
 import com.view.jndc.core.v2.constant.protocol_message.BitConstant;
 import com.view.jndc.core.v2.constant.protocol_message.StaticConfig;
 import com.view.jndc.core.v2.exception.BixException;
+import com.view.jndc.core.v2.utils.ByteArrayUtils;
 import com.view.jndc.core.v2.utils.ByteConversionUtil;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
- * No Distance Connection Protocol
+ * 协议报文对象
  */
 @Data
-public class JNDCDataMessage {
+public class JNDCEncoded {
 
 
  /*
@@ -68,13 +71,13 @@ public class JNDCDataMessage {
 
 
     /* ================= variable ================= */
-    //协议标识
+    //协议标识 3字节
     private byte[] tag;
 
-    //协议版本
+    //协议版本 1字节
     private byte version;
 
-    //报文类型
+    //报文类型 1字节
     private byte type;//data type
 
     //ipv4 4字节
@@ -148,9 +151,15 @@ public class JNDCDataMessage {
     }
 
 
-    public static JNDCDataMessage toEncodedFormat(byte[] bytes) {
+    /**
+     * 转为编码格式
+     *
+     * @param bytes
+     * @return
+     */
+    public static JNDCEncoded toEncodedFormat(byte[] bytes) {
 
-        JNDCDataMessage jndcDataMessage = new JNDCDataMessage();
+        JNDCEncoded jndcEncoded = new JNDCEncoded();
 
 
         if (bytes.length < StaticConfig.MESSAGE_VERIFICATION_LENGTH) {
@@ -163,24 +172,62 @@ public class JNDCDataMessage {
             throw new BixException("不支持的协议类型");
         }
 
-        jndcDataMessage.setVersion(bytes[4]);
+        jndcEncoded.setVersion(bytes[4]);
 
-        jndcDataMessage.setType(bytes[5]);
+        jndcEncoded.setType(bytes[5]);
 
 
-        jndcDataMessage.setSourceAddress(Arrays.copyOfRange(bytes, 5, 9));
+        jndcEncoded.setSourceAddress(Arrays.copyOfRange(bytes, 5, 9));
 
-        jndcDataMessage.setDestAddress(Arrays.copyOfRange(bytes, 9, 13));
+        jndcEncoded.setDestAddress(Arrays.copyOfRange(bytes, 9, 13));
 
-        jndcDataMessage.setSourcePort(Arrays.copyOfRange(bytes, 13, 15));
+        jndcEncoded.setSourcePort(Arrays.copyOfRange(bytes, 13, 15));
 
-        jndcDataMessage.setProxyPort(Arrays.copyOfRange(bytes, 15, 17));
+        jndcEncoded.setProxyPort(Arrays.copyOfRange(bytes, 15, 17));
 
-        jndcDataMessage.setDestPort(Arrays.copyOfRange(bytes, 17, 19));
+        jndcEncoded.setDestPort(Arrays.copyOfRange(bytes, 17, 19));
 
-        jndcDataMessage.setDataSize(Arrays.copyOfRange(bytes, 19, 23));
+        jndcEncoded.setDataSize(Arrays.copyOfRange(bytes, 19, 23));
 
-        return jndcDataMessage;
+        return jndcEncoded;
+    }
+
+    /**
+     * 拆包
+     *
+     * @return
+     */
+    public List<JNDCEncoded> autoUnpack() {
+        List<JNDCEncoded> ndcMessageProtocols = new ArrayList<>();
+        byte[] data = getData();
+        List<byte[]> list = ByteArrayUtils.bytesUnpack(data, StaticConfig.AUTOMATIC_UNPACKING_LENGTH);
+        list.forEach(x -> {
+            JNDCEncoded copy = copy(true);
+            copy.setData(x);
+            ndcMessageProtocols.add(copy);
+        });
+        return ndcMessageProtocols;
+    }
+
+    private JNDCEncoded copy(boolean withoutData) {
+        JNDCEncoded ndcMessageProtocol = new JNDCEncoded();
+        ndcMessageProtocol.setVersion(getVersion());
+        ndcMessageProtocol.setSourceAddress(getSourceAddress());
+        ndcMessageProtocol.setDestAddress(getDestAddress());
+        ndcMessageProtocol.setSourcePort(getSourcePort());
+        ndcMessageProtocol.setDestPort(getDestPort());
+        ndcMessageProtocol.setType(getType());
+
+        //clear data
+        if (withoutData) {
+            //todo 清除数据
+            ndcMessageProtocol.setData(new byte[0]);
+        } else {
+            //todo 复制数据
+            ndcMessageProtocol.setData(getData());
+        }
+
+        return ndcMessageProtocol;
     }
 
 
