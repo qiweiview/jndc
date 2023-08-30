@@ -4,8 +4,10 @@ package com.view.jndc.core.v2.model.protocol_message;
 import com.view.jndc.core.v2.constant.protocol_message.BitConstant;
 import com.view.jndc.core.v2.constant.protocol_message.StaticConfig;
 import com.view.jndc.core.v2.exception.BixException;
+import com.view.jndc.core.v2.exception.UnSupportedProtocolException;
 import com.view.jndc.core.v2.utils.ByteArrayUtils;
 import com.view.jndc.core.v2.utils.ByteConversionUtil;
+import io.netty.util.ResourceLeakDetector;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
@@ -102,6 +104,11 @@ public class JNDCEncoded {
     private byte[] data;
 
 
+    static {
+        //设置Netty泄露检测的级别
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
+    }
+
     /**
      * 转为传输格式
      *
@@ -169,12 +176,12 @@ public class JNDCEncoded {
 
         //replace with Arrays.compare in jdk 9
         if (!Arrays.equals(BitConstant.NDC_PROTOCOL_TAG, Arrays.copyOfRange(bytes, 0, 3))) {
-            throw new BixException("不支持的协议类型");
+            throw new UnSupportedProtocolException();
         }
 
-        jndcEncoded.setVersion(bytes[4]);
+        jndcEncoded.setVersion(bytes[3]);
 
-        jndcEncoded.setType(bytes[5]);
+        jndcEncoded.setType(bytes[4]);
 
 
         jndcEncoded.setSourceAddress(Arrays.copyOfRange(bytes, 5, 9));
@@ -211,10 +218,12 @@ public class JNDCEncoded {
 
     private JNDCEncoded copy(boolean withoutData) {
         JNDCEncoded ndcMessageProtocol = new JNDCEncoded();
+        ndcMessageProtocol.setTag(getTag());
         ndcMessageProtocol.setVersion(getVersion());
         ndcMessageProtocol.setSourceAddress(getSourceAddress());
         ndcMessageProtocol.setDestAddress(getDestAddress());
         ndcMessageProtocol.setSourcePort(getSourcePort());
+        ndcMessageProtocol.setProxyPort(getProxyPort());
         ndcMessageProtocol.setDestPort(getDestPort());
         ndcMessageProtocol.setType(getType());
 

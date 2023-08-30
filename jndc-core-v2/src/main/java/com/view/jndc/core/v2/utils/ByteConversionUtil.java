@@ -122,4 +122,25 @@ public class ByteConversionUtil {
             throw new BixException(e);
         }
     }
+
+    /**
+     * byte 转hex字符串
+     *
+     * @param value
+     * @return
+     */
+    public static String byteToHex(byte value) {
+        // Convert byte to an unsigned integer
+        int intValue = value & 0xFF;
+
+        // Convert the integer to a hexadecimal string
+        String hexString = Integer.toHexString(intValue).toUpperCase();
+
+        // Add leading zero if necessary
+        if (hexString.length() == 1) {
+            hexString = "0" + hexString;
+        }
+
+        return hexString;
+    }
 }

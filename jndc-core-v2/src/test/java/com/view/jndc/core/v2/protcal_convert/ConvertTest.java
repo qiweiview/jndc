@@ -1,5 +1,6 @@
 package com.view.jndc.core.v2.protcal_convert;
 
+import com.view.jndc.core.v2.constant.protocol_message.BitConstant;
 import com.view.jndc.core.v2.model.jndc.JNDCData;
 import com.view.jndc.core.v2.model.protocol_message.JNDCEncoded;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,9 @@ public class ConvertTest {
         jndcData.setSourcePort(53002);
         jndcData.setProxyPort(777);
         jndcData.setDestPort(8080);
+        jndcData.setType(BitConstant.MESSAGE_AUTH_TYPE);
 
-        JNDCEncoded jndcEncoded = jndcData.authMessage();
+        JNDCEncoded jndcEncoded = jndcData.toEncoded();
 
         //转为传输格式
         byte[] bytes = jndcEncoded.toTransferFormat();

@@ -18,4 +18,6 @@ public class BitConstant {
 
     public static final byte MESSAGE_AUTH_TYPE = 0x00;//鉴权包
 
+    public static final byte HAPPY_EVERY_DAY_TYPE = 0x7f;//每天开心
+
 }

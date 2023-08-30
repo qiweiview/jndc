@@ -1,4 +1,4 @@
-package com.view.jndc.core.v2.componet;
+package com.view.jndc.core.v2.componet.server;
 
 import com.view.jndc.core.v2.componet.netty.CustomChannel;
 import io.netty.bootstrap.ServerBootstrap;
@@ -15,10 +15,9 @@ import java.net.InetSocketAddress;
 @Slf4j
 public class JNDCServer {
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-    ;
 
 
-    public void start() {
+    public void start(int port) {
 
 
         InetSocketAddress unresolved = InetSocketAddress.createUnresolved("0.0.0.0", 777);
@@ -26,10 +25,10 @@ public class JNDCServer {
         ServerBootstrap b = new ServerBootstrap();
         b.group(eventLoopGroup)
                 .channel(NioServerSocketChannel.class)//
-                .localAddress(unresolved)//　
+//                .localAddress(unresolved)//　
                 .childHandler(new CustomChannel());
 
-        b.bind().addListener(x -> {
+        b.bind(port).addListener(x -> {
             if (x.isSuccess()) {
                 log.info("核心服务: jndc://启动成功");
             } else {
