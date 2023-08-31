@@ -1,13 +1,12 @@
 package com.view.jndc.core.v2.componet.server;
 
 import com.view.jndc.core.v2.componet.netty.CustomChannel;
+import com.view.jndc.core.v2.enum_value.HandlerType;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.InetSocketAddress;
 
 /**
  * jndc server core functions
@@ -18,15 +17,10 @@ public class JNDCServer {
 
 
     public void start(int port) {
-
-
-        InetSocketAddress unresolved = InetSocketAddress.createUnresolved("0.0.0.0", 777);
-
         ServerBootstrap b = new ServerBootstrap();
         b.group(eventLoopGroup)
-                .channel(NioServerSocketChannel.class)//
-//                .localAddress(unresolved)//　
-                .childHandler(new CustomChannel());
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new CustomChannel(HandlerType.SERVER_HANDLER.value));
 
         b.bind(port).addListener(x -> {
             if (x.isSuccess()) {

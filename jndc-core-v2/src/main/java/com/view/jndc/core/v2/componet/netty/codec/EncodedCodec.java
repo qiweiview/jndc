@@ -28,9 +28,16 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
     protected void encode(ChannelHandlerContext channelHandlerContext, JNDCEncoded jndcEncoded, ByteBuf byteBuf) {
         //auto unpack
         List<JNDCEncoded> list = jndcEncoded.autoUnpack();
-        list.forEach(x -> {
-            byteBuf.writeBytes(x.toTransferFormat());
-        });
+        if (list.size() < 1) {
+            //todo 单包发送
+            byte[] bytes = jndcEncoded.toTransferFormat();
+            byteBuf.writeBytes(bytes);
+        } else {
+            list.forEach(x -> {
+                byteBuf.writeBytes(x.toTransferFormat());
+            });
+        }
+
 
     }
 
@@ -47,6 +54,11 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
                 byteBuf.readBytes(bytes);
                 try {
                     ndcMessageProtocol = JNDCEncoded.toEncodedFormat(bytes);//解析定长信息
+                    int dataSize = ByteConversionUtil.byteArrayToInt(ndcMessageProtocol.getDataSize());//获取变长报文长度
+                    if (dataSize == 0) {
+                        //todo 处理空数据包情况
+                        list.add(ndcMessageProtocol);
+                    }
                 } catch (UnSupportedProtocolException exception) {
                     ByteBuf notice = Unpooled.copiedBuffer("protocol mismatch", StandardCharsets.UTF_8);
                     channelHandlerContext.writeAndFlush(notice);
@@ -72,5 +84,12 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
                 //todo 未获取到足够动态长度
             }
         }
+    }
+
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("处理异常", cause);
+        super.exceptionCaught(ctx, cause);
     }
 }

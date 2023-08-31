@@ -1,6 +1,7 @@
 package com.view.jndc.core.v2.model.jndc;
 
 import com.view.jndc.core.v2.constant.protocol_message.BitConstant;
+import com.view.jndc.core.v2.enum_value.JNDCMessageType;
 import com.view.jndc.core.v2.model.protocol_message.JNDCEncoded;
 import com.view.jndc.core.v2.utils.ByteConversionUtil;
 import lombok.Data;
@@ -24,33 +25,59 @@ public class JNDCData {
     private String destAddress;//local ip
 
     //2个字节0-65535
-    private Integer sourcePort;
+    private int sourcePort;
 
     //2个字节0-65535
-    private Integer proxyPort;
+    private int proxyPort;
 
     //2个字节0-65535
-    private Integer destPort;
+    private int destPort;
 
     //4字节包长度
-    private Integer dataSize;
+    private int dataSize;
 
     //n字节数据包
     private byte[] data;
 
 
-    public static final JNDCData SAY_HI_WORLD = new JNDCData();
+    public static final JNDCData SAY_HELLO_TO_WORLD = new JNDCData();
 
     static {
-        SAY_HI_WORLD.setSourceAddress("0.0.0.0");
-        SAY_HI_WORLD.setDestAddress("0.0.0.1");
-        SAY_HI_WORLD.setSourcePort(666);
-        SAY_HI_WORLD.setProxyPort(777);
-        SAY_HI_WORLD.setDestPort(888);
-        SAY_HI_WORLD.setType(BitConstant.HAPPY_EVERY_DAY_TYPE);
-        byte version = 0x01;
-        SAY_HI_WORLD.setVersion(version);
-        SAY_HI_WORLD.setData("HELLO WORLD".getBytes());
+        SAY_HELLO_TO_WORLD.setSourceAddress("0.0.0.0");
+        SAY_HELLO_TO_WORLD.setDestAddress("0.0.0.0");
+        SAY_HELLO_TO_WORLD.setSourcePort(666);
+        SAY_HELLO_TO_WORLD.setProxyPort(777);
+        SAY_HELLO_TO_WORLD.setDestPort(888);
+        SAY_HELLO_TO_WORLD.setType(JNDCMessageType.HAPPY_EVERY_DAY.value);
+        SAY_HELLO_TO_WORLD.setVersion(BitConstant.PROTOCOL_VERSION);
+        SAY_HELLO_TO_WORLD.setData("HELLO WORLD".getBytes());
+    }
+
+    /**
+     * 打开通道
+     *
+     * @return
+     */
+    public static JNDCData getThin() {
+        JNDCData jndcData = new JNDCData();
+        jndcData.setSourceAddress("0.0.0.0");
+        jndcData.setDestAddress("0.0.0.0");
+        jndcData.setVersion(BitConstant.PROTOCOL_VERSION);
+        jndcData.setData(BitConstant.EMPTY_BYTE_ARRAY);
+        return jndcData;
+    }
+
+    public static JNDCData testBandwidth() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.TEST_BANDWIDTH_0X20.value);
+        jndcData.setData(BitConstant.MB128);
+        return jndcData;
+    }
+
+    public static JNDCData openChannel() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.CHANNEL_0X10.value);
+        return jndcData;
     }
 
 

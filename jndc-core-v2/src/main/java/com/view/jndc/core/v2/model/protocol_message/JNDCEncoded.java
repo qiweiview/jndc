@@ -128,7 +128,7 @@ public class JNDCEncoded {
 
             if (data == null) {
                 //todo 补全
-                data = new byte[0];
+                data = BitConstant.EMPTY_BYTE_ARRAY;
             }
 
 
@@ -230,7 +230,7 @@ public class JNDCEncoded {
         //clear data
         if (withoutData) {
             //todo 清除数据
-            ndcMessageProtocol.setData(new byte[0]);
+            ndcMessageProtocol.setData(BitConstant.EMPTY_BYTE_ARRAY);
         } else {
             //todo 复制数据
             ndcMessageProtocol.setData(getData());

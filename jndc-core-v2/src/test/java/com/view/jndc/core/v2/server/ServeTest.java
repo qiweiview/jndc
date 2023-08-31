@@ -2,16 +2,16 @@ package com.view.jndc.core.v2.server;
 
 import com.view.jndc.core.v2.componet.client.JNDCClient;
 import com.view.jndc.core.v2.componet.server.JNDCServer;
-import com.view.jndc.core.v2.model.jndc.JNDCData;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 
+@Slf4j
 public class ServeTest {
-    private static final Logger log = LoggerFactory.getLogger(ServeTest.class);
 
 
     @Test
@@ -29,7 +29,11 @@ public class ServeTest {
         //客户端
         JNDCClient jndcClient = new JNDCClient();
         jndcClient.start("127.0.0.1", port);
-        jndcClient.write(JNDCData.SAY_HI_WORLD);
+        Stream.generate(() -> UUID.randomUUID()).limit(1).forEach(x -> {
+            jndcClient.openChannel();
+        });
+//        jndcClient.testBandwidth(10,TimeUnit.SECONDS);
+
 
         synchronized (currentThread) {
             log.info("阻塞等待中");
