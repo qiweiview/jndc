@@ -34,7 +34,9 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
             byteBuf.writeBytes(bytes);
         } else {
             list.forEach(x -> {
-                byteBuf.writeBytes(x.toTransferFormat());
+                byte[] bytes = x.toTransferFormat();
+                byteBuf.writeBytes(bytes);
+                int dataSize = bytes.length;
             });
         }
 
@@ -54,10 +56,10 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
                 byteBuf.readBytes(bytes);
                 try {
                     ndcMessageProtocol = JNDCEncoded.toEncodedFormat(bytes);//解析定长信息
-                    int dataSize = ByteConversionUtil.byteArrayToInt(ndcMessageProtocol.getDataSize());//获取变长报文长度
-                    if (dataSize == 0) {
-                        //todo 处理空数据包情况
-                        list.add(ndcMessageProtocol);
+                    int size = ByteConversionUtil.byteArrayToInt(ndcMessageProtocol.getDataSize());
+                    if (size == 0) {
+                        //todo 数据长度为0
+                        nextStep(byteBuf, list);
                     }
                 } catch (UnSupportedProtocolException exception) {
                     ByteBuf notice = Unpooled.copiedBuffer("protocol mismatch", StandardCharsets.UTF_8);
@@ -75,21 +77,30 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
                 byte[] bytes = new byte[dataSize];
                 byteBuf.readBytes(bytes);
                 ndcMessageProtocol.setData(bytes);
-                list.add(ndcMessageProtocol);
-                ndcMessageProtocol = null;
-
-                //丢弃已读字节
-                byteBuf.discardReadBytes();
+                nextStep(byteBuf, list);
             } else {
                 //todo 未获取到足够动态长度
             }
         }
     }
 
+    /**
+     * 下一个步骤处理
+     *
+     * @param byteBuf
+     * @param list
+     */
+    private void nextStep(ByteBuf byteBuf, List<Object> list) {
+        list.add(ndcMessageProtocol);
+        ndcMessageProtocol = null;
+
+        //丢弃已读字节
+        byteBuf.discardReadBytes();
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("处理异常", cause);
+        log.error("处理异常:" + cause.getMessage());
         super.exceptionCaught(ctx, cause);
     }
 }

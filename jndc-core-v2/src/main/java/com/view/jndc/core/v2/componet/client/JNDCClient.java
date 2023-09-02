@@ -54,7 +54,13 @@ public class JNDCClient {
         });
     }
 
-    private void write(JNDCData jndcData) {
+
+    /**
+     * 发送包
+     *
+     * @param jndcData
+     */
+    public void write(JNDCData jndcData) {
         customChannel.write(jndcData);
     }
 

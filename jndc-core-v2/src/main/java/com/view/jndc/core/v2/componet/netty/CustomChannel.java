@@ -56,8 +56,6 @@ public class CustomChannel extends ChannelInitializer<Channel> {
 
     public void write(JNDCData jndcData) {
         if (!loadingFinished) {
-
-            Thread currentThread = Thread.currentThread();
             synchronized (this) {
                 try {
                     wait();

@@ -50,7 +50,8 @@ public class JNDCData {
         SAY_HELLO_TO_WORLD.setDestPort(888);
         SAY_HELLO_TO_WORLD.setType(JNDCMessageType.HAPPY_EVERY_DAY.value);
         SAY_HELLO_TO_WORLD.setVersion(BitConstant.PROTOCOL_VERSION);
-        SAY_HELLO_TO_WORLD.setData("HELLO WORLD".getBytes());
+//        SAY_HELLO_TO_WORLD.setData("HELLO WORLD".getBytes());
+        SAY_HELLO_TO_WORLD.setData(BitConstant.EMPTY_BYTE_ARRAY);
     }
 
     /**
