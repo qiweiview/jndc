@@ -1,8 +1,11 @@
 package com.view.jndc.core.v2.componet.client;
 
+import com.view.jndc.core.v2.componet.SpaceManager;
 import com.view.jndc.core.v2.componet.netty.CustomChannel;
 import com.view.jndc.core.v2.enum_value.HandlerType;
 import com.view.jndc.core.v2.model.jndc.JNDCData;
+import com.view.jndc.core.v2.model.json_object.ChannelRegister;
+import com.view.jndc.core.v2.utils.PathUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -10,10 +13,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class JNDCClient {
+public class JNDCClient extends SpaceManager {
 
     private CustomChannel customChannel;
 
@@ -74,7 +78,12 @@ public class JNDCClient {
      * 打开隧道
      */
     public void openChannel() {
+        //构造对象
         JNDCData jndcData = JNDCData.openChannel();
+        ChannelRegister channelRegister = new ChannelRegister();
+        String id = PathUtils.getRuntimeUniqueId(getConfig() + File.separator, PathUtils.INSTANCE_ID);
+        channelRegister.setChannelId(id);
+        jndcData.setData(channelRegister.serialize());
         write(jndcData);
     }
 

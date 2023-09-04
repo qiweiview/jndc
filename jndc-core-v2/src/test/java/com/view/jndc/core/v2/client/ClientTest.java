@@ -4,9 +4,7 @@ import com.view.jndc.core.v2.componet.client.JNDCClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 
 @Slf4j
@@ -24,10 +22,8 @@ public class ClientTest {
         //客户端
         JNDCClient jndcClient = new JNDCClient();
         jndcClient.start("127.0.0.1", port);
-
-        Stream.generate(() -> UUID.randomUUID()).limit(200).forEach(x -> {
-            jndcClient.openChannel();
-        });
+        jndcClient.createWorkDirect();
+        jndcClient.openChannel();
 
 
         synchronized (currentThread) {

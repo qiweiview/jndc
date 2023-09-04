@@ -17,6 +17,7 @@ public class ServeTest {
         //服务端
         JNDCServer jndcServer = new JNDCServer();
         jndcServer.start(port);
+        jndcServer.createWorkDirect();
         Thread currentThread = Thread.currentThread();
 
 

@@ -1,5 +1,6 @@
 package com.view.jndc.core.v2.componet.server;
 
+import com.view.jndc.core.v2.componet.SpaceManager;
 import com.view.jndc.core.v2.componet.netty.CustomChannel;
 import com.view.jndc.core.v2.enum_value.HandlerType;
 import io.netty.bootstrap.ServerBootstrap;
@@ -12,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
  * jndc server core functions
  */
 @Slf4j
-public class JNDCServer {
+public class JNDCServer extends SpaceManager {
     private EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
 
 
