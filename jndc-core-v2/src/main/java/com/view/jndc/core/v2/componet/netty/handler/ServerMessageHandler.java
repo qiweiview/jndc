@@ -2,6 +2,8 @@ package com.view.jndc.core.v2.componet.netty.handler;
 
 import com.view.jndc.core.v2.enum_value.JNDCMessageType;
 import com.view.jndc.core.v2.model.jndc.JNDCData;
+import com.view.jndc.core.v2.model.json_object.ChannelRegister;
+import com.view.jndc.core.v2.model.json_object.JSONSerializable;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +30,11 @@ public class ServerMessageHandler extends WriteableHandler<JNDCData> {
         SocketAddress socketAddress = channelHandlerContext.channel().remoteAddress();
 
         if (JNDCMessageType.CHANNEL_0X10.value == type) {
-            log.info(socketAddress + "申请打开通道");
+
+            byte[] data = jndcData.getData();
+            ChannelRegister deserialize = JSONSerializable.deserialize(data, ChannelRegister.class);
+            log.info(socketAddress + "申请打开通道,使用编号:" + deserialize.getChannelId());
+
         } else if (JNDCMessageType.TEST_BANDWIDTH_0X20.value == type) {
             int dataSize = jndcData.getDataSize();
             log.info(socketAddress + "在进行带宽测速，接收到" + (dataSize / 1024 / 1024) + "mb");

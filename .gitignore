@@ -46,3 +46,6 @@ jndc.iml
 /jndc-server/target/
 /jndc-core-v2/target/
 /jndc-core-v2/jndc-core-v2.iml
+/jndc-core-v2/config/
+/jndc-core-v2/config/instance_id.do_not_remove_this_file
+/jndc-core-v2/download/

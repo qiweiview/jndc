@@ -11,7 +11,7 @@ public class JSONSerializable {
     }
 
 
-    public <T> T deserialize(byte[] data, Class<T> tClass) {
+    public static <T> T deserialize(byte[] data, Class<T> tClass) {
         return JacksonObjectMapper.deserialize(new String(data), tClass);
     }
 }
