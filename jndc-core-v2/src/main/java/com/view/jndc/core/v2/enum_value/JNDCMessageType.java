@@ -19,9 +19,12 @@ public enum JNDCMessageType {
 
     CHANNEL_0X10("通道包", (byte) 0x10),
     CHANNEL_SERVICE_0X11("服务注册包", (byte) 0x11),
+    CHANNEL_SERVICE_0X12("连接建立包", (byte) 0x12),
+    CHANNEL_SERVICE_0X13("数据传输包", (byte) 0x13),
+    CHANNEL_SERVICE_0X14("连接中断包", (byte) 0x14),
 
 
-    TEST_BANDWIDTH_0X20("服务注册包", (byte) 0x20),
+    TEST_BANDWIDTH_0X20("带宽测试包", (byte) 0x20),
 
 
     HAPPY_EVERY_DAY("服务注册包", (byte) 0x7f),

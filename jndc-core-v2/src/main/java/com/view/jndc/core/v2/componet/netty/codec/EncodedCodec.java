@@ -101,6 +101,6 @@ public class EncodedCodec extends ByteToMessageCodec<JNDCEncoded> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("处理异常:" + cause.getMessage());
-        super.exceptionCaught(ctx, cause);
+//        super.exceptionCaught(ctx, cause);
     }
 }

@@ -75,9 +75,34 @@ public class JNDCData {
         return jndcData;
     }
 
-    public static JNDCData openChannel() {
+
+    public static JNDCData createConnectionActiveType() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.CHANNEL_SERVICE_0X12.value);
+        return jndcData;
+    }
+
+    public static JNDCData createConnectionInActiveType() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.CHANNEL_SERVICE_0X14.value);
+        return jndcData;
+    }
+
+    public static JNDCData createDataTransmissionType() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.CHANNEL_SERVICE_0X13.value);
+        return jndcData;
+    }
+
+    public static JNDCData createOpenChannelType() {
         JNDCData jndcData = getThin();
         jndcData.setType(JNDCMessageType.CHANNEL_0X10.value);
+        return jndcData;
+    }
+
+    public static JNDCData createServiceRegisterType() {
+        JNDCData jndcData = getThin();
+        jndcData.setType(JNDCMessageType.CHANNEL_SERVICE_0X11.value);
         return jndcData;
     }
 

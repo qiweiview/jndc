@@ -1,7 +1,7 @@
 package com.view.jndc.core.v2.componet.server;
 
 import com.view.jndc.core.v2.componet.SpaceManager;
-import com.view.jndc.core.v2.componet.netty.CustomChannel;
+import com.view.jndc.core.v2.componet.netty.CustomChannelInitializer;
 import com.view.jndc.core.v2.enum_value.HandlerType;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -21,7 +21,7 @@ public class JNDCServer extends SpaceManager {
         ServerBootstrap b = new ServerBootstrap();
         b.group(eventLoopGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new CustomChannel(HandlerType.SERVER_HANDLER.value));
+                .childHandler(new CustomChannelInitializer(HandlerType.SERVER_HANDLER.value));
 
         b.bind(port).addListener(x -> {
             if (x.isSuccess()) {

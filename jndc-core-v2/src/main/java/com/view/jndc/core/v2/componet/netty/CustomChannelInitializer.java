@@ -14,7 +14,7 @@ import io.netty.channel.ChannelPipeline;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CustomChannel extends ChannelInitializer<Channel> {
+public class CustomChannelInitializer extends ChannelInitializer<Channel> {
 
     private String handlerType;
 
@@ -23,7 +23,7 @@ public class CustomChannel extends ChannelInitializer<Channel> {
     private volatile boolean loadingFinished = false;
 
 
-    public CustomChannel(String handlerType) {
+    public CustomChannelInitializer(String handlerType) {
         this.handlerType = handlerType;
     }
 

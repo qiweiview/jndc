@@ -23,7 +23,7 @@ public class ClientTest {
         JNDCClient jndcClient = new JNDCClient();
         jndcClient.start("127.0.0.1", port);
         jndcClient.createWorkDirect();
-        jndcClient.openChannel();
+        jndcClient.registerService("nacos", "192.168.0.102", 8848);
 
 
         synchronized (currentThread) {

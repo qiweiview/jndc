@@ -1,10 +1,11 @@
 package com.view.jndc.core.v2.componet.client;
 
 import com.view.jndc.core.v2.componet.SpaceManager;
-import com.view.jndc.core.v2.componet.netty.CustomChannel;
+import com.view.jndc.core.v2.componet.netty.CustomChannelInitializer;
 import com.view.jndc.core.v2.enum_value.HandlerType;
 import com.view.jndc.core.v2.model.jndc.JNDCData;
 import com.view.jndc.core.v2.model.json_object.ChannelRegister;
+import com.view.jndc.core.v2.model.json_object.ServiceRegister;
 import com.view.jndc.core.v2.utils.PathUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -19,7 +20,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JNDCClient extends SpaceManager {
 
-    private CustomChannel customChannel;
+    //通道
+    private volatile ChannelRegister channelRegister;
+
+
+    private CustomChannelInitializer customChannelInitializer;
 
     private String host;
 
@@ -35,13 +40,13 @@ public class JNDCClient extends SpaceManager {
         Bootstrap b = new Bootstrap();
 
 
-        customChannel = new CustomChannel(HandlerType.CLIENT_HANDLER.value);
+        customChannelInitializer = new CustomChannelInitializer(HandlerType.CLIENT_HANDLER.value);
 
 
         b.group(new NioEventLoopGroup())
                 .channel(NioSocketChannel.class)//
                 .option(ChannelOption.SO_KEEPALIVE, true)//tcp keep alive
-                .handler(customChannel);
+                .handler(customChannelInitializer);
 
         ChannelFuture connect = b.connect(host, port);
         connect.addListeners(x -> {
@@ -65,26 +70,47 @@ public class JNDCClient extends SpaceManager {
      * @param jndcData
      */
     public void write(JNDCData jndcData) {
-        customChannel.write(jndcData);
+        customChannelInitializer.write(jndcData);
     }
 
     /**
      * 注册服务
      */
     public void registerService(String serviceName, String descHost, int descPort) {
+        openChannel();
+
+        JNDCData jndcData = JNDCData.createServiceRegisterType();
+        String serviceId = ServiceRegister.generateId(serviceName, descHost, port);
+        ServiceRegister serviceRegister = channelRegister.getService(serviceId);
+        if (serviceRegister == null) {
+            serviceRegister = ServiceRegister.of(serviceName, descHost, descPort);
+            serviceRegister.setSourceChannelId(channelRegister.getChannelId());
+            channelRegister.bindServiceOnClient(serviceId, serviceRegister);
+        }
+
+
+        jndcData.setData(serviceRegister.serialize());
+        write(jndcData);
     }
 
     /**
      * 打开隧道
      */
-    public void openChannel() {
+    private void openChannel() {
         //构造对象
-        JNDCData jndcData = JNDCData.openChannel();
-        ChannelRegister channelRegister = new ChannelRegister();
-        String id = PathUtils.getRuntimeUniqueId(getConfig() + File.separator, PathUtils.INSTANCE_ID);
-        channelRegister.setChannelId(id);
-        jndcData.setData(channelRegister.serialize());
-        write(jndcData);
+        if (channelRegister == null) {
+            synchronized (this) {
+                if (channelRegister == null) {
+                    channelRegister = new ChannelRegister();
+                    String id = PathUtils.getRuntimeUniqueId(getConfig() + File.separator, PathUtils.INSTANCE_ID);
+                    channelRegister.setChannelId(id);
+                    JNDCData jndcData = JNDCData.createOpenChannelType();
+                    jndcData.setData(channelRegister.serialize());
+                    write(jndcData);
+                }
+            }
+        }
+
     }
 
     public void testBandwidth(int i, TimeUnit seconds) {
