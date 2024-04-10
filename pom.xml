@@ -21,6 +21,7 @@
     </modules>
 
     <properties>
+        <netty.version>4.1.108.Final</netty.version>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
         <java.version>21</java.version>
@@ -68,8 +69,9 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.1.108.Final</version>
+                <version>${netty.version}</version>
             </dependency>
+
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
