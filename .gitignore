@@ -35,3 +35,5 @@ build/
 /mvnw.cmd
 /mvnw
 /jndc_v2-frontend/node_modules/
+/jndc-core/logs/
+/logs/
