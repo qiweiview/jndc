@@ -21,10 +21,6 @@ public class JNDCServer {
 
     private Integer maxContentLength = 10 * 1024 * 1024;
 
-
-
-
-
     public void start(int port) {
         //http2服务器
         EventLoopGroup bossGroup = new NioEventLoopGroup();
