@@ -10,19 +10,22 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.ssl.SslContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
-public class JNDCServer {
+public class HttpServer {
+    private String websocketPath = "/websocket";
+
     private SslContext sslContext;
 
     private Integer maxContentLength = 10 * 1024 * 1024;
 
     public void start(int port) {
-        //http2服务器
+
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -46,17 +49,22 @@ public class JNDCServer {
                             // 添加HttpObjectAggregator，将HTTP消息的多个部分聚合成完整的HTTP消息
                             pipeline.addLast("aggregator", new HttpObjectAggregator(maxContentLength));
 
+                            // 添加支持WebSocket的Handler
+                            pipeline.addLast(new WebSocketServerProtocolHandler(websocketPath));
+
+
                             // 添加自定义的HttpHandler，处理业务逻辑
-                            pipeline.addLast(new CustomerHttpHandler());
+                            pipeline.addLast(new CustomerWebsocketServerHandler());
+
+                            // 添加自定义的HttpHandler，处理业务逻辑
+                            pipeline.addLast(new CustomerHttpServerHandler());
 
                         }
                     });
 
-            log.info("起动服务" + sslContext == null ? "http" : "https" + "://127.0.0.1:" + port);
+            log.info("起动服务" + (sslContext == null ? "http" : "https") + "://127.0.0.1:" + port);
             ChannelFuture f = b.bind(port).sync();
             f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

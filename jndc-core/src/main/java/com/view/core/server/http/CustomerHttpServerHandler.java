@@ -17,7 +17,8 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class CustomerHttpHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class CustomerHttpServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
