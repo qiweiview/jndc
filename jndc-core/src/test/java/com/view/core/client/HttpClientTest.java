@@ -4,7 +4,7 @@ import com.view.core.client.http.HttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ClientTest {
+public class HttpClientTest {
 
     private HttpClient httpClient;
 

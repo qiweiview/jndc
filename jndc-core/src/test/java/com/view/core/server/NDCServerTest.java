@@ -1,22 +1,20 @@
 package com.view.core.server;
 
-import com.view.core.server.http.HttpServer;
+import com.view.core.server.ndc.NDCServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ServerTest {
+public class NDCServerTest {
 
-    private HttpServer server;
+    private NDCServer server;
 
     @BeforeEach
     public void init() {
-        server = new HttpServer();
+        server = new NDCServer();
     }
 
     @Test
     public void runServer() {
-
-//        server.setSslContext(SSLContextGenerator.generateSslContextAuto());
         server.start(10886);
     }
 }
