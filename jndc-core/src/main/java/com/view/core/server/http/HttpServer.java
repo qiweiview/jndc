@@ -40,24 +40,24 @@ public class HttpServer {
 
                             //添加ssl支持
                             if (sslContext != null) {
-                                pipeline.addLast("ssl", sslContext.newHandler(ch.alloc()));
+                                pipeline.addLast(sslContext.newHandler(ch.alloc()));
                             }
 
                             // 添加HttpServerCodec用于处理HTTP请求
-                            pipeline.addLast("codec", new HttpServerCodec());
+                            pipeline.addLast(new HttpServerCodec());
 
                             // 添加HttpObjectAggregator，将HTTP消息的多个部分聚合成完整的HTTP消息
-                            pipeline.addLast("aggregator", new HttpObjectAggregator(maxContentLength));
+                            pipeline.addLast(new HttpObjectAggregator(maxContentLength));
 
                             // 添加支持WebSocket的Handler
                             pipeline.addLast(new WebSocketServerProtocolHandler(websocketPath));
 
-
-                            // 添加自定义的HttpHandler，处理业务逻辑
+                            //处理websocket消息
                             pipeline.addLast(new CustomerWebsocketServerHandler());
 
-                            // 添加自定义的HttpHandler，处理业务逻辑
+                            //处理http消息
                             pipeline.addLast(new CustomerHttpServerHandler());
+
 
                         }
                     });

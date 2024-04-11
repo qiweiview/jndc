@@ -18,7 +18,7 @@ public class CustomerHttpClientHandler extends SimpleChannelInboundHandler<FullH
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/test");
+        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, activePath);
         //发送请求
         ctx.writeAndFlush(request);
     }
@@ -35,5 +35,11 @@ public class CustomerHttpClientHandler extends SimpleChannelInboundHandler<FullH
         log.info("响应状态：" + status);
         log.info("响应头：" + headers);
         log.info("响应体：" + response);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("捕获异常：", cause);
+        ctx.close();
     }
 }

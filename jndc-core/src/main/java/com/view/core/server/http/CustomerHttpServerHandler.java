@@ -158,6 +158,7 @@ public class CustomerHttpServerHandler extends SimpleChannelInboundHandler<FullH
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("异常：", cause);
+        log.error("捕获异常：", cause);
+        ctx.close();
     }
 }

@@ -10,14 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CustomerWebsocketClientHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        //发送心跳
-//        ctx.channel().writeAndFlush(new PingWebSocketFrame());
-    }
-
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame msg) throws Exception {
         if (msg instanceof TextWebSocketFrame) {
@@ -37,5 +29,11 @@ public class CustomerWebsocketClientHandler extends SimpleChannelInboundHandler<
         } else {
             log.error("不支持的消息类型");
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("捕获异常：", cause);
+        ctx.close();
     }
 }
