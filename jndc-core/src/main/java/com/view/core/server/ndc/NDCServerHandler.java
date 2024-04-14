@@ -8,9 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
+    private ChannelHandlerContext ctx;
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("有客户端连接：{}", ctx.channel().remoteAddress());
+        this.ctx = ctx;
+
     }
 
     @Override
