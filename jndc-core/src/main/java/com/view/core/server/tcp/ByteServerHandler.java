@@ -13,8 +13,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     private String clientId;
 
 
-
-
     /**
      * 客户端连接
      *
