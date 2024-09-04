@@ -15,7 +15,7 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NDCPacket msg) throws Exception {
-        log.info("收到消息：{}", msg);
+        log.info("server收到消息：{}", msg);
     }
 
 

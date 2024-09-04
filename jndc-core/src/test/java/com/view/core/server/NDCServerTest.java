@@ -6,15 +6,15 @@ import org.junit.jupiter.api.Test;
 
 public class NDCServerTest {
 
-    private NDCServer server;
+    private NDCServer ndcServer;
 
     @BeforeEach
     public void init() {
-        server = new NDCServer();
+        ndcServer = new NDCServer();
     }
 
     @Test
     public void runServer() {
-        server.start(10886);
+        ndcServer.start(10886);
     }
 }

@@ -32,9 +32,9 @@ public class CustomerHttpClientHandler extends SimpleChannelInboundHandler<FullH
         //获取响应体
         ByteBuf content = fullHttpResponse.content();
         String response = content.toString(CharsetUtil.UTF_8);
-        log.info("响应状态：" + status);
-        log.info("响应头：" + headers);
-        log.info("响应体：" + response);
+        log.info("响应状态：{}", status);
+        log.info("响应头：{}", headers);
+        log.info("响应体：{}", response);
     }
 
     @Override

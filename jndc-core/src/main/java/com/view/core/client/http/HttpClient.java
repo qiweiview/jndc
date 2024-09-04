@@ -29,7 +29,7 @@ public class HttpClient {
     public void start(String urlString) {
         int port;
         String host;
-        String path = "/";
+        String path;
         boolean useSsl = false;
         boolean isWebSocket = false;
 
@@ -78,16 +78,16 @@ public class HttpClient {
         try {
 
 
-            Bootstrap b = new Bootstrap();
-            b.group(workerGroup);
-            b.channel(NioSocketChannel.class);
-            b.option(ChannelOption.SO_KEEPALIVE, true);
+            Bootstrap clientBootstrap = new Bootstrap();
+            clientBootstrap.group(workerGroup);
+            clientBootstrap.channel(NioSocketChannel.class);
+            clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 
             boolean finalUseSsl = useSsl;
             String finalPath = path;
 
             boolean finalIsWebSocket = isWebSocket;
-            b.handler(new ChannelInitializer<SocketChannel>() {
+            clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
                     ChannelPipeline pipeline = ch.pipeline();
@@ -108,7 +108,7 @@ public class HttpClient {
                     if (finalIsWebSocket) {
                         //todo 处理websocket消息
 
-                        WebSocketClientProtocolHandler handler = new WebSocketClientProtocolHandler(
+                        WebSocketClientProtocolHandler wsHandler = new WebSocketClientProtocolHandler(
                                 WebSocketClientHandshakerFactory.newHandshaker(
                                         new URI(urlString),
                                         WebSocketVersion.V13,
@@ -119,7 +119,7 @@ public class HttpClient {
 
 
                         // 添加WebSocket协议处理器
-                        pipeline.addLast(handler);
+                        pipeline.addLast(wsHandler);
 
                         // 添加处理器处理FullHttpResponse
                         pipeline.addLast(new CustomerWebsocketClientHandler());
@@ -134,7 +134,7 @@ public class HttpClient {
             });
 
             // Start the client.
-            ChannelFuture f = b.connect(host, port).sync(); // (5)
+            ChannelFuture f = clientBootstrap.connect(host, port).sync(); // (5)
 
             // Wait until the connection is closed.
             f.channel().closeFuture().sync();

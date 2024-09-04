@@ -14,18 +14,18 @@ public class CustomerWebsocketClientHandler extends SimpleChannelInboundHandler<
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame msg) throws Exception {
         if (msg instanceof TextWebSocketFrame) {
             TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
-            log.info("收到消息：" + textWebSocketFrame.text());
+            log.info("ws client收到TextWebSocketFrame消息：" + textWebSocketFrame.text());
         } else if (msg instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryWebSocketFrame = (BinaryWebSocketFrame) msg;
             ByteBuf content = binaryWebSocketFrame.content();
-            log.info("收到消息：" + content.toString(CharsetUtil.UTF_8));
+            log.info("ws client收到BinaryWebSocketFrame消息：" + content.toString(CharsetUtil.UTF_8));
         } else if (msg instanceof PongWebSocketFrame) {
-            log.info("收到pong消息");
+            log.info("ws client收到pong消息");
         } else if (msg instanceof CloseWebSocketFrame) {
-            log.info("收到关闭消息");
+            log.info("ws client收到关闭消息");
             ctx.close();
         } else if (msg instanceof PingWebSocketFrame) {
-            log.info("收到ping消息");
+            log.info("ws client收到ping消息");
         } else {
             log.error("不支持的消息类型");
         }

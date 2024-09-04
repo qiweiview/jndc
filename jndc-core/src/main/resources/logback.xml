@@ -2,12 +2,12 @@
 <configuration>
 
     <!-- Define the LOG_PATH property -->
-    <property name="LOG_PATH" value="${user.dir}/logs"/>
+    <property name="LOG_PATH" value="/data/app/jndc-core"/>
 
     <!-- Console Appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] %logger - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 

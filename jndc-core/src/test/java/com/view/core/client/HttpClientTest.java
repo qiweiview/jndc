@@ -14,13 +14,22 @@ public class HttpClientTest {
     }
 
     @Test
-    public void httpRequest() {
-        httpClient.start("http://qw607.com");
+    public void http() {
+        httpClient.start("http://127.0.0.1");
+    }
+
+    public void https() {
+        httpClient.start("https://127.0.0.1");
     }
 
     @Test
-    public void websocketRequest() {
-        httpClient.start("ws://127.0.0.1:10886/websocket");
+    public void ws() {
+        httpClient.start("ws://127.0.0.1/websocket");
+    }
+
+    @Test
+    public void wss() {
+        httpClient.start("wss://127.0.0.1/websocket");
     }
 
 

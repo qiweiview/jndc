@@ -6,19 +6,15 @@ import org.junit.jupiter.api.Test;
 
 public class NDCClientTest {
 
-    private NDCClient client;
+    private NDCClient ndcClient;
 
     @BeforeEach
     public void init() {
-        client = new NDCClient();
+        ndcClient = new NDCClient();
     }
 
     @Test
     public void runClient() {
-
-
-        client.start("127.0.0.1", 10886);
-
-
+        ndcClient.start("127.0.0.1", 10886);
     }
 }

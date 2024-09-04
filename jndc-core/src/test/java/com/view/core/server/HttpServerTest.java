@@ -1,6 +1,7 @@
 package com.view.core.server;
 
 import com.view.core.server.http.HttpServer;
+import com.view.core.utils.SSLContextGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +15,14 @@ public class HttpServerTest {
     }
 
     @Test
-    public void runServer() {
+    public void http() {
+        server.start(80);
+    }
 
-//        server.setSslContext(SSLContextGenerator.generateSslContextAuto());
-        server.start(10886);
+
+    @Test
+    public void https() {
+        server.setSslContext(SSLContextGenerator.generateSslContextAuto());
+        server.start(443);
     }
 }
