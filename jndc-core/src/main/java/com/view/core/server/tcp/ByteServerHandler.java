@@ -7,15 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
-    private VirtualServer virtualServer;
+
     private ChannelHandlerContext ctx;
 
     private String clientId;
-
-    public ByteServerHandler(VirtualServer virtualServer) {
-        this.virtualServer = virtualServer;
-
-    }
 
 
     /**
@@ -33,16 +28,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
         log.info("客户端唯一凭证:{}", clientId);
 
-        if (this.virtualServer == null) {
-            log.error("virtualServer is null");
-        } else {
-            this.virtualServer.setClientId(clientId);
 
-            this.virtualServer.setDataConsumer((x) -> {
-                ctx.writeAndFlush(x);
-            });
-            this.virtualServer.channelActive();
-        }
 
 
         super.channelActive(ctx);
@@ -56,21 +42,13 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (this.virtualServer == null) {
-            log.error("virtualServer is null");
-        } else {
-            this.virtualServer.channelInactive();
-        }
+
         super.channelInactive(ctx);
     }
 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-        if (this.virtualServer == null) {
-            log.error("virtualServer is null");
-        } else {
-            this.virtualServer.channelRead0(msg);
-        }
+
     }
 }

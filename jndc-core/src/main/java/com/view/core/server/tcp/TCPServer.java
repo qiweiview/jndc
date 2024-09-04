@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 @Slf4j
 public class TCPServer {
-    private VirtualServer virtualServer;
+
 
     public void start(int port) {
 
@@ -35,7 +35,7 @@ public class TCPServer {
 
                             pipeline.addLast(new ByteArrayDecoder());
                             pipeline.addLast(new ByteArrayEncoder());
-                            pipeline.addLast(new ByteServerHandler(virtualServer));
+                            pipeline.addLast(new ByteServerHandler());
 
 
                         }

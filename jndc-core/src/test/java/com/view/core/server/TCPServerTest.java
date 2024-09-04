@@ -1,7 +1,6 @@
 package com.view.core.server;
 
 import com.view.core.client.tcp.TCPClient;
-import com.view.core.server.tcp.LocalProxyVirtualServer;
 import com.view.core.server.tcp.TCPServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,9 +25,6 @@ public class TCPServerTest {
         tcpClient.start("qw607.com", 80);
 
 
-        LocalProxyVirtualServer virtualServer = new LocalProxyVirtualServer();
-        virtualServer.setTcpClient(tcpClient);
-        server.setVirtualServer(virtualServer);
         server.start(888);
     }
 }

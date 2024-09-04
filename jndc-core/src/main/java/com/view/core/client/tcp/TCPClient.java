@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TCPClient {
     private ByteClientHandler byteClientHandler;
-    private VirtualClient virtualClient;
+
 
     public void start(String host, int port) {
 
@@ -36,7 +36,7 @@ public class TCPClient {
                     pipeline.addLast(new ByteArrayEncoder());
 
                     byteClientHandler = new ByteClientHandler();
-                    byteClientHandler.setVirtualClient(virtualClient);
+
                     pipeline.addLast(byteClientHandler);
 
                 }
