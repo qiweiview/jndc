@@ -1,4 +1,4 @@
-package com.view.core.server;
+package com.view.core.ndc;
 
 import com.view.core.server.ndc.NDCServer;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package com.view.core.server;
+package com.view.core.http;
 
 import com.view.core.server.http.HttpServer;
 import com.view.core.utils.SSLContextGenerator;

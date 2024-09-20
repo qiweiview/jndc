@@ -1,4 +1,4 @@
-package com.view.core.client;
+package com.view.core.http;
 
 import com.view.core.client.http.HttpClient;
 import org.junit.jupiter.api.BeforeEach;

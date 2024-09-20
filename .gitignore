@@ -38,3 +38,7 @@ build/
 /jndc-core/logs/
 /**/logs/
 /**/*.iml
+
+
+### cusotmized
+/**/instance_id.do_not_remove_this_file

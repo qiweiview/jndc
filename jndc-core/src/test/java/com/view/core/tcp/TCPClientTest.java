@@ -1,4 +1,4 @@
-package com.view.core.client;
+package com.view.core.tcp;
 
 import com.view.core.client.tcp.TCPClient;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package com.view.core.server;
+package com.view.core.tcp;
 
 import com.view.core.client.tcp.TCPClient;
 import com.view.core.server.tcp.TCPServer;
