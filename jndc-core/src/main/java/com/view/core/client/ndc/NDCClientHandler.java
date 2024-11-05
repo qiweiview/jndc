@@ -20,7 +20,7 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.debug("连接成功：{}", ctx.channel().remoteAddress());
+        log.info("连接成功：{}", ctx.channel().remoteAddress());
         active.accept(ctx);
     }
 

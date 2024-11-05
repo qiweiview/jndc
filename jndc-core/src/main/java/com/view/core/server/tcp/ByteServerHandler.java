@@ -49,6 +49,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-
+        log.info("接收到客户端消息：{}", new String(msg));
     }
 }
