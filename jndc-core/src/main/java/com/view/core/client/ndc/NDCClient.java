@@ -81,7 +81,6 @@ public class NDCClient {
                     //发送缓冲区报文
                     tobeSendPackage.forEach(tobeSend -> {
                         VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
-                        ctx.writeAndFlush(tobeSend);
                         writePackage(tobeSend, () -> {
                             ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
                         });
@@ -91,19 +90,21 @@ public class NDCClient {
 
                     TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                     log.info("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
-                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(tcpDataTransport.getClientServiceId());
+                    String clientServiceId = tcpDataTransport.getClientServiceId();
+                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
                     if (virtualTCPService == null) {
-                        log.warn("未找到对应的服务");
+                        log.warn("未找到对应的服务{}", clientServiceId);
                     } else {
                         virtualTCPService.createClientForRemoteSession(tcpDataTransport);
                     }
 
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                     TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-                    log.debug("收到远程写入数据{}", new String(tcpDataTransport.getData()));
-                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(tcpDataTransport.getClientServiceId());
+                    log.info("收到远程写入数据{}", new String(tcpDataTransport.getData()));
+                    String clientServiceId = tcpDataTransport.getClientServiceId();
+                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
                     if (virtualTCPService == null) {
-                        log.warn("未找到对应的服务");
+                        log.warn("未找到对应的服务{}", clientServiceId);
                     } else {
                         virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
                     }
@@ -176,14 +177,7 @@ public class NDCClient {
     }
 
     public void registerService(VirtualTCPService virtualTCPService) {
-        if (serverContext == null) {
-            tobeSendPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
-        } else {
-            writePackage(NDCPacketBuilder.registerServicePacket(virtualTCPService), () -> {
-                ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
-            });
-        }
-
+        tobeSendPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
     }
 
     public void writePackage(NDCPacket ndcPacket) {
@@ -194,17 +188,8 @@ public class NDCClient {
     }
 
     public void writePackage(NDCPacket ndcPacket, Runnable callback) {
-        String s = new String(ndcPacket.getData());
-        log.info("发送数据包至通道：,数据大小{}", ndcPacket.getData().length);
-
-        serverContext.writeAndFlush(ndcPacket).addListener(future -> {
-            if (future.isSuccess()) {
-                callback.run();
-                log.info("发送数据包至通道成功{}", s);
-            } else {
-                log.error("发送数据包至通道失败");
-            }
-        });
+        serverContext.writeAndFlush(ndcPacket);
+        callback.run();
     }
 
 

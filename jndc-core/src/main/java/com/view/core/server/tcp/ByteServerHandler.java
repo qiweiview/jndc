@@ -27,7 +27,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("收到客户端channelActive消息：{}");
         appServerSessionId = ctx.channel().id().asLongText();
         //注册会话
         tcpServer.registerSession(appServerSessionId, ctx);
@@ -75,7 +74,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-        log.info("收到客户端channelRead0消息：{}", msg);
 
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();

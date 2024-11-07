@@ -56,9 +56,13 @@ public class VirtualTCPService implements Serializable {
     }
 
     public void receiveDataFromRemoteSession(TCPDataTransport tcpDataTransport) {
-        ControllableClient controllableClient = controllableClientMap.get(tcpDataTransport.getAppServerSessionId());
-        if (controllableClient != null) {
+        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
+        ControllableClient controllableClient = controllableClientMap.get(appServerSessionId);
+        if (controllableClient == null) {
             //todo 接收数据
+            log.warn("未找到客户端，数据丢弃：{}", appServerSessionId);
+        } else {
+            controllableClient.receiveData(tcpDataTransport.getData());
         }
 
     }

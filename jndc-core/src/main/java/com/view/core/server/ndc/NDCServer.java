@@ -51,7 +51,7 @@ public class NDCServer {
             ChannelRead0CallBack<NDCPacket> readCallback = (ctx, msg) -> {
                 //todo read回调
 
-                log.info("收到消息：{}", msg);
+
 
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
@@ -182,7 +182,7 @@ public class NDCServer {
         ChannelHandlerContext channelHandlerContext = ndcClientSessionMap.get(ndcClientId);
         if (channelHandlerContext != null) {
             channelHandlerContext.writeAndFlush(ndcPacket);
-            log.info("向客户端{}发送消息", ndcClientId);
+            log.info("向NDC客户端{}发送消息", new String(ndcPacket.getData()));
         }
     }
 }
