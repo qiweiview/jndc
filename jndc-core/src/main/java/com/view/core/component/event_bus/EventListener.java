@@ -3,6 +3,7 @@ package com.view.core.component.event_bus;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.view.core.component.GlobalBeanContext;
+import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.model.event_bus.ChannelOperation;
 import com.view.core.model.event_bus.ServiceOperation;
@@ -27,10 +28,16 @@ public class EventListener {
     @AllowConcurrentEvents
     @Subscribe
     public void acceptChannelOperation(ChannelOperation channelOperation) {
-        String clientId = channelOperation.getClientId();
+        String ndcClientId = channelOperation.getNdcClientId();
         if (channelOperation.isInactive()) {
-            GlobalBeanContext.APP_CENTER.withdrawRelationalService(clientId);
+            GlobalBeanContext.APP_CENTER.withdrawRelationalService(ndcClientId);
         }
+    }
+
+    @AllowConcurrentEvents
+    @Subscribe
+    public void acceptChannelOperation(TCPDataTransport tcpDataTransport) {
+        GlobalBeanContext.APP_CENTER.receiveData(tcpDataTransport);
     }
 
 

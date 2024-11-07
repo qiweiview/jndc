@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public enum ServiceOperationTypes {
+    DATA("数据", "DATA"),
     DEPLOY("部署", "DEPLOY"),
     WITHDRAW("撤销", "WITHDRAW");
 

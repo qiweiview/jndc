@@ -1,6 +1,5 @@
 package com.view.core.tcp;
 
-import com.view.core.client.tcp.TCPClient;
 import com.view.core.server.tcp.TCPServer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,12 +35,5 @@ public class TCPServerTest {
         });
     }
 
-    @Test
-    public void runLocalProxyServer() {
-        TCPClient tcpClient = new TCPClient();
-        tcpClient.start("qw607.com", 80);
 
-
-        server.start(888);
-    }
 }

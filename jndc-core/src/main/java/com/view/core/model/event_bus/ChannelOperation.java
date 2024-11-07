@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChannelOperation {
 
-    private String clientId;
+    private String ndcClientId;
 
     private String operationType;
 
@@ -16,7 +16,7 @@ public class ChannelOperation {
     public static ChannelOperation ofInactive(String clientId) {
         ChannelOperation serviceOperation = new ChannelOperation();
         serviceOperation.setOperationType(ChannelOperationTypes.INACTIVE.value);
-        serviceOperation.setClientId(clientId);
+        serviceOperation.setNdcClientId(clientId);
         return serviceOperation;
     }
 

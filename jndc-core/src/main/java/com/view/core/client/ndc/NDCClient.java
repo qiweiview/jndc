@@ -1,5 +1,6 @@
 package com.view.core.client.ndc;
 
+import com.view.core.component.GlobalBeanContext;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
@@ -26,12 +27,12 @@ import java.util.concurrent.TimeUnit;
 public class NDCClient {
     private final String ndcClientId = RuntimeUtils.getRuntimeUniqueId();
     private List<NDCPacket> tobeSendPackage = new ArrayList<>();
-    private volatile ChannelHandlerContext serverContext;
+    private ChannelHandlerContext serverContext;
     private NDCClientConfiguration ndcClientConfiguration;
     private int retryTimes = 0;
 
 
-    private Map<String, ChannelHandlerContext> ndcClientSessionMap = new HashMap<>();
+    private Map<String, VirtualTCPService> ndcClientSessionMap = new HashMap<>();
 
 
     public void start(NDCClientConfiguration ndcClientConfiguration) {
@@ -79,14 +80,33 @@ public class NDCClient {
                     log.info("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
                     //发送缓冲区报文
                     tobeSendPackage.forEach(tobeSend -> {
+                        VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
                         ctx.writeAndFlush(tobeSend);
+                        writePackage(tobeSend, () -> {
+                            ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+                        });
                     });
                 } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
+                    //todo 远程连接激活
+
                     TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                     log.info("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
+                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(tcpDataTransport.getClientServiceId());
+                    if (virtualTCPService == null) {
+                        log.warn("未找到对应的服务");
+                    } else {
+                        virtualTCPService.createClientForRemoteSession(tcpDataTransport);
+                    }
+
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                     TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-                    log.info("收到远程写入数据{}", new String(tcpDataTransport.getData()));
+                    log.debug("收到远程写入数据{}", new String(tcpDataTransport.getData()));
+                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(tcpDataTransport.getClientServiceId());
+                    if (virtualTCPService == null) {
+                        log.warn("未找到对应的服务");
+                    } else {
+                        virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
+                    }
                 } else {
                     log.warn("未知的数据包类型:{}", ndcPacket.getType());
                 }
@@ -98,10 +118,10 @@ public class NDCClient {
             };
 
 
-            Bootstrap b = new Bootstrap();
-            b.group(workerGroup);
-            b.channel(NioSocketChannel.class);
-            b.option(ChannelOption.SO_KEEPALIVE, true);
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(workerGroup);
+            bootstrap.channel(NioSocketChannel.class);
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 
             //创建处理器
             ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
@@ -122,17 +142,24 @@ public class NDCClient {
             };
 
             //设置处理器
-            b.handler(channelInitializer);
+            bootstrap.handler(channelInitializer);
+
+            String host = ndcClientConfiguration.getHost();
+            int port = ndcClientConfiguration.getPort();
 
             // Start the client.
-            ChannelFuture f = b
-                    .connect(ndcClientConfiguration.getHost(), ndcClientConfiguration.getPort())
-                    .sync();//同步等待连接成功
-
-            // Wait until the connection is closed.
-            f.channel().closeFuture().sync();
+            bootstrap
+                    .connect(host, port)
+                    .addListener(future -> {
+                        if (future.isSuccess()) {
+                            GlobalBeanContext.NDC_CLIENT = this;
+                            log.info("NDC客户端启动成功：{}:{}", host, port);
+                        } else {
+                            log.error("NDC客户端启动失败：{}:{}", host, port);
+                        }
+                    }).channel().closeFuture().sync();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("NDC客户端启动失败", e);
         } finally {
             workerGroup.shutdownGracefully();
             int timeoutSecond = ndcClientConfiguration.getTimeoutSecond();
@@ -152,9 +179,32 @@ public class NDCClient {
         if (serverContext == null) {
             tobeSendPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
         } else {
-            serverContext.writeAndFlush(NDCPacketBuilder.registerServicePacket(virtualTCPService));
+            writePackage(NDCPacketBuilder.registerServicePacket(virtualTCPService), () -> {
+                ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+            });
         }
 
+    }
+
+    public void writePackage(NDCPacket ndcPacket) {
+        writePackage(ndcPacket, () -> {
+            //todo do nothing
+
+        });
+    }
+
+    public void writePackage(NDCPacket ndcPacket, Runnable callback) {
+        String s = new String(ndcPacket.getData());
+        log.info("发送数据包至通道：,数据大小{}", ndcPacket.getData().length);
+
+        serverContext.writeAndFlush(ndcPacket).addListener(future -> {
+            if (future.isSuccess()) {
+                callback.run();
+                log.info("发送数据包至通道成功{}", s);
+            } else {
+                log.error("发送数据包至通道失败");
+            }
+        });
     }
 
 

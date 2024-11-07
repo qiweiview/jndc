@@ -41,4 +41,6 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         inactive.accept(ctx);
     }
+
+
 }

@@ -2,6 +2,7 @@ package com.view.core.server.ndc;
 
 import com.view.core.component.GlobalBeanContext;
 import com.view.core.model.ChannelOpen;
+import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.model.event_bus.ChannelOperation;
 import com.view.core.model.event_bus.ServiceOperation;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class NDCServer {
     private final String ndcServerId = RuntimeUtils.getRuntimeUniqueId();
 
+    //key:ndcClientId
     private Map<String, ChannelHandlerContext> ndcClientSessionMap = new HashMap<>();
 
     public static final String CLIENT_ID = "CLIENT_ID";
@@ -48,6 +50,8 @@ public class NDCServer {
             //read回调
             ChannelRead0CallBack<NDCPacket> readCallback = (ctx, msg) -> {
                 //todo read回调
+
+                log.info("收到消息：{}", msg);
 
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
@@ -76,6 +80,12 @@ public class NDCServer {
                     serviceOperation.setNdcServerId(ndcServerId);
                     //异步处理
                     GlobalBeanContext.EVENT_BUS.post(serviceOperation);
+                } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
+                    log.info("数据类型消息：{}", msg);
+                    TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+                    GlobalBeanContext.EVENT_BUS.post(tcpDataTransport);
+                } else if (NDCPacketHelper.isChannelHeartBeat(ndcPacket)) {
+                    log.debug("心跳消息：{}", msg);
                 } else {
                     log.warn("未知的数据包类型:{}", ndcPacket.getType());
                 }
@@ -172,6 +182,7 @@ public class NDCServer {
         ChannelHandlerContext channelHandlerContext = ndcClientSessionMap.get(ndcClientId);
         if (channelHandlerContext != null) {
             channelHandlerContext.writeAndFlush(ndcPacket);
+            log.info("向客户端{}发送消息", ndcClientId);
         }
     }
 }

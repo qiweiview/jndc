@@ -32,12 +32,16 @@ public class NDCClientTest {
 
             log.info("---准备发起注册---");
             VirtualTCPService virtualTCPService = new VirtualTCPService();
-            virtualTCPService.setServiceId(UniqueId.generate());
+            String generate = UniqueId.generate();
+            log.info("生成的服务id为：{}", generate);
+            virtualTCPService.setServiceId(generate);
             virtualTCPService.setDescription("测试服务");
             virtualTCPService.setHost("127.0.0.1");
-            virtualTCPService.setPort(3306);
+            virtualTCPService.setPort(1234);
             virtualTCPService.setExpectPort(3307);
             ndcClient.registerService(virtualTCPService);
+
+
         }).start();
 
         NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();

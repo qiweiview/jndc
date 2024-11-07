@@ -16,7 +16,7 @@ public class TCPClientTest {
     @Test
     public void runClient() {
         new Thread(() -> {
-            client.write("hello im client".getBytes());
+            client.receiveData("hello im client".getBytes());
         }).start();
 
         client.start("127.0.0.1", 888);

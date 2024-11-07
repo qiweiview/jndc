@@ -1,5 +1,6 @@
 package com.view.core.component.app_center;
 
+import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.server.http.HttpServer;
 import com.view.core.server.tcp.TCPServer;
@@ -12,7 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class AppCenter {
+
+    //key:serviceId
     private Map<String, HttpServer> httpServerMap = new ConcurrentHashMap<>();
+
+    //key:serviceId
     private Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
 
 
@@ -53,7 +58,9 @@ public class AppCenter {
             tcpServer.setNdcClientId(ndcClientId);
             tcpServer.setClientServiceId(virtualTCPService.getServiceId());
             tcpServer.start(expectPort, () -> {
-                tcpServerMap.put(virtualTCPService.getServiceId(), tcpServer);
+                String serviceId1 = virtualTCPService.getServiceId();
+                tcpServerMap.put(serviceId1, tcpServer);
+                log.info("tcp服务部署成功：服务id为{}的服务已部署", serviceId1);
             });
         } else {
             //todo 端口不可绑定
@@ -77,5 +84,15 @@ public class AppCenter {
                 tcpServerMap.remove(k);
             }
         });
+    }
+
+    public void receiveData(TCPDataTransport tcpDataTransport) {
+        String clientServiceId = tcpDataTransport.getClientServiceId();
+        TCPServer tcpServer = tcpServerMap.get(clientServiceId);
+        if (tcpServer == null) {
+            log.warn("未找到对应的服务");
+        } else {
+            tcpServer.receiveData(tcpDataTransport);
+        }
     }
 }

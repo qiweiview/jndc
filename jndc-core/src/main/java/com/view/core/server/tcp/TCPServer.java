@@ -1,8 +1,10 @@
 package com.view.core.server.tcp;
 
 
+import com.view.core.model.TCPDataTransport;
 import com.view.core.server.ControllableServer;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -13,6 +15,8 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
 
 @Data
 @Slf4j
@@ -78,4 +82,12 @@ public class TCPServer extends ControllableServer {
     }
 
 
+    public void receiveData(TCPDataTransport tcpDataTransport) {
+        Map<String, ChannelHandlerContext> sessionMap = getSessionMap();
+        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
+        ChannelHandlerContext ctx = sessionMap.get(appServerSessionId);
+        if (ctx != null) {
+            ctx.writeAndFlush(tcpDataTransport.getData());
+        }
+    }
 }

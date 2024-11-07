@@ -149,6 +149,11 @@ public class HttpClient extends ControllableClient {
     }
 
     @Override
+    public void receiveData(byte[] data) {
+
+    }
+
+    @Override
     public void stop() {
 
     }

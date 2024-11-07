@@ -22,6 +22,13 @@ public class ServiceOperation {
         return serviceOperation;
     }
 
+    public static ServiceOperation ofData(VirtualTCPService virtualTCPService) {
+        ServiceOperation serviceOperation = new ServiceOperation();
+        serviceOperation.setOperationType(ServiceOperationTypes.DEPLOY.value);
+        serviceOperation.setVirtualTCPService(virtualTCPService);
+        return serviceOperation;
+    }
+
 
     public boolean isDeploy() {
         return ServiceOperationTypes.DEPLOY.value.equals(operationType);
