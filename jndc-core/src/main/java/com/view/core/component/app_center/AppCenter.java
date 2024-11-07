@@ -1,6 +1,6 @@
 package com.view.core.component.app_center;
 
-import com.view.core.model.VirtualService;
+import com.view.core.model.VirtualTCPService;
 import com.view.core.server.http.HttpServer;
 import com.view.core.server.tcp.TCPServer;
 import lombok.extern.slf4j.Slf4j;
@@ -30,20 +30,52 @@ public class AppCenter {
     /**
      * 部署服务
      *
-     * @param virtualService
+     * @param virtualTCPService
      */
-    public void deployService(VirtualService virtualService) {
-        int expectPort = virtualService.getExpectPort();
+    public void deployService(VirtualTCPService virtualTCPService) {
+        String ndcClientId = virtualTCPService.getNdcClientId();
+        String serviceId = virtualTCPService.getServiceId();
+        if (ndcClientId == null) {
+            log.error("服务部署失败：clientId为空");
+            return;
+        }
+
+        if (serviceId == null) {
+            log.error("服务部署失败：serviceId为空");
+            return;
+        }
+
+
+        int expectPort = virtualTCPService.getExpectPort();
         if (portBindable(expectPort)) {
             //todo 可以绑定
             TCPServer tcpServer = new TCPServer();
-            tcpServer.start(expectPort);
-            tcpServerMap.put(virtualService.getServiceId(), tcpServer);
-            log.info("服务部署成功：{}", virtualService);
+            tcpServer.setNdcClientId(ndcClientId);
+            tcpServer.setClientServiceId(virtualTCPService.getServiceId());
+            tcpServer.start(expectPort, () -> {
+                tcpServerMap.put(virtualTCPService.getServiceId(), tcpServer);
+            });
         } else {
             //todo 端口不可绑定
             log.error("服务部署失败：期望端口{}不可用", expectPort);
         }
 
+    }
+
+
+    public void withdrawRelationalService(String clientId) {
+        httpServerMap.forEach((k, httpServer) -> {
+            if (httpServer.getNdcClientId().equals(clientId)) {
+                httpServer.stop();
+                httpServerMap.remove(k);
+            }
+        });
+
+        tcpServerMap.forEach((k, tcpServer) -> {
+            if (tcpServer.getNdcClientId().equals(clientId)) {
+                tcpServer.stop();
+                tcpServerMap.remove(k);
+            }
+        });
     }
 }

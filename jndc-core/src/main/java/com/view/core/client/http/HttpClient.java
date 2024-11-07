@@ -1,5 +1,6 @@
 package com.view.core.client.http;
 
+import com.view.core.client.ControllableClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,7 +23,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 @Slf4j
-public class HttpClient {
+public class HttpClient extends ControllableClient {
 
     private Integer maxContentLength = 5 * 1024;
 
@@ -75,7 +76,7 @@ public class HttpClient {
 
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try {
+
 
 
             Bootstrap clientBootstrap = new Bootstrap();
@@ -133,6 +134,8 @@ public class HttpClient {
                 }
             });
 
+
+        try {
             // Start the client.
             ChannelFuture f = clientBootstrap.connect(host, port).sync(); // (5)
 
@@ -143,5 +146,10 @@ public class HttpClient {
         } finally {
             workerGroup.shutdownGracefully();
         }
+    }
+
+    @Override
+    public void stop() {
+
     }
 }

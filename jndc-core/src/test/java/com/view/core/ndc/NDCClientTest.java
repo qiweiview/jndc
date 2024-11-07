@@ -1,7 +1,8 @@
 package com.view.core.ndc;
 
 import com.view.core.client.ndc.NDCClient;
-import com.view.core.model.VirtualService;
+import com.view.core.client.ndc.NDCClientConfiguration;
+import com.view.core.model.VirtualTCPService;
 import com.view.core.utils.UniqueId;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,17 +31,22 @@ public class NDCClientTest {
             }
 
             log.info("---准备发起注册---");
-            VirtualService virtualService = new VirtualService();
-            virtualService.setServiceId(UniqueId.generate());
-            virtualService.setDescription("测试服务");
-            virtualService.setHost("127.0.0.1");
-            virtualService.setPort(3306);
-            virtualService.setExpectPort(3307);
-            ndcClient.registerService(virtualService);
+            VirtualTCPService virtualTCPService = new VirtualTCPService();
+            virtualTCPService.setServiceId(UniqueId.generate());
+            virtualTCPService.setDescription("测试服务");
+            virtualTCPService.setHost("127.0.0.1");
+            virtualTCPService.setPort(3306);
+            virtualTCPService.setExpectPort(3307);
+            ndcClient.registerService(virtualTCPService);
         }).start();
 
+        NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();
+        ndcClientConfiguration.setHost("127.0.0.1");
+        ndcClientConfiguration.setPort(10886);
+        ndcClientConfiguration.setTimeoutSecond(3);
+
         //定义服务
-        ndcClient.start("127.0.0.1", 10886);
+        ndcClient.start(ndcClientConfiguration);
 
 
     }

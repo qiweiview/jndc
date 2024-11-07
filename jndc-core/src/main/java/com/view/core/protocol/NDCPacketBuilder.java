@@ -1,6 +1,8 @@
 package com.view.core.protocol;
 
-import com.view.core.model.VirtualService;
+import com.view.core.model.ChannelOpen;
+import com.view.core.model.TCPDataTransport;
+import com.view.core.model.VirtualTCPService;
 import com.view.core.utils.ObjectSerializableUtils;
 
 public class NDCPacketBuilder {
@@ -17,7 +19,7 @@ public class NDCPacketBuilder {
         return ndcPacket;
     }
 
-    public static NDCPacket registerServicePacket(VirtualService virtualService) {
+    public static NDCPacket registerServicePacket(VirtualTCPService virtualTCPService) {
         NDCPacket ndcPacket = NDCPacket.of(
                 NDCPacket.BLANK_ADDRESS,
                 NDCPacket.BLANK_ADDRESS,
@@ -25,7 +27,44 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.SERVICE_REGISTER);
-        ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualService));
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
+        return ndcPacket;
+    }
+
+    public static NDCPacket openChannelPacket(ChannelOpen channelOpen) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.OPEN_CHANNEL);
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(channelOpen));
+        return ndcPacket;
+    }
+
+
+    public static NDCPacket dataPacket(TCPDataTransport tcpDataTransport) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.TCP_DATA);
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
+        return ndcPacket;
+    }
+
+    public static NDCPacket tcpActivePacket(TCPDataTransport tcpDataTransport) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.TCP_ACTIVE);
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
         return ndcPacket;
     }
 }

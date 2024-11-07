@@ -39,7 +39,6 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.debug("连接关闭：{}", ctx.channel().remoteAddress());
         inactive.accept(ctx);
     }
 }

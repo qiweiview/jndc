@@ -1,9 +1,7 @@
 package com.view.core.component.data_hub;
 
-import com.view.core.component.GlobalBeanContext;
-import com.view.core.model.VirtualService;
 import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.NDCPacketHelper;
+import com.view.core.server.ndc.NDCServer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,29 +10,27 @@ import lombok.extern.slf4j.Slf4j;
  * 数据包中心
  * 提供数据包的事件驱动
  */
+@Deprecated
 @Slf4j
 @Data
 public class NativePackageHub implements PackageHubI {
 
+    private NDCServer ndcServer;
 
     @Override
-    public void publishOnServer(NDCPacket ndcPacket) {
-        if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
-            //todo 服务注册消息
-            VirtualService virtualService = ndcPacket.getObject(VirtualService.class);
-            log.info("接收到服务注册{}", virtualService);
-
-            GlobalBeanContext.APP_CENTER.deployService(virtualService);
-
-        } else if (NDCPacketHelper.isCancelServiceRegisterPacket(ndcPacket)) {
-            //todo 服务取消注册
-            VirtualService virtualService = ndcPacket.getObject(VirtualService.class);
-            log.info("接收到服务取消注册{}", virtualService);
-        }
+    public void postOnServer(NDCPacket ndcPacket) {
+//        if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
+//            ndcServer.write(ndcPacket);
+//        } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
+//
+//        } else {
+//            log.warn("未知的数据包类型:{}", ndcPacket.getType());
+//        }
     }
 
     @Override
-    public void publishOnClient(NDCPacket ndcPacket) {
+    public void postOnClient(NDCPacket ndcPacket) {
 
     }
+
 }

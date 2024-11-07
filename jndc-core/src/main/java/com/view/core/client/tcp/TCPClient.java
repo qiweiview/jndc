@@ -1,5 +1,6 @@
 package com.view.core.client.tcp;
 
+import com.view.core.client.ControllableClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -10,7 +11,7 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class TCPClient {
+public class TCPClient extends ControllableClient {
     private ByteClientHandler byteClientHandler;
 
 
@@ -19,7 +20,6 @@ public class TCPClient {
 
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        try {
 
 
             Bootstrap b = new Bootstrap();
@@ -42,6 +42,8 @@ public class TCPClient {
                 }
             });
 
+
+        try {
             // Start the client.
             ChannelFuture f = b.connect(host, port).sync();
 
@@ -60,5 +62,10 @@ public class TCPClient {
         } else {
             log.warn("byteArrayHandler is null");
         }
+    }
+
+    @Override
+    public void stop() {
+
     }
 }
