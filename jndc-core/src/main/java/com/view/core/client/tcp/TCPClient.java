@@ -98,6 +98,11 @@ public class TCPClient extends ControllableClient {
         log.info("TCP客户端关闭{}:{}", host, port);
     }
 
+    /**
+     * 添加插槽
+     *
+     * @param o
+     */
     public void addSlot(Consumer<byte[]> o) {
         DataSlot<byte[]> dataSlot = new DataSlot<>(o);
         slots.add(dataSlot);

@@ -9,6 +9,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+import java.time.LocalTime;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Data
@@ -26,8 +28,8 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     private long recentActiveTime;
 
-    //15秒启动超时
-    private long timeoutLimit = 15 * 1000;
+    //10分钟超时
+    private long timeoutLimit = 10 * 60 * 1000;
 
     private volatile boolean activeCompleted = false;
 
@@ -47,6 +49,24 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        String ip = socketAddress.getHostString();
+        boolean block = GlobalBeanContext.IP_BLOCKER.checkBlock(ip);
+        if (block) {
+            log.info("IP:{}被阻断", ip);
+            ctx.close();
+            return;
+        }
+
+        boolean b = GlobalBeanContext.TIME_BLOCKER.checkBlock(LocalTime.now());
+        if (b) {
+            log.info("当前时间被阻断");
+            ctx.close();
+            return;
+        }
+
+
         appServerSessionId = ctx.channel().id().asLongText();
 
         channelHandlerContext = ctx;
@@ -188,12 +208,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     public void close() {
         channelHandlerContext.close();
         bufferQueue.clear();
-
-        //引用释放
-        this.tcpServer = null;
-        this.bufferQueue = null;
-        this.channelHandlerContext = null;
-
         log.info("会话{}因超时关闭", appServerSessionId);
     }
 }

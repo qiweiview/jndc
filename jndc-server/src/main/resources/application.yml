@@ -1,2 +1,17 @@
 server:
-  port: 12001
+  port: 12502
+
+spring:
+  application:
+    name: "jndc-server"
+  profiles:
+    active: dev
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+

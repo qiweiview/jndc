@@ -25,18 +25,11 @@ public class TCPServer extends ControllableServer {
 
     private EventLoopGroup workerGroup;
 
+    private String description;
+
     private int port;
 
-    /**
-     * 启动服务
-     *
-     * @param port 端口
-     */
-    public void start(int port) {
-        start(port, () -> {
-            //todo 服务启动回调
-        });
-    }
+
 
     /**
      * 启动服务
@@ -145,4 +138,6 @@ public class TCPServer extends ControllableServer {
             }
         });
     }
+
+
 }

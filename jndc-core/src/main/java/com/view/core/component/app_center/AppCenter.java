@@ -3,35 +3,20 @@ package com.view.core.component.app_center;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.server.tcp.TCPServer;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 
+@Data
 @Slf4j
 public class AppCenter {
     //key:serviceId
     private Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
 
-
-    public AppCenter() {
-        initHealthyChecker();
-    }
-
-    private void initHealthyChecker() {
-
-        //每分钟检查一次
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            tcpServerMap.forEach((k, server) -> {
-                //todo 检查服务是否健康
-                server.checkHealthy();
-            });
-        }, 0, 1, java.util.concurrent.TimeUnit.MINUTES);
-        log.info("健康检查器已启动，频率为一分钟一次");
-    }
 
     public static boolean portBindable(int port) {
         //todo 检查本地端口是否被占用
@@ -67,6 +52,7 @@ public class AppCenter {
         if (portBindable(expectPort)) {
             //todo 可以绑定
             TCPServer tcpServer = new TCPServer();
+            tcpServer.setDescription(virtualTCPService.prettyDescription());
             tcpServer.setNdcClientId(ndcClientId);
             tcpServer.setClientServiceId(virtualTCPService.getServiceId());
             tcpServer.start(expectPort, () -> {

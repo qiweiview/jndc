@@ -11,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 
 public class TCPServerTest {
 
-    private TCPServer server;
+    private TCPServer tcpServer;
 
     @BeforeEach
     public void init() {
-        server = new TCPServer();
+        tcpServer = new TCPServer();
     }
 
     @Test
@@ -26,11 +26,11 @@ public class TCPServerTest {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            server.stop();
+            tcpServer.stop();
             log.info("执行关闭");
         }).start();
 
-        server.start(888, () -> {
+        tcpServer.start(888, () -> {
             log.info("15秒后关闭");
         });
     }

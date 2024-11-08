@@ -89,5 +89,8 @@ public class VirtualTCPService implements Serializable {
 
     }
 
+    public String prettyDescription() {
+        return ndcClientId + ":" + description + "(" + host + ":" + port + "--->sever:" + expectPort + ")";
+    }
 
 }

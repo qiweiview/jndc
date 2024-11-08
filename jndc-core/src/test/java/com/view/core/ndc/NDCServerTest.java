@@ -15,6 +15,7 @@ public class NDCServerTest {
 
     @Test
     public void runServer() {
-        ndcServer.start(10886);
+        ndcServer.start(10886, () -> {
+        });
     }
 }
