@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class VirtualTCPService implements Serializable {
     private int port;
 
     //key:远程会话id
-    private Map<String, TCPClient> controllableClientMap = new HashMap<>();
+    private Map<String, TCPClient> controllableClientMap = new ConcurrentHashMap<>();
     /*------本地服务------*/
 
 //    public void openLocalServiceClient(TCPDataTransport tcpDataTransport) {
@@ -59,11 +59,30 @@ public class VirtualTCPService implements Serializable {
             controllableClientMap.put(appServerSessionId, tcpClient);
             consumer.accept(tcpClient);
         });
-
-
     }
 
-    public void receiveDataFromRemoteSession(TCPDataTransport tcpDataTransport) {
+    /**
+     * 关闭服务客户端
+     *
+     * @param tcpDataTransport 远程会话信息
+     */
+    public void stopServiceClient(TCPDataTransport tcpDataTransport) {
+        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
+        TCPClient tcpClient = controllableClientMap.get(appServerSessionId);
+        if (tcpClient == null) {
+            log.warn("未找到待关闭客户端", appServerSessionId);
+        } else {
+            tcpClient.stop();
+            controllableClientMap.remove(appServerSessionId);
+        }
+    }
+
+    /**
+     * 接收远程会话数据
+     *
+     * @param tcpDataTransport 远程会话数据
+     */
+    public void receiveDataFromRemote(TCPDataTransport tcpDataTransport) {
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
         ControllableClient controllableClient = controllableClientMap.get(appServerSessionId);
         if (controllableClient == null) {
@@ -74,4 +93,6 @@ public class VirtualTCPService implements Serializable {
         }
 
     }
+
+
 }

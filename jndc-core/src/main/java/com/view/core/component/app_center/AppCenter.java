@@ -2,7 +2,6 @@ package com.view.core.component.app_center;
 
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
-import com.view.core.server.http.HttpServer;
 import com.view.core.server.tcp.TCPServer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,16 +9,29 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class AppCenter {
-
-    //key:serviceId
-    private Map<String, HttpServer> httpServerMap = new ConcurrentHashMap<>();
-
     //key:serviceId
     private Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
 
+
+    public AppCenter() {
+        initHealthyChecker();
+    }
+
+    private void initHealthyChecker() {
+
+        //每分钟检查一次
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+            tcpServerMap.forEach((k, server) -> {
+                //todo 检查服务是否健康
+                server.checkHealthy();
+            });
+        }, 0, 1, java.util.concurrent.TimeUnit.MINUTES);
+        log.info("健康检查器已启动，频率为一分钟一次");
+    }
 
     public static boolean portBindable(int port) {
         //todo 检查本地端口是否被占用
@@ -71,13 +83,6 @@ public class AppCenter {
 
 
     public void withdrawRelationalService(String clientId) {
-        httpServerMap.forEach((k, httpServer) -> {
-            if (httpServer.getNdcClientId().equals(clientId)) {
-                httpServer.stop();
-                httpServerMap.remove(k);
-            }
-        });
-
         tcpServerMap.forEach((k, tcpServer) -> {
             if (tcpServer.getNdcClientId().equals(clientId)) {
                 tcpServer.stop();

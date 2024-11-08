@@ -51,19 +51,41 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         tcpDataTransport.setData(msg);
 
+        //组包，发送
+        writePackageIntoChannel(tcpDataTransport);
+
+    }
+
+    /**
+     * 向通道发送数据包
+     *
+     * @param tcpDataTransport
+     */
+    private void writePackageIntoChannel(TCPDataTransport tcpDataTransport) {
         NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
         if (GlobalBeanContext.NDC_CLIENT != null) {
             GlobalBeanContext.NDC_CLIENT.writePackage(ndcPacket);
         } else {
-            log.warn("NDC_CLIENT is null");
+            log.warn("NDC_CLIENT未初始化");
         }
-
     }
 
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        log.debug("读取完成");
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("TCP客户端异常，准备通知远程断开连接", cause);
+        //当作断开连接处理
+        channelInactive(ctx);
     }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        //向通道发送关闭消息
+        TCPDataTransport tcpDataTransport = createTCPDataTransport();
+
+        //组包，发送
+        writePackageIntoChannel(tcpDataTransport);
+    }
+
 
     private TCPDataTransport createTCPDataTransport() {
         TCPDataTransport tcpDataTransport = new TCPDataTransport();
@@ -81,11 +103,6 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         return tcpDataTransport;
     }
 
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        log.warn("客户端断开");
-    }
 
     public void write(byte[] bytes) {
         if (ctx != null) {

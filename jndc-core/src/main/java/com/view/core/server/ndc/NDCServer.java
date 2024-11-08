@@ -23,15 +23,15 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class NDCServer {
     private final String ndcServerId = RuntimeUtils.getRuntimeUniqueId();
 
     //key:ndcClientId
-    private Map<String, ChannelHandlerContext> ndcClientSessionMap = new HashMap<>();
+    private Map<String, ChannelHandlerContext> ndcClientSessionMap = new ConcurrentHashMap<>();
 
     public static final String CLIENT_ID = "CLIENT_ID";
 
@@ -85,6 +85,8 @@ public class NDCServer {
                 //【异步处理】连接中断事件
                 GlobalBeanContext.EVENT_BUS.post(channelOperation);
 
+                //移除
+                ndcClientSessionMap.remove(clientId);
             };
 
 

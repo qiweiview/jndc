@@ -63,7 +63,7 @@ public class TCPClientTest {
             tcpDataTransport.setData(data.getBytes());
 
             //接收消息
-            virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
+            virtualTCPService.receiveDataFromRemote(tcpDataTransport);
         };
 
 

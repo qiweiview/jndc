@@ -28,8 +28,14 @@ public class TCPClient extends ControllableClient {
 
     private List<DataSlot<byte[]>> slots = new ArrayList<>();
 
+    private String host;
+
+    private int port;
+
     public void start(String host, int port, Runnable callBack) {
         TCPClient tcpClient = this;
+        this.host = host;
+        this.port = port;
 
         workerGroup = new NioEventLoopGroup();
 
@@ -89,6 +95,7 @@ public class TCPClient extends ControllableClient {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
+        log.info("TCP客户端关闭{}:{}", host, port);
     }
 
     public void addSlot(Consumer<byte[]> o) {

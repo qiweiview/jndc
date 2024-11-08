@@ -4,13 +4,13 @@ import com.view.core.server.tcp.ByteServerHandler;
 import com.view.core.utils.UniqueId;
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public abstract class ControllableServer {
 
-    private Map<String, ByteServerHandler> sessionMap = new HashMap<>();
+    private Map<String, ByteServerHandler> sessionMap = new ConcurrentHashMap<>();
 
     //用于channel关闭时关联服务
     private String ndcClientId;

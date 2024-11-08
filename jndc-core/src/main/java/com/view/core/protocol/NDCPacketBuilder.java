@@ -67,4 +67,16 @@ public class NDCPacketBuilder {
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
         return ndcPacket;
     }
+
+    public static NDCPacket tcpInactivePacket(TCPDataTransport tcpDataTransport) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.TCP_IN_ACTIVE);
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
+        return ndcPacket;
+    }
 }

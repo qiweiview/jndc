@@ -24,7 +24,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     private long connectedTime;
 
-    private long firstPackageTime;
+    private long recentActiveTime;
 
     //15秒启动超时
     private long timeoutLimit = 15 * 1000;
@@ -65,6 +65,14 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     }
 
     /**
+     * 读、写都算活跃
+     */
+    private void active() {
+        this.recentActiveTime = System.currentTimeMillis();
+    }
+
+
+    /**
      * 客户端断开连接
      *
      * @param ctx
@@ -72,9 +80,28 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
+        //取消当前会话注册
+        tcpServer.unRegisterSession(appServerSessionId);
+
+        //向通道发送关闭消息
+        TCPDataTransport tcpDataTransport = createTCPDataTransport();
+        NDCPacket ndcPacket = NDCPacketBuilder.tcpInactivePacket(tcpDataTransport);
+        GlobalBeanContext.NDC_SERVER.write(tcpServer.getNdcClientId(), ndcPacket);
     }
 
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("TCP服务端异常，准备通知客户端断开连接", cause);
+        //当作连接断开处理
+        channelInactive(ctx);
+    }
+
+    /**
+     * 创建TCP数据传输对象
+     *
+     * @return
+     */
     private TCPDataTransport createTCPDataTransport() {
         TCPDataTransport tcpDataTransport = new TCPDataTransport();
 
@@ -110,6 +137,8 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
+        active();
+
         if (activeCompleted) {
             //todo 准备好了直接写入
 
@@ -123,24 +152,13 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         } else {
             //todo 没有准备好则
 
-            long now = System.currentTimeMillis();
-            if (firstPackageTime == 0) {
-                firstPackageTime = System.currentTimeMillis();
-                bufferQueue.add(msg);
-            } else if (now - firstPackageTime > timeoutLimit) {
-                //直接关闭，清理bufferQueue
-                bufferQueue.clear();
-                ctx.close();
-                log.warn("连接超时，关闭连接");
-            } else {
-                bufferQueue.add(msg);
-            }
-
+            bufferQueue.add(msg);
         }
 
     }
 
     private void writeDataIntoChannel(byte[] bytes) {
+        active();
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         tcpDataTransport.setData(bytes);
@@ -158,8 +176,24 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      * 通知客户端已经就绪
      */
     public void noticeActiveCompleted() {
+        active();
         bufferFlush();
         activeCompleted = true;
     }
 
+    public boolean idleOverLimit() {
+        return System.currentTimeMillis() - recentActiveTime > timeoutLimit;
+    }
+
+    public void close() {
+        channelHandlerContext.close();
+        bufferQueue.clear();
+
+        //引用释放
+        this.tcpServer = null;
+        this.bufferQueue = null;
+        this.channelHandlerContext = null;
+
+        log.info("会话{}因超时关闭", appServerSessionId);
+    }
 }

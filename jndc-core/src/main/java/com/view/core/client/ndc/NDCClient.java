@@ -18,9 +18,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -32,7 +32,7 @@ public class NDCClient {
     private int retryTimes = 0;
 
 
-    private Map<String, VirtualTCPService> ndcClientSessionMap = new HashMap<>();
+    private Map<String, VirtualTCPService> ndcClientSessionMap = new ConcurrentHashMap<>();
 
 
     public void start(NDCClientConfiguration ndcClientConfiguration) {
@@ -80,6 +80,9 @@ public class NDCClient {
                 } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
                     //todo 远程连接激活
                     handleTCPActive(ndcPacket);
+                } else if (NDCPacketHelper.isTCPInActivePacket(ndcPacket)) {
+                    //todo 远程连接激活
+                    handleTCPInActive(ndcPacket);
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                     //todo 数据包
                     handleDataPackage(ndcPacket);
@@ -151,6 +154,21 @@ public class NDCClient {
         }
     }
 
+    private void handleTCPInActive(NDCPacket ndcPacket) {
+        TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        String clientServiceId = tcpDataTransport.getClientServiceId();
+        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
+        if (virtualTCPService == null) {
+            log.warn("未找到对应的服务{}", clientServiceId);
+        } else {
+            //异步处理
+            Runnable runnable = () -> {
+                virtualTCPService.stopServiceClient(tcpDataTransport);
+            };
+            GlobalBeanContext.EVENT_BUS.post(runnable);
+        }
+    }
+
     /**
      * @param ndcPacket
      */
@@ -167,7 +185,12 @@ public class NDCClient {
 
             Runnable runnable = () -> {
                 //todo 异步处理
+
+                //打开本地服务端
                 virtualTCPService.openLocalServiceClient(tcpDataTransport, tcpClient -> {
+                    //todo 打开本地服务端成功回调
+
+                    //设置客户端会话id
                     String clientServiceSessionId = tcpClient.getClientServiceSessionId();
                     tcpDataTransport.setClientServiceSessionId(clientServiceSessionId);
 
@@ -177,6 +200,8 @@ public class NDCClient {
                 });
 
             };
+
+            //异步处理
             GlobalBeanContext.EVENT_BUS.post(runnable);
         }
     }
@@ -190,7 +215,7 @@ public class NDCClient {
         } else {
             //异步处理
             Runnable runnable = () -> {
-                virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
+                virtualTCPService.receiveDataFromRemote(tcpDataTransport);
             };
             GlobalBeanContext.EVENT_BUS.post(runnable);
         }

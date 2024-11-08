@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Data
 @Slf4j
 public class ChannelOpen implements Serializable {
+    //磁盘固定生成
     private String ndcClientId;
 
     private String ndcServerId;

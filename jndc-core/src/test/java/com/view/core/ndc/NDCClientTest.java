@@ -29,15 +29,32 @@ public class NDCClientTest {
         ndcClientConfiguration.setTimeoutSecond(3);
 
         log.info("---准备发起注册---");
+
+
         VirtualTCPService virtualTCPService = new VirtualTCPService();
-        String generate = UniqueId.generate();
-        log.info("生成的服务id为：{}", generate);
-        virtualTCPService.setServiceId(generate);
+        virtualTCPService.setServiceId(UniqueId.generate());
         virtualTCPService.setDescription("测试服务");
-        virtualTCPService.setHost("121.4.103.198");
-        virtualTCPService.setPort(22);
+        virtualTCPService.setHost("qw607.com");
+        virtualTCPService.setPort(80);
         virtualTCPService.setExpectPort(3307);
         ndcClient.registerService(virtualTCPService);
+
+        VirtualTCPService virtualTCPService2 = new VirtualTCPService();
+        virtualTCPService2.setServiceId(UniqueId.generate());
+        virtualTCPService2.setDescription("测试服务");
+        virtualTCPService2.setHost("121.4.103.198");
+        virtualTCPService2.setPort(22);
+        virtualTCPService2.setExpectPort(3308);
+        ndcClient.registerService(virtualTCPService2);
+
+
+        VirtualTCPService virtualTCPService3 = new VirtualTCPService();
+        virtualTCPService3.setServiceId(UniqueId.generate());
+        virtualTCPService3.setDescription("测试服务");
+        virtualTCPService3.setHost("127.0.0.1");
+        virtualTCPService3.setPort(3306);
+        virtualTCPService3.setExpectPort(3309);
+        ndcClient.registerService(virtualTCPService3);
 
         //定义服务
         ndcClient.start(ndcClientConfiguration);

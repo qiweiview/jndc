@@ -27,12 +27,23 @@ public class TCPServer extends ControllableServer {
 
     private int port;
 
+    /**
+     * 启动服务
+     *
+     * @param port 端口
+     */
     public void start(int port) {
         start(port, () -> {
             //todo 服务启动回调
         });
     }
 
+    /**
+     * 启动服务
+     *
+     * @param port          端口
+     * @param startCallBack 启动回调
+     */
     public void start(int port, Runnable startCallBack) {
         TCPServer tcpServer = this;
         this.port = port;
@@ -50,8 +61,6 @@ public class TCPServer extends ControllableServer {
                         pipeline.addLast(new ByteArrayDecoder());
                         pipeline.addLast(new ByteArrayEncoder());
                         pipeline.addLast(new ByteServerHandler(tcpServer));
-
-
                     }
                 });
 
@@ -69,6 +78,9 @@ public class TCPServer extends ControllableServer {
         }
     }
 
+    /**
+     * 停止服务
+     */
     @Override
     public void stop() {
         if (bossGroup != null) {
@@ -82,6 +94,11 @@ public class TCPServer extends ControllableServer {
     }
 
 
+    /**
+     * 接收数据
+     *
+     * @param tcpDataTransport
+     */
     public void receiveData(TCPDataTransport tcpDataTransport) {
         Map<String, ByteServerHandler> sessionMap = getSessionMap();
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
@@ -92,6 +109,11 @@ public class TCPServer extends ControllableServer {
         }
     }
 
+    /**
+     * 通知客服务端已经就绪
+     *
+     * @param tcpDataTransport
+     */
     public void noticeActiveCompleted(TCPDataTransport tcpDataTransport) {
         Map<String, ByteServerHandler> sessionMap = getSessionMap();
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
@@ -99,5 +121,28 @@ public class TCPServer extends ControllableServer {
         if (byteServerHandler != null) {
             byteServerHandler.noticeActiveCompleted();
         }
+    }
+
+    /**
+     * 取消注册
+     *
+     * @param appServerSessionId
+     */
+    public void unRegisterSession(String appServerSessionId) {
+        Map<String, ByteServerHandler> sessionMap = getSessionMap();
+        sessionMap.remove(appServerSessionId);
+    }
+
+    /**
+     * 检查健康
+     */
+    public void checkHealthy() {
+        Map<String, ByteServerHandler> sessionMap = getSessionMap();
+        sessionMap.forEach((k, server) -> {
+            if (server.idleOverLimit()) {
+                server.close();
+                sessionMap.remove(k);
+            }
+        });
     }
 }

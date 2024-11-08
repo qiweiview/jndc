@@ -55,13 +55,13 @@ public class NDCPacket {
 
     public static final byte TCP_DATA = 0x01;//数据包
 
-    public static final byte TCP_ACTIVE = 0x02;//通道打开数据包
+    public static final byte TCP_ACTIVE = 0x02;//TCP建立数据包
 
     public static final byte SERVICE_REGISTER = 0x03;//服务注册数据包
 
     public static final byte SERVICE_UNREGISTER = 0x04;//服务取消注册数据包
 
-    public static final byte CONNECTION_INTERRUPTED = 0x05;//服务中断数据包
+    public static final byte TCP_IN_ACTIVE = 0x05;//TCP关闭数据包
 
     public static final byte NO_ACCESS = 0x06;//鉴权不通过数据包
 
