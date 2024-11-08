@@ -6,13 +6,28 @@ import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
+@Data
 @Slf4j
 public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     private String appServerSessionId;
 
     private TCPServer tcpServer;
+
+    private ChannelHandlerContext channelHandlerContext;
+
+    private LinkedBlockingQueue<byte[]> bufferQueue = new LinkedBlockingQueue();
+
+    private long firstPackageTime;
+
+    //15秒启动超时
+    private long timeoutLimit = 15 * 1000;
+
+    private volatile boolean activeCompled = false;
 
 
     public ByteServerHandler(TCPServer tcpServer) {
@@ -28,8 +43,10 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         appServerSessionId = ctx.channel().id().asLongText();
+
+        channelHandlerContext = ctx;
         //注册会话
-        tcpServer.registerSession(appServerSessionId, ctx);
+        tcpServer.registerSession(appServerSessionId, this);
 
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
@@ -40,8 +57,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         //构建报文
         NDCPacket ndcPacket = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
         GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
-
-
     }
 
     /**
@@ -75,9 +90,32 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
 
+        if (activeCompled) {
+            //todo 准备好了直接写入
+            writeDataIntoChannel(msg);
+        } else {
+            //todo 没有准备好则
+
+            long now = System.currentTimeMillis();
+            if (firstPackageTime == 0) {
+                firstPackageTime = System.currentTimeMillis();
+                bufferQueue.add(msg);
+            } else if (now - firstPackageTime > timeoutLimit) {
+                //直接关闭，清理bufferQueue
+                bufferQueue.clear();
+                ctx.close();
+            } else {
+                bufferQueue.add(msg);
+            }
+
+        }
+
+    }
+
+    private void writeDataIntoChannel(byte[] bytes) {
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
-        tcpDataTransport.setData(msg);
+        tcpDataTransport.setData(bytes);
 
         //客户端信息
         String ndcClientId = tcpServer.getNdcClientId();
@@ -86,5 +124,11 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         //构建报文
         NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
         GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
+    }
+
+    public void noticeActiveCompleted() {
+        activeCompled = true;
+        bufferQueue.forEach(this::writeDataIntoChannel);
+        bufferQueue.clear();
     }
 }

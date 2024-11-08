@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Slf4j
 @Data
@@ -28,31 +29,38 @@ public class VirtualTCPService implements Serializable {
     private int port;
 
     //key:远程会话id
-    private Map<String, ControllableClient> controllableClientMap = new HashMap<>();
+    private Map<String, TCPClient> controllableClientMap = new HashMap<>();
     /*------本地服务------*/
 
+//    public void openLocalServiceClient(TCPDataTransport tcpDataTransport) {
+//        openLocalServiceClient(tcpDataTransport, c -> {
+//            //todo do nothing
+//        });
+//    }
 
     /**
      * 为远程会话创建客户端
      *
      * @param tcpDataTransport 远程会话信息
      */
-    public void createClientForRemoteSession(TCPDataTransport tcpDataTransport) {
-        new Thread(() -> {
-            String appServerSessionId = tcpDataTransport.getAppServerSessionId();
-            String appServerId = tcpDataTransport.getAppServerId();
+    public void openLocalServiceClient(TCPDataTransport tcpDataTransport, Consumer<TCPClient> consumer) {
+        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
+        String appServerId = tcpDataTransport.getAppServerId();
 
-            //todo 创建客户端
-            TCPClient tcpClient = new TCPClient();
-            tcpClient.setAppServerId(appServerId);
-            tcpClient.setAppServerSessionId(appServerSessionId);
-            tcpClient.setClientServiceId(serviceId);
-            tcpClient.start(host, port);
+        //todo 创建客户端
+        TCPClient tcpClient = new TCPClient();
+        tcpClient.setAppServerId(appServerId);
+        tcpClient.setAppServerSessionId(appServerSessionId);
+        tcpClient.setClientServiceId(serviceId);
+        tcpClient.start(host, port, () -> {
+            //todo 回调
 
             //注册客户端
             controllableClientMap.put(appServerSessionId, tcpClient);
-        }).start();
-        log.info("为远程会话创建客户端：{}", tcpDataTransport.getAppServerSessionId());
+            consumer.accept(tcpClient);
+        });
+
+
     }
 
     public void receiveDataFromRemoteSession(TCPDataTransport tcpDataTransport) {

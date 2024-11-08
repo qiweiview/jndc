@@ -52,40 +52,22 @@ public class NDCServer {
                 //todo read回调
 
 
-
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
 
                 //判断
                 if (NDCPacketHelper.isOpenChannelPacket(ndcPacket)) {
                     //todo 通道打开
-
-                    //绑定channel
-                    ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
-                    String ndcClientId = channelOpen.getNdcClientId();
-                    channelBind(ndcClientId, ctx);
-
-                    ndcClientSessionMap.put(ndcClientId, ctx);
-
-                    //发送响应
-                    channelOpen.setNdcServerId(ndcServerId);
-                    ctx.writeAndFlush(NDCPacketBuilder.openChannelPacket(channelOpen));
+                    handleOpenChannel(ctx, ndcPacket);
                 } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                     //todo 服务注册消息
-                    VirtualTCPService virtualTCPService = ndcPacket.getObject(VirtualTCPService.class);
-                    //设置所属客户端
-                    String clientId = getClientId(ctx);
-                    virtualTCPService.setNdcClientId(clientId);
-                    ServiceOperation serviceOperation = ServiceOperation.ofDeploy(virtualTCPService);
-                    serviceOperation.setNdcServerId(ndcServerId);
-                    //异步处理
-                    GlobalBeanContext.EVENT_BUS.post(serviceOperation);
+                    handleServiceRegister(ctx, ndcPacket);
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
-                    log.info("数据类型消息：{}", msg);
-                    TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-                    GlobalBeanContext.EVENT_BUS.post(tcpDataTransport);
-                } else if (NDCPacketHelper.isChannelHeartBeat(ndcPacket)) {
-                    log.debug("心跳消息：{}", msg);
+                    //todo 数据包
+                    handleTCPDataPackage(ctx, ndcPacket);
+                } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
+                    //todo 通道开通响应
+                    handleTCPActiveFinished(ctx, ndcPacket);
                 } else {
                     log.warn("未知的数据包类型:{}", ndcPacket.getType());
                 }
@@ -147,6 +129,55 @@ public class NDCServer {
     }
 
     /**
+     * @param ctx
+     * @param ndcPacket
+     */
+    private void handleTCPActiveFinished(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
+        Runnable runnable = () -> {
+            //todo 异步处理
+            TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+            GlobalBeanContext.APP_CENTER.receiveData(tcpDataTransport);
+        };
+
+        GlobalBeanContext.EVENT_BUS.post(runnable);
+    }
+
+    private void handleTCPDataPackage(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
+        TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        GlobalBeanContext.EVENT_BUS.post(tcpDataTransport);
+    }
+
+    private void handleServiceRegister(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
+        VirtualTCPService virtualTCPService = ndcPacket.getObject(VirtualTCPService.class);
+        //设置所属客户端
+        String clientId = getClientId(ctx);
+        virtualTCPService.setNdcClientId(clientId);
+        ServiceOperation serviceOperation = ServiceOperation.ofDeploy(virtualTCPService);
+        serviceOperation.setNdcServerId(ndcServerId);
+        //异步处理
+        GlobalBeanContext.EVENT_BUS.post(serviceOperation);
+    }
+
+    private void handleOpenChannel(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
+        //绑定channel
+
+        Runnable runnable = () -> {
+            //todo 异步处理
+            ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
+            String ndcClientId = channelOpen.getNdcClientId();
+            channelBind(ndcClientId, ctx);
+
+            ndcClientSessionMap.put(ndcClientId, ctx);
+
+            //发送响应
+            channelOpen.setNdcServerId(ndcServerId);
+            ctx.writeAndFlush(NDCPacketBuilder.openChannelPacket(channelOpen));
+        };
+
+        GlobalBeanContext.EVENT_BUS.post(runnable);
+    }
+
+    /**
      * 获取绑定的clientId
      *
      * @param ctx
@@ -182,7 +213,6 @@ public class NDCServer {
         ChannelHandlerContext channelHandlerContext = ndcClientSessionMap.get(ndcClientId);
         if (channelHandlerContext != null) {
             channelHandlerContext.writeAndFlush(ndcPacket);
-            log.info("向NDC客户端{}发送消息", new String(ndcPacket.getData()));
         }
     }
 }

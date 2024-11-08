@@ -36,8 +36,14 @@ public class EventListener {
 
     @AllowConcurrentEvents
     @Subscribe
-    public void acceptChannelOperation(TCPDataTransport tcpDataTransport) {
+    public void acceptTCPDataTransport(TCPDataTransport tcpDataTransport) {
         GlobalBeanContext.APP_CENTER.receiveData(tcpDataTransport);
+    }
+
+    @AllowConcurrentEvents
+    @Subscribe
+    public void acceptChannelOperation(Runnable runnable) {
+        runnable.run();
     }
 
 

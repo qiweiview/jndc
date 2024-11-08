@@ -1,7 +1,7 @@
 package com.view.core.server;
 
+import com.view.core.server.tcp.ByteServerHandler;
 import com.view.core.utils.UniqueId;
-import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 public abstract class ControllableServer {
 
-    private Map<String, ChannelHandlerContext> sessionMap = new HashMap<>();
+    private Map<String, ByteServerHandler> sessionMap = new HashMap<>();
 
     //用于channel关闭时关联服务
     private String ndcClientId;
@@ -29,10 +29,10 @@ public abstract class ControllableServer {
      * 注册会话
      *
      * @param longText
-     * @param ctx
+     * @param byteServerHandler
      */
-    public void registerSession(String longText, ChannelHandlerContext ctx) {
-        sessionMap.put(longText, ctx);
+    public void registerSession(String longText, ByteServerHandler byteServerHandler) {
+        sessionMap.put(longText, byteServerHandler);
     }
 
     public abstract void stop();

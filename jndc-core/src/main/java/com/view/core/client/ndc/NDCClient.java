@@ -72,42 +72,17 @@ public class NDCClient {
 
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
-                log.debug("client收到消息：{}", ndcPacket);
 
                 //判断
                 if (NDCPacketHelper.isOpenChannelPacket(ndcPacket)) {
-                    ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
-                    log.info("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
-                    //发送缓冲区报文
-                    tobeSendPackage.forEach(tobeSend -> {
-                        VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
-                        writePackage(tobeSend, () -> {
-                            ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
-                        });
-                    });
+                    //todo 打开通道
+                    handleOpenChannel(ndcPacket);
                 } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
                     //todo 远程连接激活
-
-                    TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-                    log.info("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
-                    String clientServiceId = tcpDataTransport.getClientServiceId();
-                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
-                    if (virtualTCPService == null) {
-                        log.warn("未找到对应的服务{}", clientServiceId);
-                    } else {
-                        virtualTCPService.createClientForRemoteSession(tcpDataTransport);
-                    }
-
+                    handleTCPActive(ndcPacket);
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
-                    TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-                    log.info("收到远程写入数据{}", new String(tcpDataTransport.getData()));
-                    String clientServiceId = tcpDataTransport.getClientServiceId();
-                    VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
-                    if (virtualTCPService == null) {
-                        log.warn("未找到对应的服务{}", clientServiceId);
-                    } else {
-                        virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
-                    }
+                    //todo 数据包
+                    handleDataPackage(ndcPacket);
                 } else {
                     log.warn("未知的数据包类型:{}", ndcPacket.getType());
                 }
@@ -174,6 +149,71 @@ public class NDCClient {
             //再次启动
             start(ndcClientConfiguration);
         }
+    }
+
+    /**
+     * @param ndcPacket
+     */
+    public void handleTCPActive(NDCPacket ndcPacket) {
+        log.info("handleTCPActive{}", System.currentTimeMillis());
+        TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        log.info("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
+        String clientServiceId = tcpDataTransport.getClientServiceId();
+        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
+        if (virtualTCPService == null) {
+            log.warn("未找到对应的服务{}", clientServiceId);
+        } else {
+            //todo 打开本地服务端
+
+
+            Runnable runnable = () -> {
+                //todo 异步处理
+                virtualTCPService.openLocalServiceClient(tcpDataTransport, tcpClient -> {
+                    String clientServiceSessionId = tcpClient.getClientServiceSessionId();
+                    tcpDataTransport.setClientServiceSessionId(clientServiceSessionId);
+
+                    //写出客户端启动成功消息
+                    NDCPacket response = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
+                    serverContext.writeAndFlush(response);
+                });
+
+            };
+            GlobalBeanContext.EVENT_BUS.post(runnable);
+        }
+    }
+
+    private void handleDataPackage(NDCPacket ndcPacket) {
+        log.info("handleDataPackage{}", System.currentTimeMillis());
+        TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        String clientServiceId = tcpDataTransport.getClientServiceId();
+        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
+        if (virtualTCPService == null) {
+            log.warn("未找到对应的服务{}", clientServiceId);
+        } else {
+            //异步处理
+            Runnable runnable = () -> {
+                virtualTCPService.receiveDataFromRemoteSession(tcpDataTransport);
+            };
+            GlobalBeanContext.EVENT_BUS.post(runnable);
+        }
+    }
+
+
+    /**
+     * 处理打开通道
+     *
+     * @param ndcPacket
+     */
+    private void handleOpenChannel(NDCPacket ndcPacket) {
+        ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
+        log.info("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
+        //发送缓冲区报文
+        tobeSendPackage.forEach(tobeSend -> {
+            VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
+            writePackage(tobeSend, () -> {
+                ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+            });
+        });
     }
 
     public void registerService(VirtualTCPService virtualTCPService) {

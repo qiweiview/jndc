@@ -83,11 +83,21 @@ public class TCPServer extends ControllableServer {
 
 
     public void receiveData(TCPDataTransport tcpDataTransport) {
-        Map<String, ChannelHandlerContext> sessionMap = getSessionMap();
+        Map<String, ByteServerHandler> sessionMap = getSessionMap();
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
-        ChannelHandlerContext ctx = sessionMap.get(appServerSessionId);
-        if (ctx != null) {
-            ctx.writeAndFlush(tcpDataTransport.getData());
+        ByteServerHandler byteServerHandler = sessionMap.get(appServerSessionId);
+        if (byteServerHandler != null) {
+            ChannelHandlerContext channelHandlerContext = byteServerHandler.getChannelHandlerContext();
+            channelHandlerContext.writeAndFlush(tcpDataTransport.getData());
+        }
+    }
+
+    public void noticeActiveCompleted(TCPDataTransport tcpDataTransport) {
+        Map<String, ByteServerHandler> sessionMap = getSessionMap();
+        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
+        ByteServerHandler byteServerHandler = sessionMap.get(appServerSessionId);
+        if (byteServerHandler != null) {
+            byteServerHandler.noticeActiveCompleted();
         }
     }
 }

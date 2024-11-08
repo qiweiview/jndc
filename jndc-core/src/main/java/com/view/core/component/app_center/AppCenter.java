@@ -86,6 +86,17 @@ public class AppCenter {
         });
     }
 
+    public void noticeActiveCompleted(TCPDataTransport tcpDataTransport) {
+        String clientServiceId = tcpDataTransport.getClientServiceId();
+        TCPServer tcpServer = tcpServerMap.get(clientServiceId);
+        if (tcpServer == null) {
+            log.warn("未找到对应的服务");
+        } else {
+            //todo 通知客户端已经就绪
+            tcpServer.noticeActiveCompleted(tcpDataTransport);
+        }
+    }
+
     public void receiveData(TCPDataTransport tcpDataTransport) {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         TCPServer tcpServer = tcpServerMap.get(clientServiceId);

@@ -1,6 +1,7 @@
 package com.view.core.client.tcp;
 
 import com.view.core.client.ControllableClient;
+import com.view.core.model.DataSlot;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -11,14 +12,23 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 @Slf4j
+@Data
 public class TCPClient extends ControllableClient {
     private ByteClientHandler byteClientHandler;
+
     private EventLoopGroup workerGroup;
 
-    public void start(String host, int port) {
+    private List<DataSlot<byte[]>> slots = new ArrayList<>();
+
+    public void start(String host, int port, Runnable callBack) {
         TCPClient tcpClient = this;
 
         workerGroup = new NioEventLoopGroup();
@@ -50,6 +60,7 @@ public class TCPClient extends ControllableClient {
             bootstrap.connect(host, port)
                     .addListener(future -> {
                         if (future.isSuccess()) {
+                            callBack.run();
                             log.info("TCP客户端启动成功：{}:{}", host, port);
                         } else {
                             log.error("TCP客户端启动失败：{}:{}", host, port);
@@ -78,5 +89,10 @@ public class TCPClient extends ControllableClient {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
+    }
+
+    public void addSlot(Consumer<byte[]> o) {
+        DataSlot<byte[]> dataSlot = new DataSlot<>(o);
+        slots.add(dataSlot);
     }
 }
