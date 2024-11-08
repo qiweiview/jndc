@@ -1,6 +1,5 @@
 package com.view.core.client.http;
 
-import com.view.core.client.ControllableClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -23,7 +22,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 @Slf4j
-public class HttpClient extends ControllableClient {
+public class HttpClient {
 
     private Integer maxContentLength = 5 * 1024;
 
@@ -148,13 +147,5 @@ public class HttpClient extends ControllableClient {
         }
     }
 
-    @Override
-    public void receiveData(byte[] data) {
 
-    }
-
-    @Override
-    public void stop() {
-
-    }
 }

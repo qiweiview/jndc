@@ -11,7 +11,9 @@ import java.util.UUID;
 @Slf4j
 public class RuntimeUtils {
 
+    private static final String DIR_NAME = "ndc_runtime";
     private static final String INSTANCE_ID = "instance_id.do_not_remove_this_file";
+    public static final String NDC_RUNTIME_DIR = getRuntimeDir() + File.separator + DIR_NAME;
 
 
     /**
@@ -20,8 +22,13 @@ public class RuntimeUtils {
      * @return
      */
     public static String getRuntimeUniqueId() {
-        String filePath = getRuntimeDir() + File.separator + INSTANCE_ID;
+        String filePath = NDC_RUNTIME_DIR + File.separator + INSTANCE_ID;
+        log.info("使用文件路径：{}存储唯一编号", filePath);
         File file = new File(filePath);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
         String id;
         if (file.exists()) {
             try (FileReader reader = new FileReader(file)) {

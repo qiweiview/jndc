@@ -32,11 +32,6 @@ public class VirtualTCPService implements Serializable {
     private Map<String, TCPClient> controllableClientMap = new ConcurrentHashMap<>();
     /*------本地服务------*/
 
-//    public void openLocalServiceClient(TCPDataTransport tcpDataTransport) {
-//        openLocalServiceClient(tcpDataTransport, c -> {
-//            //todo do nothing
-//        });
-//    }
 
     /**
      * 为远程会话创建客户端
