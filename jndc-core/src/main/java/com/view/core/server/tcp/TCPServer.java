@@ -78,7 +78,7 @@ public class TCPServer extends ControllableServer {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-        log.info("tcp服务{}端口监听关闭成功", port);
+        log.debug("tcp服务{}端口监听关闭成功", port);
     }
 
 

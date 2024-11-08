@@ -136,7 +136,7 @@ public class NDCServer {
         Runnable runnable = () -> {
             //todo 异步处理
             TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-            GlobalBeanContext.APP_CENTER.receiveData(tcpDataTransport);
+            GlobalBeanContext.APP_CENTER.noticeActiveCompleted(tcpDataTransport);
         };
 
         GlobalBeanContext.EVENT_BUS.post(runnable);

@@ -22,16 +22,21 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     private LinkedBlockingQueue<byte[]> bufferQueue = new LinkedBlockingQueue();
 
+    private long connectedTime;
+
     private long firstPackageTime;
 
     //15秒启动超时
     private long timeoutLimit = 15 * 1000;
 
-    private volatile boolean activeCompled = false;
+    private volatile boolean activeCompleted = false;
+
+    private volatile boolean directWrite = false;
 
 
     public ByteServerHandler(TCPServer tcpServer) {
         this.tcpServer = tcpServer;
+        this.connectedTime = System.currentTimeMillis();
     }
 
     /**
@@ -87,12 +92,34 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     }
 
 
+    /**
+     * 缓冲区刷新
+     */
+    private void bufferFlush() {
+        if (!bufferQueue.isEmpty()) {
+            synchronized (this) {
+                if (!bufferQueue.isEmpty()) {
+                    bufferQueue.forEach(this::writeDataIntoChannel);
+                    bufferQueue.clear();
+                    directWrite = true;
+                    log.info("缓冲区刷新完成");
+                }
+            }
+        }
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-
-        if (activeCompled) {
+        if (activeCompleted) {
             //todo 准备好了直接写入
-            writeDataIntoChannel(msg);
+
+            if (directWrite) {
+                writeDataIntoChannel(msg);
+            } else {
+                bufferFlush();
+                writeDataIntoChannel(msg);
+            }
+
         } else {
             //todo 没有准备好则
 
@@ -104,6 +131,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
                 //直接关闭，清理bufferQueue
                 bufferQueue.clear();
                 ctx.close();
+                log.warn("连接超时，关闭连接");
             } else {
                 bufferQueue.add(msg);
             }
@@ -126,9 +154,12 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
     }
 
+    /**
+     * 通知客户端已经就绪
+     */
     public void noticeActiveCompleted() {
-        activeCompled = true;
-        bufferQueue.forEach(this::writeDataIntoChannel);
-        bufferQueue.clear();
+        bufferFlush();
+        activeCompleted = true;
     }
+
 }

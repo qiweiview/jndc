@@ -34,8 +34,8 @@ public class NDCClientTest {
         log.info("生成的服务id为：{}", generate);
         virtualTCPService.setServiceId(generate);
         virtualTCPService.setDescription("测试服务");
-        virtualTCPService.setHost("qw607.com");
-        virtualTCPService.setPort(80);
+        virtualTCPService.setHost("121.4.103.198");
+        virtualTCPService.setPort(22);
         virtualTCPService.setExpectPort(3307);
         ndcClient.registerService(virtualTCPService);
 

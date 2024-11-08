@@ -31,7 +31,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
-        log.info("TCP客户端channelActive");
+        log.debug("TCP客户端channelActive");
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        log.info("读取完成");
+        log.debug("读取完成");
     }
 
     private TCPDataTransport createTCPDataTransport() {
@@ -91,7 +91,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         if (ctx != null) {
             ctx.writeAndFlush(bytes).addListener(future -> {
                 if (future.isSuccess()) {
-                    log.info("TCP客户端写出:\n{}", new String(bytes));
+                    log.debug("TCP客户端写出:\n{}", new String(bytes));
                 } else {
                     log.warn("数据发送失败");
                 }

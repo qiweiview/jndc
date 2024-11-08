@@ -155,9 +155,8 @@ public class NDCClient {
      * @param ndcPacket
      */
     public void handleTCPActive(NDCPacket ndcPacket) {
-        log.info("handleTCPActive{}", System.currentTimeMillis());
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-        log.info("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
+        log.debug("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
         if (virtualTCPService == null) {
@@ -183,7 +182,6 @@ public class NDCClient {
     }
 
     private void handleDataPackage(NDCPacket ndcPacket) {
-        log.info("handleDataPackage{}", System.currentTimeMillis());
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
@@ -206,7 +204,7 @@ public class NDCClient {
      */
     private void handleOpenChannel(NDCPacket ndcPacket) {
         ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
-        log.info("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
+        log.debug("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
         //发送缓冲区报文
         tobeSendPackage.forEach(tobeSend -> {
             VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);

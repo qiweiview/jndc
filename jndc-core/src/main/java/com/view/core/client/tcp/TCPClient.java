@@ -61,7 +61,7 @@ public class TCPClient extends ControllableClient {
                     .addListener(future -> {
                         if (future.isSuccess()) {
                             callBack.run();
-                            log.info("TCP客户端启动成功：{}:{}", host, port);
+                            log.debug("TCP客户端启动成功：{}:{}", host, port);
                         } else {
                             log.error("TCP客户端启动失败：{}:{}", host, port);
                         }

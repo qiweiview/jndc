@@ -100,6 +100,6 @@ public class HttpServer extends ControllableServer {
             workerGroup.shutdownGracefully();
         }
 
-        log.info("http服务{}端口监听关闭成功", port);
+        log.debug("http服务{}端口监听关闭成功", port);
     }
 }
