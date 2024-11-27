@@ -13,6 +13,7 @@
     <modules>
         <module>jndc-server</module>
         <module>jndc-core</module>
+        <module>jndc-front-end</module>
     </modules>
 
     <properties>
