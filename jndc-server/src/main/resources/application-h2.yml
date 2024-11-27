@@ -19,8 +19,8 @@ spring:
         driver-class-name: org.h2.Driver
         url: "jdbc:h2:./data/jndc-server;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false"
         type: com.alibaba.druid.pool.DruidDataSource
-        username: "root"
-        password: "wdwdwd"
+        username: "sa"
+        password: ""
         initial-size: 1
       write:
         validation-query: "select 1"
@@ -34,8 +34,8 @@ spring:
         driver-class-name: org.h2.Driver
         url: "jdbc:h2:./data/jndc-server;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false"
         type: com.alibaba.druid.pool.DruidDataSource
-        username: "root"
-        password: "wdwdwd"
+        username: "sa"
+        password: ""
         initial-size: 1
   data:
     redis:
