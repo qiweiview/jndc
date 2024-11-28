@@ -1,4 +1,4 @@
-package com.view.core.component.general_control.plugins;
+package com.view.core.component.general_control.plugins.ip_blocker;
 
 import lombok.Data;
 
@@ -57,19 +57,14 @@ public class IPBlocker {
         IPRecord ipRecord = ipPool.get(ip);
         if (ipRecord == null) {
             ipRecord = new IPRecord();
-            ipRecord.ip = ip;
-            ipRecord.lastActiveTime = System.currentTimeMillis();
-            ipRecord.totalTraffic = 0;
+            ipRecord.setIp(ip);
+            ipRecord.setLastActiveTime(System.currentTimeMillis());
+            ipRecord.setTotalTraffic(0);
             ipPool.put(ip, ipRecord);
         }
-        ipRecord.lastActiveTime = System.currentTimeMillis();
-        ipRecord.totalTraffic++;
+        ipRecord.setLastActiveTime(System.currentTimeMillis());
+        ipRecord.totalTrafficIncrease();
     }
 
 
-    private class IPRecord {
-        private String ip;
-        private long lastActiveTime;
-        private long totalTraffic;
-    }
 }

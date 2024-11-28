@@ -1,6 +1,5 @@
-package com.view.core.component.general_control.plugins;
+package com.view.core.component.general_control.plugins.time_blocker;
 
-import com.view.core.utils.UniqueId;
 import lombok.Data;
 
 import java.time.LocalTime;
@@ -18,7 +17,7 @@ public class TimeBlocker {
 
     public boolean checkBlock(LocalTime time) {
         for (TimeRange timeRange : timeRanges) {
-            if (time.isAfter(timeRange.start) && time.isBefore(timeRange.end)) {
+            if (time.isAfter(timeRange.getRangeStart()) && time.isBefore(timeRange.getRangeEnd())) {
                 return true;
             }
         }
@@ -27,17 +26,11 @@ public class TimeBlocker {
 
     public void addTimeRange(LocalTime start, LocalTime end) {
         TimeRange timeRange = new TimeRange();
-        timeRange.start = start;
-        timeRange.end = end;
+        timeRange.setRangeStart(start);
+        timeRange.setRangeEnd(end);
         timeRanges.add(timeRange);
     }
 
 
-    private class TimeRange {
 
-        private String rangeId = UniqueId.generate();
-        private LocalTime start;
-        private LocalTime end;
-
-    }
 }

@@ -1,7 +1,7 @@
 package com.view.jndc.server.config;
 
 
-import com.view.jndc.server.dao.example.ExampleDao;
+import com.view.jndc.server.config.dynamic_datasource.TableInitializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ApplicationReadyEventListener {
 
-    private final ExampleDao exampleDao;
+    private final TableInitializer tableInitializer;
+
     @EventListener
     public void onApplicationEvent(ApplicationEvent event) {
         String logo = "=================jndc-server=================";
@@ -22,7 +23,8 @@ public class ApplicationReadyEventListener {
 
         int port = webServerInitializedEvent.getWebServer().getPort();
 
-        exampleDao.listTables();
+        tableInitializer.init();
+
 
         log.info(logo + "\n" + "---------------启动成功--------------- document address http://127.0.0.1:" + port + "/swagger-ui.html" +
                 "\n" + "---------------Druid管理页--------------- document address http://127.0.0.1:" + port + "/druid/login.html");
