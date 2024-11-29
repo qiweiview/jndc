@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class SnowflakeIdWorker {
 
+    public static final SnowflakeIdWorker GLOBAL_INSTANCE = new SnowflakeIdWorker(1, 1);
+
     private static final long TWEPOCH = 1682870400000L;
     private static final long WORKER_ID_BITS = 5L;
     private static final long DATACENTER_ID_BITS = 5L;

@@ -26,8 +26,8 @@ public class ApplicationReadyEventListener {
         tableInitializer.init();
 
 
-        log.info(logo + "\n" + "---------------启动成功--------------- document address http://127.0.0.1:" + port + "/swagger-ui.html" +
-                "\n" + "---------------Druid管理页--------------- document address http://127.0.0.1:" + port + "/druid/login.html");
+        log.info(logo + "\n" + "---------------启动成功---------------" +
+                "\n" + "---------------H2管理页--------------- document address http://127.0.0.1:" + port + "/h2");
 
 
     }

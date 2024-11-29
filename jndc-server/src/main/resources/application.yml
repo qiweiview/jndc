@@ -14,9 +14,7 @@ management:
       exposure:
         include: '*'
 
-ndc:
-  server:
-    port: 8888
+
 
 
 

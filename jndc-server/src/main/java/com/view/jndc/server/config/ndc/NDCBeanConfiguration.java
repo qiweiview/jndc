@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NDCBeanConfiguration {
 
-    @Value("${ndc.server.port}")
+    /*@Value("${ndc.server.port}")
     private Integer port;
 
     @Bean
@@ -22,5 +22,5 @@ public class NDCBeanConfiguration {
             });
         }).start();
         return ndcServer;
-    }
+    }*/
 }

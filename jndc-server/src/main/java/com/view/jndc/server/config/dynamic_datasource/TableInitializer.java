@@ -1,9 +1,12 @@
 package com.view.jndc.server.config.dynamic_datasource;
 
-import com.view.core.component.general_control.plugins.ip_blocker.IPRecord;
-import com.view.core.component.general_control.plugins.time_blocker.TimeRange;
-import com.view.core.model.ChannelOpen;
+
 import com.view.jndc.server.dao.table_initializer.TableInitializerDao;
+import com.view.jndc.server.model.admin.AdminUserEntity;
+import com.view.jndc.server.model.ndc.plugins.IPRecordEntity;
+import com.view.jndc.server.model.ndc.plugins.TimeRangeEntity;
+import com.view.jndc.server.model.ndc.server.ChannelOpenEntity;
+import com.view.jndc.server.model.ndc.server.NDCServerEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,8 +19,10 @@ public class TableInitializer {
 
 
     public void init() {
-        tableInitializerDao.execute(IPRecord.ddl());
-        tableInitializerDao.execute(TimeRange.ddl());
-        tableInitializerDao.execute(ChannelOpen.ddl());
+        tableInitializerDao.execute(IPRecordEntity.ddl());
+        tableInitializerDao.execute(TimeRangeEntity.ddl());
+        tableInitializerDao.execute(ChannelOpenEntity.ddl());
+        tableInitializerDao.execute(NDCServerEntity.ddl());
+        tableInitializerDao.execute(AdminUserEntity.ddl());
     }
 }
