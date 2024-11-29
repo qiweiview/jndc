@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NDCManagementController {
 
-    private final NDCServer ndcServer;
+   /* private final NDCServer ndcServer;
 
 
     @RequestMapping(value = "listNDCClient", method = RequestMethod.GET)
@@ -40,5 +40,5 @@ public class NDCManagementController {
             ndcClientInfoList.add(v.getDescription());
         });
         return EncryptedResponse.success(ndcClientInfoList);
-    }
+    }*/
 }

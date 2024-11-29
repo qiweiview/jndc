@@ -26,12 +26,12 @@ public class DynamicDataSourceConfig {
 
     private DynamicDataSource dynamicDataSource;
 
-    @Bean
+   /* @Bean
     @ConfigurationProperties("spring.datasource.druid.read")
     public DataSource readDataSource() {
         DataSource dataSource = DruidDataSourceBuilder.create().build();
         return dataSource;
-    }
+    }*/
 
     @Bean
     @ConfigurationProperties("spring.datasource.druid.write")
@@ -49,9 +49,9 @@ public class DynamicDataSourceConfig {
     @Primary
     public DynamicDataSource dataSource() {
         //初始化两个
-        dynamicDatasourceMap.put(DynamicDataSource.DB_READ, readDataSource());
+//        dynamicDatasourceMap.put(DynamicDataSource.DB_READ, readDataSource());
         dynamicDatasourceMap.put(DynamicDataSource.DB_WRITE, writedDataSource());
-        dynamicDataSource = new DynamicDataSource(readDataSource(), dynamicDatasourceMap);
+        dynamicDataSource = new DynamicDataSource(writedDataSource(), dynamicDatasourceMap);
         return dynamicDataSource;
     }
 

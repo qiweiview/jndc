@@ -6,8 +6,8 @@ import com.view.core.component.app_center.AppCenter;
 import com.view.core.component.app_center.ServiceIdManager;
 import com.view.core.component.event_bus.EventListener;
 import com.view.core.component.general_control.GeneralControl;
-import com.view.core.component.general_control.plugins.IPBlocker;
-import com.view.core.component.general_control.plugins.TimeBlocker;
+import com.view.core.component.general_control.plugins.ip_blocker.IPBlocker;
+import com.view.core.component.general_control.plugins.time_blocker.TimeBlocker;
 import com.view.core.server.ndc.NDCServer;
 
 import java.util.concurrent.Executors;

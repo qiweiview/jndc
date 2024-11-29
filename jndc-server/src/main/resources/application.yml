@@ -5,7 +5,7 @@ spring:
   application:
     name: "jndc-server"
   profiles:
-    active: "h2"
+    active: "h2" # h2/mysql
 
 
 management:
@@ -13,5 +13,8 @@ management:
     web:
       exposure:
         include: '*'
+
+
+
 
 
