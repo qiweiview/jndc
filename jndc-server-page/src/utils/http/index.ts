@@ -13,6 +13,7 @@ import {stringify} from "qs";
 import NProgress from "../progress";
 import {getToken, formatToken} from "@/utils/auth";
 import {useUserStoreHook} from "@/store/modules/user";
+import {message as messageS} from "@/utils/message";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -155,6 +156,7 @@ class PureHttp {
     const config = {
       method,
       url,
+      baseURL: "/gateway",
       ...param,
       ...axiosConfig
     } as PureHttpRequestConfig;
@@ -164,7 +166,18 @@ class PureHttp {
       PureHttp.axiosInstance
         .request(config)
         .then((response: undefined) => {
-          resolve(response);
+          if (typeof response === "undefined") {
+            messageS("请求失败", {type: "error"});
+            reject("请求失败");
+          } else {
+            const {data, code, message} = response;
+            if (code == 0) {
+              resolve(data);
+            } else {
+              messageS(message, {type: "error"});
+              reject(data);
+            }
+          }
         })
         .catch(error => {
           reject(error);

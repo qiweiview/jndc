@@ -22,7 +22,6 @@ import {userKey, type DataInfo} from "@/utils/auth";
 import {type menuType, routerArrays} from "@/layout/types";
 import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
 import {usePermissionStoreHook} from "@/store/modules/permission";
-
 const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
@@ -203,7 +202,7 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(({data}) => {
+        getAsyncRoutes().then(data => {
           handleAsyncRoutes(cloneDeep(data));
           storageLocal().setItem(key, data);
           resolve(router);
@@ -212,7 +211,7 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(({data}) => {
+      getAsyncRoutes().then(data => {
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });

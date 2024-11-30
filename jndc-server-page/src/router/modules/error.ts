@@ -1,11 +1,10 @@
 import {error} from "@/router/enums";
-
 export default {
   path: "/error",
   redirect: "/error/403",
   meta: {
     icon: "ri:information-line",
-    // showLink: false,
+    showLink: false,
     title: "异常页面",
     rank: error
   },

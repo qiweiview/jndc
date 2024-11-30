@@ -65,7 +65,12 @@ export default defineFlatConfig([
           varsIgnorePattern: "^_"
         }
       ],
-      "prettier/prettier": "off"
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto"
+        }
+      ]
     }
   },
   {

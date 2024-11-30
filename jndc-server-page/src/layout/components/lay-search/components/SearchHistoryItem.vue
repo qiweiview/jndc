@@ -10,7 +10,6 @@ interface Props {
 
 interface Emits {
   (e: "collectItem", val: optionsItem): void;
-
   (e: "deleteItem", val: optionsItem): void;
 }
 

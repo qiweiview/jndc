@@ -36,11 +36,9 @@
 .pure-segmented.pure-segmented--small {
   border-radius: var(--pure-segmented-border-radius-small);
 }
-
 .pure-segmented.pure-segmented--small .pure-segmented-item {
   border-radius: var(--el-border-radius-small);
 }
-
 .pure-segmented.pure-segmented--small .pure-segmented-item > div {
   min-height: calc(
     var(--el-component-size-small) - var(--pure-segmented-track-padding) * 2
@@ -58,13 +56,11 @@
 .pure-segmented.pure-segmented--large {
   border-radius: var(--pure-segmented-border-radius-large);
 }
-
 .pure-segmented.pure-segmented--large .pure-segmented-item {
   border-radius: calc(
     var(--el-border-radius-base) + var(--el-border-radius-small)
   );
 }
-
 .pure-segmented.pure-segmented--large .pure-segmented-item > div {
   min-height: calc(
     var(--el-component-size-large) - var(--pure-segmented-track-padding) * 2
@@ -86,7 +82,6 @@
   border-radius: var(--el-border-radius-base);
   transition: all 0.1s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
-
 .pure-segmented .pure-segmented-item > div {
   min-height: calc(
     var(--el-component-size) - var(--pure-segmented-track-padding) * 2

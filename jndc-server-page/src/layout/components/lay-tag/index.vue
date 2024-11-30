@@ -199,7 +199,6 @@ function dynamicRouteTag(value: string): void {
       });
     }
   }
-
   concatPath(router.options.routes as any, value);
 }
 
@@ -397,7 +396,6 @@ function showMenuModel(
   } else {
     currentIndex = allRoute.findIndex(v => isEqual(v.query, query));
   }
-
   function fixedTagDisabled() {
     if (allRoute[currentIndex]?.meta?.fixedTag) {
       Array.of(1, 2, 3, 4, 5).forEach(v => {

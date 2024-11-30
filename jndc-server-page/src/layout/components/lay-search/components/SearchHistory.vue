@@ -8,13 +8,9 @@ import {ref, watch, nextTick, computed, getCurrentInstance} from "vue";
 
 interface Emits {
   (e: "update:value", val: string): void;
-
   (e: "enter"): void;
-
   (e: "collect", val: optionsItem): void;
-
   (e: "delete", val: optionsItem): void;
-
   (e: "drag", val: dragItem): void;
 }
 

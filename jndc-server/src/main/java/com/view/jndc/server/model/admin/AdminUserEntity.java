@@ -6,22 +6,52 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
 public class AdminUserEntity extends TraceableEntity {
 
-    @TableField(value = "user_name")
-    private String userName;
+    @TableField(value = "avatar")
+    private String avatar;         // User avatar URL
 
-    @TableField(value = "password")
-    private String password;
+    @TableField(value = "username")
+    private String username;       // Username
 
-    @TableField(value = "role")
-    private String role;
+    @TableField(value = "nickname")
+    private String nickname;       // Nickname
+
+    @TableField(value = "roles")
+    private List<String> roles;    // List of user roles
+
+    @TableField(value = "permissions")
+    private List<String> permissions;  // List of user permissions
+
+    @TableField(value = "access_token")
+    private String accessToken;    // JWT access token
+
+    @TableField(value = "refresh_token")
+    private String refreshToken;   // JWT refresh token
+
+    @TableField(value = "expires")
+    private String expires;        // Expiration time for the tokenprivate String nickname;       // Nickname
+
 
     public static String ddl() {
-        return "create table if not exists admin_user (id bigint primary key, user_name varchar(255), password varchar(255), role varchar(255), create_date datetime, update_date datetime)";
+        return "create table if not exists admin_user (\n" +
+                "    id bigint auto_increment primary key,\n" +
+                "    avatar varchar(255),\n" +
+                "    username varchar(255),\n" +
+                "    nickname varchar(255),\n" +
+                "    roles varchar(255),\n" +
+                "    permissions varchar(255),\n" +
+                "    access_token varchar(255),\n" +
+                "    refresh_token varchar(255),\n" +
+                "    expires varchar(255),\n" +
+                "    create_time datetime,\n" +
+                "    update_time datetime\n" +
+                ");";
     }
 }
