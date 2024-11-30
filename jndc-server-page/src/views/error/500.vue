@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 import noServer from "@/assets/status/500.svg?component";
 
 defineOptions({
@@ -11,7 +11,7 @@ const router = useRouter();
 
 <template>
   <div class="flex justify-center items-center h-[640px]">
-    <noServer/>
+    <noServer />
     <div class="ml-12">
       <p
         v-motion

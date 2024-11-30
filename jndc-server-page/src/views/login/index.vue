@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import Motion from "./utils/motion";
-import {useRouter} from "vue-router";
-import {message} from "@/utils/message";
-import {loginRules} from "./utils/rule";
-import {useNav} from "@/layout/hooks/useNav";
-import type {FormInstance} from "element-plus";
-import {useLayout} from "@/layout/hooks/useLayout";
-import {useUserStoreHook} from "@/store/modules/user";
-import {initRouter, getTopMenu} from "@/router/utils";
-import {bg, avatar, illustration} from "./utils/static";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {ReImageVerify} from "@/components/ReImageVerify";
-import {ref, reactive, toRaw, onMounted, onBeforeUnmount} from "vue";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
+import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
+import { loginRules } from "./utils/rule";
+import { useNav } from "@/layout/hooks/useNav";
+import type { FormInstance } from "element-plus";
+import { useLayout } from "@/layout/hooks/useLayout";
+import { useUserStoreHook } from "@/store/modules/user";
+import { initRouter, getTopMenu } from "@/router/utils";
+import { bg, avatar, illustration } from "./utils/static";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { ReImageVerify } from "@/components/ReImageVerify";
+import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -28,12 +28,12 @@ const router = useRouter();
 const loading = ref(false);
 const ruleFormRef = ref<FormInstance>();
 
-const {initStorage} = useLayout();
+const { initStorage } = useLayout();
 initStorage();
 
-const {dataTheme, overallStyle, dataThemeChange} = useDataThemeChange();
+const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange();
 dataThemeChange(overallStyle.value);
-const {title} = useNav();
+const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
@@ -47,12 +47,12 @@ const onLogin = async (formEl: FormInstance | undefined) => {
     if (valid) {
       loading.value = true;
       useUserStoreHook()
-        .loginByUsername({username: ruleForm.username, password: "admin123"})
+        .loginByUsername({ username: ruleForm.username, password: "admin123" })
         .then(res => {
           // 获取后端路由
           return initRouter().then(() => {
             router.push(getTopMenu(true).path).then(() => {
-              message("登录成功", {type: "success"});
+              message("登录成功", { type: "success" });
             });
           });
         })
@@ -62,7 +62,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
 };
 
 /** 使用公共函数，避免`removeEventListener`失效 */
-function onkeypress({code}: KeyboardEvent) {
+function onkeypress({ code }: KeyboardEvent) {
   if (["Enter", "NumpadEnter"].includes(code)) {
     onLogin(ruleFormRef.value);
   }
@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="select-none">
-    <img :src="bg" class="wave"/>
+    <img :src="bg" class="wave" />
     <div class="flex-c absolute right-5 top-3">
       <!-- 主题 -->
       <el-switch
@@ -92,11 +92,11 @@ onBeforeUnmount(() => {
     </div>
     <div class="login-container">
       <div class="img">
-        <component :is="toRaw(illustration)"/>
+        <component :is="toRaw(illustration)" />
       </div>
       <div class="login-box">
         <div class="login-form">
-          <avatar class="avatar"/>
+          <avatar class="avatar" />
           <Motion>
             <h2 class="outline-none">{{ title }}</h2>
           </Motion>
@@ -148,7 +148,7 @@ onBeforeUnmount(() => {
                   :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
                 >
                   <template v-slot:append>
-                    <ReImageVerify v-model:code="imgCode"/>
+                    <ReImageVerify v-model:code="imgCode" />
                   </template>
                 </el-input>
               </el-form-item>

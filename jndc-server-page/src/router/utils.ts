@@ -5,9 +5,9 @@ import {
   createWebHistory,
   createWebHashHistory
 } from "vue-router";
-import {router} from "./index";
-import {isProxy, toRaw} from "vue";
-import {useTimeoutFn} from "@vueuse/core";
+import { router } from "./index";
+import { isProxy, toRaw } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
 import {
   isString,
   cloneDeep,
@@ -16,24 +16,24 @@ import {
   storageLocal,
   isIncludeAllChildren
 } from "@pureadmin/utils";
-import {getConfig} from "@/config";
-import {buildHierarchyTree} from "@/utils/tree";
-import {userKey, type DataInfo} from "@/utils/auth";
-import {type menuType, routerArrays} from "@/layout/types";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
-import {usePermissionStoreHook} from "@/store/modules/permission";
+import { getConfig } from "@/config";
+import { buildHierarchyTree } from "@/utils/tree";
+import { userKey, type DataInfo } from "@/utils/auth";
+import { type menuType, routerArrays } from "@/layout/types";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 const IFrame = () => import("@/layout/frame.vue");
 // https://cn.vitejs.dev/guide/features.html#glob-import
 const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
 
 // 动态路由
-import {getAsyncRoutes} from "@/api/routes";
+import { getAsyncRoutes } from "@/api/routes";
 
 function handRank(routeInfo: any) {
-  const {name, path, parentId, meta} = routeInfo;
+  const { name, path, parentId, meta } = routeInfo;
   return isAllEmpty(parentId)
     ? isAllEmpty(meta?.rank) ||
-    (meta?.rank === 0 && name !== "Home" && path !== "/")
+      (meta?.rank === 0 && name !== "Home" && path !== "/")
       ? true
       : false
     : false;
@@ -257,14 +257,14 @@ function formatTwoStageRoutes(routesList: RouteRecordRaw[]) {
         children: []
       });
     } else {
-      newRoutesList[0]?.children.push({...v});
+      newRoutesList[0]?.children.push({ ...v });
     }
   });
   return newRoutesList;
 }
 
 /** 处理缓存路由（添加、删除、刷新） */
-function handleAliveRoute({name}: ToRouteType, mode?: string) {
+function handleAliveRoute({ name }: ToRouteType, mode?: string) {
   switch (mode) {
     case "add":
       usePermissionStoreHook().cacheOperate({

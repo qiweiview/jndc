@@ -1,12 +1,12 @@
 import App from "./App.vue";
 import router from "./router";
-import {setupStore} from "@/store";
-import {getPlatformConfig} from "./config";
-import {MotionPlugin} from "@vueuse/motion";
+import { setupStore } from "@/store";
+import { getPlatformConfig } from "./config";
+import { MotionPlugin } from "@vueuse/motion";
 // import { useEcharts } from "@/plugins/echarts";
-import {createApp, type Directive} from "vue";
-import {useElementPlus} from "@/plugins/elementPlus";
-import {injectResponsiveStorage} from "@/utils/responsive";
+import { createApp, type Directive } from "vue";
+import { useElementPlus } from "@/plugins/elementPlus";
+import { injectResponsiveStorage } from "@/utils/responsive";
 
 import Table from "@pureadmin/table";
 // import PureDescriptions from "@pureadmin/descriptions";
@@ -41,8 +41,8 @@ app.component("IconifyIconOnline", IconifyIconOnline);
 app.component("FontIcon", FontIcon);
 
 // 全局注册按钮级别权限组件
-import {Auth} from "@/components/ReAuth";
-import {Perms} from "@/components/RePerms";
+import { Auth } from "@/components/ReAuth";
+import { Perms } from "@/components/RePerms";
 app.component("Auth", Auth);
 app.component("Perms", Perms);
 

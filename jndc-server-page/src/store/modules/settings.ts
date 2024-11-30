@@ -1,5 +1,5 @@
-import {defineStore} from "pinia";
-import {type setType, store, getConfig} from "../utils";
+import { defineStore } from "pinia";
+import { type setType, store, getConfig } from "../utils";
 
 export const useSettingStore = defineStore({
   id: "pure-setting",
@@ -20,7 +20,7 @@ export const useSettingStore = defineStore({
     }
   },
   actions: {
-    CHANGE_SETTING({key, value}) {
+    CHANGE_SETTING({ key, value }) {
       if (Reflect.has(this, key)) {
         this[key] = value;
       }

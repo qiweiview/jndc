@@ -1,4 +1,4 @@
-import {remaining} from "@/router/enums";
+import { remaining } from "@/router/enums";
 
 const Layout = () => import("@/layout/index.vue");
 

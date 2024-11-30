@@ -63,7 +63,7 @@ export default {
         ignore: ["after-comment", "first-nested"]
       }
     ],
-    "unit-no-unknown": [true, {ignoreUnits: ["rpx"]}],
+    "unit-no-unknown": [true, { ignoreUnits: ["rpx"] }],
     "order/order": [
       [
         "dollar-variables",
@@ -80,7 +80,7 @@ export default {
         },
         "rules"
       ],
-      {severity: "warning"}
+      { severity: "warning" }
     ]
   },
   ignoreFiles: ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx", "report.html"]

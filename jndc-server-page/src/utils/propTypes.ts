@@ -1,4 +1,4 @@
-import type {CSSProperties, VNodeChild} from "vue";
+import type { CSSProperties, VNodeChild } from "vue";
 import {
   createTypes,
   toValidableType,

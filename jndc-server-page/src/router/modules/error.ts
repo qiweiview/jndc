@@ -1,4 +1,4 @@
-import {error} from "@/router/enums";
+import { error } from "@/router/enums";
 export default {
   path: "/error",
   redirect: "/error/403",

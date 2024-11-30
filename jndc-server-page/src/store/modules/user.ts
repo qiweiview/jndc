@@ -1,4 +1,4 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import {
   type userType,
   store,
@@ -13,8 +13,8 @@ import {
   getLogin,
   refreshTokenApi
 } from "@/api/user";
-import {useMultiTagsStoreHook} from "./multiTags";
-import {type DataInfo, setToken, removeToken, userKey} from "@/utils/auth";
+import { useMultiTagsStoreHook } from "./multiTags";
+import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
 
 export const useUserStore = defineStore({
   id: "pure-user",

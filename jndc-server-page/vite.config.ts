@@ -1,6 +1,6 @@
-import {getPluginsList} from "./build/plugins";
-import {include, exclude} from "./build/optimize";
-import {type UserConfigExport, type ConfigEnv, loadEnv} from "vite";
+import { getPluginsList } from "./build/plugins";
+import { include, exclude } from "./build/optimize";
+import { type UserConfigExport, type ConfigEnv, loadEnv } from "vite";
 import {
   root,
   alias,
@@ -9,8 +9,8 @@ import {
   __APP_INFO__
 } from "./build/utils";
 
-export default ({mode}: ConfigEnv): UserConfigExport => {
-  const {VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH} =
+export default ({ mode }: ConfigEnv): UserConfigExport => {
+  const { VITE_CDN, VITE_PORT, VITE_COMPRESSION, VITE_PUBLIC_PATH } =
     wrapperEnv(loadEnv(mode, root));
   return {
     base: VITE_PUBLIC_PATH,

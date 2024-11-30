@@ -1,8 +1,8 @@
 // 响应式storage
-import type {App} from "vue";
+import type { App } from "vue";
 import Storage from "responsive-storage";
-import {routerArrays} from "@/layout/types";
-import {responsiveStorageNameSpace} from "@/config";
+import { routerArrays } from "@/layout/types";
+import { responsiveStorageNameSpace } from "@/config";
 
 export const injectResponsiveStorage = (app: App, config: PlatformConfigs) => {
   const nameSpace = responsiveStorageNameSpace();
@@ -32,11 +32,11 @@ export const injectResponsiveStorage = (app: App, config: PlatformConfigs) => {
     },
     config.MultiTagsCache
       ? {
-        // 默认显示顶级菜单tag
-        tags: Storage.getData("tags", nameSpace) ?? routerArrays
-      }
+          // 默认显示顶级菜单tag
+          tags: Storage.getData("tags", nameSpace) ?? routerArrays
+        }
       : {}
   );
 
-  app.use(Storage, {nameSpace, memory: configObj});
+  app.use(Storage, { nameSpace, memory: configObj });
 };

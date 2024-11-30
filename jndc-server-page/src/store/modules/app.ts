@@ -1,4 +1,4 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import {
   type appType,
   store,

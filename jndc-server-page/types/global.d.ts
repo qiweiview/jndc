@@ -1,5 +1,5 @@
-import type {ECharts} from "echarts";
-import type {TableColumns} from "@pureadmin/table";
+import type { ECharts } from "echarts";
+import type { TableColumns } from "@pureadmin/table";
 
 /**
  * 全局类型声明，无需引入直接在 `.vue` 、`.ts` 、`.tsx` 文件使用即可获得类型提示
@@ -75,8 +75,7 @@ declare global {
   /**
    *  继承 `@pureadmin/table` 的 `TableColumns` ，方便全局直接调用
    */
-  interface TableColumnList extends Array<TableColumns> {
-  }
+  interface TableColumnList extends Array<TableColumns> {}
 
   /**
    * 对应 `public/platform-config.json` 文件的类型声明

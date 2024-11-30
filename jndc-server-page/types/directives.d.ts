@@ -1,5 +1,5 @@
-import type {Directive} from "vue";
-import type {CopyEl, OptimizeOptions, RippleOptions} from "@/directives";
+import type { Directive } from "vue";
+import type { CopyEl, OptimizeOptions, RippleOptions } from "@/directives";
 
 declare module "vue" {
   export interface ComponentCustomProperties {

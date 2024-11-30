@@ -3,7 +3,7 @@ import pluginVue from "eslint-plugin-vue";
 import * as parserVue from "vue-eslint-parser";
 import configPrettier from "eslint-config-prettier";
 import pluginPrettier from "eslint-plugin-prettier";
-import {defineFlatConfig} from "eslint-define-config";
+import { defineFlatConfig } from "eslint-define-config";
 import * as parserTypeScript from "@typescript-eslint/parser";
 import pluginTypeScript from "@typescript-eslint/eslint-plugin";
 
@@ -97,11 +97,11 @@ export default defineFlatConfig([
       "@typescript-eslint/explicit-module-boundary-types": "off",
       "@typescript-eslint/consistent-type-imports": [
         "error",
-        {disallowTypeAnnotations: false, fixStyle: "inline-type-imports"}
+        { disallowTypeAnnotations: false, fixStyle: "inline-type-imports" }
       ],
       "@typescript-eslint/prefer-literal-enum-member": [
         "error",
-        {allowBitwiseExpressions: true}
+        { allowBitwiseExpressions: true }
       ],
       "@typescript-eslint/no-unused-vars": [
         "error",

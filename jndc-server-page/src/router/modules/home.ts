@@ -1,6 +1,6 @@
-import {home} from "@/router/enums";
+import { home } from "@/router/enums";
 
-const {VITE_HIDE_HOME} = import.meta.env;
+const { VITE_HIDE_HOME } = import.meta.env;
 const Layout = () => import("@/layout/index.vue");
 
 export default {

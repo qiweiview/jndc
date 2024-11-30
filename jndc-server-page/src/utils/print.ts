@@ -149,7 +149,7 @@ Print.prototype = {
     iframe.onload = function (): void {
       // Before popping, callback
       if (_this.conf.printBeforeFn) {
-        _this.conf.printBeforeFn({doc});
+        _this.conf.printBeforeFn({ doc });
       }
       _this.toPrint(w);
       setTimeout(function () {
@@ -184,16 +184,16 @@ Print.prototype = {
   isDOM:
     typeof HTMLElement === "object"
       ? function (obj) {
-        return obj instanceof HTMLElement;
-      }
+          return obj instanceof HTMLElement;
+        }
       : function (obj) {
-        return (
-          obj &&
-          typeof obj === "object" &&
-          obj.nodeType === 1 &&
-          typeof obj.nodeName === "string"
-        );
-      },
+          return (
+            obj &&
+            typeof obj === "object" &&
+            obj.nodeType === 1 &&
+            typeof obj.nodeName === "string"
+          );
+        },
   /**
    * Set the height of the specified dom element by getting the existing height of the dom element and setting
    * @param {Array} arr

@@ -1,4 +1,4 @@
-import {useEventListener} from "@vueuse/core";
+import { useEventListener } from "@vueuse/core";
 
 /** 是否为`img`标签 */
 function isImgElement(element) {
