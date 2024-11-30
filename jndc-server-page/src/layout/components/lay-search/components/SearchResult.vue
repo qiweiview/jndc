@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type {Props} from "../types";
-import {useResizeObserver} from "@pureadmin/utils";
-import {useEpThemeStoreHook} from "@/store/modules/epTheme";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {ref, computed, getCurrentInstance, onMounted} from "vue";
+import type { Props } from "../types";
+import { useResizeObserver } from "@pureadmin/utils";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { ref, computed, getCurrentInstance, onMounted } from "vue";
 import EnterOutlined from "@/assets/svg/enter_outlined.svg?component";
 
 interface Emits {
@@ -65,7 +65,7 @@ onMounted(() => {
   resizeResult();
 });
 
-defineExpose({handleScroll});
+defineExpose({ handleScroll });
 </script>
 
 <template>
@@ -79,11 +79,11 @@ defineExpose({handleScroll});
       @click="handleTo"
       @mouseenter="handleMouse(item)"
     >
-      <component :is="useRenderIcon(item.meta?.icon)"/>
+      <component :is="useRenderIcon(item.meta?.icon)" />
       <span class="result-item-title">
         {{ item.meta?.title }}
       </span>
-      <EnterOutlined/>
+      <EnterOutlined />
     </div>
   </div>
 </template>

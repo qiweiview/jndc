@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {useRoute} from "vue-router";
-import {emitter} from "@/utils/mitt";
-import {useNav} from "@/layout/hooks/useNav";
-import {responsiveStorageNameSpace} from "@/config";
-import {storageLocal, isAllEmpty} from "@pureadmin/utils";
-import {findRouteByPath, getParentPaths} from "@/router/utils";
-import {usePermissionStoreHook} from "@/store/modules/permission";
-import {ref, computed, watch, onMounted, onBeforeUnmount} from "vue";
+import { useRoute } from "vue-router";
+import { emitter } from "@/utils/mitt";
+import { useNav } from "@/layout/hooks/useNav";
+import { responsiveStorageNameSpace } from "@/config";
+import { storageLocal, isAllEmpty } from "@pureadmin/utils";
+import { findRouteByPath, getParentPaths } from "@/router/utils";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import LaySidebarLogo from "../lay-sidebar/components/SidebarLogo.vue";
 import LaySidebarItem from "../lay-sidebar/components/SidebarItem.vue";
 import LaySidebarLeftCollapse from "../lay-sidebar/components/SidebarLeftCollapse.vue";
@@ -93,7 +93,7 @@ onBeforeUnmount(() => {
     @mouseenter.prevent="isShow = true"
     @mouseleave.prevent="isShow = false"
   >
-    <LaySidebarLogo v-if="showLogo" :collapse="isCollapse"/>
+    <LaySidebarLogo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar
       wrap-class="scrollbar-wrapper"
       :class="[device === 'mobile' ? 'mobile' : 'pc']"

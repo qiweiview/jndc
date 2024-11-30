@@ -1,5 +1,5 @@
-import {defineComponent, Fragment} from "vue";
-import {hasPerms} from "@/utils/auth";
+import { defineComponent, Fragment } from "vue";
+import { hasPerms } from "@/utils/auth";
 
 export default defineComponent({
   name: "Perms",
@@ -9,7 +9,7 @@ export default defineComponent({
       default: []
     }
   },
-  setup(props, {slots}) {
+  setup(props, { slots }) {
     return () => {
       if (!slots) return null;
       return hasPerms(props.value) ? (

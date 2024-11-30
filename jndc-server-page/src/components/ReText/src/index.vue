@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {h, onMounted, ref, useSlots} from "vue";
-import {type TippyOptions, useTippy} from "vue-tippy";
+import { h, onMounted, ref, useSlots } from "vue";
+import { type TippyOptions, useTippy } from "vue-tippy";
 
 defineOptions({
   name: "ReText"
@@ -61,6 +61,6 @@ onMounted(() => {
     ref="textRef"
     @mouseover.self="handleHover"
   >
-    <slot/>
+    <slot />
   </el-text>
 </template>

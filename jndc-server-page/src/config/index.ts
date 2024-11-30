@@ -1,8 +1,8 @@
 import axios from "axios";
-import type {App} from "vue";
+import type { App } from "vue";
 
 let config: object = {};
-const {VITE_PUBLIC_PATH} = import.meta.env;
+const { VITE_PUBLIC_PATH } = import.meta.env;
 
 const setConfig = (cfg?: unknown) => {
   config = Object.assign(config, cfg);
@@ -33,7 +33,7 @@ export const getPlatformConfig = async (app: App): Promise<undefined> => {
     method: "get",
     url: `${VITE_PUBLIC_PATH}platform-config.json`
   })
-    .then(({data: config}) => {
+    .then(({ data: config }) => {
       let $config = app.config.globalProperties.$config;
       // 自动注入系统配置
       if (app && $config && typeof config === "object") {
@@ -52,4 +52,4 @@ export const getPlatformConfig = async (app: App): Promise<undefined> => {
 /** 本地响应式存储的命名空间 */
 const responsiveStorageNameSpace = () => getConfig().ResponsiveStorageNameSpace;
 
-export {getConfig, setConfig, responsiveStorageNameSpace};
+export { getConfig, setConfig, responsiveStorageNameSpace };

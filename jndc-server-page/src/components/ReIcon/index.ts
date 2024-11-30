@@ -9,4 +9,4 @@ const IconifyIconOnline = iconifyIconOnline;
 /** `iconfont`组件 */
 const FontIcon = fontIcon;
 
-export {IconifyIconOffline, IconifyIconOnline, FontIcon};
+export { IconifyIconOffline, IconifyIconOnline, FontIcon };

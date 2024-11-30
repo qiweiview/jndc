@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {emitter} from "@/utils/mitt";
-import {useNav} from "@/layout/hooks/useNav";
+import { emitter } from "@/utils/mitt";
+import { useNav } from "@/layout/hooks/useNav";
 import LaySearch from "../lay-search/index.vue";
 import LayNotice from "../lay-notice/index.vue";
-import {responsiveStorageNameSpace} from "@/config";
-import {ref, nextTick, computed, onMounted} from "vue";
-import {storageLocal, isAllEmpty} from "@pureadmin/utils";
-import {usePermissionStoreHook} from "@/store/modules/permission";
+import { responsiveStorageNameSpace } from "@/config";
+import { ref, nextTick, computed, onMounted } from "vue";
+import { storageLocal, isAllEmpty } from "@pureadmin/utils";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 import LaySidebarItem from "../lay-sidebar/components/SidebarItem.vue";
 import LaySidebarFullScreen from "../lay-sidebar/components/SidebarFullScreen.vue";
 
@@ -53,7 +53,7 @@ onMounted(() => {
     class="horizontal-header"
   >
     <div v-if="showLogo" class="horizontal-header-left" @click="backTopMenu">
-      <img :src="getLogo()" alt="logo"/>
+      <img :src="getLogo()" alt="logo" />
       <span>{{ title }}</span>
     </div>
     <el-menu
@@ -72,15 +72,15 @@ onMounted(() => {
     </el-menu>
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
-      <LaySearch id="header-search"/>
+      <LaySearch id="header-search" />
       <!-- 全屏 -->
-      <LaySidebarFullScreen id="full-screen"/>
+      <LaySidebarFullScreen id="full-screen" />
       <!-- 消息通知 -->
-      <LayNotice id="header-notice"/>
+      <LayNotice id="header-notice" />
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover">
-          <img :src="userAvatar" :style="avatarsStyle"/>
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
@@ -100,7 +100,7 @@ onMounted(() => {
         title="打开系统配置"
         @click="onPanel"
       >
-        <IconifyIconOffline :icon="Setting"/>
+        <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
   </div>

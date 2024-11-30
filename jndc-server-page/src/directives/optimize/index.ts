@@ -5,8 +5,8 @@ import {
   isObject,
   isFunction
 } from "@pureadmin/utils";
-import {useEventListener} from "@vueuse/core";
-import type {Directive, DirectiveBinding} from "vue";
+import { useEventListener } from "@vueuse/core";
+import type { Directive, DirectiveBinding } from "vue";
 
 export interface OptimizeOptions {
   /** 事件名 */
@@ -24,7 +24,7 @@ export interface OptimizeOptions {
 /** 防抖（v-optimize或v-optimize:debounce）、节流（v-optimize:throttle）指令 */
 export const optimize: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding<OptimizeOptions>) {
-    const {value} = binding;
+    const { value } = binding;
     const optimizeType = binding.arg ?? "debounce";
     const type = ["debounce", "throttle"].find(t => t === optimizeType);
     if (type) {
@@ -45,14 +45,14 @@ export const optimize: Directive = {
           value.event,
           type === "debounce"
             ? debounce(
-              params ? () => value.fn(...params) : value.fn,
-              value?.timeout ?? 200,
-              value?.immediate ?? false
-            )
+                params ? () => value.fn(...params) : value.fn,
+                value?.timeout ?? 200,
+                value?.immediate ?? false
+              )
             : throttle(
-              params ? () => value.fn(...params) : value.fn,
-              value?.timeout ?? 1000
-            )
+                params ? () => value.fn(...params) : value.fn,
+                value?.timeout ?? 1000
+              )
         );
       } else {
         throw new Error(

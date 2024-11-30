@@ -1,6 +1,6 @@
 import "./index.css";
-import type {OptionsType} from "./type";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
+import type { OptionsType } from "./type";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import {
   useDark,
   isNumber,
@@ -54,10 +54,10 @@ export default defineComponent({
   name: "ReSegmented",
   props,
   emits: ["change", "update:modelValue"],
-  setup(props, {emit}) {
+  setup(props, { emit }) {
     const width = ref(0);
     const translateX = ref(0);
-    const {isDark} = useDark();
+    const { isDark } = useDark();
     const initStatus = ref(false);
     const curMouseActive = ref(-1);
     const segmentedItembg = ref("");
@@ -66,17 +66,17 @@ export default defineComponent({
       ? toRef(props, "modelValue")
       : ref(0);
 
-    function handleChange({option, index}, event: Event) {
+    function handleChange({ option, index }, event: Event) {
       if (props.disabled || option.disabled) return;
       event.preventDefault();
       isNumber(props.modelValue)
         ? emit("update:modelValue", index)
         : (curIndex.value = index);
       segmentedItembg.value = "";
-      emit("change", {index, option});
+      emit("change", { index, option });
     }
 
-    function handleMouseenter({option, index}, event: Event) {
+    function handleMouseenter({ option, index }, event: Event) {
       if (props.disabled) return;
       event.preventDefault();
       curMouseActive.value = index;
@@ -139,7 +139,7 @@ export default defineComponent({
             class={[
               "pure-segmented-item",
               (props.disabled || option?.disabled) &&
-              "pure-segmented-item-disabled"
+                "pure-segmented-item-disabled"
             ]}
             style={{
               background:
@@ -147,17 +147,17 @@ export default defineComponent({
               color: props.disabled
                 ? null
                 : !option.disabled &&
-                (curIndex.value === index || curMouseActive.value === index)
+                    (curIndex.value === index || curMouseActive.value === index)
                   ? isDark.value
                     ? "rgba(255, 255, 255, 0.85)"
                     : "rgba(0,0,0,.88)"
                   : ""
             }}
-            onMouseenter={event => handleMouseenter({option, index}, event)}
-            onMouseleave={event => handleMouseleave({option, index}, event)}
-            onClick={event => handleChange({option, index}, event)}
+            onMouseenter={event => handleMouseenter({ option, index }, event)}
+            onMouseleave={event => handleMouseleave({ option, index }, event)}
+            onClick={event => handleChange({ option, index }, event)}
           >
-            <input type="radio" name="segmented"/>
+            <input type="radio" name="segmented" />
             <div
               class="pure-segmented-item-label"
               v-tippy={{
@@ -168,7 +168,7 @@ export default defineComponent({
               {option.icon && !isFunction(option.label) ? (
                 <span
                   class="pure-segmented-item-icon"
-                  style={{marginRight: option.label ? "6px" : 0}}
+                  style={{ marginRight: option.label ? "6px" : 0 }}
                 >
                   {h(
                     useRenderIcon(option.icon, {

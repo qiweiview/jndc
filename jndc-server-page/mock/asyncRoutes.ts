@@ -1,5 +1,5 @@
 // 模拟后端动态生成路由
-import {defineFakeRoute} from "vite-plugin-fake-server/client";
+import { defineFakeRoute } from "vite-plugin-fake-server/client";
 
 /**
  * roles：页面级别权限，这里模拟二种 "admin"、"common"

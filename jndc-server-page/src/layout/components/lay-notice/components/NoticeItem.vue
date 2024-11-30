@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import {ListItem} from "../data";
-import {ref, PropType, nextTick} from "vue";
-import {useNav} from "@/layout/hooks/useNav";
-import {deviceDetection} from "@pureadmin/utils";
+import { ListItem } from "../data";
+import { ref, PropType, nextTick } from "vue";
+import { useNav } from "@/layout/hooks/useNav";
+import { deviceDetection } from "@pureadmin/utils";
 
 defineProps({
   noticeItem: {
     type: Object as PropType<ListItem>,
-    default: () => {
-    }
+    default: () => {}
   }
 });
 
@@ -16,7 +15,7 @@ const titleRef = ref(null);
 const titleTooltip = ref(false);
 const descriptionRef = ref(null);
 const descriptionTooltip = ref(false);
-const {tooltipEffect} = useNav();
+const { tooltipEffect } = useNav();
 const isMobile = deviceDetection();
 
 function hoverTitle() {

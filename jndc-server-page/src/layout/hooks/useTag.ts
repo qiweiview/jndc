@@ -7,11 +7,11 @@ import {
   type CSSProperties,
   getCurrentInstance
 } from "vue";
-import type {tagsViewsType} from "../types";
-import {useRoute, useRouter} from "vue-router";
-import {responsiveStorageNameSpace} from "@/config";
-import {useSettingStoreHook} from "@/store/modules/settings";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
+import type { tagsViewsType } from "../types";
+import { useRoute, useRouter } from "vue-router";
+import { responsiveStorageNameSpace } from "@/config";
+import { useSettingStoreHook } from "@/store/modules/settings";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import {
   isEqual,
   isBoolean,
@@ -157,7 +157,7 @@ export function useTags() {
   });
 
   const getContextMenuStyle = computed((): CSSProperties => {
-    return {left: buttonLeft.value + "px", top: buttonTop.value + "px"};
+    return { left: buttonLeft.value + "px", top: buttonTop.value + "px" };
   });
 
   const closeMenu = () => {
@@ -196,8 +196,8 @@ export function useTags() {
 
   function onContentFullScreen() {
     pureSetting.hiddenSideBar
-      ? pureSetting.changeSetting({key: "hiddenSideBar", value: false})
-      : pureSetting.changeSetting({key: "hiddenSideBar", value: true});
+      ? pureSetting.changeSetting({ key: "hiddenSideBar", value: false })
+      : pureSetting.changeSetting({ key: "hiddenSideBar", value: true });
   }
 
   onMounted(() => {

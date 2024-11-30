@@ -1,14 +1,14 @@
-import {ref} from "vue";
-import {getConfig} from "@/config";
-import {useLayout} from "./useLayout";
-import {removeToken} from "@/utils/auth";
-import {routerArrays} from "@/layout/types";
-import {router, resetRouter} from "@/router";
-import type {themeColorsType} from "../types";
-import {useAppStoreHook} from "@/store/modules/app";
-import {useGlobal, storageLocal} from "@pureadmin/utils";
-import {useEpThemeStoreHook} from "@/store/modules/epTheme";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
+import { ref } from "vue";
+import { getConfig } from "@/config";
+import { useLayout } from "./useLayout";
+import { removeToken } from "@/utils/auth";
+import { routerArrays } from "@/layout/types";
+import { router, resetRouter } from "@/router";
+import type { themeColorsType } from "../types";
+import { useAppStoreHook } from "@/store/modules/app";
+import { useGlobal, storageLocal } from "@pureadmin/utils";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import {
   darken,
   lighten,
@@ -16,34 +16,34 @@ import {
 } from "@pureadmin/theme/dist/browser-utils";
 
 export function useDataThemeChange() {
-  const {layoutTheme, layout} = useLayout();
+  const { layoutTheme, layout } = useLayout();
   const themeColors = ref<Array<themeColorsType>>([
     /* 亮白色 */
-    {color: "#ffffff", themeColor: "light"},
+    { color: "#ffffff", themeColor: "light" },
     /* 道奇蓝 */
-    {color: "#1b2a47", themeColor: "default"},
+    { color: "#1b2a47", themeColor: "default" },
     /* 深紫罗兰色 */
-    {color: "#722ed1", themeColor: "saucePurple"},
+    { color: "#722ed1", themeColor: "saucePurple" },
     /* 深粉色 */
-    {color: "#eb2f96", themeColor: "pink"},
+    { color: "#eb2f96", themeColor: "pink" },
     /* 猩红色 */
-    {color: "#f5222d", themeColor: "dusk"},
+    { color: "#f5222d", themeColor: "dusk" },
     /* 橙红色 */
-    {color: "#fa541c", themeColor: "volcano"},
+    { color: "#fa541c", themeColor: "volcano" },
     /* 绿宝石 */
-    {color: "#13c2c2", themeColor: "mingQing"},
+    { color: "#13c2c2", themeColor: "mingQing" },
     /* 酸橙绿 */
-    {color: "#52c41a", themeColor: "auroraGreen"}
+    { color: "#52c41a", themeColor: "auroraGreen" }
   ]);
 
-  const {$storage} = useGlobal<GlobalPropertiesApi>();
+  const { $storage } = useGlobal<GlobalPropertiesApi>();
   const dataTheme = ref<boolean>($storage?.layout?.darkMode);
   const overallStyle = ref<string>($storage?.layout?.overallStyle);
   const body = document.documentElement as HTMLElement;
 
   function toggleClass(flag: boolean, clsName: string, target?: HTMLElement) {
     const targetEl = target || document.body;
-    let {className} = targetEl;
+    let { className } = targetEl;
     className = className.replace(clsName, "").trim();
     targetEl.className = flag ? `${className} ${clsName}` : className;
   }
@@ -119,7 +119,7 @@ export function useDataThemeChange() {
   function onReset() {
     removeToken();
     storageLocal().clear();
-    const {Grey, Weak, MultiTagsCache, EpThemeColor, Layout} = getConfig();
+    const { Grey, Weak, MultiTagsCache, EpThemeColor, Layout } = getConfig();
     useAppStoreHook().setLayout(Layout);
     setEpThemeColor(EpThemeColor);
     useMultiTagsStoreHook().multiTagsCacheChange(MultiTagsCache);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useNav} from "@/layout/hooks/useNav";
+import { useNav } from "@/layout/hooks/useNav";
 import MdiKeyboardEsc from "@/assets/svg/keyboard_esc.svg?component";
 import EnterOutlined from "@/assets/svg/enter_outlined.svg?component";
 import ArrowUpLine from "@iconify-icons/ri/arrow-up-line";
@@ -9,22 +9,22 @@ withDefaults(defineProps<{ total: number }>(), {
   total: 0
 });
 
-const {device} = useNav();
+const { device } = useNav();
 </script>
 
 <template>
   <div class="search-footer text-[#333] dark:text-white">
     <span class="search-footer-item">
-      <EnterOutlined class="icon"/>
+      <EnterOutlined class="icon" />
       确认
     </span>
     <span class="search-footer-item">
-      <IconifyIconOffline :icon="ArrowUpLine" class="icon"/>
-      <IconifyIconOffline :icon="ArrowDownLine" class="icon"/>
+      <IconifyIconOffline :icon="ArrowUpLine" class="icon" />
+      <IconifyIconOffline :icon="ArrowDownLine" class="icon" />
       切换
     </span>
     <span class="search-footer-item">
-      <MdiKeyboardEsc class="icon"/>
+      <MdiKeyboardEsc class="icon" />
       关闭
     </span>
     <p v-if="device !== 'mobile' && total > 0" class="search-footer-total">
@@ -47,9 +47,10 @@ const {device} = useNav();
     padding: 2px;
     margin-right: 3px;
     font-size: 20px;
-    box-shadow: inset 0 -2px #cdcde6,
-    inset 0 0 1px 1px #fff,
-    0 1px 2px 1px #1e235a66;
+    box-shadow:
+      inset 0 -2px #cdcde6,
+      inset 0 0 1px 1px #fff,
+      0 1px 2px 1px #1e235a66;
   }
 
   .search-footer-total {

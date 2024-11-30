@@ -1,6 +1,6 @@
-import {useEventListener} from "@vueuse/core";
-import type {Directive, DirectiveBinding} from "vue";
-import {subBefore, subAfter, isFunction} from "@pureadmin/utils";
+import { useEventListener } from "@vueuse/core";
+import type { Directive, DirectiveBinding } from "vue";
+import { subBefore, subAfter, isFunction } from "@pureadmin/utils";
 
 export const longpress: Directive = {
   mounted(el: HTMLElement, binding: DirectiveBinding<Function>) {
@@ -43,9 +43,9 @@ export const longpress: Directive = {
         if (timer === null) {
           timer = isInter
             ? setTimeout(() => {
-              cb();
-              onDownInter(ev);
-            }, num)
+                cb();
+                onDownInter(ev);
+              }, num)
             : setTimeout(() => cb(), num);
         }
       };

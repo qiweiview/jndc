@@ -6,8 +6,8 @@ import {
   closeDialog,
   dialogStore
 } from "./index";
-import {ref, computed} from "vue";
-import {isFunction} from "@pureadmin/utils";
+import { ref, computed } from "vue";
+import { isFunction } from "@pureadmin/utils";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
 import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
 
@@ -23,53 +23,53 @@ const footerButtons = computed(() => {
     return options?.footerButtons?.length > 0
       ? options.footerButtons
       : ([
-        {
-          label: "取消",
-          text: true,
-          bg: true,
-          btnClick: ({dialog: {options, index}}) => {
-            const done = () =>
-              closeDialog(options, index, {command: "cancel"});
-            if (options?.beforeCancel && isFunction(options?.beforeCancel)) {
-              options.beforeCancel(done, {options, index});
-            } else {
-              done();
-            }
-          }
-        },
-        {
-          label: "确定",
-          type: "primary",
-          text: true,
-          bg: true,
-          popconfirm: options?.popconfirm,
-          btnClick: ({dialog: {options, index}}) => {
-            if (options?.sureBtnLoading) {
-              sureBtnMap.value[index] = Object.assign(
-                {},
-                sureBtnMap.value[index],
-                {
-                  loading: true
-                }
-              );
-            }
-            const closeLoading = () => {
-              if (options?.sureBtnLoading) {
-                sureBtnMap.value[index].loading = false;
+          {
+            label: "取消",
+            text: true,
+            bg: true,
+            btnClick: ({ dialog: { options, index } }) => {
+              const done = () =>
+                closeDialog(options, index, { command: "cancel" });
+              if (options?.beforeCancel && isFunction(options?.beforeCancel)) {
+                options.beforeCancel(done, { options, index });
+              } else {
+                done();
               }
-            };
-            const done = () => {
-              closeLoading();
-              closeDialog(options, index, {command: "sure"});
-            };
-            if (options?.beforeSure && isFunction(options?.beforeSure)) {
-              options.beforeSure(done, {options, index, closeLoading});
-            } else {
-              done();
+            }
+          },
+          {
+            label: "确定",
+            type: "primary",
+            text: true,
+            bg: true,
+            popconfirm: options?.popconfirm,
+            btnClick: ({ dialog: { options, index } }) => {
+              if (options?.sureBtnLoading) {
+                sureBtnMap.value[index] = Object.assign(
+                  {},
+                  sureBtnMap.value[index],
+                  {
+                    loading: true
+                  }
+                );
+              }
+              const closeLoading = () => {
+                if (options?.sureBtnLoading) {
+                  sureBtnMap.value[index].loading = false;
+                }
+              };
+              const done = () => {
+                closeLoading();
+                closeDialog(options, index, { command: "sure" });
+              };
+              if (options?.beforeSure && isFunction(options?.beforeSure)) {
+                options.beforeSure(done, { options, index, closeLoading });
+              } else {
+                done();
+              }
             }
           }
-        }
-      ] as Array<ButtonProps>);
+        ] as Array<ButtonProps>);
   };
 });
 
@@ -91,14 +91,14 @@ function eventsCallBack(
 ) {
   if (!isClickFullScreen) fullscreen.value = options?.fullscreen ?? false;
   if (options?.[event] && isFunction(options?.[event])) {
-    return options?.[event]({options, index});
+    return options?.[event]({ options, index });
   }
 }
 
 function handleClose(
   options: DialogOptions,
   index: number,
-  args = {command: "close"}
+  args = { command: "close" }
 ) {
   closeDialog(options, index, args);
   eventsCallBack("close", options, index);
@@ -168,7 +168,7 @@ function handleClose(
     <!-- footer -->
     <template v-if="!options?.hideFooter" #footer>
       <template v-if="options?.footerRenderer">
-        <component :is="options?.footerRenderer({ options, index })"/>
+        <component :is="options?.footerRenderer({ options, index })" />
       </template>
       <span v-else>
         <template v-for="(btn, key) in footerButtons(options)" :key="key">

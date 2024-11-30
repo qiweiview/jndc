@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import {match} from "pinyin-pro";
-import {getConfig} from "@/config";
-import {useRouter} from "vue-router";
+import { match } from "pinyin-pro";
+import { getConfig } from "@/config";
+import { useRouter } from "vue-router";
 import SearchResult from "./SearchResult.vue";
 import SearchFooter from "./SearchFooter.vue";
-import {useNav} from "@/layout/hooks/useNav";
+import { useNav } from "@/layout/hooks/useNav";
 import SearchHistory from "./SearchHistory.vue";
-import type {optionsItem, dragItem} from "../types";
-import {ref, computed, shallowRef, watch} from "vue";
-import {useDebounceFn, onKeyStroke} from "@vueuse/core";
-import {usePermissionStoreHook} from "@/store/modules/permission";
-import {cloneDeep, isAllEmpty, storageLocal} from "@pureadmin/utils";
+import type { optionsItem, dragItem } from "../types";
+import { ref, computed, shallowRef, watch } from "vue";
+import { useDebounceFn, onKeyStroke } from "@vueuse/core";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+import { cloneDeep, isAllEmpty, storageLocal } from "@pureadmin/utils";
 import SearchIcon from "@iconify-icons/ri/search-line";
 
 interface Props {
@@ -22,7 +22,7 @@ interface Emits {
   (e: "update:value", val: boolean): void;
 }
 
-const {device} = useNav();
+const { device } = useNav();
 const emit = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {});
 
@@ -108,14 +108,14 @@ function search() {
   resultOptions.value = flatMenusData.filter(menu =>
     keyword.value
       ? menu.meta?.title
-        .toLocaleLowerCase()
-        .includes(keyword.value.toLocaleLowerCase().trim()) ||
-      !isAllEmpty(
-        match(
-          menu.meta?.title.toLocaleLowerCase(),
-          keyword.value.toLocaleLowerCase().trim()
+          .toLocaleLowerCase()
+          .includes(keyword.value.toLocaleLowerCase().trim()) ||
+        !isAllEmpty(
+          match(
+            menu.meta?.title.toLocaleLowerCase(),
+            keyword.value.toLocaleLowerCase().trim()
+          )
         )
-      )
       : false
   );
   activePath.value =
@@ -143,7 +143,7 @@ function getCurrentOptionsAndPath() {
   const isResultOptions = resultOptions.value.length > 0;
   const options = isResultOptions ? resultOptions.value : historyOptions.value;
   const currentPath = isResultOptions ? activePath.value : historyPath.value;
-  return {options, currentPath, isResultOptions};
+  return { options, currentPath, isResultOptions };
 }
 
 /** 更新路径并滚动到指定项 */
@@ -158,7 +158,7 @@ function updatePathAndScroll(newIndex, isResultOptions) {
 
 /** key up */
 function handleUp() {
-  const {options, currentPath, isResultOptions} = getCurrentOptionsAndPath();
+  const { options, currentPath, isResultOptions } = getCurrentOptionsAndPath();
   if (options.length === 0) return;
   const index = options.findIndex(item => item.path === currentPath);
   const prevIndex = (index - 1 + options.length) % options.length;
@@ -167,7 +167,7 @@ function handleUp() {
 
 /** key down */
 function handleDown() {
-  const {options, currentPath, isResultOptions} = getCurrentOptionsAndPath();
+  const { options, currentPath, isResultOptions } = getCurrentOptionsAndPath();
   if (options.length === 0) return;
   const index = options.findIndex(item => item.path === currentPath);
   const nextIndex = (index + 1) % options.length;
@@ -176,7 +176,7 @@ function handleDown() {
 
 /** key enter */
 function handleEnter() {
-  const {options, currentPath, isResultOptions} = getCurrentOptionsAndPath();
+  const { options, currentPath, isResultOptions } = getCurrentOptionsAndPath();
   if (options.length === 0 || currentPath === "") return;
   const index = options.findIndex(item => item.path === currentPath);
   if (index === -1) return;
@@ -207,7 +207,7 @@ function handleCollect(item) {
   );
   setStorageItem(LOCALEHISTORYKEY, searchHistoryList);
   if (!searchCollectList.some(collectItem => collectItem.path === item.path)) {
-    searchCollectList.unshift({...item, type: COLLECT_TYPE});
+    searchCollectList.unshift({ ...item, type: COLLECT_TYPE });
     setStorageItem(LOCALECOLLECTKEY, searchCollectList);
   }
   getHistory();
@@ -215,7 +215,7 @@ function handleCollect(item) {
 
 /** 存储搜索记录 */
 function saveHistory() {
-  const {path, meta} = resultOptions.value.find(
+  const { path, meta } = resultOptions.value.find(
     item => item.path === activePath.value
   );
   const searchHistoryList = getStorageItem(LOCALEHISTORYKEY);
@@ -225,7 +225,7 @@ function saveHistory() {
   if (!isCollected) {
     if (existingIndex !== -1) searchHistoryList.splice(existingIndex, 1);
     if (searchHistoryList.length >= historyNum) searchHistoryList.pop();
-    searchHistoryList.unshift({path, meta, type: HISTORY_TYPE});
+    searchHistoryList.unshift({ path, meta, type: HISTORY_TYPE });
     storageLocal().setItem(LOCALEHISTORYKEY, searchHistoryList);
   }
 }
@@ -301,7 +301,7 @@ onKeyStroke("ArrowDown", handleDown);
     </el-input>
     <div class="search-content">
       <el-scrollbar ref="scrollbarRef" max-height="calc(90vh - 140px)">
-        <el-empty v-if="showEmpty" description="暂无搜索结果"/>
+        <el-empty v-if="showEmpty" description="暂无搜索结果" />
         <SearchHistory
           v-if="showSearchHistory"
           ref="historyRef"
@@ -322,7 +322,7 @@ onKeyStroke("ArrowDown", handleDown);
       </el-scrollbar>
     </div>
     <template #footer>
-      <SearchFooter :total="resultOptions.length"/>
+      <SearchFooter :total="resultOptions.length" />
     </template>
   </el-dialog>
 </template>

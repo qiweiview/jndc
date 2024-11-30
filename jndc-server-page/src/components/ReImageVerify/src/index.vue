@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {watch} from "vue";
-import {useImageVerify} from "./hooks";
+import { watch } from "vue";
+import { useImageVerify } from "./hooks";
 
 defineOptions({
   name: "ReImageVerify"
@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-const {domRef, imgCode, setImgCode, getImgCode} = useImageVerify();
+const { domRef, imgCode, setImgCode, getImgCode } = useImageVerify();
 
 watch(
   () => props.code,
@@ -32,7 +32,7 @@ watch(imgCode, newValue => {
   emit("update:code", newValue);
 });
 
-defineExpose({getImgCode});
+defineExpose({ getImgCode });
 </script>
 
 <template>

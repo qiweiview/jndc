@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {useGlobal} from "@pureadmin/utils";
-import {useNav} from "@/layout/hooks/useNav";
+import { computed } from "vue";
+import { useGlobal } from "@pureadmin/utils";
+import { useNav } from "@/layout/hooks/useNav";
 
 import MenuFold from "@iconify-icons/ri/menu-fold-fill";
 
@@ -13,7 +13,7 @@ withDefaults(defineProps<Props>(), {
   isActive: false
 });
 
-const {tooltipEffect} = useNav();
+const { tooltipEffect } = useNav();
 
 const iconClass = computed(() => {
   return [
@@ -28,7 +28,7 @@ const iconClass = computed(() => {
   ];
 });
 
-const {$storage} = useGlobal<GlobalPropertiesApi>();
+const { $storage } = useGlobal<GlobalPropertiesApi>();
 const themeColor = computed(() => $storage.layout?.themeColor);
 
 const emit = defineEmits<{

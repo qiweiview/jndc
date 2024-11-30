@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {getConfig} from "@/config";
-import {useMultiFrame} from "@/layout/hooks/useMultiFrame";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
-import {type Component, shallowRef, watch, computed} from "vue";
-import {type RouteRecordRaw, RouteLocationNormalizedLoaded} from "vue-router";
+import { getConfig } from "@/config";
+import { useMultiFrame } from "@/layout/hooks/useMultiFrame";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { type Component, shallowRef, watch, computed } from "vue";
+import { type RouteRecordRaw, RouteLocationNormalizedLoaded } from "vue-router";
 
 const props = defineProps<{
   currRoute: RouteLocationNormalizedLoaded;
@@ -11,7 +11,7 @@ const props = defineProps<{
 }>();
 
 const compList = shallowRef([]);
-const {setMap, getMap, MAP, delMap} = useMultiFrame();
+const { setMap, getMap, MAP, delMap } = useMultiFrame();
 
 const keep = computed(() => {
   return (
@@ -74,6 +74,6 @@ watch(
     </div>
   </template>
   <div v-show="!keep" class="w-full h-full">
-    <slot :Comp="normalComp" :fullPath="currRoute.fullPath" frameInfo/>
+    <slot :Comp="normalComp" :fullPath="currRoute.fullPath" frameInfo />
   </div>
 </template>

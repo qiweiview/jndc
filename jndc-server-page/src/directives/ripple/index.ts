@@ -1,6 +1,6 @@
 import "./index.scss";
-import {isObject} from "@pureadmin/utils";
-import type {Directive, DirectiveBinding} from "vue";
+import { isObject } from "@pureadmin/utils";
+import type { Directive, DirectiveBinding } from "vue";
 
 export interface RippleOptions {
   /** 自定义`ripple`颜色，支持`tailwindcss` */
@@ -56,7 +56,7 @@ const calculate = (
   const x = value.center ? centerX : `${localX - radius}px`;
   const y = value.center ? centerY : `${localY - radius}px`;
 
-  return {radius, scale, x, y, centerX, centerY};
+  return { radius, scale, x, y, centerX, centerY };
 };
 
 const ripples = {
@@ -76,7 +76,7 @@ const ripples = {
       container.className += ` ${value.class}`;
     }
 
-    const {radius, scale, x, y, centerX, centerY} = calculate(e, el, value);
+    const { radius, scale, x, y, centerX, centerY } = calculate(e, el, value);
 
     // ripple 圆大小
     const size = `${radius * 2}px`;
@@ -177,7 +177,7 @@ function updateRipple(
   binding: RippleDirectiveBinding,
   wasEnabled: boolean
 ) {
-  const {value, modifiers} = binding;
+  const { value, modifiers } = binding;
   const enabled = isRippleEnabled(value);
   if (!enabled) {
     ripples.hide(el);

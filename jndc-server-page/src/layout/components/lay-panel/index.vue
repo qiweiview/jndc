@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {emitter} from "@/utils/mitt";
-import {onClickOutside} from "@vueuse/core";
-import {ref, computed, onMounted, onBeforeUnmount} from "vue";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
+import { emitter } from "@/utils/mitt";
+import { onClickOutside } from "@vueuse/core";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import CloseIcon from "@iconify-icons/ep/close";
 
 const target = ref(null);
@@ -25,7 +25,7 @@ const iconClass = computed(() => {
   ];
 });
 
-const {onReset} = useDataThemeChange();
+const { onReset } = useDataThemeChange();
 
 onClickOutside(target, (event: any) => {
   if (event.clientX > target.value.offsetLeft) return;
@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div :class="{ show }">
-    <div class="right-panel-background"/>
+    <div class="right-panel-background" />
     <div ref="target" class="right-panel bg-bg_color">
       <div
         class="project-configuration border-b-[1px] border-solid border-[var(--pure-border-color)]"
@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
         </span>
       </div>
       <el-scrollbar>
-        <slot/>
+        <slot />
       </el-scrollbar>
 
       <div

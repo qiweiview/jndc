@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {ref, computed} from "vue";
-import {noticesData} from "./data";
+import { ref, computed } from "vue";
+import { noticesData } from "./data";
 import NoticeList from "./components/NoticeList.vue";
 import BellIcon from "@iconify-icons/ep/bell";
 
@@ -28,7 +28,7 @@ const getLabel = computed(
     >
       <el-badge :value="Number(noticesNum) === 0 ? '' : noticesNum" :max="99">
         <span class="header-notice-icon">
-          <IconifyIconOffline :icon="BellIcon"/>
+          <IconifyIconOffline :icon="BellIcon" />
         </span>
       </el-badge>
     </span>
@@ -50,7 +50,7 @@ const getLabel = computed(
               <el-tab-pane :label="getLabel(item)" :name="`${item.key}`">
                 <el-scrollbar max-height="330px">
                   <div class="noticeList-container">
-                    <NoticeList :list="item.list" :emptyText="item.emptyText"/>
+                    <NoticeList :list="item.list" :emptyText="item.emptyText" />
                   </div>
                 </el-scrollbar>
               </el-tab-pane>

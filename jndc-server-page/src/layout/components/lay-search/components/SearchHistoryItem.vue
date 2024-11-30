@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type {optionsItem} from "../types";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
+import type { optionsItem } from "../types";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import StarIcon from "@iconify-icons/ep/star";
 import CloseIcon from "@iconify-icons/ep/close";
 
@@ -26,7 +26,7 @@ function handleDelete(item) {
 </script>
 
 <template>
-  <component :is="useRenderIcon(item.meta?.icon)"/>
+  <component :is="useRenderIcon(item.meta?.icon)" />
   <span class="history-item-title">
     {{ item.meta?.title }}
   </span>

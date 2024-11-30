@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {computed} from "vue";
-import {useGlobal} from "@pureadmin/utils";
-import {useNav} from "@/layout/hooks/useNav";
+import { computed } from "vue";
+import { useGlobal } from "@pureadmin/utils";
+import { useNav } from "@/layout/hooks/useNav";
 
 import ArrowLeft from "@iconify-icons/ri/arrow-left-double-fill";
 
@@ -13,13 +13,13 @@ withDefaults(defineProps<Props>(), {
   isActive: false
 });
 
-const {tooltipEffect} = useNav();
+const { tooltipEffect } = useNav();
 
 const iconClass = computed(() => {
   return ["w-[16px]", "h-[16px]"];
 });
 
-const {$storage} = useGlobal<GlobalPropertiesApi>();
+const { $storage } = useGlobal<GlobalPropertiesApi>();
 const themeColor = computed(() => $storage.layout?.themeColor);
 
 const emit = defineEmits<{

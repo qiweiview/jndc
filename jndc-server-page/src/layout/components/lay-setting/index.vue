@@ -9,15 +9,15 @@ import {
   onUnmounted,
   onBeforeMount
 } from "vue";
-import {emitter} from "@/utils/mitt";
+import { emitter } from "@/utils/mitt";
 import LayPanel from "../lay-panel/index.vue";
-import {useNav} from "@/layout/hooks/useNav";
-import {useAppStoreHook} from "@/store/modules/app";
-import {toggleTheme} from "@pureadmin/theme/dist/browser-utils";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
-import Segmented, {type OptionsType} from "@/components/ReSegmented";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
-import {useDark, useGlobal, debounce, isNumber} from "@pureadmin/utils";
+import { useNav } from "@/layout/hooks/useNav";
+import { useAppStoreHook } from "@/store/modules/app";
+import { toggleTheme } from "@pureadmin/theme/dist/browser-utils";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import Segmented, { type OptionsType } from "@/components/ReSegmented";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { useDark, useGlobal, debounce, isNumber } from "@pureadmin/utils";
 
 import Check from "@iconify-icons/ep/check";
 import LeftArrow from "@iconify-icons/ri/arrow-left-s-line";
@@ -26,9 +26,9 @@ import DayIcon from "@/assets/svg/day.svg?component";
 import DarkIcon from "@/assets/svg/dark.svg?component";
 import SystemIcon from "@/assets/svg/system.svg?component";
 
-const {device} = useNav();
-const {isDark} = useDark();
-const {$storage} = useGlobal<GlobalPropertiesApi>();
+const { device } = useNav();
+const { isDark } = useDark();
+const { $storage } = useGlobal<GlobalPropertiesApi>();
 
 const mixRef = ref();
 const verticalRef = ref();
@@ -72,7 +72,7 @@ const settings = reactive({
 
 const getThemeColorStyle = computed(() => {
   return color => {
-    return {background: color};
+    return { background: color };
   };
 });
 
@@ -123,8 +123,8 @@ const multiTagsCacheChange = () => {
   useMultiTagsStoreHook().multiTagsCacheChange(multiTagsCache);
 };
 
-function onChange({option}) {
-  const {value} = option;
+function onChange({ option }) {
+  const { value } = option;
   markValue.value = value;
   storageConfigureChange("showModel", value);
   emitter.emit("tagViewsShowModel", value);
@@ -165,8 +165,8 @@ const setStretch = value => {
   storageConfigureChange("stretch", value);
 };
 
-const stretchTypeChange = ({option}) => {
-  const {value} = option;
+const stretchTypeChange = ({ option }) => {
+  const { value } = option;
   value === "custom" ? setStretch(1440) : setStretch(false);
 };
 
@@ -200,21 +200,21 @@ const themeOptions = computed<Array<OptionsType>>(() => {
       icon: DayIcon,
       theme: "light",
       tip: "清新启航，点亮舒适的工作界面",
-      iconAttrs: {fill: isDark.value ? "#fff" : "#000"}
+      iconAttrs: { fill: isDark.value ? "#fff" : "#000" }
     },
     {
       label: "深色",
       icon: DarkIcon,
       theme: "dark",
       tip: "月光序曲，沉醉于夜的静谧雅致",
-      iconAttrs: {fill: isDark.value ? "#fff" : "#000"}
+      iconAttrs: { fill: isDark.value ? "#fff" : "#000" }
     },
     {
       label: "自动",
       icon: SystemIcon,
       theme: "system",
       tip: "同步时光，界面随晨昏自然呼应",
-      iconAttrs: {fill: isDark.value ? "#fff" : "#000"}
+      iconAttrs: { fill: isDark.value ? "#fff" : "#000" }
     }
   ];
 });
@@ -255,7 +255,7 @@ function setLayoutModel(layout: string) {
   useAppStoreHook().setLayout(layout);
 }
 
-watch($storage, ({layout}) => {
+watch($storage, ({ layout }) => {
   switch (layout["layout"]) {
     case "vertical":
       toggleClass(true, "is-select", unref(verticalRef));
@@ -304,9 +304,9 @@ onBeforeMount(() => {
   nextTick(() => {
     watchSystemThemeChange();
     settings.greyVal &&
-    document.querySelector("html")?.classList.add("html-grey");
+      document.querySelector("html")?.classList.add("html-grey");
     settings.weakVal &&
-    document.querySelector("html")?.classList.add("html-weakness");
+      document.querySelector("html")?.classList.add("html-weakness");
     settings.tabsVal && tagsChange();
     settings.hideFooter && hideFooterChange();
   });
@@ -350,7 +350,7 @@ onUnmounted(() => removeMatchMedia);
             :size="17"
             :color="getThemeColor(item.themeColor)"
           >
-            <IconifyIconOffline :icon="Check"/>
+            <IconifyIconOffline :icon="Check" />
           </el-icon>
         </li>
       </ul>
@@ -366,8 +366,8 @@ onUnmounted(() => removeMatchMedia);
           :class="layoutTheme.layout === 'vertical' ? 'is-select' : ''"
           @click="setLayoutModel('vertical')"
         >
-          <div/>
-          <div/>
+          <div />
+          <div />
         </li>
         <li
           v-if="device !== 'mobile'"
@@ -379,8 +379,8 @@ onUnmounted(() => removeMatchMedia);
           :class="layoutTheme.layout === 'horizontal' ? 'is-select' : ''"
           @click="setLayoutModel('horizontal')"
         >
-          <div/>
-          <div/>
+          <div />
+          <div />
         </li>
         <li
           v-if="device !== 'mobile'"
@@ -392,8 +392,8 @@ onUnmounted(() => removeMatchMedia);
           :class="layoutTheme.layout === 'mix' ? 'is-select' : ''"
           @click="setLayoutModel('mix')"
         >
-          <div/>
-          <div/>
+          <div />
+          <div />
         </li>
       </ul>
 

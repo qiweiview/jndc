@@ -1,5 +1,5 @@
 import Sortable from "sortablejs";
-import {useEpThemeStoreHook} from "@/store/modules/epTheme";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import {
   type PropType,
   ref,
@@ -54,7 +54,7 @@ export default defineComponent({
   name: "PureTableBar",
   props,
   emits: ["refresh"],
-  setup(props, {emit, slots, attrs}) {
+  setup(props, { emit, slots, attrs }) {
     const size = ref("default");
     const loading = ref(false);
     const checkAll = ref(true);
@@ -189,7 +189,7 @@ export default defineComponent({
         Sortable.create(wrapper, {
           animation: 300,
           handle: ".drag-btn",
-          onEnd: ({newIndex, oldIndex, item}) => {
+          onEnd: ({ newIndex, oldIndex, item }) => {
             const targetThElem = item;
             const wrapperElem = targetThElem.parentNode as HTMLElement;
             const oldColumn = dynamicColumns.value[oldIndex];
@@ -276,7 +276,7 @@ export default defineComponent({
                     )}
                     onClick={() => onExpand()}
                   />
-                  <el-divider direction="vertical"/>
+                  <el-divider direction="vertical" />
                 </>
               ) : null}
               <RefreshIcon
@@ -288,20 +288,20 @@ export default defineComponent({
                 v-tippy={rendTippyProps("刷新")}
                 onClick={() => onReFresh()}
               />
-              <el-divider direction="vertical"/>
+              <el-divider direction="vertical" />
               <el-dropdown
                 v-slots={dropdown}
                 trigger="click"
                 v-tippy={rendTippyProps("密度")}
               >
-                <CollapseIcon class={["w-[16px]", iconClass.value]}/>
+                <CollapseIcon class={["w-[16px]", iconClass.value]} />
               </el-dropdown>
-              <el-divider direction="vertical"/>
+              <el-divider direction="vertical" />
 
               <el-popover
                 v-slots={reference}
                 placement="bottom-start"
-                popper-style={{padding: 0}}
+                popper-style={{ padding: 0 }}
                 width="200"
                 trigger="click"
               >
@@ -367,7 +367,7 @@ export default defineComponent({
                   </el-scrollbar>
                 </div>
               </el-popover>
-              <el-divider direction="vertical"/>
+              <el-divider direction="vertical" />
 
               <iconifyIconOffline
                 class={["w-[16px]", iconClass.value]}

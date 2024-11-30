@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {emitter} from "@/utils/mitt";
-import {RouteConfigs} from "../../types";
-import {useTags} from "../../hooks/useTag";
-import {routerArrays} from "@/layout/types";
-import {onClickOutside} from "@vueuse/core";
+import { emitter } from "@/utils/mitt";
+import { RouteConfigs } from "../../types";
+import { useTags } from "../../hooks/useTag";
+import { routerArrays } from "@/layout/types";
+import { onClickOutside } from "@vueuse/core";
 import TagChrome from "./components/TagChrome.vue";
-import {handleAliveRoute, getTopMenu} from "@/router/utils";
-import {useSettingStoreHook} from "@/store/modules/settings";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
-import {usePermissionStoreHook} from "@/store/modules/permission";
-import {ref, watch, unref, toRaw, nextTick, onBeforeUnmount} from "vue";
+import { handleAliveRoute, getTopMenu } from "@/router/utils";
+import { useSettingStoreHook } from "@/store/modules/settings";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
+import { usePermissionStoreHook } from "@/store/modules/permission";
+import { ref, watch, unref, toRaw, nextTick, onBeforeUnmount } from "vue";
 import {
   delay,
   isEqual,
@@ -59,7 +59,7 @@ const scrollbarDom = ref();
 const contextmenuRef = ref();
 const isShowArrow = ref(false);
 const topPath = getTopMenu()?.path;
-const {VITE_HIDE_HOME} = import.meta.env;
+const { VITE_HIDE_HOME } = import.meta.env;
 const fixedTags = [
   ...routerArrays,
   ...usePermissionStoreHook().flatteningRoutes.filter(v => v?.meta?.fixedTag)
@@ -105,15 +105,15 @@ const moveToView = async (index: number): Promise<void> => {
   } else if (
     tabItemElOffsetLeft > -translateX.value &&
     tabItemElOffsetLeft + tabItemOffsetWidth <
-    -translateX.value + scrollbarDomWidth
+      -translateX.value + scrollbarDomWidth
   ) {
     // 标签在可视区域
     translateX.value = Math.min(
       0,
       scrollbarDomWidth -
-      tabItemOffsetWidth -
-      tabItemElOffsetLeft -
-      tabNavPadding
+        tabItemOffsetWidth -
+        tabItemElOffsetLeft -
+        tabNavPadding
     );
   } else {
     // 标签在可视区域右侧
@@ -204,7 +204,7 @@ function dynamicRouteTag(value: string): void {
 
 /** 刷新路由 */
 function onFresh() {
-  const {fullPath, query} = unref(route);
+  const { fullPath, query } = unref(route);
   router.replace({
     path: "/redirect" + fullPath,
     query
@@ -264,21 +264,21 @@ function deleteDynamicTag(obj: any, current: any, tag?: string) {
     // 如果删除当前激活tag就自动切换到最后一个tag
     if (tag === "left") return;
     if (newRoute[0]?.query) {
-      router.push({name: newRoute[0].name, query: newRoute[0].query});
+      router.push({ name: newRoute[0].name, query: newRoute[0].query });
     } else if (newRoute[0]?.params) {
-      router.push({name: newRoute[0].name, params: newRoute[0].params});
+      router.push({ name: newRoute[0].name, params: newRoute[0].params });
     } else {
-      router.push({path: newRoute[0].path});
+      router.push({ path: newRoute[0].path });
     }
   } else {
     if (!multiTags.value.length) return;
     if (multiTags.value.some(item => item.path === route.path)) return;
     if (newRoute[0]?.query) {
-      router.push({name: newRoute[0].name, query: newRoute[0].query});
+      router.push({ name: newRoute[0].name, query: newRoute[0].query });
     } else if (newRoute[0]?.params) {
-      router.push({name: newRoute[0].name, params: newRoute[0].params});
+      router.push({ name: newRoute[0].name, params: newRoute[0].params });
     } else {
-      router.push({path: newRoute[0].path});
+      router.push({ path: newRoute[0].path });
     }
   }
 }
@@ -301,7 +301,7 @@ function onClickDrop(key, item, selectRoute?: RouteConfigs) {
       params: selectRoute?.params
     };
   } else {
-    selectTagRoute = {path: route.path, meta: route.meta};
+    selectTagRoute = { path: route.path, meta: route.meta };
   }
 
   // 当前路由信息
@@ -356,7 +356,7 @@ function onClickDrop(key, item, selectRoute?: RouteConfigs) {
 }
 
 function handleCommand(command: any) {
-  const {key, item} = command;
+  const { key, item } = command;
   onClickDrop(key, item);
 }
 
@@ -491,7 +491,7 @@ function openMenu(tag, e) {
 
 /** 触发tags标签切换 */
 function tagOnClick(item) {
-  const {name, path} = item;
+  const { name, path } = item;
   if (name) {
     if (item.query) {
       router.push({
@@ -504,10 +504,10 @@ function tagOnClick(item) {
         params: item.params
       });
     } else {
-      router.push({name});
+      router.push({ name });
     }
   } else {
-    router.push({path});
+    router.push({ path });
   }
 }
 
@@ -560,7 +560,7 @@ onBeforeUnmount(() => {
 <template>
   <div v-if="!showTags" ref="containerDom" class="tags-view">
     <span v-show="isShowArrow" class="arrow-left">
-      <IconifyIconOffline :icon="ArrowLeftSLine" @click="handleScroll(200)"/>
+      <IconifyIconOffline :icon="ArrowLeftSLine" @click="handleScroll(200)" />
     </span>
     <div
       ref="scrollbarDom"
@@ -600,7 +600,7 @@ onBeforeUnmount(() => {
               class="el-icon-close"
               @click.stop="deleteMenu(item)"
             >
-              <IconifyIconOffline :icon="Close"/>
+              <IconifyIconOffline :icon="Close" />
             </span>
             <span
               v-if="showModel !== 'card'"
@@ -610,7 +610,7 @@ onBeforeUnmount(() => {
           </template>
           <div v-else class="chrome-tab">
             <div class="chrome-tab__bg">
-              <TagChrome/>
+              <TagChrome />
             </div>
             <span class="tag-title">
               {{ item.meta.title }}
@@ -620,15 +620,15 @@ onBeforeUnmount(() => {
               class="chrome-close-btn"
               @click.stop="deleteMenu(item)"
             >
-              <IconifyIconOffline :icon="Close"/>
+              <IconifyIconOffline :icon="Close" />
             </span>
-            <span class="chrome-tab-divider"/>
+            <span class="chrome-tab-divider" />
           </div>
         </div>
       </div>
     </div>
     <span v-show="isShowArrow" class="arrow-right">
-      <IconifyIconOffline :icon="ArrowRightSLine" @click="handleScroll(-200)"/>
+      <IconifyIconOffline :icon="ArrowRightSLine" @click="handleScroll(-200)" />
     </span>
     <!-- 右键菜单按钮 -->
     <transition name="el-zoom-in-top">
@@ -645,7 +645,7 @@ onBeforeUnmount(() => {
           style="display: flex; align-items: center"
         >
           <li v-if="item.show" @click="selectTag(key, item)">
-            <IconifyIconOffline :icon="item.icon"/>
+            <IconifyIconOffline :icon="item.icon" />
             {{ item.text }}
           </li>
         </div>
@@ -658,7 +658,7 @@ onBeforeUnmount(() => {
       @command="handleCommand"
     >
       <span class="arrow-down">
-        <IconifyIconOffline :icon="ArrowDown" class="dark:text-white"/>
+        <IconifyIconOffline :icon="ArrowDown" class="dark:text-white" />
       </span>
       <template #dropdown>
         <el-dropdown-menu>
@@ -669,7 +669,7 @@ onBeforeUnmount(() => {
             :divided="item.divided"
             :disabled="item.disabled"
           >
-            <IconifyIconOffline :icon="item.icon"/>
+            <IconifyIconOffline :icon="item.icon" />
             {{ item.text }}
           </el-dropdown-item>
         </el-dropdown-menu>

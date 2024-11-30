@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import path from "path";
-import {getConfig} from "@/config";
-import {menuType} from "@/layout/types";
-import {ReText} from "@/components/ReText";
-import {useNav} from "@/layout/hooks/useNav";
+import { getConfig } from "@/config";
+import { menuType } from "@/layout/types";
+import { ReText } from "@/components/ReText";
+import { useNav } from "@/layout/hooks/useNav";
 import SidebarLinkItem from "./SidebarLinkItem.vue";
 import SidebarExtraIcon from "./SidebarExtraIcon.vue";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import {
   type PropType,
   type CSSProperties,
@@ -22,7 +22,7 @@ import ArrowLeft from "@iconify-icons/ep/arrow-left-bold";
 import ArrowRight from "@iconify-icons/ep/arrow-right-bold";
 
 const attrs = useAttrs();
-const {layout, isCollapse, tooltipEffect, getDivStyle} = useNav();
+const { layout, isCollapse, tooltipEffect, getDivStyle } = useNav();
 
 const props = defineProps({
   item: {
@@ -87,7 +87,7 @@ function hasOneShowingChild(children: menuType[] = [], parent: menuType) {
   }
 
   if (showingChildren.length === 0) {
-    onlyOneChild.value = {...parent, path: "", noShowingChildren: true};
+    onlyOneChild.value = { ...parent, path: "", noShowingChildren: true };
     return true;
   }
   return false;
@@ -160,7 +160,7 @@ function resolvePath(routePath) {
           >
             {{ onlyOneChild.meta.title }}
           </ReText>
-          <SidebarExtraIcon :extraIcon="onlyOneChild.meta.extraIcon"/>
+          <SidebarExtraIcon :extraIcon="onlyOneChild.meta.extraIcon" />
         </div>
       </template>
     </el-menu-item>
@@ -178,7 +178,7 @@ function resolvePath(routePath) {
         :style="getSubMenuIconStyle"
         class="sub-menu-icon"
       >
-        <component :is="useRenderIcon(item.meta && toRaw(item.meta.icon))"/>
+        <component :is="useRenderIcon(item.meta && toRaw(item.meta.icon))" />
       </div>
       <ReText
         v-if="
@@ -207,7 +207,7 @@ function resolvePath(routePath) {
       >
         {{ item.meta.title }}
       </ReText>
-      <SidebarExtraIcon v-if="!isCollapse" :extraIcon="item.meta.extraIcon"/>
+      <SidebarExtraIcon v-if="!isCollapse" :extraIcon="item.meta.extraIcon" />
     </template>
 
     <sidebar-item

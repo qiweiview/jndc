@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 import SearchHistoryItem from "./SearchHistoryItem.vue";
-import type {optionsItem, dragItem, Props} from "../types";
-import {useEpThemeStoreHook} from "@/store/modules/epTheme";
-import {useResizeObserver, isArray, delay} from "@pureadmin/utils";
-import {ref, watch, nextTick, computed, getCurrentInstance} from "vue";
+import type { optionsItem, dragItem, Props } from "../types";
+import { useEpThemeStoreHook } from "@/store/modules/epTheme";
+import { useResizeObserver, isArray, delay } from "@pureadmin/utils";
+import { ref, watch, nextTick, computed, getCurrentInstance } from "vue";
 
 interface Emits {
   (e: "update:value", val: string): void;
@@ -105,7 +105,7 @@ function handleScroll(index: number) {
 }
 
 const handleChangeIndex = (evt): void => {
-  emit("drag", {oldIndex: evt.oldIndex, newIndex: evt.newIndex});
+  emit("drag", { oldIndex: evt.oldIndex, newIndex: evt.newIndex });
 };
 
 let sortableInstance = null;
@@ -132,10 +132,10 @@ watch(
       });
     }
   },
-  {deep: true, immediate: true}
+  { deep: true, immediate: true }
 );
 
-defineExpose({handleScroll});
+defineExpose({ handleScroll });
 </script>
 
 <template>
@@ -172,7 +172,7 @@ defineExpose({handleScroll});
           @click="handleTo"
           @mouseenter="handleMouse(item)"
         >
-          <SearchHistoryItem :item="item" @delete-item="handleDelete"/>
+          <SearchHistoryItem :item="item" @delete-item="handleDelete" />
         </div>
       </div>
     </template>

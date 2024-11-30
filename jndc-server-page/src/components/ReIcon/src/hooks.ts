@@ -1,6 +1,6 @@
-import type {iconType} from "./types";
-import {h, defineComponent, type Component} from "vue";
-import {IconifyIconOnline, IconifyIconOffline, FontIcon} from "../index";
+import type { iconType } from "./types";
+import { h, defineComponent, type Component } from "vue";
+import { IconifyIconOnline, IconifyIconOffline, FontIcon } from "../index";
 
 /**
  * 支持 `iconfont`、自定义 `svg` 以及 `iconify` 中所有的图标
@@ -33,7 +33,7 @@ export function useRenderIcon(icon: any, attrs?: iconType): Component {
     });
   } else if (typeof icon === "function" || typeof icon?.render === "function") {
     // svg
-    return attrs ? h(icon, {...attrs}) : icon;
+    return attrs ? h(icon, { ...attrs }) : icon;
   } else if (typeof icon === "object") {
     return defineComponent({
       name: "OfflineIcon",

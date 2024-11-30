@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useNav} from "@/layout/hooks/useNav";
+import { useNav } from "@/layout/hooks/useNav";
 import LaySearch from "../lay-search/index.vue";
 import LayNotice from "../lay-notice/index.vue";
 import LayNavMix from "../lay-sidebar/NavMix.vue";
@@ -37,19 +37,19 @@ const {
       class="breadcrumb-container"
     />
 
-    <LayNavMix v-if="layout === 'mix'"/>
+    <LayNavMix v-if="layout === 'mix'" />
 
     <div v-if="layout === 'vertical'" class="vertical-header-right">
       <!-- 菜单搜索 -->
-      <LaySearch id="header-search"/>
+      <LaySearch id="header-search" />
       <!-- 全屏 -->
-      <LaySidebarFullScreen id="full-screen"/>
+      <LaySidebarFullScreen id="full-screen" />
       <!-- 消息通知 -->
-      <LayNotice id="header-notice"/>
+      <LayNotice id="header-notice" />
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">
-          <img :src="userAvatar" :style="avatarsStyle"/>
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
@@ -69,7 +69,7 @@ const {
         title="打开系统配置"
         @click="onPanel"
       >
-        <IconifyIconOffline :icon="Setting"/>
+        <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
   </div>

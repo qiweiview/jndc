@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {isAllEmpty} from "@pureadmin/utils";
-import {useNav} from "@/layout/hooks/useNav";
+import { isAllEmpty } from "@pureadmin/utils";
+import { useNav } from "@/layout/hooks/useNav";
 import LaySearch from "../lay-search/index.vue";
 import LayNotice from "../lay-notice/index.vue";
-import {ref, toRaw, watch, onMounted, nextTick} from "vue";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {getParentPaths, findRouteByPath} from "@/router/utils";
-import {usePermissionStoreHook} from "@/store/modules/permission";
+import { ref, toRaw, watch, onMounted, nextTick } from "vue";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { getParentPaths, findRouteByPath } from "@/router/utils";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 import LaySidebarExtraIcon from "../lay-sidebar/components/SidebarExtraIcon.vue";
 import LaySidebarFullScreen from "../lay-sidebar/components/SidebarFullScreen.vue";
 
@@ -85,22 +85,22 @@ watch(
             <span class="select-none">
               {{ route.meta.title }}
             </span>
-            <LaySidebarExtraIcon :extraIcon="route.meta.extraIcon"/>
+            <LaySidebarExtraIcon :extraIcon="route.meta.extraIcon" />
           </div>
         </template>
       </el-menu-item>
     </el-menu>
     <div class="horizontal-header-right">
       <!-- 菜单搜索 -->
-      <LaySearch id="header-search"/>
+      <LaySearch id="header-search" />
       <!-- 全屏 -->
-      <LaySidebarFullScreen id="full-screen"/>
+      <LaySidebarFullScreen id="full-screen" />
       <!-- 消息通知 -->
-      <LayNotice id="header-notice"/>
+      <LayNotice id="header-notice" />
       <!-- 退出登录 -->
       <el-dropdown trigger="click">
         <span class="el-dropdown-link navbar-bg-hover select-none">
-          <img :src="userAvatar" :style="avatarsStyle"/>
+          <img :src="userAvatar" :style="avatarsStyle" />
           <p v-if="username" class="dark:text-white">{{ username }}</p>
         </span>
         <template #dropdown>
@@ -120,7 +120,7 @@ watch(
         title="打开系统配置"
         @click="onPanel"
       >
-        <IconifyIconOffline :icon="Setting"/>
+        <IconifyIconOffline :icon="Setting" />
       </span>
     </div>
   </div>

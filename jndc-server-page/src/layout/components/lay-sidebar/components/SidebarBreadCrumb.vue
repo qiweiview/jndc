@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {isEqual} from "@pureadmin/utils";
-import {useRoute, useRouter} from "vue-router";
-import {ref, watch, onMounted, toRaw} from "vue";
-import {getParentPaths, findRouteByPath} from "@/router/utils";
-import {useMultiTagsStoreHook} from "@/store/modules/multiTags";
+import { isEqual } from "@pureadmin/utils";
+import { useRoute, useRouter } from "vue-router";
+import { ref, watch, onMounted, toRaw } from "vue";
+import { getParentPaths, findRouteByPath } from "@/router/utils";
+import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 
 const route = useRoute();
 const levelList = ref([]);
@@ -64,7 +64,7 @@ const getBreadcrumb = (): void => {
 };
 
 const handleLink = item => {
-  const {redirect, name, path} = item;
+  const { redirect, name, path } = item;
   if (redirect) {
     router.push(redirect as any);
   } else {
@@ -80,10 +80,10 @@ const handleLink = item => {
           params: item.params
         });
       } else {
-        router.push({name});
+        router.push({ name });
       }
     } else {
-      router.push({path});
+      router.push({ path });
     }
   }
 };

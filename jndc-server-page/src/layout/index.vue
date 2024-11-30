@@ -2,11 +2,11 @@
 import "animate.css";
 // 引入 src/components/ReIcon/src/offlineIcon.ts 文件中所有使用addIcon添加过的本地图标
 import "@/components/ReIcon/src/offlineIcon";
-import {setType} from "./types";
-import {useLayout} from "./hooks/useLayout";
-import {useAppStoreHook} from "@/store/modules/app";
-import {useSettingStoreHook} from "@/store/modules/settings";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
+import { setType } from "./types";
+import { useLayout } from "./hooks/useLayout";
+import { useAppStoreHook } from "@/store/modules/app";
+import { useSettingStoreHook } from "@/store/modules/settings";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import {
   h,
   ref,
@@ -32,11 +32,11 @@ import NavHorizontal from "./components/lay-sidebar/NavHorizontal.vue";
 import BackTopIcon from "@/assets/svg/back_top.svg?component";
 
 const appWrapperRef = ref();
-const {isDark} = useDark();
-const {layout} = useLayout();
+const { isDark } = useDark();
+const { layout } = useLayout();
 const isMobile = deviceDetection();
 const pureSetting = useSettingStoreHook();
-const {$storage} = useGlobal<GlobalPropertiesApi>();
+const { $storage } = useGlobal<GlobalPropertiesApi>();
 
 const set: setType = reactive({
   sidebar: computed(() => {
@@ -89,8 +89,8 @@ let isAutoCloseSidebar = true;
 useResizeObserver(appWrapperRef, entries => {
   if (isMobile) return;
   const entry = entries[0];
-  const [{inlineSize: width, blockSize: height}] = entry.borderBoxSize;
-  useAppStoreHook().setViewportSize({width, height});
+  const [{ inlineSize: width, blockSize: height }] = entry.borderBoxSize;
+  useAppStoreHook().setViewportSize({ width, height });
   width <= 760 ? setTheme("vertical") : setTheme(useAppStoreHook().layout);
   /** width app-wrapper类容器宽度
    * 0 < width <= 760 隐藏侧边栏
@@ -130,7 +130,7 @@ const LayHeader = defineComponent({
     return h(
       "div",
       {
-        class: {"fixed-header": set.fixedHeader},
+        class: { "fixed-header": set.fixedHeader },
         style: [
           set.hideTabs && layout.value.includes("horizontal")
             ? isDark.value
@@ -180,24 +180,24 @@ const LayHeader = defineComponent({
       ]"
     >
       <div v-if="set.fixedHeader">
-        <LayHeader/>
+        <LayHeader />
         <!-- 主体内容 -->
-        <LayContent :fixed-header="set.fixedHeader"/>
+        <LayContent :fixed-header="set.fixedHeader" />
       </div>
       <el-scrollbar v-else>
         <el-backtop
           title="回到顶部"
           target=".main-container .el-scrollbar__wrap"
         >
-          <BackTopIcon/>
+          <BackTopIcon />
         </el-backtop>
-        <LayHeader/>
+        <LayHeader />
         <!-- 主体内容 -->
-        <LayContent :fixed-header="set.fixedHeader"/>
+        <LayContent :fixed-header="set.fixedHeader" />
       </el-scrollbar>
     </div>
     <!-- 系统设置 -->
-    <LaySetting/>
+    <LaySetting />
   </div>
 </template>
 
