@@ -139,20 +139,20 @@ onBeforeUnmount(() => {
               </el-form-item>
             </Motion>
 
-            <Motion :delay="200">
-              <el-form-item prop="verifyCode">
-                <el-input
-                  v-model="ruleForm.verifyCode"
-                  clearable
-                  placeholder="验证码"
-                  :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"
-                >
-                  <template v-slot:append>
-                    <ReImageVerify v-model:code="imgCode" />
-                  </template>
-                </el-input>
-              </el-form-item>
-            </Motion>
+            <!--            <Motion :delay="200">-->
+            <!--              <el-form-item prop="verifyCode">-->
+            <!--                <el-input-->
+            <!--                  v-model="ruleForm.verifyCode"-->
+            <!--                  clearable-->
+            <!--                  placeholder="验证码"-->
+            <!--                  :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"-->
+            <!--                >-->
+            <!--                  <template v-slot:append>-->
+            <!--                    <ReImageVerify v-model:code="imgCode" />-->
+            <!--                  </template>-->
+            <!--                </el-input>-->
+            <!--              </el-form-item>-->
+            <!--            </Motion>-->
 
             <Motion :delay="250">
               <el-button

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
-@TableName("ip_record")
+@TableName("plugin_ip_record")
 public class IPRecordEntity extends TraceableEntity {
 
     @TableField(value = "ip")
@@ -25,6 +25,6 @@ public class IPRecordEntity extends TraceableEntity {
 
 
     public static String ddl() {
-        return "create table if not exists ip_record (id bigint primary key, ip varchar(255), last_active_time datetime, total_traffic bigint, create_date datetime, update_date datetime)";
+        return "create table if not exists plugin_ip_record (id bigint primary key, ip varchar(255), last_active_time datetime, total_traffic bigint, create_date datetime, update_date datetime)";
     }
 }

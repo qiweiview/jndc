@@ -12,7 +12,7 @@ import java.time.LocalTime;
 
 @Data
 @Slf4j
-@TableName("time_range")
+@TableName("plugin_time_range")
 public class TimeRangeEntity extends TraceableEntity {
 
 
@@ -23,6 +23,6 @@ public class TimeRangeEntity extends TraceableEntity {
     private LocalTime rangeEnd;
 
     public static String ddl() {
-        return "create table if not exists time_range (range_id bigint primary key, range_start time, range_end time, create_date datetime, update_date datetime)";
+        return "create table if not exists plugin_time_range (range_id bigint primary key, range_start time, range_end time, create_date datetime, update_date datetime)";
     }
 }

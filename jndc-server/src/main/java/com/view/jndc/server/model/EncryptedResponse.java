@@ -25,9 +25,6 @@ public class EncryptedResponse {
         return Jackson.toObject(Jackson.toJson(data), tClass);
     }
 
-    public boolean isSuccess() {
-        return ResultCode.SUCCESS.getCode().equals(code);
-    }
 
     /**
      * 成功返回结果

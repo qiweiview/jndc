@@ -1,6 +1,7 @@
 package com.view.jndc.server.model.admin;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.view.jndc.server.model.TraceableEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,7 +13,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
-public class AdminUserEntity extends TraceableEntity {
+@TableName("pure_user")
+public class PureUserEntity extends TraceableEntity {
 
     @TableField(value = "avatar")
     private String avatar;         // User avatar URL
@@ -40,7 +42,7 @@ public class AdminUserEntity extends TraceableEntity {
 
 
     public static String ddl() {
-        return "create table if not exists admin_user (\n" +
+        return "create table if not exists pure_user (\n" +
                 "    id bigint auto_increment primary key,\n" +
                 "    avatar varchar(255),\n" +
                 "    username varchar(255),\n" +

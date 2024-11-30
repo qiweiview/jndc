@@ -1,62 +1,62 @@
 package com.view.jndc.server.admin;
 
-import com.view.jndc.server.model.admin.Meta;
-import com.view.jndc.server.model.admin.PermissionConfig;
-import com.view.jndc.server.model.admin.PureRoute;
+import com.view.jndc.server.model.admin.PureMetaEntity;
+import com.view.jndc.server.model.admin.PurePermissionEntity;
+import com.view.jndc.server.model.admin.PureRouteEntity;
 
 import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
         // Create Meta objects
-        Meta permissionMeta = new Meta();
-        permissionMeta.setTitle("权限管理");
-        permissionMeta.setIcon("ep:lollipop");
-        permissionMeta.setRank(10);
+        PureMetaEntity permissionPureMetaEntity = new PureMetaEntity();
+        permissionPureMetaEntity.setTitle("权限管理");
+        permissionPureMetaEntity.setIcon("ep:lollipop");
+        permissionPureMetaEntity.setRank(10);
 
-        Meta pageMeta = new Meta();
-        pageMeta.setTitle("页面权限");
-        pageMeta.setRoles(Arrays.asList("admin", "common"));
+        PureMetaEntity pagePureMetaEntity = new PureMetaEntity();
+        pagePureMetaEntity.setTitle("页面权限");
+        pagePureMetaEntity.setRoles(Arrays.asList("admin", "common"));
 
-        Meta buttonMeta = new Meta();
-        buttonMeta.setTitle("按钮权限");
-        buttonMeta.setRoles(Arrays.asList("admin", "common"));
+        PureMetaEntity buttonPureMetaEntity = new PureMetaEntity();
+        buttonPureMetaEntity.setTitle("按钮权限");
+        buttonPureMetaEntity.setRoles(Arrays.asList("admin", "common"));
 
-        Meta routerMeta = new Meta();
-        routerMeta.setTitle("路由返回按钮权限");
-        routerMeta.setAuths(Arrays.asList("permission:btn:add", "permission:btn:edit", "permission:btn:delete"));
+        PureMetaEntity routerPureMetaEntity = new PureMetaEntity();
+        routerPureMetaEntity.setTitle("路由返回按钮权限");
+        routerPureMetaEntity.setAuths(Arrays.asList("permission:btn:add", "permission:btn:edit", "permission:btn:delete"));
 
-        Meta loginMeta = new Meta();
-        loginMeta.setTitle("登录接口返回按钮权限");
+        PureMetaEntity loginPureMetaEntity = new PureMetaEntity();
+        loginPureMetaEntity.setTitle("登录接口返回按钮权限");
 
         // Create Route objects
-        PureRoute permissionPagePureRoute = new PureRoute();
-        permissionPagePureRoute.setPath("/permission/page/index");
-        permissionPagePureRoute.setName("PermissionPage");
-        permissionPagePureRoute.setMeta(pageMeta);
+        PureRouteEntity permissionPagePureRouteEntity = new PureRouteEntity();
+        permissionPagePureRouteEntity.setPath("/permission/page/index");
+        permissionPagePureRouteEntity.setName("PermissionPage");
+        permissionPagePureRouteEntity.setPureMetaEntity(pagePureMetaEntity);
 
-        PureRoute permissionButtonRouterPureRoute = new PureRoute();
-        permissionButtonRouterPureRoute.setPath("/permission/button/router");
-        permissionButtonRouterPureRoute.setName("PermissionButtonRouter");
-        permissionButtonRouterPureRoute.setMeta(routerMeta);
+        PureRouteEntity permissionButtonRouterPureRouteEntity = new PureRouteEntity();
+        permissionButtonRouterPureRouteEntity.setPath("/permission/button/router");
+        permissionButtonRouterPureRouteEntity.setName("PermissionButtonRouter");
+        permissionButtonRouterPureRouteEntity.setPureMetaEntity(routerPureMetaEntity);
 
-        PureRoute permissionButtonLoginPureRoute = new PureRoute();
-        permissionButtonLoginPureRoute.setPath("/permission/button/login");
-        permissionButtonLoginPureRoute.setMeta(loginMeta);
+        PureRouteEntity permissionButtonLoginPureRouteEntity = new PureRouteEntity();
+        permissionButtonLoginPureRouteEntity.setPath("/permission/button/login");
+        permissionButtonLoginPureRouteEntity.setPureMetaEntity(loginPureMetaEntity);
 
         // Create children for the "按钮权限" route
-        PureRoute permissionButtonPureRoute = new PureRoute();
-        permissionButtonPureRoute.setPath("/permission/button");
-        permissionButtonPureRoute.setMeta(buttonMeta);
-        permissionButtonPureRoute.setChildren(Arrays.asList(permissionButtonRouterPureRoute, permissionButtonLoginPureRoute));
+        PureRouteEntity permissionButtonPureRouteEntity = new PureRouteEntity();
+        permissionButtonPureRouteEntity.setPath("/permission/button");
+        permissionButtonPureRouteEntity.setPureMetaEntity(buttonPureMetaEntity);
+        permissionButtonPureRouteEntity.setChildren(Arrays.asList(permissionButtonRouterPureRouteEntity, permissionButtonLoginPureRouteEntity));
 
         // Create the root PermissionConfig
-        PermissionConfig permissionConfig = new PermissionConfig();
-        permissionConfig.setPath("/permission");
-        permissionConfig.setMeta(permissionMeta);
-        permissionConfig.setChildren(Arrays.asList(permissionPagePureRoute, permissionButtonPureRoute));
+        PurePermissionEntity purePermissionEntity = new PurePermissionEntity();
+        purePermissionEntity.setPath("/permission");
+        purePermissionEntity.setPureMetaEntity(permissionPureMetaEntity);
+        purePermissionEntity.setChildren(Arrays.asList(permissionPagePureRouteEntity, permissionButtonPureRouteEntity));
 
         // Print out the config for verification
-        System.out.println(permissionConfig);
+        System.out.println(purePermissionEntity);
     }
 }

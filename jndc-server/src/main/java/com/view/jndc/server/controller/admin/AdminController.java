@@ -20,6 +20,11 @@ public class AdminController {
 
     @RequestMapping(value = "asyncRoutes", method = RequestMethod.GET)
     public EncryptedResponse asyncRoutes() {
-        return EncryptedResponse.success(Arrays.asList(PureHelper.permissionConfig));
+        return EncryptedResponse.success(Arrays.asList(PureHelper.purePermissionEntity));
+    }
+
+    @RequestMapping(value = "fail", method = RequestMethod.GET)
+    public EncryptedResponse fail() {
+        return EncryptedResponse.failed("failii");
     }
 }
