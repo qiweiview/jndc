@@ -33,27 +33,27 @@ public class Main {
         PureRouteEntity permissionPagePureRouteEntity = new PureRouteEntity();
         permissionPagePureRouteEntity.setPath("/permission/page/index");
         permissionPagePureRouteEntity.setName("PermissionPage");
-        permissionPagePureRouteEntity.setPureMetaEntity(pagePureMetaEntity);
+        permissionPagePureRouteEntity.setMeta(pagePureMetaEntity);
 
         PureRouteEntity permissionButtonRouterPureRouteEntity = new PureRouteEntity();
         permissionButtonRouterPureRouteEntity.setPath("/permission/button/router");
         permissionButtonRouterPureRouteEntity.setName("PermissionButtonRouter");
-        permissionButtonRouterPureRouteEntity.setPureMetaEntity(routerPureMetaEntity);
+        permissionButtonRouterPureRouteEntity.setMeta(routerPureMetaEntity);
 
         PureRouteEntity permissionButtonLoginPureRouteEntity = new PureRouteEntity();
         permissionButtonLoginPureRouteEntity.setPath("/permission/button/login");
-        permissionButtonLoginPureRouteEntity.setPureMetaEntity(loginPureMetaEntity);
+        permissionButtonLoginPureRouteEntity.setMeta(loginPureMetaEntity);
 
         // Create children for the "按钮权限" route
         PureRouteEntity permissionButtonPureRouteEntity = new PureRouteEntity();
         permissionButtonPureRouteEntity.setPath("/permission/button");
-        permissionButtonPureRouteEntity.setPureMetaEntity(buttonPureMetaEntity);
+        permissionButtonPureRouteEntity.setMeta(buttonPureMetaEntity);
         permissionButtonPureRouteEntity.setChildren(Arrays.asList(permissionButtonRouterPureRouteEntity, permissionButtonLoginPureRouteEntity));
 
         // Create the root PermissionConfig
         PurePermissionEntity purePermissionEntity = new PurePermissionEntity();
         purePermissionEntity.setPath("/permission");
-        purePermissionEntity.setPureMetaEntity(permissionPureMetaEntity);
+        purePermissionEntity.setMeta(permissionPureMetaEntity);
         purePermissionEntity.setChildren(Arrays.asList(permissionPagePureRouteEntity, permissionButtonPureRouteEntity));
 
         // Print out the config for verification

@@ -24,7 +24,7 @@ public class PureRouteEntity extends TraceableEntity {
     private String component;
 
     @TableField(value = "pure_meta")
-    private PureMetaEntity pureMetaEntity;
+    private PureMetaEntity meta;
 
     @TableField(exist = false)
     private List<PureRouteEntity> children;  // Child routes

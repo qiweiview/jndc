@@ -58,30 +58,30 @@ public class PureHelper {
         PureRouteEntity permissionPagePureRouteEntity = new PureRouteEntity();
         permissionPagePureRouteEntity.setPath("/permission/page/index");
         permissionPagePureRouteEntity.setName("PermissionPage");
-        permissionPagePureRouteEntity.setPureMetaEntity(pagePureMetaEntity);
+        permissionPagePureRouteEntity.setMeta(pagePureMetaEntity);
 
         PureRouteEntity permissionButtonRouterPureRouteEntity = new PureRouteEntity();
         permissionButtonRouterPureRouteEntity.setPath("/permission/button/router");
         permissionButtonRouterPureRouteEntity.setName("PermissionButtonRouter");
         permissionButtonRouterPureRouteEntity.setComponent("permission/button/index");
-        permissionButtonRouterPureRouteEntity.setPureMetaEntity(routerPureMetaEntity);
+        permissionButtonRouterPureRouteEntity.setMeta(routerPureMetaEntity);
 
         PureRouteEntity permissionButtonLoginPureRouteEntity = new PureRouteEntity();
         permissionButtonLoginPureRouteEntity.setPath("/permission/button/login");
         permissionButtonLoginPureRouteEntity.setName("PermissionButtonLogin");
         permissionButtonLoginPureRouteEntity.setComponent("permission/button/perms");
-        permissionButtonLoginPureRouteEntity.setPureMetaEntity(loginPureMetaEntity);
+        permissionButtonLoginPureRouteEntity.setMeta(loginPureMetaEntity);
 
         // Create children for the "按钮权限" route
         PureRouteEntity permissionButtonPureRouteEntity = new PureRouteEntity();
         permissionButtonPureRouteEntity.setPath("/permission/button");
-        permissionButtonPureRouteEntity.setPureMetaEntity(buttonPureMetaEntity);
+        permissionButtonPureRouteEntity.setMeta(buttonPureMetaEntity);
         permissionButtonPureRouteEntity.setChildren(Arrays.asList(permissionButtonRouterPureRouteEntity, permissionButtonLoginPureRouteEntity));
 
         // Create the root PermissionConfig
         purePermissionEntity = new PurePermissionEntity();
         purePermissionEntity.setPath("/permission");
-        purePermissionEntity.setPureMetaEntity(permissionPureMetaEntity);
+        purePermissionEntity.setMeta(permissionPureMetaEntity);
         purePermissionEntity.setChildren(Arrays.asList(permissionPagePureRouteEntity, permissionButtonPureRouteEntity));
 
     }

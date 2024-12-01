@@ -18,7 +18,7 @@ public class PurePermissionEntity extends TraceableEntity {
     private String path;
 
     @TableField(exist = false)
-    private PureMetaEntity pureMetaEntity;
+    private PureMetaEntity meta;
 
     @TableField(exist = false)
     private List<PureRouteEntity> children;  // List of child routes
