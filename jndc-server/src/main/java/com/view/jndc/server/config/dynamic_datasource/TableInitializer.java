@@ -10,6 +10,7 @@ import com.view.jndc.server.model.ndc.plugins.IPRecordEntity;
 import com.view.jndc.server.model.ndc.plugins.TimeRangeEntity;
 import com.view.jndc.server.model.ndc.server.ChannelOpenEntity;
 import com.view.jndc.server.model.ndc.server.NDCServerEntity;
+import com.view.jndc.server.serivce.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class TableInitializer {
     private final TableInitializerDao tableInitializerDao;
+
+    private final AdminService adminService;
 
 
     public void init() {
@@ -32,5 +35,9 @@ public class TableInitializer {
         tableInitializerDao.execute(PureMetaEntity.ddl());
         tableInitializerDao.execute(PurePermissionEntity.ddl());
         tableInitializerDao.execute(PureRouteEntity.ddl());
+
+        adminService.init();
+
+
     }
 }

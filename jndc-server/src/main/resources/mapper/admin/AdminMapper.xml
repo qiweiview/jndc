@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.server.dao.admin.AdminDao">
+
+
+    <select id="queryUserPage" resultType="com.view.jndc.server.model.admin.PureUserEntity">
+        select
+        id,
+        username,
+        roles,
+        permissions,
+        create_date,
+        update_date
+        from
+        pure_user
+        <where>
+            <if test="param.username != null and param.username != ''">
+                and username like concat('%',#{param.username},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

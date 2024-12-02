@@ -22,13 +22,22 @@ public class PureUserEntity extends TraceableEntity {
     @TableField(value = "username")
     private String username;       // Username
 
+    @TableField(value = "password")
+    private String password;       // Username
+
     @TableField(value = "nickname")
     private String nickname;       // Nickname
 
     @TableField(value = "roles")
+    private String roleString;
+
+    @TableField(exist = false)
     private List<String> roles;    // List of user roles
 
     @TableField(value = "permissions")
+    private String permissionString;
+
+    @TableField(exist = false)
     private List<String> permissions;  // List of user permissions
 
     @TableField(value = "access_token")
@@ -46,14 +55,20 @@ public class PureUserEntity extends TraceableEntity {
                 "    id bigint auto_increment primary key,\n" +
                 "    avatar varchar(255),\n" +
                 "    username varchar(255),\n" +
+                "    password varchar(255),\n" +
                 "    nickname varchar(255),\n" +
                 "    roles varchar(255),\n" +
                 "    permissions varchar(255),\n" +
                 "    access_token varchar(255),\n" +
                 "    refresh_token varchar(255),\n" +
                 "    expires varchar(255),\n" +
-                "    create_time datetime,\n" +
-                "    update_time datetime\n" +
+                "    create_date datetime,\n" +
+                "    update_date datetime\n" +
                 ");";
+    }
+
+    public PureUserEntity desensitization() {
+        this.password = null;
+        return this;
     }
 }

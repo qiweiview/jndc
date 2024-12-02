@@ -11,9 +11,6 @@ import {
   PlusDialogForm,
   PlusSearch
 } from "plus-pro-components";
-import { PureTableBar } from "@/components/RePureTableBar";
-import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import AddFill from "@iconify-icons/ri/add-circle-line";
 
 //定义弹框变量
 const visible = ref(false);
@@ -70,35 +67,26 @@ const elStyle = computed((): CSSProperties => {
       @reset="handleRest"
     />
 
-    <PureTableBar title="" :columns="columns" @refresh="handleSearch">
-      <template #buttons>
-        <el-button
-          :text="true"
-          type="primary"
-          :icon="useRenderIcon(AddFill)"
-          @click="openAddDialog()"
-        >
-          新增用户
-        </el-button>
-      </template>
-      <pure-table
-        ref="waterRef"
-        row-key="id"
-        style="margin-top: 15px"
-        :data="tableData"
-        :columns="columns"
-        stripe
-        adaptive
-        :adaptiveConfig="adaptiveConfig"
-        border
-        :size="tableSize as any"
-        :loading="loading"
-        :loading-config="loadingConfig"
-        :pagination="pagination"
-        @page-size-change="onSizeChange"
-        @page-current-change="onCurrentChange"
-      />
-    </PureTableBar>
+    <div style="width: 100%; text-align: right; padding: 15px">
+      <el-button type="text" @click="openAddDialog">新增</el-button>
+    </div>
+    <pure-table
+      ref="waterRef"
+      row-key="id"
+      style="margin-top: 15px"
+      :data="tableData"
+      :columns="columns"
+      stripe
+      adaptive
+      :adaptiveConfig="adaptiveConfig"
+      border
+      :size="tableSize as any"
+      :loading="loading"
+      :loading-config="loadingConfig"
+      :pagination="pagination"
+      @page-size-change="onSizeChange"
+      @page-current-change="onCurrentChange"
+    />
 
     <PlusDialogForm
       v-model:visible="visible"

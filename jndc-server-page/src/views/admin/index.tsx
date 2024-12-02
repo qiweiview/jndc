@@ -27,18 +27,18 @@ const tableContent = (waterRef: Ref) => {
       align: "center"
     },
     {
-      label: "日期",
-      prop: "date",
-      align: "center"
-    },
-    {
       label: "姓名",
       prop: "name",
       align: "center"
     },
     {
-      label: "地址",
-      prop: "address",
+      label: "创建日期",
+      prop: "date",
+      align: "center"
+    },
+    {
+      label: "修改日期",
+      prop: "date",
       align: "center"
     },
     {
@@ -160,10 +160,10 @@ const searchContent = () => {
 
   const searchColumn: PlusColumn[] = [
     {
-      label: "名称",
+      label: "用户名",
       prop: "name",
       valueType: "copy",
-      tooltip: "名称最多显示6个字符"
+      tooltip: "用户名"
     }
   ];
 

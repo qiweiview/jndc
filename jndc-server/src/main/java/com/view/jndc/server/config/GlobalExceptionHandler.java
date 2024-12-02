@@ -12,12 +12,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public EncryptedResponse handleException(Exception e) {
+        log.error("【异常】", e);
         if (e instanceof RuntimeException) {
             String msg = "【业务异常】" + e.getMessage();
             return EncryptedResponse.failed(msg);
         }
         String msg = "【系统异常】" + e.getMessage();
-        log.error("【系统异常】", e);
         return EncryptedResponse.failed(msg);
     }
 
