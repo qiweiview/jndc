@@ -36,6 +36,7 @@ public class RequiredLoginAspect {
         if (authorizationHeader == null) {
             throw new RuntimeException("凭证缺失");
         }
+        authorizationHeader = authorizationHeader.replace("Bearer ", "");
 
         //拉取用户信息
         PureUserEntity info = adminService.info(authorizationHeader);

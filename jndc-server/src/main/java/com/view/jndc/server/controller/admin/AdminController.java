@@ -21,9 +21,17 @@ public class AdminController {
     private final AdminService adminService;
 
 
+    @RequiredLogin
     @RequestMapping(value = "createUser", method = RequestMethod.POST)
     public EncryptedResponse createUser(@RequestBody PureUserEntity pureUserEntity) {
         int effect = adminService.createUser(pureUserEntity);
+        return EncryptedResponse.success(effect);
+    }
+
+    @RequiredLogin
+    @RequestMapping(value = "deleteUser", method = RequestMethod.POST)
+    public EncryptedResponse deleteUser(@RequestBody PureUserEntity pureUserEntity) {
+        int effect = adminService.deleteUser(pureUserEntity);
         return EncryptedResponse.success(effect);
     }
 

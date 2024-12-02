@@ -3,9 +3,10 @@ package com.view.jndc.server.serivce.admin;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.core.utils.AESUtils;
+import com.view.core.utils.RuntimeUtils;
 import com.view.core.utils.UniqueId;
 import com.view.jndc.server.config.cache.NDCMemoryCache;
-import com.view.jndc.server.config.exception.TokenExpireException;
+import com.view.jndc.server.config.exception.InvalidTokenException;
 import com.view.jndc.server.dao.admin.AdminDao;
 import com.view.jndc.server.model.admin.PureUserEntity;
 import lombok.RequiredArgsConstructor;
@@ -47,8 +48,22 @@ public class AdminService {
     }
 
     public Page<PureUserEntity> queryUserPage(PureUserEntity pureUserEntity) {
-        Page<PureUserEntity> page = new Page<>(pureUserEntity.getCurrent(), pureUserEntity.getSize());
-        return adminDao.queryUserPage(page, pureUserEntity);
+        Integer current = pureUserEntity.getCurrent();
+        if (current == null) {
+            current = 1;
+        }
+        Integer size = pureUserEntity.getSize();
+        if (size == null) {
+            size = 10;
+        }
+
+
+        Page<PureUserEntity> page = new Page<>(current, size);
+
+        Page<PureUserEntity> pureUserEntityPage = adminDao.queryUserPage(page, pureUserEntity);
+        //id
+        pureUserEntityPage.getRecords().parallelStream().forEach(x->x.tobeResponse());
+        return pureUserEntityPage;
     }
 
     public PureUserEntity login(PureUserEntity inputUser) {
@@ -77,12 +92,12 @@ public class AdminService {
         PureUserEntity byToken;
         try {
             byToken = ndcMemoryCache.get(authorizationHeader, PureUserEntity.class);
-        } catch (TokenExpireException e) {
-            throw new RuntimeException("登录状态过期");
+        } catch (InvalidTokenException e) {
+            throw new InvalidTokenException("登录状态过期");
         }
 
         if (byToken == null) {
-            throw new RuntimeException("凭证不存在");
+            throw new InvalidTokenException("凭证不存在");
         }
         return byToken;
     }
@@ -92,10 +107,23 @@ public class AdminService {
         if (byName == null) {
             PureUserEntity pureUserEntity = new PureUserEntity();
             pureUserEntity.setUsername("admin");
-            String generate = UniqueId.generate();
-            log.info("=======初始化密码:{}，请及时更改=======", generate);
-            pureUserEntity.setPassword(generate);
+            String runtimeUniqueId = RuntimeUtils.getRuntimeUniqueId();
+            log.info("=======初始化密码:{}，请及时更改=======", runtimeUniqueId);
+            pureUserEntity.setPassword(runtimeUniqueId);
             createUser(pureUserEntity);
         }
+    }
+
+    public int deleteUser(PureUserEntity pureUserEntity) {
+        pureUserEntity.tobeRequest();
+
+        PureUserEntity byId = adminDao.selectById(pureUserEntity.getId());
+        if (byId == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        if (byId.getUsername().equals("admin")) {
+            throw new RuntimeException("admin用户不可删除");
+        }
+        return adminDao.deleteById(byId.getId());
     }
 }

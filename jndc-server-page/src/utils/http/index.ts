@@ -11,7 +11,7 @@ import type {
 } from "./types.d";
 import { stringify } from "qs";
 import NProgress from "../progress";
-import { getToken, formatToken } from "@/utils/auth";
+import { getToken, formatToken, removeToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
 import { message as messageS } from "@/utils/message";
 
@@ -173,6 +173,11 @@ class PureHttp {
             const { data, code, message } = response;
             if (code == 0) {
               resolve(data);
+            } else if (code == 403) {
+              messageS("登录已过期，请重新登录", { type: "error" });
+              removeToken();
+              //刷新页面
+              window.location.reload();
             } else {
               messageS(message, { type: "error" });
               reject(data);

@@ -1,6 +1,6 @@
 package com.view.jndc.server.config.cache;
 
-import com.view.jndc.server.config.exception.TokenExpireException;
+import com.view.jndc.server.config.exception.InvalidTokenException;
 import com.view.jndc.server.utils.Jackson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -43,7 +43,7 @@ public class NDCMemoryCache {
 
         if (expiable.expire()) {
             cache.remove(key);
-            throw new TokenExpireException();
+            throw new InvalidTokenException("token已过期");
         }
         return Jackson.toObject(expiable.value, tClass);
     }

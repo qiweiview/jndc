@@ -7,7 +7,8 @@ import type {
   PaginationProps
 } from "@pureadmin/table";
 import { delay, useWatermark } from "@pureadmin/utils";
-import type { PlusColumn } from "plus-pro-components";
+import type { PlusColumn, FieldValues } from "plus-pro-components";
+import { queryUserPage, createUser } from "@/api/admin/pure_user";
 
 //表格内容
 const tableContent = (waterRef: Ref) => {
@@ -16,6 +17,7 @@ const tableContent = (waterRef: Ref) => {
   const loading = ref(false);
   const tableSize = ref("default");
 
+  //表格部分
   const columns: TableColumnList = [
     {
       type: "selection",
@@ -23,22 +25,24 @@ const tableContent = (waterRef: Ref) => {
     },
     {
       label: "ID",
-      prop: "id",
-      align: "center"
+      prop: "idS",
+      align: "center",
+      width: 180
     },
     {
       label: "姓名",
-      prop: "name",
-      align: "center"
+      prop: "username",
+      align: "center",
+      width: 80
     },
     {
       label: "创建日期",
-      prop: "date",
+      prop: "createDate",
       align: "center"
     },
     {
       label: "修改日期",
-      prop: "date",
+      prop: "updateDate",
       align: "center"
     },
     {
@@ -67,7 +71,7 @@ const tableContent = (waterRef: Ref) => {
     pageSize: 10,
     currentPage: 1,
     pageSizes: [10, 20, 50, 100, 200, 500],
-    total: 300,
+    total: 0,
     align: "right",
     background: true,
     size: "default"
@@ -103,24 +107,23 @@ const tableContent = (waterRef: Ref) => {
     // zIndex: 100
   };
 
+  //每页显示数量改变
   function onSizeChange(val) {
-    loadingConfig.text = `页面尺寸变化为${val}...`;
-    loading.value = true;
-    delay(600).then(() => {
-      loading.value = false;
-    });
+    form.size = val;
+    sendQueryPage();
   }
 
+  //当前页改变
   function onCurrentChange(val) {
-    loadingConfig.text = `正在加载第${val}页...`;
-    loading.value = true;
-    delay(600).then(() => {
-      loading.value = false;
-    });
+    form.current = val;
+    sendQueryPage();
   }
 
+  //生命周期
   onMounted(() => {
     delay().then(() => {
+      sendQueryPage();
+
       // https://pure-admin-utils.netlify.app/hooks/useWatermark/useWatermark.html
       const { setWatermark } = useWatermark(
         waterRef.value.getTableDoms().tableWrapper
@@ -135,8 +138,122 @@ const tableContent = (waterRef: Ref) => {
     });
   });
 
+  //查询表单
+  const form = reactive({
+    username: "",
+    current: 1,
+    size: 10
+  });
+
+  //查询列
+  const searchColumn: PlusColumn[] = [
+    {
+      label: "用户名",
+      prop: "name",
+      valueType: "copy"
+    }
+  ];
+
+  //发送查询请求
+  const sendQueryPage = () => {
+    loading.value = true;
+    queryUserPage(form)
+      .then(data => {
+        tableData.value = data.records;
+        pagination.total = data.total;
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+
+  //查询条件改变
+  const handleChange = (values: any) => {
+    form.username = values.name;
+    sendQueryPage();
+  };
+
+  //查询按钮事件
+  const handleSearch = (values: any) => {
+    form.username = values.name;
+    sendQueryPage();
+  };
+
+  //重置按钮事件
+  const handleRest = () => {
+    tableData.value = [];
+  };
+
+  //弹窗部分
+  //定义弹框变量
+  const visible = ref(false);
+
+  //弹框表单
+  const dialogForm = ref<FieldValues>({});
+
+  const dialog_rule = {
+    username: [
+      { required: true, message: "请输入用户名", trigger: "blur" },
+      { min: 1, message: "用户名长度不能小于1位", trigger: "blur" },
+      { max: 6, message: "用户名长度不能大于6位", trigger: "blur" },
+      {
+        pattern: /^[a-zA-Z0-9_]{1,6}$/,
+        message: "用户名只能包含字母、数字和下划线",
+        trigger: "blur"
+      }
+    ],
+    password: [
+      { required: true, message: "请输入密码", trigger: "blur" },
+      { min: 6, message: "密码长度不能小于6位", trigger: "blur" },
+      { max: 18, message: "密码长度不能大于18位", trigger: "blur" },
+      {
+        pattern: /^[a-zA-Z0-9_]{6,18}$/,
+        message: "密码只能包含字母、数字和下划线",
+        trigger: "blur"
+      }
+    ]
+  };
+
+  const dialog_form_columns: PlusColumn[] = [
+    {
+      label: "用户名",
+      prop: "username",
+      valueType: "copy",
+      fieldProps: {
+        maxlength: 6
+      }
+    },
+    {
+      label: "密码",
+      prop: "password",
+      valueType: "copy",
+      fieldProps: {
+        showPassword: true,
+        maxlength: 18
+      }
+    }
+  ];
+
+  const closeDialog = () => {
+    dialogForm.value = {};
+    visible.value = false;
+  };
+
+  const dialogConfirm = form => {
+    createUser(form).then(data => {
+      message("创建成功:" + data);
+      sendQueryPage();
+      closeDialog();
+    });
+  };
+
   //返回所需内容组合的对象
   return {
+    visible,
+    dialogForm,
+    dialogConfirm,
+    dialog_rule,
+    dialog_form_columns,
     tableData,
     loading,
     columns,
@@ -145,39 +262,7 @@ const tableContent = (waterRef: Ref) => {
     loadingConfig,
     adaptiveConfig,
     onSizeChange,
-    onCurrentChange
-  };
-};
-
-//搜索内容
-const searchContent = () => {
-  const form = reactive({
-    id: "",
-    date: "",
-    name: "",
-    address: ""
-  });
-
-  const searchColumn: PlusColumn[] = [
-    {
-      label: "用户名",
-      prop: "name",
-      valueType: "copy",
-      tooltip: "用户名"
-    }
-  ];
-
-  const handleChange = (values: any) => {
-    console.log(values, "change");
-  };
-  const handleSearch = (values: any) => {
-    console.log(values, "search");
-  };
-  const handleRest = () => {
-    console.log("handleRest");
-  };
-
-  return {
+    onCurrentChange,
     form,
     searchColumn,
     handleChange,
@@ -186,4 +271,4 @@ const searchContent = () => {
   };
 };
 
-export { tableContent, searchContent };
+export { tableContent };
