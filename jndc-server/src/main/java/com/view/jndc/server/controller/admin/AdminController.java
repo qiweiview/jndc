@@ -21,14 +21,14 @@ public class AdminController {
     private final AdminService adminService;
 
 
-    @RequiredLogin
+    @RequiredLogin(requiredSuperPermission = true)
     @RequestMapping(value = "createUser", method = RequestMethod.POST)
     public EncryptedResponse createUser(@RequestBody PureUserEntity pureUserEntity) {
         int effect = adminService.createUser(pureUserEntity);
         return EncryptedResponse.success(effect);
     }
 
-    @RequiredLogin
+    @RequiredLogin(requiredSuperPermission = true)
     @RequestMapping(value = "deleteUser", method = RequestMethod.POST)
     public EncryptedResponse deleteUser(@RequestBody PureUserEntity pureUserEntity) {
         int effect = adminService.deleteUser(pureUserEntity);
@@ -41,6 +41,13 @@ public class AdminController {
     public EncryptedResponse queryUserPage(@RequestBody PureUserEntity pureUserEntity) {
         Page<PureUserEntity> page = adminService.queryUserPage(pureUserEntity);
         return EncryptedResponse.success(page);
+    }
+
+    @RequiredLogin(requiredSuperPermission = true)
+    @RequestMapping(value = "resetPassword", method = RequestMethod.POST)
+    public EncryptedResponse resetPassword(@RequestBody PureUserEntity pureUserEntity) {
+        String newPassword = adminService.resetPassword(pureUserEntity);
+        return EncryptedResponse.success(newPassword);
     }
 
 

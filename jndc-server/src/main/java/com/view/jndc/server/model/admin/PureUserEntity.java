@@ -71,4 +71,8 @@ public class PureUserEntity extends TraceableEntity {
         this.password = null;
         return this;
     }
+
+    public Boolean superPermission() {
+        return "admin".equals(username);
+    }
 }

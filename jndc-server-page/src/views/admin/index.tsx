@@ -8,20 +8,29 @@ import type {
 } from "@pureadmin/table";
 import { delay, useWatermark } from "@pureadmin/utils";
 import type { PlusColumn, FieldValues } from "plus-pro-components";
-import { queryUserPage, createUser } from "@/api/admin/pure_user";
+import {
+  queryUserPage,
+  createUser,
+  deleteUser,
+  resetPassword,
+  type PureUser
+} from "@/api/admin/pure_user";
+import { ElMessageBox } from "element-plus";
+import { addNotice, type ListItem } from "@/layout/components/lay-notice/data";
 
 //表格内容
 const tableContent = (waterRef: Ref) => {
   //表格数据
   const tableData = ref([]);
   const loading = ref(false);
-  const tableSize = ref("default");
 
   //表格部分
   const columns: TableColumnList = [
     {
+      label: "勾选列", // 如果需要表格多选，此处label必须设置
       type: "selection",
-      align: "left"
+      fixed: "left",
+      reserveSelection: true // 数据刷新后保留选项
     },
     {
       label: "ID",
@@ -48,22 +57,75 @@ const tableContent = (waterRef: Ref) => {
     {
       label: "操作",
       align: "center",
-      cellRenderer: ({ index, row }) => (
-        <>
-          <el-button
-            size="small"
-            type="danger"
-            onClick={() => handleDelete(index + 1, row)}
-          >
-            Delete
-          </el-button>
-        </>
-      )
+      fixed: "right",
+      slot: "operation"
     }
   ];
 
-  const handleDelete = (index: number, row) => {
-    message(`您删除了第 ${index} 行，数据为：${JSON.stringify(row)}`);
+  const resetPasswordConfirm = (row: any) => {
+    ElMessageBox.confirm(
+      `确认要<strong>重置</strong><strong style='color:var(--el-color-primary)'>${
+        row.username
+      }</strong>密码吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        const user: PureUser = {
+          idS: row.idS
+        };
+
+        resetPassword(user).then(data => {
+          //success类型的message
+          message("重置成功:" + data, { type: "success" });
+          const listItem: ListItem = {
+            avatar: "",
+            title: "重置密码",
+            datetime: new Date().toLocaleString(),
+            description: `用户${row.username}的密码已重置,重置为：${data}`,
+            extra: "已完成",
+            status: "info",
+            type: "success"
+          };
+          addNotice(listItem);
+        });
+      })
+      .catch(() => {
+        //todo 取消删除
+      });
+  };
+
+  const handleDelete = (row: any) => {
+    ElMessageBox.confirm(
+      `确认要<strong>删除</strong><strong style='color:var(--el-color-primary)'>${
+        row.username
+      }</strong>用户吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        const user: PureUser = {
+          idS: row.idS
+        };
+        deleteUser(user).then(() => {
+          sendQueryPage();
+        });
+      })
+      .catch(() => {
+        //todo 取消删除
+      });
   };
 
   /** 分页配置 */
@@ -257,7 +319,6 @@ const tableContent = (waterRef: Ref) => {
     tableData,
     loading,
     columns,
-    tableSize,
     pagination,
     loadingConfig,
     adaptiveConfig,
@@ -267,7 +328,9 @@ const tableContent = (waterRef: Ref) => {
     searchColumn,
     handleChange,
     handleSearch,
-    handleRest
+    handleDelete,
+    handleRest,
+    resetPasswordConfirm
   };
 };
 

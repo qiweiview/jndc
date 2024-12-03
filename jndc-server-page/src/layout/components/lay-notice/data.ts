@@ -1,3 +1,5 @@
+import { ref } from "vue";
+
 export interface ListItem {
   avatar: string;
   title: string;
@@ -35,3 +37,18 @@ export const noticesData: TabItem[] = [
     emptyText: "暂无待办"
   }
 ];
+export const noticesNum = ref(0);
+export const notices = ref(noticesData);
+
+export const addNotice = (item: ListItem) => {
+  notices.value[0].list.unshift(item);
+  noticesNum.value++;
+};
+
+export const addMessage = (item: ListItem) => {
+  notices.value[1].list.unshift(item);
+};
+
+export const addTodo = (item: ListItem) => {
+  notices.value[2].list.unshift(item);
+};

@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import { computed, type CSSProperties, ref } from "vue";
+import { PureTable } from "@pureadmin/table";
+import { PureTableBar } from "@/components/RePureTableBar";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import Password from "@iconify-icons/ri/lock-password-line";
+import More from "@iconify-icons/ep/more-filled";
+import Delete from "@iconify-icons/ep/delete";
 
 //表格内容
 import { tableContent } from "./index";
@@ -20,16 +26,17 @@ const {
   searchColumn,
   handleChange,
   handleSearch,
-  handleRest,
   tableData,
   loading,
   columns,
-  tableSize,
   pagination,
   loadingConfig,
   adaptiveConfig,
   onSizeChange,
-  onCurrentChange
+  onCurrentChange,
+  handleDelete,
+  handleRest,
+  resetPasswordConfirm
 } = tableContent(waterRef);
 
 //打开新增弹框
@@ -63,28 +70,69 @@ const elStyle = computed((): CSSProperties => {
       @reset="handleRest"
     />
 
-    <div style="width: 100%; text-align: right; padding: 5px">
-      <el-button type="text" @click="openAddDialog">新增</el-button>
-    </div>
-
     <!--表格-->
-    <pure-table
-      ref="waterRef"
-      row-key="id"
-      style="margin-top: 15px"
-      :data="tableData"
-      :columns="columns"
-      stripe
-      adaptive
-      :adaptiveConfig="adaptiveConfig"
-      border
-      :size="tableSize as any"
-      :loading="loading"
-      :loading-config="loadingConfig"
-      :pagination="pagination"
-      @page-size-change="onSizeChange"
-      @page-current-change="onCurrentChange"
-    />
+    <PureTableBar title="" :columns="columns">
+      <template #buttons>
+        <el-button link type="success" @click="openAddDialog">新增</el-button>
+      </template>
+      <template v-slot="{ size, dynamicColumns }">
+        <!--表格-->
+        <PureTable
+          ref="waterRef"
+          row-key="id"
+          style="margin-top: 15px"
+          :data="tableData"
+          :size="size"
+          :columns="dynamicColumns"
+          stripe
+          adaptive
+          :adaptiveConfig="adaptiveConfig"
+          border
+          :loading="loading"
+          :loading-config="loadingConfig"
+          :pagination="pagination"
+          @page-size-change="onSizeChange"
+          @page-current-change="onCurrentChange"
+        >
+          <template #operation="{ row }">
+            <el-button
+              size="small"
+              type="primary"
+              link
+              :icon="useRenderIcon(Delete)"
+              @click="handleDelete(row)"
+            >
+              删除
+            </el-button>
+
+            <el-dropdown>
+              <el-button
+                class="ml-3 mt-[2px]"
+                link
+                type="primary"
+                :size="size"
+                :icon="useRenderIcon(More)"
+              />
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item>
+                    <el-button
+                      link
+                      type="primary"
+                      :size="size"
+                      :icon="useRenderIcon(Password)"
+                      @click="resetPasswordConfirm(row)"
+                    >
+                      重置密码
+                    </el-button>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </PureTable>
+      </template>
+    </PureTableBar>
 
     <!--新增弹窗-->
     <PlusDialogForm

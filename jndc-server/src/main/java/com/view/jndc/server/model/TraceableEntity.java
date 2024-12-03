@@ -2,7 +2,6 @@ package com.view.jndc.server.model;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.view.jndc.server.utils.SnowflakeIdWorker;
@@ -55,10 +54,10 @@ public abstract class TraceableEntity {
     public void init() {
         setId(SnowflakeIdWorker.GLOBAL_INSTANCE.nextId());
         setCreateDate(LocalDateTime.now());
-        update();
+        updateOperation();
     }
 
-    public void update() {
+    public void updateOperation() {
         setUpdateDate(LocalDateTime.now());
     }
 

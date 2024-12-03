@@ -8,4 +8,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequiredLogin {
+    //超级管理员
+    public boolean requiredSuperPermission() default false;
 }

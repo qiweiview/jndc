@@ -17,14 +17,6 @@ export default {
       meta: {
         title: "用户"
       }
-    },
-    {
-      path: "/admin/pure-user2",
-      name: "pure-user2",
-      component: () => import("@/views/admin/index2.vue"),
-      meta: {
-        title: "用户2"
-      }
     }
   ]
 } satisfies RouteConfigsTable;

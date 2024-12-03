@@ -11,7 +11,11 @@ import com.view.jndc.server.dao.admin.AdminDao;
 import com.view.jndc.server.model.admin.PureUserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @Service
@@ -62,7 +66,7 @@ public class AdminService {
 
         Page<PureUserEntity> pureUserEntityPage = adminDao.queryUserPage(page, pureUserEntity);
         //id
-        pureUserEntityPage.getRecords().parallelStream().forEach(x->x.tobeResponse());
+        pureUserEntityPage.getRecords().parallelStream().forEach(x -> x.tobeResponse());
         return pureUserEntityPage;
     }
 
@@ -125,5 +129,32 @@ public class AdminService {
             throw new RuntimeException("admin用户不可删除");
         }
         return adminDao.deleteById(byId.getId());
+    }
+
+    public String resetPassword(PureUserEntity pureUserEntity) {
+        pureUserEntity.tobeRequest();
+        PureUserEntity byId = adminDao.selectById(pureUserEntity.getId());
+        if (byId == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+
+        String generate = UniqueId.generate();
+        String encrypt = AESUtils.encrypt(generate);
+        byId.setPassword(encrypt);
+        byId.updateOperation();
+        adminDao.updateById(byId);
+
+        //超级管理员密码修改后，写入文件防止丢失
+        if ("admin".equals(byId.getUsername())) {
+            String runtimeDir = RuntimeUtils.getRuntimeDir() + File.separator + "modified_admin_password.txt";
+            try {
+                FileUtils.writeStringToFile(new File(runtimeDir), generate, "UTF-8");
+            } catch (IOException e) {
+                log.error("写入工作目录失败", e);
+            }
+        }
+
+        return generate;
     }
 }

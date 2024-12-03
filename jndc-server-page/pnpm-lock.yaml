@@ -60,7 +60,7 @@ importers:
         specifier: ^3.24.2
         version: 3.24.2
       plus-pro-components:
-        specifier: ^0.1.14
+        specifier: 0.1.18
         version: 0.1.18(element-plus@2.8.0(vue@3.4.38(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
       qs:
         specifier: ^6.13.0
