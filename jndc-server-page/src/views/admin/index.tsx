@@ -18,19 +18,19 @@ import {
 import { ElMessageBox } from "element-plus";
 import { addNotice, type ListItem } from "@/layout/components/lay-notice/data";
 
-//表格内容
+// Table Data & Columns
 const tableContent = (waterRef: Ref) => {
-  //表格数据
+  // Table State
   const tableData = ref([]);
   const loading = ref(false);
 
-  //表格部分
+  // Table Columns Definition
   const columns: TableColumnList = [
     {
-      label: "勾选列", // 如果需要表格多选，此处label必须设置
+      label: "勾选列",
       type: "selection",
       fixed: "left",
-      reserveSelection: true // 数据刷新后保留选项
+      reserveSelection: true
     },
     {
       label: "ID",
@@ -62,73 +62,7 @@ const tableContent = (waterRef: Ref) => {
     }
   ];
 
-  const resetPasswordConfirm = (row: any) => {
-    ElMessageBox.confirm(
-      `确认要<strong>重置</strong><strong style='color:var(--el-color-primary)'>${
-        row.username
-      }</strong>密码吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        const user: PureUser = {
-          idS: row.idS
-        };
-
-        resetPassword(user).then(data => {
-          //success类型的message
-          message("重置成功:" + data, { type: "success" });
-          const listItem: ListItem = {
-            avatar: "",
-            title: "重置密码",
-            datetime: new Date().toLocaleString(),
-            description: `用户${row.username}的密码已重置,重置为：${data}`,
-            extra: "已完成",
-            status: "info",
-            type: "success"
-          };
-          addNotice(listItem);
-        });
-      })
-      .catch(() => {
-        //todo 取消删除
-      });
-  };
-
-  const handleDelete = (row: any) => {
-    ElMessageBox.confirm(
-      `确认要<strong>删除</strong><strong style='color:var(--el-color-primary)'>${
-        row.username
-      }</strong>用户吗?`,
-      "系统提示",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-        dangerouslyUseHTMLString: true,
-        draggable: true
-      }
-    )
-      .then(() => {
-        const user: PureUser = {
-          idS: row.idS
-        };
-        deleteUser(user).then(() => {
-          sendQueryPage();
-        });
-      })
-      .catch(() => {
-        //todo 取消删除
-      });
-  };
-
-  /** 分页配置 */
+  // Table Pagination Configuration
   const pagination = reactive<PaginationProps>({
     pageSize: 10,
     currentPage: 1,
@@ -139,54 +73,85 @@ const tableContent = (waterRef: Ref) => {
     size: "default"
   });
 
-  /** 加载动画配置 */
+  // Loading Spinner Configuration
   const loadingConfig = reactive<LoadingConfig>({
     text: "正在加载第一页...",
     viewBox: "-10, -10, 50, 50",
     spinner: `
-        <path class="path" d="
-          M 30 15
-          L 28 17
-          M 25.61 25.61
-          A 15 15, 0, 0, 1, 15 30
-          A 15 15, 0, 1, 1, 27.99 7.5
-          L 15 15
-        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
-      `
-    // svg: "",
-    // background: rgba()
+      <path class="path" d="
+        M 30 15
+        L 28 17
+        M 25.61 25.61
+        A 15 15, 0, 0, 1, 15 30
+        A 15 15, 0, 1, 1, 27.99 7.5
+        L 15 15
+      " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+    `
   });
 
-  /** 撑满内容区自适应高度相关配置 */
+  // Adaptive Table Height Configuration
   const adaptiveConfig: AdaptiveConfig = {
-    /** 表格距离页面底部的偏移量，默认值为 `96` */
     offsetBottom: 96
-    /** 是否固定表头，默认值为 `true`（如果不想固定表头，fixHeader设置为false并且表格要设置table-layout="auto"） */
-    // fixHeader: true
-    /** 页面 `resize` 时的防抖时间，默认值为 `60` ms */
-    // timeout: 60
-    /** 表头的 `z-index`，默认值为 `100` */
-    // zIndex: 100
   };
 
-  //每页显示数量改变
-  function onSizeChange(val) {
+  // Form State for Pagination & Search
+  const form = reactive({
+    username: "",
+    current: 1,
+    size: 10
+  });
+
+  // Search Columns Configuration
+  const searchColumn: PlusColumn[] = [
+    {
+      label: "用户名",
+      prop: "name",
+      valueType: "copy"
+    }
+  ];
+
+  // Form & Query Handlers
+  const sendQueryPage = () => {
+    loading.value = true;
+    queryUserPage(form)
+      .then(data => {
+        tableData.value = data.records;
+        pagination.total = data.total;
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+
+  const handleChange = (values: any) => {
+    form.username = values.name;
+    sendQueryPage();
+  };
+
+  const handleSearch = (values: any) => {
+    form.username = values.name;
+    sendQueryPage();
+  };
+
+  const handleRest = () => {
+    tableData.value = [];
+  };
+
+  // Table Pagination & Size Change Handlers
+  function onSizeChange(val: number) {
     form.size = val;
     sendQueryPage();
   }
 
-  //当前页改变
-  function onCurrentChange(val) {
+  function onCurrentChange(val: number) {
     form.current = val;
     sendQueryPage();
   }
 
-  //生命周期
+  // Lifecycle Hook to Fetch Data & Set Watermark
   onMounted(() => {
     delay().then(() => {
       sendQueryPage();
-
-      // https://pure-admin-utils.netlify.app/hooks/useWatermark/useWatermark.html
       const { setWatermark } = useWatermark(
         waterRef.value.getTableDoms().tableWrapper
       );
@@ -200,57 +165,8 @@ const tableContent = (waterRef: Ref) => {
     });
   });
 
-  //查询表单
-  const form = reactive({
-    username: "",
-    current: 1,
-    size: 10
-  });
-
-  //查询列
-  const searchColumn: PlusColumn[] = [
-    {
-      label: "用户名",
-      prop: "name",
-      valueType: "copy"
-    }
-  ];
-
-  //发送查询请求
-  const sendQueryPage = () => {
-    loading.value = true;
-    queryUserPage(form)
-      .then(data => {
-        tableData.value = data.records;
-        pagination.total = data.total;
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-  };
-
-  //查询条件改变
-  const handleChange = (values: any) => {
-    form.username = values.name;
-    sendQueryPage();
-  };
-
-  //查询按钮事件
-  const handleSearch = (values: any) => {
-    form.username = values.name;
-    sendQueryPage();
-  };
-
-  //重置按钮事件
-  const handleRest = () => {
-    tableData.value = [];
-  };
-
-  //弹窗部分
-  //定义弹框变量
+  // Dialog State & Form
   const visible = ref(false);
-
-  //弹框表单
   const dialogForm = ref<FieldValues>({});
 
   const dialog_rule = {
@@ -281,18 +197,13 @@ const tableContent = (waterRef: Ref) => {
       label: "用户名",
       prop: "username",
       valueType: "copy",
-      fieldProps: {
-        maxlength: 6
-      }
+      fieldProps: { maxlength: 6 }
     },
     {
       label: "密码",
       prop: "password",
       valueType: "copy",
-      fieldProps: {
-        showPassword: true,
-        maxlength: 18
-      }
+      fieldProps: { showPassword: true, maxlength: 18 }
     }
   ];
 
@@ -309,7 +220,58 @@ const tableContent = (waterRef: Ref) => {
     });
   };
 
-  //返回所需内容组合的对象
+  // Password Reset & User Deletion Handlers
+  const resetPasswordConfirm = (row: any) => {
+    ElMessageBox.confirm(
+      `确认要<strong>重置</strong><strong style='color:var(--el-color-primary)'>${row.username}</strong>密码吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        const user: PureUser = { idS: row.idS };
+        resetPassword(user).then(data => {
+          message("重置成功:" + data, { type: "success" });
+          const listItem: ListItem = {
+            avatar: "",
+            title: "重置密码",
+            datetime: new Date().toLocaleString(),
+            description: `用户${row.username}的密码已重置,重置为：${data}`,
+            extra: "已完成",
+            status: "info",
+            type: "success"
+          };
+          addNotice(listItem);
+        });
+      })
+      .catch(() => {});
+  };
+
+  const handleDelete = (row: any) => {
+    ElMessageBox.confirm(
+      `确认要<strong>删除</strong><strong style='color:var(--el-color-primary)'>${row.username}</strong>用户吗?`,
+      "系统提示",
+      {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        dangerouslyUseHTMLString: true,
+        draggable: true
+      }
+    )
+      .then(() => {
+        const user: PureUser = { idS: row.idS };
+        deleteUser(user).then(() => sendQueryPage());
+      })
+      .catch(() => {});
+  };
+
+  // Return All Required Methods & States
   return {
     visible,
     dialogForm,
