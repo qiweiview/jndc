@@ -37,7 +37,7 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "0c0be137-4f95-4723-92f9-2e5fd7e93153",
+  password: "be0bcd3c-54b6-4d27-b1e3-a01751acee45",
   verifyCode: ""
 });
 
