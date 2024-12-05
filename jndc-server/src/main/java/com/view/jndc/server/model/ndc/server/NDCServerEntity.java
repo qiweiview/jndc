@@ -13,11 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 @TableName("ndc_server")
 public class NDCServerEntity extends TraceableEntity {
 
-    @TableField(value = "crate_time")
+    @TableField(value = "serve_name")
     private String serverName;
 
+    @TableField(value = "server_unique_id")
+    private String serverUniqueId;
+
+    @TableField(value = "listen_port")
     private Integer listenPort;
 
+    @TableField(value = "server_state")
     private String server_state;
 
     public static String ddl() {
