@@ -14,6 +14,8 @@
     "@nutui/touch-emulator": "^1.0.0",
     "@types/node": "^22.10.1",
     "vue": "^3.4.29",
+    "axios": "^1.7.9",
+    "qs": "^6.13.0",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {

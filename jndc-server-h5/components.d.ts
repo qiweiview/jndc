@@ -8,10 +8,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     NutButton: typeof import('@nutui/nutui')['Button']
-    NutCell: typeof import('@nutui/nutui')['Cell']
-    NutPopup: typeof import('@nutui/nutui')['Popup']
+    NutNavbar: typeof import('@nutui/nutui')['Navbar']
+    NutSwiper: typeof import('@nutui/nutui')['Swiper']
+    NutSwiperItem: typeof import('@nutui/nutui')['SwiperItem']
     NutTabbar: typeof import('@nutui/nutui')['Tabbar']
     NutTabbarItem: typeof import('@nutui/nutui')['TabbarItem']
+    NutTable: typeof import('@nutui/nutui')['Table']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
