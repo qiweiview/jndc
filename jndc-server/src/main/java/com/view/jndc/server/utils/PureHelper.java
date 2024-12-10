@@ -37,7 +37,7 @@ public class PureHelper {
         PureMetaEntity permissionPureMetaEntity = new PureMetaEntity();
         permissionPureMetaEntity.setTitle("权限管理");
         permissionPureMetaEntity.setIcon("ep:lollipop");
-        permissionPureMetaEntity.setRank(10);
+        permissionPureMetaEntity.setRankNumber(10);
 
         PureMetaEntity pagePureMetaEntity = new PureMetaEntity();
         pagePureMetaEntity.setTitle("页面权限");

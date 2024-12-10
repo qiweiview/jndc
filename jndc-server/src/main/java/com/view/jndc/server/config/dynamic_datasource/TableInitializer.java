@@ -25,19 +25,13 @@ public class TableInitializer {
 
 
     public void init() {
-        tableInitializerDao.execute(IPRecordEntity.ddl());
-        tableInitializerDao.execute(TimeRangeEntity.ddl());
-        tableInitializerDao.execute(ChannelOpenEntity.ddl());
-        tableInitializerDao.execute(NDCServerEntity.ddl());
 
 
-        tableInitializerDao.execute(PureUserEntity.ddl());
-        tableInitializerDao.execute(PureMetaEntity.ddl());
-        tableInitializerDao.execute(PurePermissionEntity.ddl());
-        tableInitializerDao.execute(PureRouteEntity.ddl());
-
+        //初始化登录用户
         adminService.init();
 
 
     }
+
+
 }

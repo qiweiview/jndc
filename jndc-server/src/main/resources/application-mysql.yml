@@ -1,6 +1,14 @@
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/mysql
   datasource:
     druid:
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
       write:
         validation-query: "select 1"
         test-while-idle: true

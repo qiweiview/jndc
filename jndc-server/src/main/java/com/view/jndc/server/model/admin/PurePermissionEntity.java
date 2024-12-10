@@ -23,12 +23,5 @@ public class PurePermissionEntity extends TraceableEntity {
     @TableField(exist = false)
     private List<PureRouteEntity> children;  // List of child routes
 
-    public static String ddl() {
-        return "create table if not exists pure_permission (\n" +
-                "    id bigint auto_increment primary key,\n" +
-                "    path varchar(255),\n" +
-                "    create_time datetime,\n" +
-                "    update_time datetime\n" +
-                ");";
-    }
+
 }

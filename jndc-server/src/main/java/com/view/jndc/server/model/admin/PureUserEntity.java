@@ -50,22 +50,7 @@ public class PureUserEntity extends TraceableEntity {
     private String expires;        // Expiration time for the tokenprivate String nickname;       // Nickname
 
 
-    public static String ddl() {
-        return "create table if not exists pure_user (\n" +
-                "    id bigint auto_increment primary key,\n" +
-                "    avatar varchar(255),\n" +
-                "    username varchar(255),\n" +
-                "    password varchar(255),\n" +
-                "    nickname varchar(255),\n" +
-                "    roles varchar(255),\n" +
-                "    permissions varchar(255),\n" +
-                "    access_token varchar(255),\n" +
-                "    refresh_token varchar(255),\n" +
-                "    expires varchar(255),\n" +
-                "    create_date datetime,\n" +
-                "    update_date datetime\n" +
-                ");";
-    }
+
 
     public PureUserEntity desensitization() {
         this.password = null;

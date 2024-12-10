@@ -44,4 +44,5 @@ build/
 /**/instance_id.do_not_remove_this_file
 /**/ndc_runtime/**
 /**/dist/**
+/**/data/**
 /**/node_modules/**

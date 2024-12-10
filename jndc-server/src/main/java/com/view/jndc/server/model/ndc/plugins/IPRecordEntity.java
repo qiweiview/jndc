@@ -24,7 +24,5 @@ public class IPRecordEntity extends TraceableEntity {
     private Long totalTraffic;
 
 
-    public static String ddl() {
-        return "create table if not exists plugin_ip_record (id bigint primary key, ip varchar(255), last_active_time datetime, total_traffic bigint, create_date datetime, update_date datetime)";
-    }
+
 }

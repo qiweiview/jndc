@@ -29,16 +29,6 @@ public class PureRouteEntity extends TraceableEntity {
     @TableField(exist = false)
     private List<PureRouteEntity> children;  // Child routes
 
-    public static String ddl() {
-        return "create table if not exists pure_route (\n" +
-                "    id bigint auto_increment primary key,\n" +
-                "    path varchar(255),\n" +
-                "    name varchar(255),\n" +
-                "    component varchar(255),\n" +
-                "    pure_meta varchar(255),\n" +
-                "    create_time datetime,\n" +
-                "    update_time datetime\n" +
-                ");";
-    }
+
 }
 

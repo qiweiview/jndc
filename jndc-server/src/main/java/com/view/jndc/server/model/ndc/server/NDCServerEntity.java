@@ -25,7 +25,5 @@ public class NDCServerEntity extends TraceableEntity {
     @TableField(value = "server_state")
     private String server_state;
 
-    public static String ddl() {
-        return "create table if not exists ndc_server (id bigint primary key, server_name varchar(255), listen_port int, server_state varchar(255), create_date datetime, update_date datetime)";
-    }
+
 }
