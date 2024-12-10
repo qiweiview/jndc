@@ -1,15 +1,21 @@
-import {createApp} from 'vue'
-import './style.css'
-import '@nutui/touch-emulator'
-import TDesign from 'tdesign-mobile-vue';
-import App from './App.vue'
-import router from './router';
+import { createApp } from "vue";
+import { store } from "./store";
+// normalize.css
+import "normalize.css/normalize.css";
+// 全局样式
+import "./styles/index.less";
+// tailwindcss
+import "./styles/tailwind.css";
+// svg icon
+import "virtual:svg-icons-register";
+import { initializeDarkMode } from "@/utils/dark-mode";
+import App from "./App.vue";
+import router from "./router";
 
+initializeDarkMode();
 
-// 引入组件库的少量全局样式变量
-import 'tdesign-mobile-vue/es/style/index.css';
+const app = createApp(App);
+app.use(store);
+app.use(router);
 
-const app = createApp(App)
-app.use(router)
-app.use(TDesign);
-app.mount('#app')
+app.mount("#app");
