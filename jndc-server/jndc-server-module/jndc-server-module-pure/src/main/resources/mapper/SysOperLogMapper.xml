@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.dao.mapper.SysOperLogMapper">
+
+    <resultMap type="com.view.dao.entity.SysOperLog" id="SysOperLogMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="businessType" column="business_type" jdbcType="INTEGER"/>
+        <result property="method" column="method" jdbcType="VARCHAR"/>
+        <result property="requestMethod" column="request_method" jdbcType="VARCHAR"/>
+        <result property="operatorType" column="operator_type" jdbcType="INTEGER"/>
+        <result property="operUsername" column="oper_username" jdbcType="INTEGER"/>
+        <result property="operUrl" column="oper_url" jdbcType="VARCHAR"/>
+        <result property="operIp" column="oper_ip" jdbcType="VARCHAR"/>
+        <result property="operLocation" column="oper_location" jdbcType="VARCHAR"/>
+        <result property="operParam" column="oper_param" jdbcType="VARCHAR"/>
+        <result property="jsonResult" column="json_result" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="errorMsg" column="error_msg" jdbcType="VARCHAR"/>
+        <result property="operTime" column="oper_time" jdbcType="TIMESTAMP"/>
+        <result property="costTime" column="cost_time" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+</mapper>
+

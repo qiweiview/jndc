@@ -1,0 +1,1 @@
+const e=[{label:"正常",value:0,disabled:!1},{label:"冻结",value:1,disabled:!1}],a=[{label:"未知",value:0,disabled:!1,icon:"noto:unknown-flag"},{label:"男",value:1,disabled:!1,icon:"twemoji:deaf-man-light-skin-tone"},{label:"女",value:2,disabled:!1,icon:"twemoji:deaf-woman-light-skin-tone"}];export{a as g,e as s};

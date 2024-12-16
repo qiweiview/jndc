@@ -3,17 +3,21 @@ import Axios, {
   type AxiosRequestConfig,
   type CustomParamsSerializer
 } from "axios";
+
 import type {
   PureHttpError,
-  RequestMethods,
+  PureHttpRequestConfig,
   PureHttpResponse,
-  PureHttpRequestConfig
+  RequestMethods
 } from "./types.d";
+
 import { stringify } from "qs";
 import NProgress from "../progress";
-import { getToken, formatToken, removeToken } from "@/utils/auth";
+import { formatToken, getToken } from "@/utils/auth";
 import { useUserStoreHook } from "@/store/modules/user";
-import { message as messageS } from "@/utils/message";
+import { message as messageEl } from "@/utils/message";
+import { ElNotification } from "element-plus";
+import { openLoginDialog } from "@/views/login/dialog";
 
 // 相关配置请参考：www.axios-js.com/zh-cn/docs/#axios-request-config-1
 const defaultConfig: AxiosRequestConfig = {
@@ -64,6 +68,7 @@ class PureHttp {
       async (config: PureHttpRequestConfig): Promise<any> => {
         // 开启进度条动画
         NProgress.start();
+
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof config.beforeRequestCallback === "function") {
           config.beforeRequestCallback(config);
@@ -100,9 +105,7 @@ class PureHttp {
                   }
                   resolve(PureHttp.retryOriginalRequest(config));
                 } else {
-                  config.headers["Authorization"] = formatToken(
-                    data.accessToken
-                  );
+                  config.headers["Authorization"] = data;
                   resolve(config);
                 }
               } else {
@@ -137,6 +140,13 @@ class PureHttp {
       },
       (error: PureHttpError) => {
         const $error = error;
+        let { message } = error;
+        if (message == "Request failed with status code 500") {
+          message = "后端接口连接异常";
+        } else if (message.includes("timeout")) {
+          message = "系统接口请求超时";
+        }
+        messageEl(message, { type: "error" });
         $error.isCancelRequest = Axios.isCancel($error);
         // 关闭进度条动画
         NProgress.done();
@@ -156,7 +166,6 @@ class PureHttp {
     const config = {
       method,
       url,
-      baseURL: "/gateway",
       ...param,
       ...axiosConfig
     } as PureHttpRequestConfig;
@@ -165,24 +174,44 @@ class PureHttp {
     return new Promise((resolve, reject) => {
       PureHttp.axiosInstance
         .request(config)
-        .then((response: undefined) => {
-          if (typeof response === "undefined") {
-            messageS("请求失败", { type: "error" });
-            reject("请求失败");
-          } else {
-            const { data, code, message } = response;
-            if (code == 0) {
-              resolve(data);
-            } else if (code == 403) {
-              messageS("登录已过期，请重新登录", { type: "error" });
-              removeToken();
-              //刷新页面
-              window.location.reload();
-            } else {
-              messageS(message, { type: "error" });
-              reject(data);
+        .then((response: any) => {
+          if (response) {
+            const code = response.code;
+            switch (code) {
+              case 800:
+                //useUserStoreHook().logOut();
+                //打开登陆弹窗
+                openLoginDialog();
+
+                //告警
+                //messageEl(response.message, { type: "error" });
+                break;
+              case 403:
+                ElNotification({
+                  title: "错误",
+                  message: response.message,
+                  type: "error"
+                });
+                break;
+              case 500:
+                messageEl(response.message, { type: "error" });
+                break;
+              case 510:
+                ElNotification({
+                  title: "操作失败",
+                  message: response.message,
+                  type: "error"
+                });
+                break;
+              case 0:
+                //todo 成功
+                break;
+              default:
+                messageEl(response.message, { type: "error" });
+                break;
             }
           }
+          resolve(response);
         })
         .catch(error => {
           reject(error);

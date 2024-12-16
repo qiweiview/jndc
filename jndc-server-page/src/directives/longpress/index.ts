@@ -1,9 +1,9 @@
 import { useEventListener } from "@vueuse/core";
 import type { Directive, DirectiveBinding } from "vue";
-import { subBefore, subAfter, isFunction } from "@pureadmin/utils";
+import { isFunction, subAfter, subBefore } from "@pureadmin/utils";
 
 export const longpress: Directive = {
-  mounted(el: HTMLElement, binding: DirectiveBinding<Function>) {
+  mounted(el: HTMLElement, binding: DirectiveBinding) {
     const cb = binding.value;
     if (cb && isFunction(cb)) {
       let timer = null;

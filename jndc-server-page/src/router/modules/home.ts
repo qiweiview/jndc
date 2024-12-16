@@ -1,5 +1,3 @@
-import { home } from "@/router/enums";
-
 const { VITE_HIDE_HOME } = import.meta.env;
 const Layout = () => import("@/layout/index.vue");
 
@@ -11,7 +9,7 @@ export default {
   meta: {
     icon: "ep:home-filled",
     title: "首页",
-    rank: home
+    sortOrder: 0
   },
   children: [
     {

@@ -1,5 +1,3 @@
-import { remaining } from "@/router/enums";
-
 const Layout = () => import("@/layout/index.vue");
 
 export default [
@@ -10,7 +8,7 @@ export default [
     meta: {
       title: "登录",
       showLink: false,
-      rank: remaining
+      sortOrder: 101
     }
   },
   {
@@ -19,7 +17,7 @@ export default [
     meta: {
       title: "加载中...",
       showLink: false,
-      rank: 102
+      sortOrder: 102
     },
     children: [
       {
@@ -28,5 +26,14 @@ export default [
         component: () => import("@/layout/redirect.vue")
       }
     ]
+  },
+  {
+    path: "/account-settings",
+    name: "AccountSettings",
+    component: () => import("@/views/user-account/index.vue"),
+    meta: {
+      title: "个人中心",
+      showLink: false
+    }
   }
 ] satisfies Array<RouteConfigsTable>;

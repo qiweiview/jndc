@@ -1,29 +1,27 @@
 import Sortable from "sortablejs";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import {
+  computed,
+  defineComponent,
+  getCurrentInstance,
+  nextTick,
   type PropType,
   ref,
-  unref,
-  computed,
-  nextTick,
-  defineComponent,
-  getCurrentInstance
+  unref
 } from "vue";
 import {
-  delay,
   cloneDeep,
+  delay,
+  getKeyList,
   isBoolean,
-  isFunction,
-  getKeyList
+  isFunction
 } from "@pureadmin/utils";
 
-import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
-import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
-import DragIcon from "@/assets/table-bar/drag.svg?component";
-import ExpandIcon from "@/assets/table-bar/expand.svg?component";
-import RefreshIcon from "@/assets/table-bar/refresh.svg?component";
-import SettingIcon from "@/assets/table-bar/settings.svg?component";
-import CollapseIcon from "@/assets/table-bar/collapse.svg?component";
+import DragIcon from "./svg/drag.svg?component";
+import ExpandIcon from "./svg/expand.svg?component";
+import RefreshIcon from "./svg/refresh.svg?component";
+import SettingIcon from "./svg/settings.svg?component";
+import CollapseIcon from "./svg/collapse.svg?component";
 
 const props = {
   /** 头部最左边的标题 */
@@ -58,7 +56,6 @@ export default defineComponent({
     const size = ref("default");
     const loading = ref(false);
     const checkAll = ref(true);
-    const isFullscreen = ref(false);
     const isIndeterminate = ref(false);
     const instance = getCurrentInstance()!;
     const isExpandAll = ref(props.isExpandAll);
@@ -242,18 +239,7 @@ export default defineComponent({
 
     return () => (
       <>
-        <div
-          {...attrs}
-          class={[
-            "w-[99/100]",
-            "px-2",
-            "pb-2",
-            "bg-bg_color",
-            isFullscreen.value
-              ? ["!w-full", "!h-full", "z-[2002]", "fixed", "inset-0"]
-              : "mt-2"
-          ]}
-        >
+        <div {...attrs} class="w-[99/100] mt-2 px-2 pb-2 bg-bg_color">
           <div class="flex justify-between w-full h-[60px] p-4">
             {slots?.title ? (
               slots.title()
@@ -367,14 +353,6 @@ export default defineComponent({
                   </el-scrollbar>
                 </div>
               </el-popover>
-              <el-divider direction="vertical" />
-
-              <iconifyIconOffline
-                class={["w-[16px]", iconClass.value]}
-                icon={isFullscreen.value ? ExitFullscreen : Fullscreen}
-                v-tippy={isFullscreen.value ? "退出全屏" : "全屏"}
-                onClick={() => (isFullscreen.value = !isFullscreen.value)}
-              />
             </div>
           </div>
           {slots.default({

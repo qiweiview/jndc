@@ -1,0 +1,123 @@
+.hljs,
+.hljsln {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 1em 0.5em 3em !important;
+  font-size: 15px !important;
+  position: relative;
+  /* 代码块不换行 */
+  white-space: pre;
+  word-break: normal;
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  margin-right: 10px;
+  background-color: #ECF5FF !important;
+}
+
+.hljs.ln-hide {
+  padding: 0.7em 1em 0.7em 1em !important;
+}
+.ln-bg {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 37px;
+  height: 100%;
+  border-right: 1.5px solid rgb(88, 100, 153);
+}
+
+.ln-num {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  width: 37px;
+  text-align: center;
+  display: inline-block;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  &::before {
+    font-style: normal;
+    font-weight: normal;
+    text-align: center;
+    content: attr(data-num);
+  }
+}
+
+.hljs-comment,
+.hljs-quote {
+  font-style: italic;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}
+
+.hljs-attribute,
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-title {
+  font-weight: normal !important;
+}
+
+
+
+.hljs::-webkit-scrollbar,
+.hljsln::-webkit-scrollbar {
+  height: 3px;
+}
+
+.notice-content pre,
+.comment-item-content pre {
+  position: relative;
+
+  & > span {
+    position: absolute;
+    top: 0;
+    right: -5px;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: Lato, PingFang SC, Microsoft YaHei, sans-serif;
+    font-weight: normal;
+    cursor: pointer;
+    opacity: 0;
+    margin: 8px 20px;
+    transition: all 0.6s;
+    z-index: 5;
+    transform: translateX(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      background: #DCDFE6;
+    }
+    svg {
+      color: var(--el-color-primary) !important;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &:hover > span {
+    opacity: 1;
+    transform: translateX(-5px);
+  }
+}

@@ -7,23 +7,22 @@ import { useNav } from "@/layout/hooks/useNav";
 import type { FormInstance } from "element-plus";
 import { useLayout } from "@/layout/hooks/useLayout";
 import { useUserStoreHook } from "@/store/modules/user";
-import { initRouter, getTopMenu } from "@/router/utils";
-import { bg, avatar, illustration } from "./utils/static";
+import { getTopMenu, initRouterWithData } from "@/router/utils";
+import { avatar, bg, illustration } from "./utils/static";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import { ReImageVerify } from "@/components/ReImageVerify";
-import { ref, reactive, toRaw, onMounted, onBeforeUnmount } from "vue";
+import { onBeforeUnmount, onMounted, reactive, ref, toRaw } from "vue";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
-
+import TypeIt from "@/components/ReTypeit";
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
 import Lock from "@iconify-icons/ri/lock-fill";
 import User from "@iconify-icons/ri/user-3-fill";
+import { useDictStoreHook } from "@/store/modules/dict";
+import { ruleForm, onLogin } from "./index";
 
 defineOptions({
   name: "Login"
 });
-
-const imgCode = ref("");
 const router = useRouter();
 const loading = ref(false);
 const ruleFormRef = ref<FormInstance>();
@@ -31,43 +30,14 @@ const ruleFormRef = ref<FormInstance>();
 const { initStorage } = useLayout();
 initStorage();
 
-const { dataTheme, overallStyle, dataThemeChange } = useDataThemeChange();
-dataThemeChange(overallStyle.value);
+const { dataTheme, dataThemeChange } = useDataThemeChange();
+dataThemeChange();
 const { title } = useNav();
-
-const ruleForm = reactive({
-  username: "admin",
-  password: "be0bcd3c-54b6-4d27-b1e3-a01751acee45",
-  verifyCode: ""
-});
-
-const onLogin = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      loading.value = true;
-      useUserStoreHook()
-        .loginByUsername({
-          username: ruleForm.username,
-          password: ruleForm.password
-        })
-        .then(res => {
-          // 获取后端路由
-          return initRouter().then(() => {
-            router.push(getTopMenu(true).path).then(() => {
-              message("登录成功", { type: "success" });
-            });
-          });
-        })
-        .finally(() => (loading.value = false));
-    }
-  });
-};
 
 /** 使用公共函数，避免`removeEventListener`失效 */
 function onkeypress({ code }: KeyboardEvent) {
-  if (["Enter", "NumpadEnter"].includes(code)) {
-    onLogin(ruleFormRef.value);
+  if (code === "Enter") {
+    onLogin(ruleFormRef.value, loading, router);
   }
 }
 
@@ -78,6 +48,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.document.removeEventListener("keypress", onkeypress);
 });
+
+const doLoginOperation = (formEl: FormInstance | undefined) => {
+  onLogin(formEl, loading, router, true);
+};
 </script>
 
 <template>
@@ -101,7 +75,11 @@ onBeforeUnmount(() => {
         <div class="login-form">
           <avatar class="avatar" />
           <Motion>
-            <h2 class="outline-none">{{ title }}</h2>
+            <h2 class="outline-none">
+              <TypeIt
+                :options="{ strings: [title], cursor: false, speed: 100 }"
+              />
+            </h2>
           </Motion>
 
           <el-form
@@ -142,28 +120,13 @@ onBeforeUnmount(() => {
               </el-form-item>
             </Motion>
 
-            <!--            <Motion :delay="200">-->
-            <!--              <el-form-item prop="verifyCode">-->
-            <!--                <el-input-->
-            <!--                  v-model="ruleForm.verifyCode"-->
-            <!--                  clearable-->
-            <!--                  placeholder="验证码"-->
-            <!--                  :prefix-icon="useRenderIcon('ri:shield-keyhole-line')"-->
-            <!--                >-->
-            <!--                  <template v-slot:append>-->
-            <!--                    <ReImageVerify v-model:code="imgCode" />-->
-            <!--                  </template>-->
-            <!--                </el-input>-->
-            <!--              </el-form-item>-->
-            <!--            </Motion>-->
-
             <Motion :delay="250">
               <el-button
                 class="w-full mt-4"
                 size="default"
                 type="primary"
                 :loading="loading"
-                @click="onLogin(ruleFormRef)"
+                @click="doLoginOperation(ruleFormRef)"
               >
                 登录
               </el-button>

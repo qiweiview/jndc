@@ -6,19 +6,7 @@
 
 ## Introduce
 
-The simplified version is based on the shelf extracted
-from [vue-pure-admin](https://github.com/pure-admin/vue-pure-admin), which contains main functions and is more suitable
-for actual project development. The packaged size is introduced globally [element-plus](https://element-plus.org) is
-still below `2.3MB`, and the full version of the code will be permanently synchronized. After enabling `brotli`
-compression and `cdn` to replace the local library mode, the package size is less than `350kb`
-
-## `js` version
-
-[Click me to view js version](https://pure-admin.github.io/pure-admin-doc/pages/js/)
-
-## `max` version
-
-[Click me to view the max version](https://github.com/pure-admin/vue-pure-admin-max)
+The simplified version is based on the shelf extracted from [vue-pure-admin](https://github.com/pure-admin/vue-pure-admin), which contains main functions and is more suitable for actual project development. The packaged size is introduced globally [element-plus](https://element-plus.org) is still below `2.3MB`, and the full version of the code will be permanently synchronized. After enabling `brotli` compression and `cdn` to replace the local library mode, the package size is less than `350kb`
 
 ## Supporting video
 
@@ -27,12 +15,12 @@ compression and `cdn` to replace the local library mode, the package size is les
 
 ## Nanny-level documents
 
-[Click me to view vue-pure-admin documentation](https://pure-admin.github.io/pure-admin-doc)  
+[Click me to view vue-pure-admin documentation](https://yiming_chang.gitee.io/pure-admin-doc)  
 [Click me to view @pureadmin/utils documentation](https://pure-admin-utils.netlify.app)
 
 ## Quality service, software outsourcing, sponsorship support
 
-[Click me to view details](https://pure-admin.github.io/pure-admin-doc/pages/service/)
+[Click me to view details](https://yiming_chang.gitee.io/pure-admin-doc/pages/service/)
 
 ## Preview
 
@@ -44,8 +32,7 @@ compression and `cdn` to replace the local library mode, the package size is les
 
 ## ⚠️ Attention
 
-The Lite version does not accept any issues and prs. If you have any questions, please go to the full
-version [issues](https://github.com/pure-admin/vue-pure-admin/issues/new/choose) to mention, thank you!
+The Lite version does not accept any issues and prs. If you have any questions, please go to the full version [issues](https://github.com/pure-admin/vue-pure-admin/issues/new/choose) to mention, thank you!
 
 ## License
 

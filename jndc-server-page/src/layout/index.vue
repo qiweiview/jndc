@@ -8,28 +8,28 @@ import { useAppStoreHook } from "@/store/modules/app";
 import { useSettingStoreHook } from "@/store/modules/settings";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 import {
-  h,
-  ref,
-  reactive,
   computed,
-  onMounted,
+  defineComponent,
+  h,
   onBeforeMount,
-  defineComponent
+  onMounted,
+  reactive,
+  ref
 } from "vue";
 import {
+  deviceDetection,
   useDark,
   useGlobal,
-  deviceDetection,
   useResizeObserver
 } from "@pureadmin/utils";
 
-import LayTag from "./components/lay-tag/index.vue";
-import LayNavbar from "./components/lay-navbar/index.vue";
-import LayContent from "./components/lay-content/index.vue";
-import LaySetting from "./components/lay-setting/index.vue";
-import NavVertical from "./components/lay-sidebar/NavVertical.vue";
-import NavHorizontal from "./components/lay-sidebar/NavHorizontal.vue";
-import BackTopIcon from "@/assets/svg/back_top.svg?component";
+import navbar from "./components/navbar.vue";
+import tag from "./components/tag/index.vue";
+import appMain from "./components/appMain.vue";
+import setting from "./components/setting/index.vue";
+import Vertical from "./components/sidebar/vertical.vue";
+import Horizontal from "./components/sidebar/horizontal.vue";
+import backTop from "@/assets/svg/back_top.svg?component";
 
 const appWrapperRef = ref();
 const { isDark } = useDark();
@@ -124,8 +124,7 @@ onBeforeMount(() => {
   useDataThemeChange().dataThemeChange($storage.layout?.overallStyle);
 });
 
-const LayHeader = defineComponent({
-  name: "LayHeader",
+const layoutHeader = defineComponent({
   render() {
     return h(
       "div",
@@ -143,12 +142,12 @@ const LayHeader = defineComponent({
         default: () => [
           !pureSetting.hiddenSideBar &&
           (layout.value.includes("vertical") || layout.value.includes("mix"))
-            ? h(LayNavbar)
+            ? h(navbar)
             : null,
           !pureSetting.hiddenSideBar && layout.value.includes("horizontal")
-            ? h(NavHorizontal)
+            ? h(Horizontal)
             : null,
-          h(LayTag)
+          h(tag)
         ]
       }
     );
@@ -167,7 +166,7 @@ const LayHeader = defineComponent({
       class="app-mask"
       @click="useAppStoreHook().toggleSideBar()"
     />
-    <NavVertical
+    <Vertical
       v-show="
         !pureSetting.hiddenSideBar &&
         (layout.includes('vertical') || layout.includes('mix'))
@@ -180,24 +179,24 @@ const LayHeader = defineComponent({
       ]"
     >
       <div v-if="set.fixedHeader">
-        <LayHeader />
+        <layout-header />
         <!-- 主体内容 -->
-        <LayContent :fixed-header="set.fixedHeader" />
+        <app-main :fixed-header="set.fixedHeader" />
       </div>
       <el-scrollbar v-else>
         <el-backtop
           title="回到顶部"
           target=".main-container .el-scrollbar__wrap"
         >
-          <BackTopIcon />
+          <backTop />
         </el-backtop>
-        <LayHeader />
+        <layout-header />
         <!-- 主体内容 -->
-        <LayContent :fixed-header="set.fixedHeader" />
+        <app-main :fixed-header="set.fixedHeader" />
       </el-scrollbar>
     </div>
     <!-- 系统设置 -->
-    <LaySetting />
+    <setting />
   </div>
 </template>
 
@@ -222,7 +221,7 @@ const LayHeader = defineComponent({
 .app-mask {
   position: absolute;
   top: 0;
-  z-index: 2001;
+  z-index: 999;
   width: 100%;
   height: 100%;
   background: #000;

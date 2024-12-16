@@ -8,9 +8,9 @@ report.html
 vite.config.*.timestamp*
 
 yarn.lock
-npm-debug.log*
-.pnpm-error.log*
-.pnpm-debug.log
+npm-debug.operationLog*
+.pnpm-error.operationLog*
+.pnpm-debug.operationLog
 tests/**/coverage/
 
 # Editor directories and files

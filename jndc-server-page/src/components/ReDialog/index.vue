@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
-  type EventType,
   type ButtonProps,
-  type DialogOptions,
   closeDialog,
-  dialogStore
+  type DialogOptions,
+  dialogStore,
+  type EventType
 } from "./index";
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import { isFunction } from "@pureadmin/utils";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
 import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
@@ -15,7 +15,6 @@ defineOptions({
   name: "ReDialog"
 });
 
-const sureBtnMap = ref({});
 const fullscreen = ref(false);
 
 const footerButtons = computed(() => {
@@ -44,26 +43,10 @@ const footerButtons = computed(() => {
             bg: true,
             popconfirm: options?.popconfirm,
             btnClick: ({ dialog: { options, index } }) => {
-              if (options?.sureBtnLoading) {
-                sureBtnMap.value[index] = Object.assign(
-                  {},
-                  sureBtnMap.value[index],
-                  {
-                    loading: true
-                  }
-                );
-              }
-              const closeLoading = () => {
-                if (options?.sureBtnLoading) {
-                  sureBtnMap.value[index].loading = false;
-                }
-              };
-              const done = () => {
-                closeLoading();
+              const done = () =>
                 closeDialog(options, index, { command: "sure" });
-              };
               if (options?.beforeSure && isFunction(options?.beforeSure)) {
-                options.beforeSure(done, { options, index, closeLoading });
+                options.beforeSure(done, { options, index });
               } else {
                 done();
               }
@@ -189,7 +172,6 @@ function handleClose(
           <el-button
             v-else
             v-bind="btn"
-            :loading="key === 1 && sureBtnMap[index]?.loading"
             @click="
               btn.btnClick({
                 dialog: { options, index },

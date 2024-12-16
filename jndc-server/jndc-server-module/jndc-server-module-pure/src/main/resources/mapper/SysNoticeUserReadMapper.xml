@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.dao.mapper.SysNoticeUserReadMapper">
+
+    <resultMap type="com.view.vo.notice.NoticeCountVO" id="noticeUserMap">
+        <result property="totalCount" column="totalCount" />
+        <result property="noReadCount" column="noReadCount" />
+    </resultMap>
+    <!-- 查询用户所有通知数量和未读通知数量 -->
+    <select id="countTotalAndUnReadTotal" resultMap="noticeUserMap">
+        SELECT
+        COUNT(*) AS totalCount,  <!-- 所有通知的数量 -->
+        COALESCE(SUM(CASE WHEN ur.status = 0 THEN 1 ELSE 0 END), 0) AS noReadCount  <!-- 未读通知的数量 -->
+        FROM
+        sys_notice_user_read ur
+        left join
+            sys_notice n on n.id = ur.notice_id
+        WHERE
+              n.del_flag = 0 and n.status = 0 and
+        ur.user_id = #{userId}  <!-- 替换为实际的用户ID -->
+    </select>
+</mapper>
+

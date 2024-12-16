@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.dao.mapper.SysUserMapper">
+
+    <resultMap type="com.view.dao.entity.SysUser" id="SysUserMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="intro" column="intro" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="INTEGER"/>
+        <result property="birthday" column="birthday" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="SysUserVOResultMap" type="com.view.vo.user.SysUserVO">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="nickname" property="nickname"/>
+        <result column="avatar" property="avatar"/>
+        <result column="intro" property="intro"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="register_source" property="registerSource"/>
+    </resultMap>
+
+    <sql id="Base_VO_Column_List">
+        id
+        , username, email, phone, nickname, avatar, intro, gender, birthday, status, create_time, create_by, register_source
+    </sql>
+
+    <select id="selectUserVOPage" resultMap="SysUserVOResultMap">
+        SELECT
+        <include refid="Base_VO_Column_List"/>
+        FROM sys_user
+        <where>
+            <if test="query.username != null and query.username != ''">
+                AND username LIKE CONCAT('%', #{query.username}, '%')
+            </if>
+            <if test="query.email != null and query.email != ''">
+                AND email = #{query.email}
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND phone = #{query.phone}
+            </if>
+            <if test="query.nickname != null and query.nickname != ''">
+                AND nickname LIKE CONCAT('%', #{query.nickname}, '%')
+            </if>
+            <if test="query.status != null">
+                AND status = #{query.status}
+            </if>
+            and del_flag = 0
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByPhone" resultType="com.view.dao.entity.SysUser">
+        SELECT * FROM sys_user WHERE phone = #{phone} and del_flag = 0
+    </select>
+
+
+</mapper>
+

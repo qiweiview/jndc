@@ -155,6 +155,10 @@ export const handleTree = (
   const tree = [];
 
   for (const d of data) {
+    //todo tobe-fix
+    d.id = d.idString;
+    d.parentId = d.parentIdString;
+
     const parentId = d[config.parentId];
     if (childrenListMap[parentId] == null) {
       childrenListMap[parentId] = [];
@@ -184,5 +188,7 @@ export const handleTree = (
       }
     }
   }
+
+  console.log("tree", tree);
   return tree;
 };

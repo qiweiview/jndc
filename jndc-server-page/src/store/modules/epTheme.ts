@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import {
-  store,
   getConfig,
+  responsiveStorageNameSpace,
   storageLocal,
-  responsiveStorageNameSpace
+  store
 } from "../utils";
 
 export const useEpThemeStore = defineStore({

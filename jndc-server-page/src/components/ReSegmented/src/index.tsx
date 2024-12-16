@@ -2,20 +2,20 @@ import "./index.css";
 import type { OptionsType } from "./type";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import {
-  useDark,
-  isNumber,
   isFunction,
+  isNumber,
+  useDark,
   useResizeObserver
 } from "@pureadmin/utils";
 import {
-  type PropType,
+  defineComponent,
+  getCurrentInstance,
   h,
+  nextTick,
+  type PropType,
   ref,
   toRef,
-  watch,
-  nextTick,
-  defineComponent,
-  getCurrentInstance
+  watch
 } from "vue";
 
 const props = {
@@ -29,7 +29,7 @@ const props = {
     require: false,
     default: "0"
   },
-  /** 将宽度调整为父元素宽度   */
+  /** 将宽度调整为父元素宽度	 */
   block: {
     type: Boolean,
     default: false
@@ -127,9 +127,7 @@ export default defineComponent({
       }
     );
 
-    watch(() => props.size, handleResizeInit, {
-      immediate: true
-    });
+    watch(() => props.size, handleResizeInit);
 
     const rendLabel = () => {
       return props.options.map((option, index) => {

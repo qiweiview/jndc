@@ -1,39 +1,39 @@
 import {
-  type RouterHistory,
-  type RouteRecordRaw,
-  type RouteComponent,
+  createWebHashHistory,
   createWebHistory,
-  createWebHashHistory
+  type RouteComponent,
+  type RouteRecordRaw,
+  type RouterHistory
 } from "vue-router";
 import { router } from "./index";
 import { isProxy, toRaw } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
 import {
-  isString,
   cloneDeep,
-  isAllEmpty,
   intersection,
-  storageLocal,
-  isIncludeAllChildren
+  isAllEmpty,
+  isIncludeAllChildren,
+  isString,
+  storageLocal
 } from "@pureadmin/utils";
 import { getConfig } from "@/config";
 import { buildHierarchyTree } from "@/utils/tree";
-import { userKey, type DataInfo } from "@/utils/auth";
+import { type DataInfo, userKey } from "@/utils/auth";
 import { type menuType, routerArrays } from "@/layout/types";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import { usePermissionStoreHook } from "@/store/modules/permission";
-const IFrame = () => import("@/layout/frame.vue");
-// https://cn.vitejs.dev/guide/features.html#glob-import
-const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
-
 // 动态路由
 import { getAsyncRoutes } from "@/api/routes";
 
-function handRank(routeInfo: any) {
+const IFrame = () => import("@/layout/frameView.vue");
+// https://cn.vitejs.dev/guide/features.html#glob-import
+const modulesRoutes = import.meta.glob("/src/views/**/*.{vue,tsx}");
+
+function handSortOrder(routeInfo: any) {
   const { name, path, parentId, meta } = routeInfo;
   return isAllEmpty(parentId)
-    ? isAllEmpty(meta?.rank) ||
-      (meta?.rank === 0 && name !== "Home" && path !== "/")
+    ? isAllEmpty(meta?.sortOrder) ||
+      (meta?.sortOrder === 0 && name !== "Home" && path !== "/")
       ? true
       : false
     : false;
@@ -43,11 +43,14 @@ function handRank(routeInfo: any) {
 function ascending(arr: any[]) {
   arr.forEach((v, index) => {
     // 当rank不存在时，根据顺序自动创建，首页路由永远在第一位
-    if (handRank(v)) v.meta.rank = index + 2;
+    if (handSortOrder(v)) v.meta.sortOrder = index + 2;
   });
   return arr.sort(
-    (a: { meta: { rank: number } }, b: { meta: { rank: number } }) => {
-      return a?.meta.rank - b?.meta.rank;
+    (
+      a: { meta: { sortOrder: number } },
+      b: { meta: { sortOrder: number } }
+    ) => {
+      return a?.meta.sortOrder - b?.meta.sortOrder;
     }
   );
 }
@@ -85,6 +88,10 @@ function isOneOfArray(a: Array<string>, b: Array<string>) {
 function filterNoPermissionTree(data: RouteComponent[]) {
   const currentRoles =
     storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
+  // 如果 currentRoles 包含 super-admin，则直接返回原始数据
+  if (currentRoles.includes("super-admin")) {
+    return data;
+  }
   const newTree = cloneDeep(data).filter((v: any) =>
     isOneOfArray(v.meta?.roles, currentRoles)
   );
@@ -150,7 +157,9 @@ function addPathMatch() {
 }
 
 /** 处理动态路由（后端返回的路由） */
-function handleAsyncRoutes(routeList) {
+function handleAsyncRoutes(routeList: any) {
+  console.log("动态路由", routeList);
+
   if (routeList.length === 0) {
     usePermissionStoreHook().handleWholeMenus(routeList);
   } else {
@@ -167,6 +176,8 @@ function handleAsyncRoutes(routeList) {
           // 切记将路由push到routes后还需要使用addRoute，这样路由才能正常跳转
           router.options.routes[0].children.push(v);
           // 最终路由进行升序
+          //判断是否以/开头，如果不是则加上/
+          v.path = v.path.startsWith("/") ? v.path : "/" + v.path;
           ascending(router.options.routes[0].children);
           if (!router.hasRoute(v?.name)) router.addRoute(v);
           const flattenRouters: any = router
@@ -190,7 +201,10 @@ function handleAsyncRoutes(routeList) {
 }
 
 /** 初始化路由（`new Promise` 写法防止在异步请求中造成无限循环）*/
+/** 初始化路由不用这个，用下面的 initRoutesWithData */
+
 function initRouter() {
+  console.log("开启路由缓存", getConfig()?.CachingAsyncRoutes);
   if (getConfig()?.CachingAsyncRoutes) {
     // 开启动态路由缓存本地localStorage
     const key = "async-routes";
@@ -202,7 +216,7 @@ function initRouter() {
       });
     } else {
       return new Promise(resolve => {
-        getAsyncRoutes().then(data => {
+        getAsyncRoutes().then(({ data }) => {
           handleAsyncRoutes(cloneDeep(data));
           storageLocal().setItem(key, data);
           resolve(router);
@@ -211,12 +225,32 @@ function initRouter() {
     }
   } else {
     return new Promise(resolve => {
-      getAsyncRoutes().then(data => {
+      getAsyncRoutes().then(({ data }) => {
         handleAsyncRoutes(cloneDeep(data));
         resolve(router);
       });
     });
   }
+}
+
+// 初始化路由但不再次请求后端，而是拿登录时返回的路由
+const userAsyncRoutesKey = "user-async-routes";
+function initRouterWithData(asyncRouteList: any) {
+  //不存储路由
+  //storageLocal().setItem(userAsyncRoutesKey, asyncRouteList);
+
+  return new Promise(resolve => {
+    handleAsyncRoutes(asyncRouteList);
+    resolve(router);
+  });
+}
+// 获取初始化路由，执行这个方法之前，必须执行initRouterWithData
+function getInitRouter() {
+  const asyncRouteList = storageLocal().getItem(userAsyncRoutesKey) as any;
+  return new Promise(resolve => {
+    handleAsyncRoutes(asyncRouteList);
+    resolve(router);
+  });
 }
 
 /**
@@ -304,9 +338,6 @@ function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
   const modulesRoutesKeys = Object.keys(modulesRoutes);
   arrRoutes.forEach((v: RouteRecordRaw) => {
     // 将backstage属性加入meta，标识此路由为后端返回路由
-    if (!v?.meta) {
-      console.log("meta不存在", v);
-    }
     v.meta.backstage = true;
     // 父级的redirect属性取值：如果子级存在且父级的redirect属性不存在，默认取第一个子级的path；如果子级存在且父级的redirect属性存在，取存在的redirect属性，会覆盖默认值
     if (v?.children && v.children.length && !v.redirect)
@@ -317,10 +348,9 @@ function addAsyncRoutes(arrRoutes: Array<RouteRecordRaw>) {
     if (v.meta?.frameSrc) {
       v.component = IFrame;
     } else {
-      // 对后端传component组件路径和不传做兼容（如果后端传component组件路径，那么path可以随便写，如果不传，component组件路径会跟path保持一致）
       const index = v?.component
         ? modulesRoutesKeys.findIndex(ev => ev.includes(v.component as any))
-        : modulesRoutesKeys.findIndex(ev => ev.includes(v.path));
+        : -1;
       v.component = modulesRoutes[modulesRoutesKeys[index]];
     }
     if (v?.children && v.children.length) {
@@ -358,7 +388,7 @@ function getAuths(): Array<string> {
   return router.currentRoute.value.meta.auths as Array<string>;
 }
 
-/** 是否有按钮级别的权限（根据路由`meta`中的`auths`字段进行判断）*/
+/** 是否有按钮级别的权限 */
 function hasAuth(value: string | Array<string>): boolean {
   if (!value) return false;
   /** 从当前路由的`meta`字段里获取按钮级别的所有自定义`code`值 */
@@ -407,5 +437,7 @@ export {
   handleAliveRoute,
   formatTwoStageRoutes,
   formatFlatteningRoutes,
-  filterNoPermissionTree
+  filterNoPermissionTree,
+  initRouterWithData,
+  getInitRouter
 };

@@ -3,10 +3,10 @@ import { getConfig } from "@/config";
 import { useLayout } from "./useLayout";
 import { removeToken } from "@/utils/auth";
 import { routerArrays } from "@/layout/types";
-import { router, resetRouter } from "@/router";
+import { resetRouter, router } from "@/router";
 import type { themeColorsType } from "../types";
 import { useAppStoreHook } from "@/store/modules/app";
-import { useGlobal, storageLocal } from "@pureadmin/utils";
+import { storageLocal, useGlobal } from "@pureadmin/utils";
 import { useEpThemeStoreHook } from "@/store/modules/epTheme";
 import { useMultiTagsStoreHook } from "@/store/modules/multiTags";
 import {

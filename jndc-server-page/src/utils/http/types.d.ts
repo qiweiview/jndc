@@ -1,8 +1,8 @@
 import type {
-  Method,
   AxiosError,
+  AxiosRequestConfig,
   AxiosResponse,
-  AxiosRequestConfig
+  Method
 } from "axios";
 
 export type resultType = {
@@ -36,12 +36,12 @@ export default class PureHttp {
   ): Promise<T>;
   post<T, P>(
     url: string,
-    params?: P,
+    params?: T,
     config?: PureHttpRequestConfig
-  ): Promise<T>;
+  ): Promise<P>;
   get<T, P>(
     url: string,
-    params?: P,
+    params?: T,
     config?: PureHttpRequestConfig
-  ): Promise<T>;
+  ): Promise<P>;
 }

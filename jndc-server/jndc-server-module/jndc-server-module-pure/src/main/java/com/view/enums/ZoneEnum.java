@@ -1,0 +1,30 @@
+package com.view.enums;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * @author sjh
+ * @version 1.0
+ * @date 2024-05-09 23:03
+ * @description: 时区枚举
+ */
+@Getter
+@AllArgsConstructor
+public enum ZoneEnum {
+
+    /**
+     * 上海
+     */
+    SHANGHAI("Asia/Shanghai", "中国上海");
+
+    /**
+     * 时区
+     */
+    private final String zone;
+
+    /**
+     * 描述
+     */
+    private final String desc;
+}

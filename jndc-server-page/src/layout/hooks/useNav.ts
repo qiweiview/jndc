@@ -1,19 +1,21 @@
 import { storeToRefs } from "pinia";
-import { getConfig } from "@/config";
+import { getConfig, removeBackstageConfig } from "@/config";
 import { emitter } from "@/utils/mitt";
 import Avatar from "@/assets/user.jpg";
 import { getTopMenu } from "@/router/utils";
 import { useFullscreen } from "@vueuse/core";
 import type { routeMetaType } from "../types";
-import { useRouter, useRoute } from "vue-router";
-import { router, remainingPaths } from "@/router";
+import { useRoute, useRouter } from "vue-router";
+import { remainingPaths, router } from "@/router";
 import { computed, type CSSProperties } from "vue";
 import { useAppStoreHook } from "@/store/modules/app";
 import { useUserStoreHook } from "@/store/modules/user";
-import { useGlobal, isAllEmpty } from "@pureadmin/utils";
+import { isAllEmpty, useGlobal } from "@pureadmin/utils";
 import { usePermissionStoreHook } from "@/store/modules/permission";
 import ExitFullscreen from "@iconify-icons/ri/fullscreen-exit-fill";
 import Fullscreen from "@iconify-icons/ri/fullscreen-fill";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { useDictStoreHook } from "@/store/modules/dict";
 
 const errorInfo =
   "The current routing configuration is incorrect, please check the configuration";
@@ -22,6 +24,7 @@ export function useNav() {
   const route = useRoute();
   const pureApp = useAppStoreHook();
   const routers = useRouter().options.routes;
+  const { onReset } = useDataThemeChange();
   const { isFullscreen, toggle } = useFullscreen();
   const { wholeMenus } = storeToRefs(usePermissionStoreHook());
   /** 平台`layout`中所有`el-tooltip`的`effect`配置，默认`light` */
@@ -81,7 +84,19 @@ export function useNav() {
 
   /** 退出登录 */
   function logout() {
-    useUserStoreHook().logOut();
+    useUserStoreHook().logOutByApi();
+    setTimeout(() => {
+      removeBackstageConfig();
+      onReset();
+    }, 100);
+    // 清除字典数据
+    useDictStoreHook().clearDict();
+    // removeBackstageConfig();
+    // onReset();
+  }
+  // 个人中心
+  function toAccountSettings() {
+    router.push({ name: "AccountSettings" });
   }
 
   function backTopMenu() {
@@ -152,6 +167,7 @@ export function useNav() {
     username,
     userAvatar,
     avatarsStyle,
-    tooltipEffect
+    tooltipEffect,
+    toAccountSettings
   };
 }

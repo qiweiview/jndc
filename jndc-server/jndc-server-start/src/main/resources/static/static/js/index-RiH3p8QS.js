@@ -1,0 +1,1 @@
+import{aP as t,aQ as r}from"./index-BjE2BxpS.js";const s="/sysOperLog",o=e=>t.request("get",r(`${s}/list`),{params:e}),l=e=>t.request("delete",r(`${s}/delete`),{data:e}),p=()=>t.request("delete",r(`${s}/clear`));export{p as c,l as d,o as l};

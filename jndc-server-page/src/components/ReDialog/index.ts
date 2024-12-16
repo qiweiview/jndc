@@ -3,11 +3,11 @@ import reDialog from "./index.vue";
 import { useTimeoutFn } from "@vueuse/core";
 import { withInstall } from "@pureadmin/utils";
 import type {
-  EventType,
   ArgsType,
-  DialogProps,
   ButtonProps,
-  DialogOptions
+  DialogOptions,
+  DialogProps,
+  EventType
 } from "./type";
 
 const dialogStore = ref<Array<DialogOptions>>([]);
@@ -29,11 +29,9 @@ const addDialog = (options: DialogOptions) => {
 const closeDialog = (options: DialogOptions, index: number, args?: any) => {
   dialogStore.value[index].visible = false;
   options.closeCallBack && options.closeCallBack({ options, index, args });
-
-  const closeDelay = options?.closeDelay ?? 200;
   useTimeoutFn(() => {
     dialogStore.value.splice(index, 1);
-  }, closeDelay);
+  }, 200);
 };
 
 /**

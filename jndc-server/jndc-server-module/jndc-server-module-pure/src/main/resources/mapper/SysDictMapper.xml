@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.dao.mapper.SysDictMapper">
+
+    <resultMap type="com.view.dao.entity.SysDict" id="SysDictMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="dictCode" column="dict_code" jdbcType="VARCHAR"/>
+        <result property="dictName" column="dict_name" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="delFlag" column="del_flag" jdbcType="INTEGER"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 结果映射 -->
+    <resultMap id="DictAndDataResultMap" type="com.view.vo.dict.DictAndDataVO">
+        <id column="dictCode" property="dictCode" />
+        <collection property="dictValue" ofType="com.view.vo.dict.DictDataVO">
+            <result column="name" property="name" />
+            <result column="value" property="value" />
+            <result column="color" property="color" />
+        </collection>
+    </resultMap>
+    <!-- 查询所有字典及其下的数据项 -->
+    <select id="listAllDictAndData" resultMap="DictAndDataResultMap">
+        SELECT
+            d.dict_code AS dictCode,
+            dd.`name` AS name,
+            dd.`value` AS `value`,
+            dd.color AS color
+        FROM
+            sys_dict d
+                LEFT JOIN
+            sys_dict_data dd ON d.id = dd.dict_id
+        where d.del_flag = 0 and dd.status = 0
+        ORDER BY
+            d.dict_code, dd.sort_order
+    </select>
+
+
+</mapper>
+

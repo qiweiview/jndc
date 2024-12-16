@@ -7,7 +7,6 @@ declare module "vue" {
     IconifyIconOnline: (typeof import("../src/components/ReIcon"))["IconifyIconOnline"];
     FontIcon: (typeof import("../src/components/ReIcon"))["FontIcon"];
     Auth: (typeof import("../src/components/ReAuth"))["Auth"];
-    Perms: (typeof import("../src/components/RePerms"))["Perms"];
   }
 }
 
@@ -116,7 +115,6 @@ declare module "vue" {
     ElWatermark: (typeof import("element-plus"))["ElWatermark"];
     ElTour: (typeof import("element-plus"))["ElTour"];
     ElTourStep: (typeof import("element-plus"))["ElTourStep"];
-    ElSegmented: (typeof import("element-plus"))["ElSegmented"];
   }
 
   interface ComponentCustomProperties {

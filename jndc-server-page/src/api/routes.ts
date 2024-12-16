@@ -1,10 +1,8 @@
 import { http } from "@/utils/http";
+import { baseUrlApi } from "./utils";
 
-type Result = {
-  success: boolean;
-  data: Array<any>;
-};
-
-export const getAsyncRoutes = () => {
-  return http.request<Result>("get", "/admin/asyncRoutes");
+export const getAsyncRoutes = (data?: object) => {
+  return http.request<any>("get", baseUrlApi("/sysMenu/roleMenuTree"), {
+    data
+  });
 };

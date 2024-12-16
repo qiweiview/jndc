@@ -7,11 +7,12 @@ import {
    * */
   ElAffix,
   ElAlert,
+  ElAnchor,
+  ElAnchorLink,
+  ElAside,
   ElAutocomplete,
   ElAutoResizer,
   ElAvatar,
-  ElAnchor,
-  ElAnchorLink,
   ElBacktop,
   ElBadge,
   ElBreadcrumb,
@@ -24,10 +25,10 @@ import {
   ElCarouselItem,
   ElCascader,
   ElCascaderPanel,
-  ElCheckTag,
   ElCheckbox,
   ElCheckboxButton,
   ElCheckboxGroup,
+  ElCheckTag,
   ElCol,
   ElCollapse,
   ElCollapseItem,
@@ -35,10 +36,7 @@ import {
   ElColorPicker,
   ElConfigProvider,
   ElContainer,
-  ElAside,
-  ElFooter,
-  ElHeader,
-  ElMain,
+  ElCountdown,
   ElDatePicker,
   ElDescriptions,
   ElDescriptionsItem,
@@ -49,22 +47,36 @@ import {
   ElDropdownItem,
   ElDropdownMenu,
   ElEmpty,
+  ElFooter,
   ElForm,
   ElFormItem,
+  ElHeader,
   ElIcon,
   ElImage,
   ElImageViewer,
+  ElInfiniteScroll,
   ElInput,
   ElInputNumber,
   ElLink,
+  /**
+   * 为了方便演示平台将 element-plus 导出的所有插件引入，实际使用中如果你没用到哪个插件，将其注释掉就行
+   * 导出来源：https://github.com/element-plus/element-plus/blob/dev/packages/element-plus/plugin.ts#L11-L16
+   * */
+  ElLoading,
+  ElMain,
   ElMenu,
   ElMenuItem,
   ElMenuItemGroup,
-  ElSubMenu,
+  ElMessage,
+  ElMessageBox,
+  ElNotification,
+  ElOption,
+  ElOptionGroup,
   ElPageHeader,
   ElPagination,
   ElPopconfirm,
   ElPopover,
+  ElPopoverDirective,
   ElPopper,
   ElProgress,
   ElRadio,
@@ -75,49 +87,36 @@ import {
   ElRow,
   ElScrollbar,
   ElSelect,
-  ElOption,
-  ElOptionGroup,
   ElSelectV2,
   ElSkeleton,
   ElSkeletonItem,
   ElSlider,
   ElSpace,
   ElStatistic,
-  ElCountdown,
-  ElSteps,
   ElStep,
+  ElSteps,
+  ElSubMenu,
   ElSwitch,
   ElTable,
   ElTableColumn,
   ElTableV2,
-  ElTabs,
   ElTabPane,
+  ElTabs,
   ElTag,
   ElText,
-  ElTimePicker,
-  ElTimeSelect,
   ElTimeline,
   ElTimelineItem,
+  ElTimePicker,
+  ElTimeSelect,
   ElTooltip,
+  ElTour,
+  ElTourStep,
   ElTransfer,
   ElTree,
   ElTreeSelect,
   ElTreeV2,
   ElUpload,
-  ElWatermark,
-  ElTour,
-  ElTourStep,
-  ElSegmented,
-  /**
-   * 为了方便演示平台将 element-plus 导出的所有插件引入，实际使用中如果你没用到哪个插件，将其注释掉就行
-   * 导出来源：https://github.com/element-plus/element-plus/blob/dev/packages/element-plus/plugin.ts#L11-L16
-   * */
-  ElLoading, // v-loading 指令
-  ElInfiniteScroll, // v-infinite-scroll 指令
-  ElPopoverDirective, // v-popover 指令
-  ElMessage, // $message 全局属性对象globalProperties
-  ElMessageBox, // $msgbox、$alert、$confirm、$prompt 全局属性对象globalProperties
-  ElNotification // $notify 全局属性对象globalProperties
+  ElWatermark
 } from "element-plus";
 
 const components = [
@@ -222,8 +221,7 @@ const components = [
   ElUpload,
   ElWatermark,
   ElTour,
-  ElTourStep,
-  ElSegmented
+  ElTourStep
 ];
 
 const plugins = [

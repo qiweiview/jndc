@@ -1,9 +1,9 @@
-<script setup lang="ts">
-defineOptions({
-  name: "Welcome"
-});
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <h1>Hi～</h1>
+  <div class="welcome">
+    <h1>Welcome to Free Lite Life</h1>
+  </div>
 </template>
+
+<style scoped lang="scss"></style>

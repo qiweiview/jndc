@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.dao.mapper.SysMenuMapper">
+
+    <resultMap type="com.view.dao.entity.SysMenu" id="SysMenuMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="sortOrder" column="sort_order" jdbcType="INTEGER"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+        <result property="component" column="component" jdbcType="VARCHAR"/>
+        <result property="query" column="query" jdbcType="VARCHAR"/>
+        <result property="cacheFlag" column="cache_flag" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="visible" column="visible" jdbcType="INTEGER"/>
+        <result property="perms" column="perms" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="platformType" column="platform_type" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="redirect" column="redirect" jdbcType="VARCHAR"/>
+        <result property="frameLoading" column="frame_loading" jdbcType="INTEGER"/>
+        <result property="frameSrc" column="frame_src" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 查询角色对应菜单列表 -->
+    <select id="listRoleMenuByRoles" resultMap="SysMenuMap">
+        SELECT
+        DISTINCT
+        m.id, m.name, m.title, m.parent_id, m.sort_order,
+        m.path, m.component, m.query, m.cache_flag, m.type,
+        m.visible, m.perms, m.icon, m.create_by, m.create_time,
+        m.update_by, m.update_time, m.remark, m.platform_type,
+        m.redirect, m.frame_loading, m.frame_src
+        FROM sys_menu m
+        INNER JOIN sys_role_menu rm ON m.id = rm.menu_id
+        WHERE m.visible = 0
+        <if test="isPerms">
+            AND m.type = 4
+        </if>
+        <if test="!isPerms">
+            AND m.type in (0,1,2,3)
+        </if>
+        and rm.role_id IN
+        <foreach item="roleId" collection="roleIdList" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
+
+    <select id="getSimpleMenuList" resultType="com.view.vo.menu.SimpleMenuVO">
+        select id, title, parent_id, sort_order, type
+        from sys_menu
+        where visible = 0
+        order by sort_order asc
+    </select>
+
+</mapper>
+
