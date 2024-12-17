@@ -3,7 +3,7 @@
 -- ----------------------------
 INSERT INTO `sys_menu` VALUES (1, 'System', '系统管理', 0, 1, '/system', '', NULL, 0, 0, 0, '', 'ep:brush-filled', 1, '2024-06-04 10:37:13', 1, '2024-08-22 11:12:15', '', 0, '', 0, '');
 INSERT INTO `sys_menu` VALUES (1867209453162561538, 'SystemMonitor', '系统监控', 0, 2, '/monitor', '', NULL, 0, 0, 0, '', 'ri:notification-3-fill', 1, '2024-07-02 20:12:30', 1, '2024-08-21 10:44:52', '', 0, '', 0, '');
-INSERT INTO `sys_menu` VALUES (1867209453162561537, 'DBManage', '数据库管理', 0, 3, '/db_manage', '', NULL, 0, 0, 0, '', 'ep:camera-filled', 1, '2024-12-12 22:06:39', 1, '2024-12-12 22:15:34', '', 0, '', 0, '');
+INSERT INTO `sys_menu` VALUES (1867209453162561537, 'JNDCManage', 'JNDC管理', 0, 3, '/jndc_namage', '', NULL, 0, 0, 0, '', 'ep:camera-filled', 1, '2024-12-12 22:06:39', 1, '2024-12-12 22:15:34', '', 0, '', 0, '');
 
 -- 系统管理
 INSERT INTO `sys_menu` VALUES (3, 'SystemMenu', '菜单管理', 1, 2, '/system/menu', 'system/menu/index', NULL, 0, 1, 0, NULL, 'ep:menu', 1, '2024-06-05 10:07:13', 1, '2024-08-04 20:05:47', '', 0, '', 0, '');
@@ -15,7 +15,7 @@ INSERT INTO `sys_menu` VALUES (87, 'OperationLog', '操作日志', 1867209453162
 -- INSERT INTO `sys_menu` VALUES (88, 'FlowLimit', '流量控制', 1867209453162561538, 2, '/monitor/flow_control', 'monitor/flow_control/index', NULL, 0, 1, 0, '', 'ep:data-line', 1, '2024-09-13 09:39:56', NULL, NULL, '', 0, '', 0, '');
 
 -- 数据库管理
-INSERT INTO `sys_menu` VALUES (1867209707094114306, 'H2Manage', 'H2管理', 1867209453162561537, 1, '/db_manage/h2', '', NULL, 0, 2, 0, '', 'ep:brush', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '/h2');
+INSERT INTO `sys_menu` VALUES (1867209707094114306, 'JNDCServer', '服务端', 1867209453162561537, 1, '/jndc_namage/server', '', NULL, 0, 2, 0, '', 'ep:brush', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '/h2');
 
 -- 角色管理
 INSERT INTO `sys_menu` VALUES (12, '', '角色查询', 8, 1, '', '', NULL, 0, 4, 0, 'system:role:query', '', 1, '2024-07-02 20:03:25', 1, '2024-08-21 10:03:16', '', 0, '', 0, '');

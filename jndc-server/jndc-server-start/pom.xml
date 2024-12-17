@@ -6,34 +6,35 @@
     <parent>
         <groupId>com.view</groupId>
         <artifactId>jndc-server</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jndc-server-start</artifactId>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!--pure管理模块-->
     <dependencies>
+
         <dependency>
             <groupId>com.view</groupId>
-            <artifactId>free-lite-module-auth</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>jndc-server-module-pure</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.view</groupId>
-            <artifactId>free-lite-module-pure</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>jndc-server-module-manage</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>free-lite-server-start</finalName>
+        <finalName>jndc-server-start</finalName>
         <plugins>
             <!--打jar包，排除资源文件和依赖jar，同时外部的lib、resource目录加入到classpath中，
                 用命令java -jar运行jar时就不需要用-Dloader.path指定外部资源路径了！

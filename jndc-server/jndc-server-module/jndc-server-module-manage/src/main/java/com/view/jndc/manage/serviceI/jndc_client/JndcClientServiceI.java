@@ -1,0 +1,22 @@
+package com.view.jndc.manage.serviceI.jndc_client;
+
+import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
+import com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO;
+import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
+import java.io.Serializable;
+
+public interface JndcClientServiceI {
+  IPage<JndcClientVO> queryPage(JndcClientDTO jndcClientDTO);
+
+  List<JndcClientVO> queryList(JndcClientDTO jndcClientDTO);
+
+  JndcClientDO save(JndcClientDTO jndcClientDTO);
+
+  void updateById(JndcClientDTO jndcClientDTO);
+
+  void removeById(Serializable id);
+
+  JndcClientDTO getById(Serializable id);
+}

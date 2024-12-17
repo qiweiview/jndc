@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_server_accept_history.JndcServerAcceptHistoryDao" >
+
+    <resultMap type="com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO" id="JndcServerAcceptHistoryMap" >
+                <id property="id" column="id" />
+                <result property="clientId" column="client_id" />
+                <result property="connectTime" column="connect_time" />
+                <result property="createTime" column="create_time" />
+                <result property="interruptTime" column="interrupt_time" />
+                <result property="sourceIp" column="source_ip" />
+                <result property="sourcePort" column="source_port" />
+                <result property="updateTime" column="update_time" />
+    </resultMap>
+    
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+            client_id,
+            connect_time,
+            create_time,
+            id,
+            interrupt_time,
+            source_ip,
+            source_port,
+            update_time
+    </sql>
+    
+    
+    <select id="listPage" resultMap="JndcServerAcceptHistoryMap"
+            parameterType="com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_accept_history
+    </select>
+
+    <select id="list" resultMap="JndcServerAcceptHistoryMap"
+            parameterType="com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_accept_history
+    </select>
+
+</mapper>

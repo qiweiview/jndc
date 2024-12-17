@@ -38,7 +38,7 @@ export const useDictStore = defineStore({
     // 加载字典数据（优先从 sessionStorage 中获取）
     async loadDicts(): Promise<void> {
       const storedDictList = storageSession().getItem(DICT_CACHE_KEY);
-      console.log("storedDictList", storedDictList);
+
       if (storedDictList) {
         this.dictList = storedDictList;
       } else {

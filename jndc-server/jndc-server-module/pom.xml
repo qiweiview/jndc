@@ -5,13 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.view</groupId>
-        <artifactId>free-lite-server</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <artifactId>jndc-server</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>jndc-server-module</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>jndc-server-module-manage</module>
         <module>jndc-server-module-pure</module>
     </modules>
 
