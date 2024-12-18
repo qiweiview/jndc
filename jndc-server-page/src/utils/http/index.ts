@@ -165,7 +165,7 @@ class PureHttp {
   ): Promise<T> {
     const config = {
       method,
-      url,
+      url: import.meta.env.VITE_REQUEST_PREFIX + url,
       ...param,
       ...axiosConfig
     } as PureHttpRequestConfig;

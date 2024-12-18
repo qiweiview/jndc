@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Import;
 
-@MapperScan({"com.view.**.mapper"})
+@MapperScan({"com.view.**.mapper","**.dao.*"})
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @Import({DynamicDataSourceConfig.class})
 public class ApplicationStart {

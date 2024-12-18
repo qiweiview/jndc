@@ -11,6 +11,7 @@ interface FormProps {
 // 数据项
 interface DictDataFormItemProps {
   id?: number;
+  serverName?: string;
 }
 
 //

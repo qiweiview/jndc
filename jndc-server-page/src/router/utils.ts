@@ -237,7 +237,7 @@ function initRouter() {
 const userAsyncRoutesKey = "user-async-routes";
 function initRouterWithData(asyncRouteList: any) {
   //不存储路由
-  //storageLocal().setItem(userAsyncRoutesKey, asyncRouteList);
+  storageLocal().setItem(userAsyncRoutesKey, asyncRouteList);
 
   return new Promise(resolve => {
     handleAsyncRoutes(asyncRouteList);

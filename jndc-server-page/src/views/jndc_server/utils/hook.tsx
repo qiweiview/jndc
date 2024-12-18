@@ -7,11 +7,11 @@ import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
 import {
-  addDict,
-  deleteDict,
-  listDict,
-  updateDict
-} from "@/api/system/dict/dict";
+  listOperation,
+  addOperation,
+  deleteOperation,
+  updateOperation
+} from "@/api/jndc_server/api";
 
 export function useHook() {
   //分页
@@ -60,7 +60,7 @@ export function useHook() {
         </p>
       ),
       beforeSure: async done => {
-        const res = await deleteDict(row.id);
+        const res = await deleteOperation(row.id);
         if (res.code == 0) {
           toast(`已删除"${row.dictName}`, {
             type: "success"
@@ -91,7 +91,7 @@ export function useHook() {
     loading.value = true;
     form.current = pagination.currentPage;
     form.size = pagination.pageSize;
-    const { code, data } = await listDict(toRaw(form));
+    const { code, data } = await listOperation(toRaw(form));
     if (code != 0) {
     } else {
       dataList.value = data.records;
@@ -110,7 +110,7 @@ export function useHook() {
 
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
-      title: `${title}字典`,
+      title: `${title}`,
       props: {
         formInline: {
           id: row?.id ?? null
@@ -125,6 +125,7 @@ export function useHook() {
       beforeSure: (done, { options }) => {
         const FormRef = formRef.value.getRef();
         const curData = options.props.formInline as FormItemProps;
+
         function chores() {
           toast(`您${title}了这条数据`, {
             type: "success"
@@ -132,19 +133,20 @@ export function useHook() {
           done(); // 关闭弹框
           onSearch(); // 刷新表格数据
         }
+
         FormRef.validate(async valid => {
           if (valid) {
             console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
-              const res = await addDict(curData);
+              const res = await addOperation(curData);
               if (res.code == 0) {
                 chores();
               }
             } else {
               // 实际开发先调用修改接口，再进行下面操作
-              const res = await updateDict(curData);
+              const res = await updateOperation(curData);
               if (res.code == 0) {
                 chores();
               }

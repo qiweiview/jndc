@@ -4,7 +4,6 @@ import { ref } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
-import DictData from "./dict-data/index.vue";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
@@ -24,17 +23,13 @@ const {
   columns,
   dataList,
   pagination,
-  curRow,
-  dictDataDrawer,
   onSearch,
   resetForm,
   openDialog,
   handleDelete,
   handleSizeChange,
   handleCurrentChange,
-  handleSelectionChange,
-  openDictData,
-  handleDrawerUpdate
+  handleSelectionChange
 } = useHook();
 </script>
 
@@ -130,12 +125,6 @@ const {
         </template>
       </PureTableBar>
     </div>
-
-    <DictData
-      :dictDataDrawer="dictDataDrawer"
-      :dictObj="curRow"
-      @updateDictDataDrawer="handleDrawerUpdate"
-    />
   </div>
 </template>
 
