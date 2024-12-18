@@ -34,7 +34,10 @@ public class JndcServerDTO implements Serializable {
   public void setIdString(String idString) {
     this.idString = idString;
     if (idString != null) {
-      this.id = Long.parseLong(idString);
+      try {
+        this.id = Long.parseLong(idString);
+      } catch (NumberFormatException e) {
+      }
     }
   }
 

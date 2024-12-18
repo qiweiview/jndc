@@ -41,6 +41,22 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
+      label: "ID",
+      prop: "id"
+    },
+    {
+      label: "服务名称",
+      prop: "serverName"
+    },
+    {
+      label: "创建时间",
+      prop: "createTime"
+    },
+    {
+      label: "更新时间",
+      prop: "updateTime"
+    },
+    {
       label: "操作",
       fixed: "right",
       width: 220,
@@ -113,7 +129,9 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-          id: row?.id ?? null
+          id: row?.id ?? null,
+          idString: row?.idString ?? "",
+          serverName: row?.serverName ?? ""
         }
       },
       width: "40%",

@@ -1,5 +1,6 @@
 package com.view.jndc.manage.serviceI.jndc_server.Impl;
 
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
 import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.io.Serializable;
@@ -22,6 +24,8 @@ import java.io.Serializable;
 public class JndcServerServiceImpl implements JndcServerServiceI {
 
   private final JndcServerDao jndcServerDao;
+
+  private final SnowflakeIdWorker snowflakeIdWorker;
 
   /** 分页查询 */
   @Override
@@ -51,6 +55,9 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
   @Override
   public JndcServerDO save(JndcServerDTO jndcServerDTO) {
     JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
+    copy.setId(snowflakeIdWorker.nextId());
+    copy.setCreateTime(LocalDateTime.now());
+
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerDao.insert(copy);
     return copy;
@@ -63,6 +70,8 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
     getById(jndcServerDTO.getId());
 
     JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
+    copy.setUpdateTime(LocalDateTime.now());
+
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerDao.updateById(copy);
   }

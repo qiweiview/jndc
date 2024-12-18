@@ -18,6 +18,22 @@ public class JndcServerVO {
   /** */
   private Long id;
 
+  private String idString;
+
+  public void setId(Long id) {
+    this.id = id;
+    if (id != null && idString == null) {
+      this.idString = id.toString();
+    }
+  }
+
+  public void setIdString(String idString) {
+    this.idString = idString;
+    if (idString != null) {
+      this.id = Long.parseLong(idString);
+    }
+  }
+
   /** 服务名称 */
   private String serverName;
 

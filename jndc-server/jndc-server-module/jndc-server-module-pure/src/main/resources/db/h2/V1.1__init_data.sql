@@ -15,7 +15,7 @@ INSERT INTO `sys_menu` VALUES (87, 'OperationLog', '操作日志', 1867209453162
 -- INSERT INTO `sys_menu` VALUES (88, 'FlowLimit', '流量控制', 1867209453162561538, 2, '/monitor/flow_control', 'monitor/flow_control/index', NULL, 0, 1, 0, '', 'ep:data-line', 1, '2024-09-13 09:39:56', NULL, NULL, '', 0, '', 0, '');
 
 -- 数据库管理
-INSERT INTO `sys_menu` VALUES (1867209707094114306, 'JNDCServer', '服务端', 1867209453162561537, 1, '/jndc_namage/server', '', NULL, 0, 2, 0, '', 'ep:brush', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '/h2');
+INSERT INTO `sys_menu` VALUES (1867209707094114306, 'JNDCServer', '服务端', 1867209453162561537, 1, '/jndc/jndc_server', 'jndc_server/index', NULL, 0, 1, 0, '', 'ep:brush', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '');
 
 -- 角色管理
 INSERT INTO `sys_menu` VALUES (12, '', '角色查询', 8, 1, '', '', NULL, 0, 4, 0, 'system:role:query', '', 1, '2024-07-02 20:03:25', 1, '2024-08-21 10:03:16', '', 0, '', 0, '');

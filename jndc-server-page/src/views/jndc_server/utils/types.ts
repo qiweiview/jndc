@@ -2,6 +2,8 @@
 
 interface FormItemProps {
   id?: number;
+  idString?: string;
+  serverName?: string;
 }
 
 interface FormProps {
