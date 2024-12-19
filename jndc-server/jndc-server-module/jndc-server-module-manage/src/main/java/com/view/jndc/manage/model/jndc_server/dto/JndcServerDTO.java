@@ -10,7 +10,9 @@ import java.io.Serializable;
 @Data
 public class JndcServerDTO implements Serializable {
 
-  /** jndc-server监听端口 */
+    /**
+     * 监听端口
+     */
   private Integer bindPort;
 
   /** 绑定策略 */
@@ -22,6 +24,12 @@ public class JndcServerDTO implements Serializable {
   /** */
   private Long id;
 
+    /**
+     *
+     */
+    private String ids;
+
+    /** 字符id（处理浏览器long精度丢失问题） */
   private String idString;
 
   public void setId(Long id) {
@@ -33,16 +41,10 @@ public class JndcServerDTO implements Serializable {
 
   public void setIdString(String idString) {
     this.idString = idString;
-    if (idString != null) {
-      try {
-        this.id = Long.parseLong(idString);
-      } catch (NumberFormatException e) {
-      }
+      if (idString != null) {
+          this.id = Long.parseLong(idString);
     }
   }
-
-  /** */
-  private String ids;
 
   /** 服务名称 */
   private String serverName;
@@ -52,6 +54,11 @@ public class JndcServerDTO implements Serializable {
 
   /** 服务状态 */
   private String serverStatus;
+
+    /**
+     * 唯一id
+     */
+    private String uniqueId;
 
   /** 修改时间 */
   private java.time.LocalDateTime updateTime;

@@ -11,9 +11,9 @@
                 <result property="clientName" column="client_name" />
                 <result property="clientRemark" column="client_remark" />
                 <result property="clientStatus" column="client_status" />
-                <result property="clientUniqueId" column="client_unique_id" />
                 <result property="createTime" column="create_time" />
                 <result property="disguisedProtocol" column="disguised_protocol" />
+        <result property="uniqueId" column="unique_id"/>
                 <result property="updateTime" column="update_time" />
     </resultMap>
     
@@ -24,10 +24,10 @@
             client_name,
             client_remark,
             client_status,
-            client_unique_id,
             create_time,
             disguised_protocol,
             id,
+            unique_id,
             update_time
     </sql>
     

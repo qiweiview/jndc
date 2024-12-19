@@ -1,28 +1,32 @@
 package com.view.jndc.manage.serviceI.jndc_client.Impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
-import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
+import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
-import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
+import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
 import com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
-
+import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
 import com.view.jndc.manage.serviceI.jndc_client.JndcClientServiceI;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 
 @Service
 @RequiredArgsConstructor
 public class JndcClientServiceImpl implements JndcClientServiceI {
 
   private final JndcClientDao jndcClientDao;
+
+  private final SnowflakeIdWorker snowflakeIdWorker;
 
   /** 分页查询 */
   @Override
@@ -52,6 +56,9 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
   @Override
   public JndcClientDO save(JndcClientDTO jndcClientDTO) {
     JndcClientDO copy = JndcClientStructMapper.INSTANCE.toDO(jndcClientDTO);
+    copy.setId(snowflakeIdWorker.nextId());
+    copy.setUniqueId(UniqueId.generate());
+    copy.setCreateTime(LocalDateTime.now());
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcClientDao.insert(copy);
     return copy;
@@ -64,6 +71,9 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
     getById(jndcClientDTO.getId());
 
     JndcClientDO copy = JndcClientStructMapper.INSTANCE.toDO(jndcClientDTO);
+    copy.setUpdateTime(LocalDateTime.now());
+    copy.setUniqueId(null);
+
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcClientDao.updateById(copy);
   }

@@ -1,16 +1,20 @@
 package com.view.jndc.manage.model.jndc_server.d_o;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
 import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
-import com.baomidou.mybatisplus.annotation.*;
-import java.sql.Timestamp;
 import lombok.Data;
 
 @TableName("jndc_server")
 @Data
 public class JndcServerDO {
-  /** jndc-server监听端口 */
+    /**
+     * 监听端口
+     */
   @TableField(value = "bind_port")
   private Integer bindPort;
 
@@ -37,6 +41,12 @@ public class JndcServerDO {
   /** 服务状态 */
   @TableField(value = "server_status")
   private String serverStatus;
+
+    /**
+     * 唯一id
+     */
+    @TableField(value = "unique_id")
+    private String uniqueId;
 
   /** 修改时间 */
   @TableField(value = "update_time")

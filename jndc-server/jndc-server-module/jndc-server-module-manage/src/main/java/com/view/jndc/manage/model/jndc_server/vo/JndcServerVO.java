@@ -1,12 +1,13 @@
 package com.view.jndc.manage.model.jndc_server.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 @Data
 public class JndcServerVO {
 
-  /** jndc-server监听端口 */
+    /**
+     * 监听端口
+     */
   private Integer bindPort;
 
   /** 绑定策略 */
@@ -18,6 +19,7 @@ public class JndcServerVO {
   /** */
   private Long id;
 
+    /** 字符id（处理浏览器long精度丢失问题） */
   private String idString;
 
   public void setId(Long id) {
@@ -42,6 +44,11 @@ public class JndcServerVO {
 
   /** 服务状态 */
   private String serverStatus;
+
+    /**
+     * 唯一id
+     */
+    private String uniqueId;
 
   /** 修改时间 */
   private java.time.LocalDateTime updateTime;

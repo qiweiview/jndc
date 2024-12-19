@@ -1,10 +1,12 @@
 package com.view.jndc.manage.model.jndc_server_accept_history.d_o;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.view.jndc.manage.model.jndc_server_accept_history.JndcServerAcceptHistoryStructMapper;
 import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
 import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
-import com.baomidou.mybatisplus.annotation.*;
-import java.sql.Timestamp;
 import lombok.Data;
 
 @TableName("jndc_server_accept_history")
@@ -36,7 +38,7 @@ public class JndcServerAcceptHistoryDO {
 
   /** 来源端口 */
   @TableField(value = "source_port")
-  private String sourcePort;
+  private Integer sourcePort;
 
   /** 修改时间 */
   @TableField(value = "update_time")

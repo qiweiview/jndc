@@ -12,6 +12,7 @@
                 <result property="serverName" column="server_name" />
                 <result property="serverRemark" column="server_remark" />
                 <result property="serverStatus" column="server_status" />
+        <result property="uniqueId" column="unique_id"/>
                 <result property="updateTime" column="update_time" />
     </resultMap>
     
@@ -24,6 +25,7 @@
             server_name,
             server_remark,
             server_status,
+            unique_id,
             update_time
     </sql>
     

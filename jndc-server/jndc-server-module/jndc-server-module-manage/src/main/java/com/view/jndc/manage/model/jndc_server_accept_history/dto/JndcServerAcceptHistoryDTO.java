@@ -22,6 +22,14 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
   /** */
   private Long id;
 
+    /**
+     *
+     */
+    private String ids;
+
+    /**
+     * 字符id（处理浏览器long精度丢失问题）
+     */
   private String idString;
 
   public void setId(Long id) {
@@ -38,17 +46,16 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
     }
   }
 
-  /** */
-  private String ids;
-
   /** 中断时间 */
   private java.time.LocalDateTime interruptTime;
 
   /** 来源ip */
   private String sourceIp;
 
-  /** 来源端口 */
-  private String sourcePort;
+    /**
+     * 来源端口
+     */
+    private Integer sourcePort;
 
   /** 修改时间 */
   private java.time.LocalDateTime updateTime;

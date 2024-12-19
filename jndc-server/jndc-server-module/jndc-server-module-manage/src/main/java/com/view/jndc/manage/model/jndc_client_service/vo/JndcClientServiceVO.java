@@ -1,15 +1,18 @@
-package com.view.jndc.manage.model.jndc_server_accept_history.vo;
+package com.view.jndc.manage.model.jndc_client_service.vo;
 
 import lombok.Data;
 
 @Data
-public class JndcServerAcceptHistoryVO {
+public class JndcClientServiceVO {
 
-  /** 客户端id */
-  private String clientId;
+  /** 是否自动注册 */
+  private Integer autoRegister;
 
-  /** 连接时间 */
-  private java.time.LocalDateTime connectTime;
+  /** 所属客户端id */
+  private Long belongClientId;
+
+  /** 客户端唯一id */
+  private String clientUniqueId;
 
   /** 创建时间 */
   private java.time.LocalDateTime createTime;
@@ -36,16 +39,19 @@ public class JndcServerAcceptHistoryVO {
         }
     }
 
-  /** 中断时间 */
-  private java.time.LocalDateTime interruptTime;
-
-  /** 来源ip */
-  private String sourceIp;
-
     /**
-     * 来源端口
+     * 服务主机
      */
-    private Integer sourcePort;
+    private String serviceHost;
+
+  /** 服务名称 */
+  private String serviceName;
+
+  /** 服务端口 */
+  private String servicePort;
+
+  /** 服务状态 */
+  private String serviceStatus;
 
   /** 修改时间 */
   private java.time.LocalDateTime updateTime;

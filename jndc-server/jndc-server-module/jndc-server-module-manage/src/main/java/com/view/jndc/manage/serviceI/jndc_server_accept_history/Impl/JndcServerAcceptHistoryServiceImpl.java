@@ -1,27 +1,31 @@
 package com.view.jndc.manage.serviceI.jndc_server_accept_history.Impl;
 
-import com.view.jndc.manage.model.jndc_server_accept_history.JndcServerAcceptHistoryStructMapper;
-import com.view.jndc.manage.dao.jndc_server_accept_history.JndcServerAcceptHistoryDao;
-import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
-import com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO;
-import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
+import com.view.jndc.manage.dao.jndc_server_accept_history.JndcServerAcceptHistoryDao;
+import com.view.jndc.manage.model.jndc_server_accept_history.JndcServerAcceptHistoryStructMapper;
+import com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO;
+import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
+import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 
 @Service
 @RequiredArgsConstructor
 public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHistoryServiceI {
 
   private final JndcServerAcceptHistoryDao jndcServerAcceptHistoryDao;
+
+    private final SnowflakeIdWorker snowflakeIdWorker;
 
   /** 分页查询 */
   @Override
@@ -57,6 +61,8 @@ public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHisto
   public JndcServerAcceptHistoryDO save(JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO) {
     JndcServerAcceptHistoryDO copy =
         JndcServerAcceptHistoryStructMapper.INSTANCE.toDO(jndcServerAcceptHistoryDTO);
+      copy.setId(snowflakeIdWorker.nextId());
+      copy.setCreateTime(LocalDateTime.now());
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerAcceptHistoryDao.insert(copy);
     return copy;
@@ -70,6 +76,7 @@ public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHisto
 
     JndcServerAcceptHistoryDO copy =
         JndcServerAcceptHistoryStructMapper.INSTANCE.toDO(jndcServerAcceptHistoryDTO);
+      copy.setUpdateTime(LocalDateTime.now());
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerAcceptHistoryDao.updateById(copy);
   }

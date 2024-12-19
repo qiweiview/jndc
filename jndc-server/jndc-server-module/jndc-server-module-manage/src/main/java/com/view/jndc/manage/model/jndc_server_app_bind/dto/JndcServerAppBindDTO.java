@@ -25,6 +25,14 @@ public class JndcServerAppBindDTO implements Serializable {
   /** */
   private Long id;
 
+    /**
+     *
+     */
+    private String ids;
+
+    /**
+     * 字符id（处理浏览器long精度丢失问题）
+     */
   private String idString;
 
   public void setId(Long id) {
@@ -40,9 +48,6 @@ public class JndcServerAppBindDTO implements Serializable {
       this.id = Long.parseLong(idString);
     }
   }
-
-  /** */
-  private String ids;
 
   /** 最后绑定结果 */
   private String latestBindResult;

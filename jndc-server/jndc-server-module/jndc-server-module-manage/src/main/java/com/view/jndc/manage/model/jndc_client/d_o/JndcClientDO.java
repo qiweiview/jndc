@@ -1,10 +1,12 @@
 package com.view.jndc.manage.model.jndc_client.d_o;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
 import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
-import com.baomidou.mybatisplus.annotation.*;
-import java.sql.Timestamp;
 import lombok.Data;
 
 @TableName("jndc_client")
@@ -30,10 +32,6 @@ public class JndcClientDO {
   @TableField(value = "client_status")
   private String clientStatus;
 
-  /** 客户端唯一编号 */
-  @TableField(value = "client_unique_id")
-  private String clientUniqueId;
-
   /** 创建时间 */
   @TableField(value = "create_time")
   private java.time.LocalDateTime createTime;
@@ -45,6 +43,12 @@ public class JndcClientDO {
   /** */
   @TableId(value = "id", type = IdType.AUTO)
   private Long id;
+
+  /**
+   * 唯一id
+   */
+  @TableField(value = "unique_id")
+  private String uniqueId;
 
   /** 修改时间 */
   @TableField(value = "update_time")

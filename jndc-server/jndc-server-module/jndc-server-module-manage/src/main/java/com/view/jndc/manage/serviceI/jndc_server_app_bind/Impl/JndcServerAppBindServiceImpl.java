@@ -1,27 +1,31 @@
 package com.view.jndc.manage.serviceI.jndc_server_app_bind.Impl;
 
-import com.view.jndc.manage.model.jndc_server_app_bind.JndcServerAppBindStructMapper;
-import com.view.jndc.manage.dao.jndc_server_app_bind.JndcServerAppBindDao;
-import com.view.jndc.manage.model.jndc_server_app_bind.vo.JndcServerAppBindVO;
-import com.view.jndc.manage.model.jndc_server_app_bind.d_o.JndcServerAppBindDO;
-import com.view.jndc.manage.model.jndc_server_app_bind.dto.JndcServerAppBindDTO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
+import com.view.jndc.manage.dao.jndc_server_app_bind.JndcServerAppBindDao;
+import com.view.jndc.manage.model.jndc_server_app_bind.JndcServerAppBindStructMapper;
+import com.view.jndc.manage.model.jndc_server_app_bind.d_o.JndcServerAppBindDO;
+import com.view.jndc.manage.model.jndc_server_app_bind.dto.JndcServerAppBindDTO;
+import com.view.jndc.manage.model.jndc_server_app_bind.vo.JndcServerAppBindVO;
 import com.view.jndc.manage.serviceI.jndc_server_app_bind.JndcServerAppBindServiceI;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 
 @Service
 @RequiredArgsConstructor
 public class JndcServerAppBindServiceImpl implements JndcServerAppBindServiceI {
 
   private final JndcServerAppBindDao jndcServerAppBindDao;
+
+    private final SnowflakeIdWorker snowflakeIdWorker;
 
   /** 分页查询 */
   @Override
@@ -52,6 +56,8 @@ public class JndcServerAppBindServiceImpl implements JndcServerAppBindServiceI {
   @Override
   public JndcServerAppBindDO save(JndcServerAppBindDTO jndcServerAppBindDTO) {
     JndcServerAppBindDO copy = JndcServerAppBindStructMapper.INSTANCE.toDO(jndcServerAppBindDTO);
+      copy.setId(snowflakeIdWorker.nextId());
+      copy.setCreateTime(LocalDateTime.now());
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerAppBindDao.insert(copy);
     return copy;
@@ -64,6 +70,7 @@ public class JndcServerAppBindServiceImpl implements JndcServerAppBindServiceI {
     getById(jndcServerAppBindDTO.getId());
 
     JndcServerAppBindDO copy = JndcServerAppBindStructMapper.INSTANCE.toDO(jndcServerAppBindDTO);
+      copy.setUpdateTime(LocalDateTime.now());
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerAppBindDao.updateById(copy);
   }

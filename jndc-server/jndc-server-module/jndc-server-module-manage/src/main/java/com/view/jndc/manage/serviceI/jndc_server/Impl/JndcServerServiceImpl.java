@@ -1,23 +1,24 @@
 package com.view.jndc.manage.serviceI.jndc_server.Impl;
 
-import com.view.free_lite.common.utils.SnowflakeIdWorker;
-import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
-import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
-import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
-import com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO;
-import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
+import com.view.free_lite.common.utils.UniqueId;
+import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
+import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
+import com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO;
+import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
+import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
 import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +58,7 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
     JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
     copy.setId(snowflakeIdWorker.nextId());
     copy.setCreateTime(LocalDateTime.now());
+    copy.setUniqueId(UniqueId.generate());
 
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerDao.insert(copy);
@@ -71,6 +73,7 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
 
     JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
     copy.setUpdateTime(LocalDateTime.now());
+    copy.setUniqueId(null);
 
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerDao.updateById(copy);

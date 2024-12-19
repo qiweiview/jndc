@@ -1,15 +1,17 @@
-package com.view.jndc.manage.model.jndc_clietn_service.d_o;
+package com.view.jndc.manage.model.jndc_client_service.d_o;
 
-import com.view.jndc.manage.model.jndc_clietn_service.JndcClietnServiceStructMapper;
-import com.view.jndc.manage.model.jndc_clietn_service.dto.JndcClietnServiceDTO;
-import com.view.jndc.manage.model.jndc_clietn_service.vo.JndcClietnServiceVO;
-import com.baomidou.mybatisplus.annotation.*;
-import java.sql.Timestamp;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.view.jndc.manage.model.jndc_client_service.JndcClientServiceStructMapper;
+import com.view.jndc.manage.model.jndc_client_service.dto.JndcClientServiceDTO;
+import com.view.jndc.manage.model.jndc_client_service.vo.JndcClientServiceVO;
 import lombok.Data;
 
-@TableName("jndc_clietn_service")
+@TableName("jndc_client_service")
 @Data
-public class JndcClietnServiceDO {
+public class JndcClientServiceDO {
   /** 是否自动注册 */
   @TableField(value = "auto_register")
   private Integer autoRegister;
@@ -31,8 +33,8 @@ public class JndcClietnServiceDO {
   private Long id;
 
   /** 服务主机 */
-  @TableField(value = "servcie_host")
-  private String servcieHost;
+  @TableField(value = "service_host")
+  private String serviceHost;
 
   /** 服务名称 */
   @TableField(value = "service_name")
@@ -50,11 +52,11 @@ public class JndcClietnServiceDO {
   @TableField(value = "update_time")
   private java.time.LocalDateTime updateTime;
 
-  public JndcClietnServiceDTO toDTO() {
-    return JndcClietnServiceStructMapper.INSTANCE.toDTO(this);
+    public JndcClientServiceDTO toDTO() {
+        return JndcClientServiceStructMapper.INSTANCE.toDTO(this);
   }
 
-  public JndcClietnServiceVO toVO() {
-    return JndcClietnServiceStructMapper.INSTANCE.toVO(this);
+    public JndcClientServiceVO toVO() {
+        return JndcClientServiceStructMapper.INSTANCE.toVO(this);
   }
 }
