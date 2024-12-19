@@ -28,8 +28,16 @@
             unique_id,
             update_time
     </sql>
-    
-    
+
+    <update id="updateStatus">
+        update jndc_server
+        <set>
+            server_status = #{status}
+        </set>
+        where id = #{id}
+    </update>
+
+
     <select id="listPage" resultMap="JndcServerMap"
             parameterType="com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO">
         select
@@ -44,6 +52,11 @@
         <include refid="Base_Column_List"></include>
         from
         jndc_server
+    </select>
+
+
+    <select id="listByBindPort" resultType="com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO">
+
     </select>
 
 </mapper>

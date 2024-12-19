@@ -13,67 +13,87 @@ public class JndcServerDTO implements Serializable {
     /**
      * 监听端口
      */
-  private Integer bindPort;
+    private Integer bindPort;
 
-  /** 绑定策略 */
-  private String bindTactics;
+    /**
+     * 绑定策略
+     */
+    private String bindTactics;
 
-  /** 创建时间 */
-  private java.time.LocalDateTime createTime;
+    /**
+     * 创建时间
+     */
+    private java.time.LocalDateTime createTime;
 
-  /** */
-  private Long id;
+    /**
+     *
+     */
+    private Long id;
 
     /**
      *
      */
     private String ids;
 
-    /** 字符id（处理浏览器long精度丢失问题） */
-  private String idString;
+    /**
+     * 字符id（处理浏览器long精度丢失问题）
+     */
+    private String idString;
 
-  public void setId(Long id) {
-    this.id = id;
-    if (id != null && idString == null) {
-      this.idString = id.toString();
+    public void setId(Long id) {
+        this.id = id;
+        if (id != null && idString == null) {
+            this.idString = id.toString();
+        }
     }
-  }
 
-  public void setIdString(String idString) {
-    this.idString = idString;
-      if (idString != null) {
-          this.id = Long.parseLong(idString);
+    public void setIdString(String idString) {
+        this.idString = idString;
+        if (idString != null) {
+            this.id = Long.parseLong(idString);
+        }
     }
-  }
 
-  /** 服务名称 */
-  private String serverName;
+    /**
+     * 服务名称
+     */
+    private String serverName;
 
-  /** 服务备注 */
-  private String serverRemark;
+    /**
+     * 服务备注
+     */
+    private String serverRemark;
 
-  /** 服务状态 */
-  private String serverStatus;
+    /**
+     * 服务状态
+     */
+    private String serverStatus;
 
     /**
      * 唯一id
      */
     private String uniqueId;
 
-  /** 修改时间 */
-  private java.time.LocalDateTime updateTime;
+    /**
+     * 修改时间
+     */
+    private java.time.LocalDateTime updateTime;
 
-  /** 一页页的条数 */
-  private Long size;
+    /**
+     * 一页页的条数
+     */
+    private Long size;
 
-  /** 当前页码 */
-  protected Long current;
+    /**
+     * 当前页码
+     */
+    protected Long current;
 
-  public JndcServerDO toDO() {
-    return JndcServerStructMapper.INSTANCE.toDO(this);
-  }
+    public JndcServerDO toDO() {
+        return JndcServerStructMapper.INSTANCE.toDO(this);
+    }
 
-  public JndcServerVO toVO() {
-    return JndcServerStructMapper.INSTANCE.toVO(this);
-  }
+    public JndcServerVO toVO() {
+        return JndcServerStructMapper.INSTANCE.toVO(this);
+    }
 }

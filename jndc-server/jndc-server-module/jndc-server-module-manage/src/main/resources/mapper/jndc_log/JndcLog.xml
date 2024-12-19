@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_log.JndcLogDao">
+
+    <resultMap type="com.view.jndc.manage.model.jndc_log.d_o.JndcLogDO" id="JndcLogMap">
+        <id property="id" column="id"/>
+        <result property="logContent" column="log_content"/>
+        <result property="logTime" column="log_time"/>
+        <result property="logType" column="log_type"/>
+        <result property="sourceId" column="source_id"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+            log_content,
+            log_time,
+            log_type,
+            source_id
+    </sql>
+
+
+    <select id="listPage" resultMap="JndcLogMap"
+            parameterType="com.view.jndc.manage.model.jndc_log.d_o.JndcLogDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_log
+    </select>
+
+    <select id="list" resultMap="JndcLogMap"
+            parameterType="com.view.jndc.manage.model.jndc_log.d_o.JndcLogDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_log
+    </select>
+
+</mapper>
