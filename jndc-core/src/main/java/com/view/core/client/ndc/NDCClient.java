@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NDCClient {
-    private final String ndcClientId = RuntimeUtils.getRuntimeUniqueId();
+    private   String ndcClientId ;
     private List<NDCPacket> tobeSendPackage = new ArrayList<>();
     private ChannelHandlerContext serverContext;
     private NDCClientConfiguration ndcClientConfiguration;
@@ -35,7 +35,14 @@ public class NDCClient {
     private Map<String, VirtualTCPService> ndcClientSessionMap = new ConcurrentHashMap<>();
 
 
-    public void start(NDCClientConfiguration ndcClientConfiguration) {
+
+    public void start(NDCClientConfiguration ndcClientConfigurationS) {
+        //运行目录下创建
+        start(ndcClientConfigurationS, RuntimeUtils.getRuntimeUniqueId());
+    }
+
+    public void start(NDCClientConfiguration ndcClientConfiguration,String uniqueId) {
+        this.ndcClientId = uniqueId;
         if (this.ndcClientConfiguration == null) {
             this.ndcClientConfiguration = ndcClientConfiguration;
         }

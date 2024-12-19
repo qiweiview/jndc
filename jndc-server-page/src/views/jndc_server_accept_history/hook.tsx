@@ -1,8 +1,8 @@
-import editForm from "../form/form.vue";
+import editForm from "./form/form.vue";
 import { message as toast } from "@/utils/message";
-import { addDialog } from "@/components/ReDialog";
+import { addDialog } from "@/components/ReDialog/index";
 import { showDialog } from "@/components/HalcyonDialog";
-import type { FormItemProps } from "./types";
+import type { FormItemProps } from "./form/types";
 import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
@@ -11,7 +11,7 @@ import {
   addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server/api";
+} from "@/api/jndc_server_accept_history/api";
 
 export function useHook() {
   //分页
@@ -41,19 +41,35 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "ID",
-      prop: "id"
+      label: "客户端id",
+      prop: "clientId"
     },
     {
-      label: "服务名称",
-      prop: "serverName"
+      label: "连接时间",
+      prop: "connectTime"
     },
     {
       label: "创建时间",
       prop: "createTime"
     },
     {
-      label: "更新时间",
+      label: "",
+      prop: "id"
+    },
+    {
+      label: "中断时间",
+      prop: "interruptTime"
+    },
+    {
+      label: "来源ip",
+      prop: "sourceIp"
+    },
+    {
+      label: "来源端口",
+      prop: "sourcePort"
+    },
+    {
+      label: "修改时间",
       prop: "updateTime"
     },
     {
@@ -70,15 +86,15 @@ export function useHook() {
         <p style="text-align: center;margin-bottom:20px">
           确认要删除
           <strong style="color:var(--el-color-danger);margin:0 5px">
-            {row.dictName}
+            {row.idString}
           </strong>
           吗?
         </p>
       ),
       beforeSure: async done => {
-        const res = await deleteOperation(row.id);
+        const res = await deleteOperation(row.idString);
         if (res.code == 0) {
-          toast(`已删除"${row.dictName}`, {
+          toast(`已删除"${row.idString}`, {
             type: "success"
           });
         }
@@ -129,9 +145,15 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-          id: row?.id ?? null,
-          idString: row?.idString ?? "",
-          serverName: row?.serverName ?? ""
+      clientId: row?.clientId ?? null,
+      connectTime: row?.connectTime ?? null,
+      createTime: row?.createTime ?? null,
+      id: row?.id ?? null,
+      interruptTime: row?.interruptTime ?? null,
+      sourceIp: row?.sourceIp ?? null,
+      sourcePort: row?.sourcePort ?? null,
+      updateTime: row?.updateTime ?? null,
+    idString:row?.idString?? null,
         }
       },
       width: "40%",
@@ -175,10 +197,6 @@ export function useHook() {
     });
   }
 
-  function openDictData(row) {
-    curRow.value = row;
-    dictDataDrawer.value = true;
-  }
 
   function handleDrawerUpdate(newVal: boolean) {
     dictDataDrawer.value = newVal;
@@ -205,8 +223,6 @@ export function useHook() {
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange,
-    // 数据项
-    openDictData,
     handleDrawerUpdate
   };
 }

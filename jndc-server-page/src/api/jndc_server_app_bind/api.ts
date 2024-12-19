@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
 
-const path = "/jndcServer";
+const path = "/jndcServerAppBind";
 /** 新增 */
 export const addOperation = (data?: object) => {
   return http.request<any>("post", `${path}/save`, { data });

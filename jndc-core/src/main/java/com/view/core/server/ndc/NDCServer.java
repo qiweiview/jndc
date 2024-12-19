@@ -27,21 +27,43 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @Data
 @Slf4j
 public class NDCServer {
-    private final String ndcServerId = RuntimeUtils.getRuntimeUniqueId();
+    private String ndcServerId;
+
+    private NioEventLoopGroup bossGroup;
+
+    private NioEventLoopGroup workerGroup;
 
     //key:ndcClientId
     private Map<String, NDCClientInfo> ndcClientSessionMap = new ConcurrentHashMap<>();
 
     public static final String CLIENT_ID = "CLIENT_ID";
 
-    public void start(int port, Runnable runnable) {
+    public void stop() {
+        try {
+            bossGroup.shutdownGracefully().sync();
+            bossGroup.shutdownGracefully();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+    }
+
+
+    public void start(int port, Runnable startedCallback,Consumer<Exception> failCallback) {
+        //运行目录下创建
+        start(port, startedCallback,failCallback, RuntimeUtils.getRuntimeUniqueId());
+    }
+
+    public void start(int port, Runnable startedCallback, Consumer<Exception> failCallback, String uniqueId) {
+        this.ndcServerId = uniqueId;
+
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
         try {
 
 
@@ -133,14 +155,15 @@ public class NDCServer {
             b.bind(port).addListener(future -> {
                 if (future.isSuccess()) {
                     GlobalBeanContext.NDC_SERVER = this;
-                    runnable.run();
+                    startedCallback.run();
                     log.info("NDC服务启动成功，端口：{}", port);
                 } else {
                     log.error("NDC服务启动失败，端口：{}", port);
+                    failCallback.accept(new RuntimeException("NDC服务启动失败"));
                 }
             }).channel().closeFuture().sync();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            failCallback.accept(e);
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
@@ -246,4 +269,6 @@ public class NDCServer {
             ndcClientInfo.getChannelHandlerContext().writeAndFlush(ndcPacket);
         }
     }
+
+
 }
