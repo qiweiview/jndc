@@ -18,6 +18,9 @@ public class JndcServerDO {
   @TableField(value = "bind_port")
   private Integer bindPort;
 
+  @TableField(value = "bind_host")
+  private String bindHost;
+
   /** 绑定策略 */
   @TableField(value = "bind_tactics")
   private String bindTactics;

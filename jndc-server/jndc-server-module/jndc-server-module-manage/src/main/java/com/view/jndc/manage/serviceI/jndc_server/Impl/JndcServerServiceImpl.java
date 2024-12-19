@@ -15,6 +15,7 @@ import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
 import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JndcServerServiceImpl implements JndcServerServiceI {
@@ -68,14 +70,17 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         List<JndcServerDO> jndcServerDOS = jndcServerDao.listByBindPort(jndcServerDTO.getBindPort());
         if (jndcServerDOS.size() > 0) {
-            throw new BizException("端口已被占用");
+           log.warn("端口已被占用");
+           jndcServerDTO.setServerStatus(JNDCServerStatusEnum.PAUSE.value);
         }
 
+        //初始化唯一id
+        jndcServerDTO.setUniqueId(UniqueId.generate());
 
         JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
         copy.setId(snowflakeIdWorker.nextId());
         copy.setCreateTime(LocalDateTime.now());
-        copy.setUniqueId(UniqueId.generate());
+
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcServerDao.insert(copy);
@@ -105,11 +110,19 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         copy.setUpdateTime(LocalDateTime.now());
         copy.setUniqueId(null);
 
+        String serverStatus = jndcServerDTO.getServerStatus();
+
+          if (JNDCServerStatusEnum.PROCESSING.value.equals(serverStatus)) {
+            // todo 停止服务
+              //不更新
+              copy.setServerStatus(null);
+        }
+
         //先更新数据库
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcServerDao.updateById(copy);
 
-        String serverStatus = jndcServerDTO.getServerStatus();
+
         if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
             jndcServerHolder.startServer(dbData);
         } else if (JNDCServerStatusEnum.PAUSE.value.equals(serverStatus)) {

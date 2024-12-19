@@ -12,6 +12,7 @@ import {
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server/api";
+import router from "@/router";
 
 export function useHook() {
   //分页
@@ -49,6 +50,10 @@ export function useHook() {
       prop: "serverName"
     },
     {
+      label: "监听域名",
+      prop: "bindHost"
+    },
+    {
       label: "监听端口",
       prop: "bindPort"
     },
@@ -75,6 +80,11 @@ export function useHook() {
       slot: "operation"
     }
   ];
+
+  function handleLog(row) {
+    //路由至/jndc_log并携带参数
+    router.push({ path: "/jndc/jndc_log", query: { sourceId: row.idString } });
+  }
 
   function handleDelete(row) {
     showDialog("警告", {
@@ -142,6 +152,7 @@ export function useHook() {
       props: {
         formInline: {
           bindPort: row?.bindPort ?? null,
+          bindHost: row?.bindHost ?? "0.0.0.0",
           bindTactics: row?.bindTactics ?? null,
           createTime: row?.createTime ?? null,
           id: row?.id ?? null,
@@ -216,6 +227,7 @@ export function useHook() {
     resetForm,
     openDialog,
     handleDelete,
+    handleLog,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange,

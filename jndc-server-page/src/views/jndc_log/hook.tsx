@@ -11,9 +11,13 @@ import {
   addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server_app_bind/api";
+} from "@/api/jndc_log/api";
+
+import { useRoute } from "vue-router";
 
 export function useHook() {
+  const route = useRoute();
+
   //分页
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -25,8 +29,14 @@ export function useHook() {
   //表单
   const form = reactive({
     size: pagination.pageSize,
-    current: pagination.currentPage
+    current: pagination.currentPage,
+    sourceIdString: null
   });
+
+  const sourceId: string = route.query.sourceId;
+  if (sourceId) {
+    form.sourceIdString = sourceId;
+  }
 
   const curRow = ref({ dictName: "" });
   const formRef = ref();
@@ -41,32 +51,24 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "绑定端口",
-      prop: "bindPort"
+      label: "id",
+      prop: "idString"
     },
     {
-      label: "绑定来源",
-      prop: "bindSource"
+      label: "来源id",
+      prop: "sourceIdString"
     },
     {
-      label: "绑定状态",
-      prop: "bindStatus"
+      label: "日志内容",
+      prop: "logContent"
     },
     {
-      label: "创建时间",
-      prop: "createTime"
+      label: "日志类型",
+      prop: "logType"
     },
     {
-      label: "",
-      prop: "id"
-    },
-    {
-      label: "最后绑定结果",
-      prop: "latestBindResult"
-    },
-    {
-      label: "修改时间",
-      prop: "updateTime"
+      label: "创建日期",
+      prop: "logTime"
     },
     {
       label: "操作",
@@ -119,6 +121,9 @@ export function useHook() {
     loading.value = true;
     form.current = pagination.currentPage;
     form.size = pagination.pageSize;
+    if (form.sourceIdString == "") {
+      delete form.sourceIdString;
+    }
     const { code, data } = await listOperation(toRaw(form));
     if (code != 0) {
     } else {
@@ -141,13 +146,11 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-          bindPort: row?.bindPort ?? null,
-          bindSource: row?.bindSource ?? null,
-          bindStatus: row?.bindStatus ?? null,
-          createTime: row?.createTime ?? null,
           id: row?.id ?? null,
-          latestBindResult: row?.latestBindResult ?? null,
-          updateTime: row?.updateTime ?? null,
+          logContent: row?.logContent ?? null,
+          logTime: row?.logTime ?? null,
+          logType: row?.logType ?? null,
+          sourceId: row?.sourceId ?? null,
           idString: row?.idString ?? null
         }
       },

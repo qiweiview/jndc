@@ -7,6 +7,7 @@
     <resultMap type="com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO" id="JndcServerMap" >
                 <id property="id" column="id" />
                 <result property="bindPort" column="bind_port" />
+                <result property="bindHost" column="bind_host" />
                 <result property="bindTactics" column="bind_tactics" />
                 <result property="createTime" column="create_time" />
                 <result property="serverName" column="server_name" />
@@ -15,10 +16,11 @@
         <result property="uniqueId" column="unique_id"/>
                 <result property="updateTime" column="update_time" />
     </resultMap>
-    
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
             bind_port,
+            bind_host,
             bind_tactics,
             create_time,
             id,

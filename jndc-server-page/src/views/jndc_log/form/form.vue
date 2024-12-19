@@ -5,13 +5,11 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    bindPort: null,
-    bindSource: null,
-    bindStatus: null,
-    createTime: null,
     id: null,
-    latestBindResult: null,
-    updateTime: null,
+    logContent: null,
+    logTime: null,
+    logType: null,
+    sourceId: null,
     idString: null
   })
 });
@@ -27,36 +25,36 @@ defineExpose({ getRef });
 
 <template>
   <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
-    <el-form-item label="绑定端口：" prop="bindPort">
+    <el-form-item label="日志内容：" prop="logContent">
       <el-input
-        v-model="newFormInline.bindPort"
+        v-model="newFormInline.logContent"
         autocomplete="off"
         clearable
-        placeholder="请输入绑定端口"
+        placeholder="请输入日志内容"
       />
     </el-form-item>
-    <el-form-item label="绑定来源：" prop="bindSource">
+    <el-form-item label="创建日期：" prop="logTime">
       <el-input
-        v-model="newFormInline.bindSource"
+        v-model="newFormInline.logTime"
         autocomplete="off"
         clearable
-        placeholder="请输入绑定来源"
+        placeholder="请输入创建日期"
       />
     </el-form-item>
-    <el-form-item label="绑定状态：" prop="bindStatus">
+    <el-form-item label="日志类型：" prop="logType">
       <el-input
-        v-model="newFormInline.bindStatus"
+        v-model="newFormInline.logType"
         autocomplete="off"
         clearable
-        placeholder="请输入绑定状态"
+        placeholder="请输入日志类型"
       />
     </el-form-item>
-    <el-form-item label="最后绑定结果：" prop="latestBindResult">
+    <el-form-item label="来源id：" prop="sourceId">
       <el-input
-        v-model="newFormInline.latestBindResult"
+        v-model="newFormInline.sourceId"
         autocomplete="off"
         clearable
-        placeholder="请输入最后绑定结果"
+        placeholder="请输入来源id"
       />
     </el-form-item>
   </el-form>

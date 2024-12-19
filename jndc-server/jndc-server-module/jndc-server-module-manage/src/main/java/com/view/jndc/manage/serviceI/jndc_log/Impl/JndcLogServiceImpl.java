@@ -60,7 +60,7 @@ public class JndcLogServiceImpl implements JndcLogServiceI {
     public JndcLogDO save(JndcLogDTO jndcLogDTO) {
         JndcLogDO copy = JndcLogStructMapper.INSTANCE.toDO(jndcLogDTO);
         copy.setId(snowflakeIdWorker.nextId());
-        copy.setCreateTime(LocalDateTime.now());
+        copy.setLogTime(LocalDateTime.now());
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcLogDao.insert(copy);
         return copy;
@@ -75,7 +75,7 @@ public class JndcLogServiceImpl implements JndcLogServiceI {
         getById(jndcLogDTO.getId());
 
         JndcLogDO copy = JndcLogStructMapper.INSTANCE.toDO(jndcLogDTO);
-        copy.setUpdateTime(LocalDateTime.now());
+        copy.setLogTime(LocalDateTime.now());
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcLogDao.updateById(copy);
     }

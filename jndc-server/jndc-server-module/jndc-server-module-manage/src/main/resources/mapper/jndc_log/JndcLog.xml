@@ -14,7 +14,8 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id,
+        id
+        ,
             log_content,
             log_time,
             log_type,
@@ -28,6 +29,12 @@
         <include refid="Base_Column_List"></include>
         from
         jndc_log
+        <where>
+            <if test="do.sourceId != null">
+                and source_id = #{do.sourceId}
+            </if>
+        </where>
+        order by id desc
     </select>
 
     <select id="list" resultMap="JndcLogMap"

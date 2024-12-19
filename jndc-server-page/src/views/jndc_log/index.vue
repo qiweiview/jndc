@@ -4,7 +4,6 @@ import { ref } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
-import Printer from "@iconify-icons/ep/printer";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
@@ -28,7 +27,6 @@ const {
   resetForm,
   openDialog,
   handleDelete,
-  handleLog,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
@@ -43,6 +41,15 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
+      <el-form-item label="来源id" prop="title">
+        <el-input
+          v-model="form.sourceIdString"
+          placeholder="请输入来源id"
+          clearable
+          class="!w-[240px]"
+          @keyup.enter="onSearch"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
@@ -69,15 +76,7 @@ const {
         :columns="columns"
         @refresh="onSearch"
       >
-        <template #buttons>
-          <el-button
-            type="primary"
-            :icon="useRenderIcon(AddFill)"
-            @click="openDialog()"
-          >
-            新增
-          </el-button>
-        </template>
+        <template #buttons />
         <template v-slot="{ size, dynamicColumns }">
           <pure-table
             ref="tableRef"
@@ -105,32 +104,12 @@ const {
               <el-button
                 class="reset-margin"
                 link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(EditPen)"
-                @click="openDialog('修改', row)"
-              >
-                修改
-              </el-button>
-              <el-button
-                class="reset-margin"
-                link
                 type="danger"
                 :size="size"
                 :icon="useRenderIcon(Delete)"
                 @click="handleDelete(row)"
               >
                 删除
-              </el-button>
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(Printer)"
-                @click="handleLog(row)"
-              >
-                日志
               </el-button>
             </template>
           </pure-table>

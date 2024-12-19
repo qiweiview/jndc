@@ -7,6 +7,7 @@ import { jndcServerStatus } from "./enums";
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
     bindPort: null,
+    bindHost: null,
     bindTactics: null,
     createTime: null,
     id: null,
@@ -30,12 +31,20 @@ defineExpose({ getRef });
 
 <template>
   <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
-    <el-form-item label="监听端口：" prop="bindPort">
+    <el-form-item label="监听域名：" prop="bindHost">
       <el-input
+        v-model="newFormInline.bindHost"
+        autocomplete="off"
+        clearable
+        placeholder="请输入监听域名"
+      />
+    </el-form-item>
+    <el-form-item label="监听端口：" prop="bindPort">
+      <el-input-number
         v-model="newFormInline.bindPort"
         autocomplete="off"
         clearable
-        placeholder="请输入监听端口"
+        placeholder="端口"
       />
     </el-form-item>
     <el-form-item label="服务名称：" prop="serverName">
@@ -47,7 +56,13 @@ defineExpose({ getRef });
       />
     </el-form-item>
     <el-form-item label="服务状态：" prop="serverStatus">
-      <el-radio-group v-model="newFormInline.serverStatus">
+      <el-radio-group
+        v-model="newFormInline.serverStatus"
+        :disabled="
+          newFormInline.serverStatus != 'listen' &&
+          newFormInline.serverStatus != 'pause'
+        "
+      >
         <el-radio
           v-for="item in jndcServerStatus"
           :key="item.value"

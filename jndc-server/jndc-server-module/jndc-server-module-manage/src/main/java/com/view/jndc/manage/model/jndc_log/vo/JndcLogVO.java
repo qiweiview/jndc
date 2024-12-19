@@ -48,4 +48,21 @@ public class JndcLogVO {
      * 来源id
      */
     private Long sourceId;
+
+    private String sourceIdString;
+
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
+        if (sourceId != null && sourceIdString == null) {
+            this.sourceIdString = sourceId.toString();
+        }
+    }
+
+    public void setSourceIdString(String sourceIdString) {
+        this.sourceIdString = sourceIdString;
+        if (sourceIdString != null) {
+            this.sourceId = Long.parseLong(sourceIdString);
+        }
+    }
 }

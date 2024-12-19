@@ -10,6 +10,7 @@ import java.io.Serializable;
 @Data
 public class JndcServerDTO implements Serializable {
 
+    private String bindHost;
     /**
      * 监听端口
      */

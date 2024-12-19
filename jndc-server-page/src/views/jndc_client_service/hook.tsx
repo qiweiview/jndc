@@ -153,17 +153,17 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-      autoRegister: row?.autoRegister ?? null,
-      belongClientId: row?.belongClientId ?? null,
-      clientUniqueId: row?.clientUniqueId ?? null,
-      createTime: row?.createTime ?? null,
-      id: row?.id ?? null,
-      serviceHost: row?.serviceHost ?? null,
-      serviceName: row?.serviceName ?? null,
-      servicePort: row?.servicePort ?? null,
-      serviceStatus: row?.serviceStatus ?? null,
-      updateTime: row?.updateTime ?? null,
-    idString:row?.idString?? null,
+          autoRegister: row?.autoRegister ?? null,
+          belongClientId: row?.belongClientId ?? null,
+          clientUniqueId: row?.clientUniqueId ?? null,
+          createTime: row?.createTime ?? null,
+          id: row?.id ?? null,
+          serviceHost: row?.serviceHost ?? null,
+          serviceName: row?.serviceName ?? null,
+          servicePort: row?.servicePort ?? null,
+          serviceStatus: row?.serviceStatus ?? null,
+          updateTime: row?.updateTime ?? null,
+          idString: row?.idString ?? null
         }
       },
       width: "40%",
@@ -206,7 +206,6 @@ export function useHook() {
       }
     });
   }
-
 
   function handleDrawerUpdate(newVal: boolean) {
     dictDataDrawer.value = newVal;

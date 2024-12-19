@@ -5,7 +5,7 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-        autoRegister: null,
+    autoRegister: null,
     belongClientId: null,
     clientUniqueId: null,
     createTime: null,
@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     servicePort: null,
     serviceStatus: null,
     updateTime: null,
-    idString:null
+    idString: null
   })
 });
 
@@ -29,11 +29,7 @@ defineExpose({ getRef });
 </script>
 
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="newFormInline"
-    :rules="formRules"
-  >
+  <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
     <el-form-item label="是否自动注册：" prop="autoRegister">
       <el-input
         v-model="newFormInline.autoRegister"

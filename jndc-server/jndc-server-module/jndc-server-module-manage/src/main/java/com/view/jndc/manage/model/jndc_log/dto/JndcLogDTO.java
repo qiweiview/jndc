@@ -4,9 +4,11 @@ import com.view.jndc.manage.model.jndc_log.JndcLogStructMapper;
 import com.view.jndc.manage.model.jndc_log.d_o.JndcLogDO;
 import com.view.jndc.manage.model.jndc_log.vo.JndcLogVO;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
+@Slf4j
 @Data
 public class JndcLogDTO implements Serializable {
 
@@ -58,6 +60,26 @@ public class JndcLogDTO implements Serializable {
      * 来源id
      */
     private Long sourceId;
+
+    private String sourceIdString;
+
+    public void setSourceId(Long sourceId) {
+        this.sourceId = sourceId;
+        if (sourceId != null && idString == null) {
+            this.sourceIdString = sourceId.toString();
+        }
+    }
+
+    public void setSourceIdString(String sourceIdString) {
+        this.sourceIdString = sourceIdString;
+        if (sourceIdString != null) {
+            try {
+                this.sourceId = Long.parseLong(sourceIdString);
+            } catch (NumberFormatException e) {
+                log.warn("sourceIdString转换失败:{}",sourceIdString);
+            }
+        }
+    }
 
     /**
      * 来源id

@@ -3,15 +3,10 @@
 interface FormItemProps {
   id?: number;
   idString?: string;
-  bindPort?: number;
-  bindHost?: string;
-  bindTactics?: string;
-  createTime?: string;
-  serverName?: string;
-  serverRemark?: string;
-  serverStatus?: string;
-  uniqueId?: string;
-  updateTime?: string;
+  logContent?: string;
+  logTime?: string;
+  logType?: string;
+  sourceId?: string;
 }
 
 interface FormProps {

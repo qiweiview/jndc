@@ -10,6 +10,8 @@ public class JndcServerVO {
      */
   private Integer bindPort;
 
+  private String bindHost;
+
   /** 绑定策略 */
   private String bindTactics;
 

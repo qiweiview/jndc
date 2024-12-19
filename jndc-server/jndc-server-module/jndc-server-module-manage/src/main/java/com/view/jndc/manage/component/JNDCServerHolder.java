@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +34,7 @@ public class JNDCServerHolder {
 
     public void startServer(JndcServerDTO jndcServerDTO) {
         executorService.submit(() -> {
+
             Long id = jndcServerDTO.getId();
             String uniqueId = jndcServerDTO.getUniqueId();
             Integer bindPort = jndcServerDTO.getBindPort();
@@ -44,25 +46,55 @@ public class JNDCServerHolder {
             }
 
             NDCServer ndcServer = new NDCServer();
-            bindPortSet.add(bindPort);
-            jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PROCESSING.value);
             try {
-                ndcServer.start(bindPort, () -> {
+                bindPortSet.add(bindPort);
+                serverMap.put(uniqueId, ndcServer);
+                jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PROCESSING.value);
+            } catch (Exception e) {
+                log.error("参数更新失败", e);
+            }
+
+            try {
+                ndcServer.start(jndcServerDTO.getBindHost(),bindPort, () -> {
                     //todo 启动回调
                     jndcServerDao.updateStatus(id, JNDCServerStatusEnum.LISTEN.value);
+
+                    JndcLogDTO jndcLogDTO = new JndcLogDTO();
+                    jndcLogDTO.setLogType("server");
+                    jndcLogDTO.setLogTime(LocalDateTime.now());
+                    jndcLogDTO.setSourceId(id);
+                    jndcLogDTO.setLogContent("服务启动");
+                    jndcLogServiceI.save(jndcLogDTO);
+                },()->{
+                    //todo 停止回调
+                    jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PAUSE.value);
+                    bindPortSet.remove(bindPort);
+                    serverMap.remove(uniqueId);
+
+                    JndcLogDTO jndcLogDTO = new JndcLogDTO();
+                    jndcLogDTO.setLogType("server");
+                    jndcLogDTO.setLogTime(LocalDateTime.now());
+                    jndcLogDTO.setSourceId(id);
+                    jndcLogDTO.setLogContent("服务停止");
+                    jndcLogServiceI.save(jndcLogDTO);
+
                 }, (e) -> {
                     //todo 启动异常回调
                     jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PAUSE.value);
 
                     JndcLogDTO jndcLogDTO = new JndcLogDTO();
                     jndcLogDTO.setLogType("server");
+                    jndcLogDTO.setLogTime(LocalDateTime.now());
                     jndcLogDTO.setSourceId(id);
                     jndcLogDTO.setLogContent(e.getMessage());
                     jndcLogServiceI.save(jndcLogDTO);
 
+                    bindPortSet.remove(bindPort);
+                    serverMap.remove(uniqueId);
                 }, uniqueId);
             } catch (Exception e) {
                 bindPortSet.remove(bindPort);
+                serverMap.remove(uniqueId);
             }
         });
     }
@@ -70,7 +102,9 @@ public class JNDCServerHolder {
     public void stopServer(JndcServerDTO jndcServerDTO) {
         String uniqueId = jndcServerDTO.getUniqueId();
         NDCServer ndcServer = serverMap.get(uniqueId);
-        if (ndcServer != null) {
+        if (ndcServer == null) {
+            log.warn("服务:{}未启动",uniqueId);
+        }else{
             ndcServer.stop();
             serverMap.remove(uniqueId);
             Long id = jndcServerDTO.getId();

@@ -14,10 +14,7 @@ import com.view.core.protocol.NDCPacketHelper;
 import com.view.core.protocol.callback.ChannelRead0CallBack;
 import com.view.core.utils.RuntimeUtils;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -32,11 +29,15 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
+    private Runnable stopCallback;
+
     private String ndcServerId;
 
     private NioEventLoopGroup bossGroup;
 
     private NioEventLoopGroup workerGroup;
+
+    private Channel serverChannel;
 
     //key:ndcClientId
     private Map<String, NDCClientInfo> ndcClientSessionMap = new ConcurrentHashMap<>();
@@ -44,22 +45,23 @@ public class NDCServer {
     public static final String CLIENT_ID = "CLIENT_ID";
 
     public void stop() {
-        try {
-            bossGroup.shutdownGracefully().sync();
-            bossGroup.shutdownGracefully();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        if (serverChannel != null && serverChannel.isOpen()) {
+            serverChannel.close();
+            log.info("NDC服务关闭");
         }
-
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        stopCallback.run();
     }
 
 
-    public void start(int port, Runnable startedCallback,Consumer<Exception> failCallback) {
+    public void start(String host, int port, Runnable startedCallback, Runnable stopCallback, Consumer<Exception> failCallback) {
         //运行目录下创建
-        start(port, startedCallback,failCallback, RuntimeUtils.getRuntimeUniqueId());
+        start(host, port, startedCallback, stopCallback, failCallback, RuntimeUtils.getRuntimeUniqueId());
     }
 
-    public void start(int port, Runnable startedCallback, Consumer<Exception> failCallback, String uniqueId) {
+    public void start(String host, int port, Runnable startedCallback, Runnable stopCallback, Consumer<Exception> failCallback, String uniqueId) {
+        this.stopCallback = stopCallback;
         this.ndcServerId = uniqueId;
 
         bossGroup = new NioEventLoopGroup();
@@ -141,8 +143,6 @@ public class NDCServer {
 
                     //NDC Packet 处理器
                     pipeline.addLast(ndcServerHandler);
-
-
                 }
             };
 
@@ -151,22 +151,25 @@ public class NDCServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(channelInitializer);
 
-            log.info("起动NDC服务，端口：{}", port);
-            b.bind(port).addListener(future -> {
+            log.info("起动NDC服务，{}：{}", host, port);
+            ChannelFuture channelFuture = b.bind(host, port).sync();
+            channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
                     GlobalBeanContext.NDC_SERVER = this;
                     startedCallback.run();
-                    log.info("NDC服务启动成功，端口：{}", port);
+                    log.info("NDC服务启动成功，{}：{}", host, port);
                 } else {
-                    log.error("NDC服务启动失败，端口：{}", port);
+                    log.error("NDC服务启动失败，{}：{}", host, port);
                     failCallback.accept(new RuntimeException("NDC服务启动失败"));
                 }
-            }).channel().closeFuture().sync();
+            }).channel();
+            serverChannel = channelFuture.channel();
+            // 阻塞直到服务器关闭
+            channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             failCallback.accept(e);
         } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+            stop();
         }
     }
 

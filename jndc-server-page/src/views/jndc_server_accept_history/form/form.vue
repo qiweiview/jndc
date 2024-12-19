@@ -5,7 +5,7 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-        clientId: null,
+    clientId: null,
     connectTime: null,
     createTime: null,
     id: null,
@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     sourceIp: null,
     sourcePort: null,
     updateTime: null,
-    idString:null
+    idString: null
   })
 });
 
@@ -27,11 +27,7 @@ defineExpose({ getRef });
 </script>
 
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="newFormInline"
-    :rules="formRules"
-  >
+  <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
     <el-form-item label="客户端id：" prop="clientId">
       <el-input
         v-model="newFormInline.clientId"
