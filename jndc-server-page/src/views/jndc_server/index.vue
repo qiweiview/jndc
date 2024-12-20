@@ -27,8 +27,8 @@ const {
   onSearch,
   resetForm,
   openDialog,
+  openDictData,
   handleDelete,
-  handleLog,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
@@ -128,7 +128,7 @@ const {
                 type="primary"
                 :size="size"
                 :icon="useRenderIcon(Printer)"
-                @click="handleLog(row)"
+                @click="openDictData(row)"
               >
                 日志
               </el-button>

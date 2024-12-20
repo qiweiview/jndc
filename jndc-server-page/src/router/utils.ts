@@ -204,7 +204,6 @@ function handleAsyncRoutes(routeList: any) {
 /** 初始化路由不用这个，用下面的 initRoutesWithData */
 
 function initRouter() {
-  console.log("开启路由缓存", getConfig()?.CachingAsyncRoutes);
   if (getConfig()?.CachingAsyncRoutes) {
     // 开启动态路由缓存本地localStorage
     const key = "async-routes";
@@ -233,25 +232,26 @@ function initRouter() {
   }
 }
 
-// 初始化路由但不再次请求后端，而是拿登录时返回的路由
-const userAsyncRoutesKey = "user-async-routes";
-function initRouterWithData(asyncRouteList: any) {
-  //不存储路由
-  storageLocal().setItem(userAsyncRoutesKey, asyncRouteList);
+// // 初始化路由但不再次请求后端，而是拿登录时返回的路由
+// const userAsyncRoutesKey = "user-async-routes";
+// function initRouterWithData(asyncRouteList: any) {
+//   //不存储路由
+//   storageLocal().setItem(userAsyncRoutesKey, asyncRouteList);
+//
+//   return new Promise(resolve => {
+//     handleAsyncRoutes(asyncRouteList);
+//     resolve(router);
+//   });
+// }
 
-  return new Promise(resolve => {
-    handleAsyncRoutes(asyncRouteList);
-    resolve(router);
-  });
-}
-// 获取初始化路由，执行这个方法之前，必须执行initRouterWithData
-function getInitRouter() {
-  const asyncRouteList = storageLocal().getItem(userAsyncRoutesKey) as any;
-  return new Promise(resolve => {
-    handleAsyncRoutes(asyncRouteList);
-    resolve(router);
-  });
-}
+// // 获取初始化路由，执行这个方法之前，必须执行initRouterWithData
+// function getInitRouter() {
+//   const asyncRouteList = storageLocal().getItem(userAsyncRoutesKey) as any;
+//   return new Promise(resolve => {
+//     handleAsyncRoutes(asyncRouteList);
+//     resolve(router);
+//   });
+// }
 
 /**
  * 将多级嵌套路由处理成一维数组
@@ -437,7 +437,5 @@ export {
   handleAliveRoute,
   formatTwoStageRoutes,
   formatFlatteningRoutes,
-  filterNoPermissionTree,
-  initRouterWithData,
-  getInitRouter
+  filterNoPermissionTree
 };

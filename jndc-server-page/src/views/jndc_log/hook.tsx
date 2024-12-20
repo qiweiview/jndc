@@ -10,10 +10,13 @@ import {
   listOperation,
   addOperation,
   deleteOperation,
+  deleteBatchOperation,
   updateOperation
 } from "@/api/jndc_log/api";
 
 import { useRoute } from "vue-router";
+import { deleteOperLog } from "@/api/system/log/oper";
+import { formatDate } from "@/utils/date_format";
 
 export function useHook() {
   const route = useRoute();
@@ -33,23 +36,26 @@ export function useHook() {
     sourceIdString: null
   });
 
-  const sourceId: string = route.query.sourceId;
-  if (sourceId) {
-    form.sourceIdString = sourceId;
-  }
-
+  const tableRef = ref();
   const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
   const isLinkage = ref(false);
+  const selectedNum = ref(0);
 
   // 数据项弹窗
   const dictDataDrawer = ref(false);
 
   //表格
   const columns: TableColumnList = [
+    {
+      label: "勾选列", // 如果需要表格多选，此处label必须设置
+      type: "selection",
+      fixed: "left",
+      reserveSelection: true // 数据刷新后保留选项
+    },
     {
       label: "id",
       prop: "idString"
@@ -68,7 +74,10 @@ export function useHook() {
     },
     {
       label: "创建日期",
-      prop: "logTime"
+      prop: "logTime",
+      formatter: (row, column, cellValue) => {
+        return formatDate(cellValue);
+      }
     },
     {
       label: "操作",
@@ -102,6 +111,42 @@ export function useHook() {
     });
   }
 
+  function handleSelectionCancel() {
+    selectedNum.value = 0;
+    tableRef.value.getTableRef().clearSelection();
+  }
+
+  function handlebatchDelete() {
+    // 返回当前选中的行
+    const curSelected = tableRef.value.getTableRef().getSelectionRows();
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要删除编号为
+          {curSelected.map((item, index) => (
+            <strong style="color:var(--el-color-danger);margin:0 5px">
+              {item.id}
+              {index < curSelected.length - 1 ? "、" : ""}
+            </strong>
+          ))}
+          的日志吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const selectedIds = curSelected.map(item => item.idString);
+        const res = await deleteBatchOperation(selectedIds);
+        if (res.code == 0) {
+          toast(`删除成功`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        tableRef.value.getTableRef().clearSelection();
+        onSearch();
+      }
+    });
+  }
+
   function handleSizeChange(val: number) {
     pagination.currentPage = 1;
     pagination.pageSize = val;
@@ -114,7 +159,9 @@ export function useHook() {
   }
 
   function handleSelectionChange(val) {
-    console.log("handleSelectionChange", val);
+    selectedNum.value = val.length;
+    // 重置表格高度
+    tableRef.value.setAdaptive();
   }
 
   async function onSearch() {
@@ -205,6 +252,10 @@ export function useHook() {
 
   return {
     form,
+    tableRef,
+    handlebatchDelete,
+    handleSelectionCancel,
+    selectedNum,
     isShow,
     curRow,
     loading,

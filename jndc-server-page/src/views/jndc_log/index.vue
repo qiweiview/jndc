@@ -14,10 +14,13 @@ defineOptions({
 });
 
 const formRef = ref();
-const tableRef = ref();
 
 const {
   form,
+  tableRef,
+  handlebatchDelete,
+  handleSelectionCancel,
+  selectedNum,
   isShow,
   loading,
   columns,
@@ -25,12 +28,24 @@ const {
   pagination,
   onSearch,
   resetForm,
-  openDialog,
   handleDelete,
   handleSizeChange,
   handleCurrentChange,
   handleSelectionChange
 } = useHook();
+
+const props = defineProps({
+  sourceIdString: {
+    type: String
+  }
+});
+
+console.log("props.sourceIdString", props.sourceIdString);
+
+//如果sourceIdString不为空则写入form
+if (props.sourceIdString) {
+  form.sourceIdString = props.sourceIdString;
+}
 </script>
 
 <template>
@@ -78,6 +93,32 @@ const {
       >
         <template #buttons />
         <template v-slot="{ size, dynamicColumns }">
+          <div
+            v-if="selectedNum > 0"
+            v-motion-fade
+            class="bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center"
+          >
+            <div class="flex-auto">
+              <span
+                style="font-size: var(--el-font-size-base)"
+                class="text-[rgba(42,46,54,0.5)] dark:text-[rgba(220,220,242,0.5)]"
+              >
+                已选 {{ selectedNum }} 项
+              </span>
+              <el-button type="primary" text @click="handleSelectionCancel">
+                取消选择
+              </el-button>
+            </div>
+
+            <el-button
+              type="danger"
+              text
+              class="mr-1"
+              @click="handlebatchDelete"
+            >
+              批量删除
+            </el-button>
+          </div>
           <pure-table
             ref="tableRef"
             row-key="id"

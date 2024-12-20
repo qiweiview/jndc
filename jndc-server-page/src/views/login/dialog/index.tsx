@@ -7,7 +7,6 @@ const opened = ref(false);
 
 export const openLoginDialog = () => {
   if (opened.value) {
-    console.log("1已经打开了", opened.value);
     return;
   }
 
@@ -27,6 +26,5 @@ export const openLoginDialog = () => {
     }
   });
 
-  console.log("2已经打开了", opened.value);
   opened.value = true;
 };

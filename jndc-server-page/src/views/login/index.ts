@@ -1,7 +1,7 @@
 import { reactive, type Ref } from "vue";
 import type { FormInstance } from "element-plus";
 import { useUserStoreHook } from "@/store/modules/user";
-import { getTopMenu, initRouterWithData } from "@/router/utils";
+import { getTopMenu, initRouter } from "@/router/utils";
 import { message } from "@/utils/message";
 import { useDictStoreHook } from "@/store/modules/dict";
 import type { Router } from "vue-router";
@@ -31,7 +31,8 @@ export const onLogin = async (
             // 获取后端路由
             if (loginPage) {
               //todo 登陆页
-              return initRouterWithData(res.data.asyncRoutesVOList).then(() => {
+              return initRouter().then(() => {
+                loading.value = true;
                 router.push(getTopMenu(true).path).then(() => {
                   message("登录成功", { type: "success" });
                   useDictStoreHook().loadDicts();

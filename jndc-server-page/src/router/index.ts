@@ -13,8 +13,8 @@ import {
   formatFlatteningRoutes,
   formatTwoStageRoutes,
   getHistoryMode,
-  getInitRouter,
   getTopMenu,
+  initRouter,
   handleAliveRoute,
   isOneOfArray
 } from "./utils";
@@ -151,7 +151,7 @@ router.beforeEach((to: ToRouteType, _from, next) => {
         usePermissionStoreHook().wholeMenus.length === 0 &&
         to.path !== "/login"
       ) {
-        getInitRouter().then((router: Router) => {
+        initRouter().then((router: Router) => {
           if (!useMultiTagsStoreHook().getMultiTagsCache) {
             const { path } = to;
             const route = findRouteByPath(

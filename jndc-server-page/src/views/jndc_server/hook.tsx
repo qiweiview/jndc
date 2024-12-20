@@ -13,6 +13,8 @@ import {
   updateOperation
 } from "@/api/jndc_server/api";
 import router from "@/router";
+import jndcLog from "@/views/jndc_log/index.vue";
+import { formatDate } from "@/utils/date_format";
 
 export function useHook() {
   //分页
@@ -29,14 +31,13 @@ export function useHook() {
     current: pagination.currentPage
   });
 
-  const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
   const isLinkage = ref(false);
 
-  // 数据项弹窗
+  // 日志弹窗
   const dictDataDrawer = ref(false);
 
   //表格
@@ -67,11 +68,17 @@ export function useHook() {
     },
     {
       label: "创建时间",
-      prop: "createTime"
+      prop: "createTime",
+      formatter: (row, column, cellValue) => {
+        return formatDate(cellValue);
+      }
     },
     {
       label: "修改时间",
-      prop: "updateTime"
+      prop: "updateTime",
+      formatter: (row, column, cellValue) => {
+        return formatDate(cellValue);
+      }
     },
     {
       label: "操作",
@@ -146,17 +153,29 @@ export function useHook() {
     onSearch();
   };
 
+  function openDictData(row) {
+    addDialog({
+      title: "系统日志详情",
+      fullscreen: true,
+      hideFooter: true,
+      contentRenderer: () => jndcLog,
+      props: {
+        sourceIdString: row.idString
+      }
+    });
+  }
+
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
-          bindPort: row?.bindPort ?? null,
+          bindPort: row?.bindPort ?? 9866,
           bindHost: row?.bindHost ?? "0.0.0.0",
           bindTactics: row?.bindTactics ?? null,
           createTime: row?.createTime ?? null,
           id: row?.id ?? null,
-          serverName: row?.serverName ?? null,
+          serverName: row?.serverName ?? "test",
           serverRemark: row?.serverRemark ?? null,
           serverStatus: row?.serverStatus ?? "pause",
           uniqueId: row?.uniqueId ?? null,
@@ -216,7 +235,6 @@ export function useHook() {
   return {
     form,
     isShow,
-    curRow,
     loading,
     columns,
     dataList,
@@ -226,6 +244,7 @@ export function useHook() {
     onSearch,
     resetForm,
     openDialog,
+    openDictData,
     handleDelete,
     handleLog,
     handleSizeChange,
