@@ -12,8 +12,9 @@ import {
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server/api";
-import router from "@/router";
+
 import jndcLog from "@/views/jndc_log/index.vue";
+import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
 import { formatDate } from "@/utils/date_format";
 
 export function useHook() {
@@ -44,7 +45,8 @@ export function useHook() {
   const columns: TableColumnList = [
     {
       label: "id",
-      prop: "id"
+      prop: "id",
+      fixed: "left"
     },
     {
       label: "服务名称",
@@ -87,11 +89,6 @@ export function useHook() {
       slot: "operation"
     }
   ];
-
-  function handleLog(row) {
-    //路由至/jndc_log并携带参数
-    router.push({ path: "/jndc/jndc_log", query: { sourceId: row.idString } });
-  }
 
   function handleDelete(row) {
     showDialog("警告", {
@@ -153,14 +150,26 @@ export function useHook() {
     onSearch();
   };
 
-  function openDictData(row) {
+  function openLogDialog(row) {
     addDialog({
-      title: "系统日志详情",
+      title: "运行日志",
       fullscreen: true,
       hideFooter: true,
       contentRenderer: () => jndcLog,
       props: {
         sourceIdString: row.idString
+      }
+    });
+  }
+
+  function openAcceptHistoryDialog(row) {
+    addDialog({
+      title: "连接历史",
+      fullscreen: true,
+      hideFooter: true,
+      contentRenderer: () => jndcServerAcceptHistory,
+      props: {
+        id: row.idString
       }
     });
   }
@@ -244,9 +253,9 @@ export function useHook() {
     onSearch,
     resetForm,
     openDialog,
-    openDictData,
+    openLogDialog,
+    openAcceptHistoryDialog,
     handleDelete,
-    handleLog,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange,

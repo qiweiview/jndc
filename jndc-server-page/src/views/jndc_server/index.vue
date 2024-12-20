@@ -9,6 +9,10 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import More from "@iconify-icons/ep/more-filled";
+import Upload from "@iconify-icons/ri/upload-line";
+import Password from "@iconify-icons/ri/lock-password-line";
+import Role from "@iconify-icons/ri/admin-line";
 
 defineOptions({
   name: "jndcServer"
@@ -27,7 +31,8 @@ const {
   onSearch,
   resetForm,
   openDialog,
-  openDictData,
+  openLogDialog,
+  openAcceptHistoryDialog,
   handleDelete,
   handleSizeChange,
   handleCurrentChange,
@@ -122,16 +127,42 @@ const {
               >
                 删除
               </el-button>
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(Printer)"
-                @click="openDictData(row)"
-              >
-                日志
-              </el-button>
+
+              <el-dropdown>
+                <el-button
+                  class="ml-3 mt-[2px]"
+                  link
+                  type="primary"
+                  :size="size"
+                  :icon="useRenderIcon(More)"
+                />
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-button
+                        class="reset-margin"
+                        link
+                        type="primary"
+                        :size="size"
+                        @click="openLogDialog(row)"
+                      >
+                        运行日志
+                      </el-button>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <el-button
+                        class="reset-margin"
+                        link
+                        type="primary"
+                        :size="size"
+                        @click="openAcceptHistoryDialog(row)"
+                      >
+                        连接历史
+                      </el-button>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
           </pure-table>
         </template>

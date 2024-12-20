@@ -5,9 +5,7 @@ import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
 import Delete from "@iconify-icons/ep/delete";
-import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
-import AddFill from "@iconify-icons/ri/add-circle-line";
 
 defineOptions({
   name: "jndcServer"
@@ -39,8 +37,6 @@ const props = defineProps({
     type: String
   }
 });
-
-console.log("props.sourceIdString", props.sourceIdString);
 
 //如果sourceIdString不为空则写入form
 if (props.sourceIdString) {

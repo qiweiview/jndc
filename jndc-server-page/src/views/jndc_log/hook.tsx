@@ -14,13 +14,9 @@ import {
   updateOperation
 } from "@/api/jndc_log/api";
 
-import { useRoute } from "vue-router";
-import { deleteOperLog } from "@/api/system/log/oper";
 import { formatDate } from "@/utils/date_format";
 
 export function useHook() {
-  const route = useRoute();
-
   //分页
   const pagination = reactive<PaginationProps>({
     total: 0,

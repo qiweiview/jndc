@@ -14,7 +14,7 @@
                 <result property="sourcePort" column="source_port" />
                 <result property="updateTime" column="update_time" />
     </resultMap>
-    
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
             client_id,
@@ -26,14 +26,17 @@
             source_port,
             update_time
     </sql>
-    
-    
+
+
     <select id="listPage" resultMap="JndcServerAcceptHistoryMap"
             parameterType="com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO">
         select
         <include refid="Base_Column_List"></include>
         from
         jndc_server_accept_history
+        <where>
+            <if test=""
+        </where>
     </select>
 
     <select id="list" resultMap="JndcServerAcceptHistoryMap"
