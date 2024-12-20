@@ -20,4 +20,7 @@ public interface JndcLogServiceI {
     void removeById(Serializable id);
 
     JndcLogDTO getById(Serializable id);
+
+    void deleteBatch(List<Long> idList);
+
 }

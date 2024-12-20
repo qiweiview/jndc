@@ -1,6 +1,5 @@
 package com.view.controller;
 
-import org.springframework.web.bind.annotation.*;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,13 +12,17 @@ import com.view.enums.StatusCodeEnum;
 import com.view.model.vo.ResponseResult;
 import com.view.service.SysMenuService;
 import com.view.service.SysUserRoleService;
+import com.view.vo.menu.AsyncRoutesVO;
 import com.view.vo.menu.SimpleMenuVO;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
 
 
+@Slf4j
 @AdminPrefix
 @RequestMapping("/sysMenu")
 @AllArgsConstructor
@@ -66,7 +69,7 @@ public class SysMenuController {
     @GetMapping("/get")
     @SaCheckPermission("system:menu:detail")
     public ResponseResult<SysMenu> selectOne(@RequestBody MenuQueryDTO queryDTO) {
-        Long id=queryDTO.getId();
+        Long id = queryDTO.getId();
         return ResponseResult.ok(this.sysMenuService.getById(id));
     }
 
@@ -76,7 +79,7 @@ public class SysMenuController {
      * @param sysMenu 实体对象
      * @return 新增结果
      */
-    @OperationLog(title = "菜单管理",businessType = OperBusinessType.INSERT)
+    @OperationLog(title = "菜单管理", businessType = OperBusinessType.INSERT)
     @PostMapping("/create")
     @SaCheckPermission("system:menu:create")
     public ResponseResult<Boolean> insert(@RequestBody SysMenu sysMenu) {
@@ -90,7 +93,7 @@ public class SysMenuController {
      * @param sysMenu 实体对象
      * @return 修改结果
      */
-    @OperationLog(title = "菜单管理",businessType = OperBusinessType.UPDATE)
+    @OperationLog(title = "菜单管理", businessType = OperBusinessType.UPDATE)
     @PutMapping("/update")
     @SaCheckPermission("system:menu:update")
     public ResponseResult<Void> update(@RequestBody SysMenu sysMenu) {
@@ -107,12 +110,19 @@ public class SysMenuController {
      *
      * @return 删除结果
      */
-    @OperationLog(title = "菜单管理",businessType = OperBusinessType.DELETE)
+    @OperationLog(title = "菜单管理", businessType = OperBusinessType.DELETE)
     @DeleteMapping("/delete")
     @SaCheckPermission("system:menu:delete")
     public ResponseResult<Boolean> delete(@RequestBody MenuQueryDTO queryDTO) {
         Long id = queryDTO.getId();
         return ResponseResult.ok(this.sysMenuService.deleteById(id));
+    }
+
+
+    @GetMapping("/getAsyncRoutes")
+    public ResponseResult<List<AsyncRoutesVO>> getAsyncRoutes() {
+        List<AsyncRoutesVO> list = sysMenuService.getAsyncRoutes();
+        return ResponseResult.ok(list);
     }
 
 }

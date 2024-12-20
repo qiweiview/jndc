@@ -19,7 +19,6 @@ import com.view.exception.ServiceException;
 import com.view.service.AuthService;
 import com.view.service.PermissionService;
 import com.view.service.SysMenuService;
-import com.view.service.SysRoleService;
 import com.view.utils.BeanCopyUtils;
 import com.view.vo.UserLoginVO;
 import com.view.vo.menu.AsyncRoutesVO;
@@ -49,8 +48,6 @@ public class AuthServiceImpl implements AuthService {
     private final SysMenuService menuService;
 
     private final SysRoleMapper roleMapper;
-
-    private final SysRoleService roleService;
 
     private final PermissionService permissionService;
 
@@ -99,14 +96,13 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-
-
         // 查询用户角色
         List<SysUserRole> userRoleList = userRoleMapper.selectList(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, sysUser.getId()));
         Set<Long> roleIdList = userRoleList.stream().map(SysUserRole::getRoleId).collect(Collectors.toSet());
 
         // 查看所属角色是否被禁用
         List<SysRole> sysRoles = roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIdList));
+
         ArrayList<String> roleCodeList = new ArrayList<>();
         boolean existDisable = false;
         boolean hasSuperAdmin = false;
@@ -135,11 +131,6 @@ public class AuthServiceImpl implements AuthService {
 
         // 构建菜单树
         List<AsyncRoutesVO> asyncRoutesVOList = menuService.buildMenuTreeByRoles(roleIdList);
-
-        // 如果没有任何权限
-        //if (asyncRoutesVOList.isEmpty()) {
-        //    throw new ServiceException(USER_NO_ACCESS);
-        //}
 
 
         // 创建一个 SaLoginModel 对象

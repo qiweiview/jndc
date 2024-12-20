@@ -34,5 +34,8 @@ public interface SysMenuService extends IService<SysMenu> {
      * 删除菜单，连同子菜单
      */
     Boolean deleteById(Long menuId);
+
+    List<AsyncRoutesVO> getAsyncRoutes();
+
 }
 

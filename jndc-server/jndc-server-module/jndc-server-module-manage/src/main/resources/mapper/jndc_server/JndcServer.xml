@@ -58,7 +58,11 @@
 
 
     <select id="listByBindPort" resultType="com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO">
-
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server
+        where bind_port = #{bindPort}
     </select>
 
 </mapper>

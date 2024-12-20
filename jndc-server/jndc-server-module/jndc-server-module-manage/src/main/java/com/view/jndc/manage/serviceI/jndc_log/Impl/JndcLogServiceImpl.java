@@ -104,4 +104,10 @@ public class JndcLogServiceImpl implements JndcLogServiceI {
         }
         return JndcLogStructMapper.INSTANCE.toDTO(JndcLogDO);
     }
+
+    @Override
+    public void deleteBatch(List<Long> idList) {
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+        jndcLogDao.deleteBatchIds(idList);
+    }
 }

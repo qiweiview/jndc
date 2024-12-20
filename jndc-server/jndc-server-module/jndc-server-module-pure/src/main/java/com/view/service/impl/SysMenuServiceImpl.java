@@ -1,12 +1,19 @@
 package com.view.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.view.dao.entity.SysMenu;
+import com.view.dao.entity.SysRole;
 import com.view.dao.entity.SysRoleMenu;
+import com.view.dao.entity.SysUserRole;
 import com.view.dao.mapper.SysMenuMapper;
+import com.view.dao.mapper.SysRoleMapper;
 import com.view.dao.mapper.SysRoleMenuMapper;
+import com.view.dao.mapper.SysUserRoleMapper;
 import com.view.enums.BooleanEnum;
+import com.view.enums.BusinessStatusEnum;
+import com.view.enums.RoleEnum;
 import com.view.exception.ServiceException;
 import com.view.service.SysMenuService;
 import com.view.vo.menu.AsyncRoutesMetaVO;
@@ -18,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.view.enums.StatusCodeEnum.ROLE_FREEZE;
 
 /**
  * 菜单权限表(SysMenu)表服务实现类
@@ -32,6 +41,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     private final SysMenuMapper menuMapper;
 
     private final SysRoleMenuMapper roleMenuMapper;
+
+    private final SysUserRoleMapper userRoleMapper;
+
+    private final SysRoleMapper roleMapper;
+
+
 
 
     @Override
@@ -67,6 +82,50 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         roleMenuMapper.delete(new LambdaQueryWrapper<SysRoleMenu>().in(SysRoleMenu::getMenuId,deleteMenuIdList));
         return true;
+    }
+
+    @Override
+    public List<AsyncRoutesVO> getAsyncRoutes() {
+        Long loginId = Long.parseLong(StpUtil.getLoginId().toString());
+
+
+        // 查询用户角色
+        List<SysUserRole> userRoleList = userRoleMapper.selectList(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, loginId));
+        Set<Long> roleIdList = userRoleList.stream().map(SysUserRole::getRoleId).collect(Collectors.toSet());
+
+        // 查看所属角色是否被禁用
+        List<SysRole> sysRoles = roleMapper.selectList(new LambdaQueryWrapper<SysRole>().in(SysRole::getId, roleIdList));
+
+        ArrayList<String> roleCodeList = new ArrayList<>();
+        boolean existDisable = false;
+        boolean hasSuperAdmin = false;
+
+        // 遍历角色
+        for (SysRole role : sysRoles) {
+
+            // 角色code
+            roleCodeList.add(role.getRoleCode());
+
+            // 判断是否有被禁用的角色
+            if (role.getStatus() == BusinessStatusEnum.DISABLED.getValue()) {
+                existDisable = true;
+            }
+
+            // 判断是否有超级管理员
+            if (role.getId().equals(RoleEnum.SUPERADMIN.getId())) {
+                hasSuperAdmin = true;
+            }
+        }
+
+        // 如果有被禁用的角色，且没有超级管理员
+        if (existDisable && !hasSuperAdmin) {
+            throw new ServiceException(ROLE_FREEZE);
+        }
+
+        // 构建菜单树
+        List<AsyncRoutesVO> asyncRoutesVOList = buildMenuTreeByRoles(roleIdList);
+
+        return asyncRoutesVOList;
     }
 
     /**

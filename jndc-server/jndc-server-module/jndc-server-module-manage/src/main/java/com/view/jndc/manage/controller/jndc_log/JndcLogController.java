@@ -48,6 +48,12 @@ public class JndcLogController {
         return EncryptedResponse.success("操作成功");
     }
 
+    @RequestMapping(value = "deleteBatch", method = RequestMethod.POST)
+    public EncryptedResponse deleteBatch(@RequestBody(required = false) JndcLogDTO jndcLogDTO) {
+        jndcLogService.deleteBatch(jndcLogDTO.getIdList());
+        return EncryptedResponse.success("操作成功");
+    }
+
     /**
      * 分页查询JndcLog
      */

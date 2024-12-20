@@ -106,11 +106,15 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         JndcServerDTO dbData = getById(jndcServerDTO.getId());
 
 
+
         JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
         copy.setUpdateTime(LocalDateTime.now());
         copy.setUniqueId(null);
 
         String serverStatus = jndcServerDTO.getServerStatus();
+        String serverStatusDB = dbData.getServerStatus();
+
+
 
           if (JNDCServerStatusEnum.PROCESSING.value.equals(serverStatus)) {
             // todo 停止服务
@@ -123,12 +127,17 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         jndcServerDao.updateById(copy);
 
 
-        if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
-            jndcServerHolder.startServer(dbData);
-        } else if (JNDCServerStatusEnum.PAUSE.value.equals(serverStatus)) {
-            // todo 停止服务
-            jndcServerHolder.stopServer(dbData);
+        if (!serverStatusDB.equals(serverStatus)) {
+            //todo 有状态变化才操作
+            if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
+                jndcServerHolder.startServer(dbData);
+            } else if (JNDCServerStatusEnum.PAUSE.value.equals(serverStatus)) {
+                // todo 停止服务
+                jndcServerHolder.stopServer(dbData);
+            }
         }
+
+
 
 
     }

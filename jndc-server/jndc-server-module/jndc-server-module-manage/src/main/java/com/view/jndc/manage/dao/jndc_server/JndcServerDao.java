@@ -15,7 +15,7 @@ public interface JndcServerDao extends BaseMapper<JndcServerDO> {
 
   List<JndcServerDO> list(JndcServerDO jndcServerDO);
 
-  List<JndcServerDO> listByBindPort(Integer bindPort);
+    List<JndcServerDO> listByBindPort(@Param("bindPort") Integer bindPort);
 
   int updateStatus(@Param("id") Long id, @Param("status") String status);
 

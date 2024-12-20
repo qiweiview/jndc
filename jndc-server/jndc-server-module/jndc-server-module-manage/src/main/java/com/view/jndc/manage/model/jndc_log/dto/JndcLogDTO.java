@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Slf4j
 @Data
@@ -38,6 +39,28 @@ public class JndcLogDTO implements Serializable {
         this.idString = idString;
         if (idString != null) {
             this.id = Long.parseLong(idString);
+        }
+    }
+
+    private List<String> idStringList;
+
+    private List<Long> idList;
+
+    public void setIdStringList(List<String> idStringList) {
+        this.idStringList = idStringList;
+        if (idStringList != null) {
+            try {
+                this.idList = idStringList.stream().map(Long::parseLong).toList();
+            } catch (NumberFormatException e) {
+                log.warn("idStringList转换失败:{}", idStringList);
+            }
+        }
+    }
+
+    public void setIdList(List<Long> idList) {
+        this.idList = idList;
+        if (idList != null && idStringList == null) {
+            this.idStringList = idList.stream().map(String::valueOf).toList();
         }
     }
 

@@ -48,10 +48,11 @@ public class NDCServer {
         if (serverChannel != null && serverChannel.isOpen()) {
             serverChannel.close();
             log.info("NDC服务关闭");
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+            stopCallback.run();
         }
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        stopCallback.run();
+
     }
 
 
