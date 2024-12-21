@@ -63,6 +63,24 @@ public class NDCClientTest {
         virtualTCPService3.setExpectPort(3309);
         ndcClient.registerService(virtualTCPService3);
 
+        ndcClientConfiguration.setStartedCallback(() -> {
+            log.info("客户端启动成功");
+        });
+
+        ndcClientConfiguration.setStopCallback(() -> {
+            log.info("客户端停止成功");
+        });
+
+        ndcClientConfiguration.setFailCallback(e -> {
+            log.info("客户端启动失败");
+        });
+
+        ndcClientConfiguration.setAutoReconnect(true);
+
+        ndcClientConfiguration.setReconnectLimit(-1);
+
+        ndcClientConfiguration.setUniqueId("client1");
+
         //定义服务
         ndcClient.start(ndcClientConfiguration);
     }

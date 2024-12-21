@@ -15,5 +15,6 @@ public abstract class ControllableClient {
     private String appServerId;
 
     public abstract void receiveData(byte[] data);
+
     public abstract void stop();
 }

@@ -9,7 +9,6 @@ import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
 import com.view.core.protocol.callback.ChannelRead0CallBack;
-import com.view.core.utils.RuntimeUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -25,32 +24,49 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NDCClient {
-    private   String ndcClientId ;
+
+    private Channel clientChannel;
+
+    private EventLoopGroup workerGroup;
+
+
     private List<NDCPacket> tobeSendPackage = new ArrayList<>();
+
     private ChannelHandlerContext serverContext;
+
     private NDCClientConfiguration ndcClientConfiguration;
+
     private int retryTimes = 0;
 
 
     private Map<String, VirtualTCPService> ndcClientSessionMap = new ConcurrentHashMap<>();
 
 
+    public void stop() {
+        if (clientChannel != null && clientChannel.isOpen()) {
+            clientChannel.close();
+            log.info("NDC客户端关闭");
+            workerGroup.shutdownGracefully();
+            ndcClientConfiguration.getStopCallback().run();
+        }
 
-    public void start(NDCClientConfiguration ndcClientConfigurationS) {
-        //运行目录下创建
-        start(ndcClientConfigurationS, RuntimeUtils.getRuntimeUniqueId());
     }
 
-    public void start(NDCClientConfiguration ndcClientConfiguration,String uniqueId) {
-        this.ndcClientId = uniqueId;
+    public void start(NDCClientConfiguration ndcClientConfiguration) {
+
+        //设置配置，适配重连
         if (this.ndcClientConfiguration == null) {
             this.ndcClientConfiguration = ndcClientConfiguration;
         }
 
+        //检查配置
+        ndcClientConfiguration.check();
+
+        //打印配置
         ndcClientConfiguration.printConfiguration();
 
 
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
 
         try {
 
@@ -66,11 +82,9 @@ public class NDCClient {
 
                 //发送开通通道包
                 ChannelOpen channelOpen = new ChannelOpen();
-                channelOpen.setNdcClientId(ndcClientId);
+                channelOpen.setNdcClientId(ndcClientConfiguration.getUniqueId());
                 NDCPacket openChannelPacket = NDCPacketBuilder.openChannelPacket(channelOpen);
                 ctx.writeAndFlush(openChannelPacket);
-
-
             };
 
             //read回调
@@ -134,31 +148,41 @@ public class NDCClient {
             int port = ndcClientConfiguration.getPort();
 
             // Start the client.
-            bootstrap
-                    .connect(host, port)
-                    .addListener(future -> {
-                        if (future.isSuccess()) {
-                            GlobalBeanContext.NDC_CLIENT = this;
-                            log.info("NDC客户端启动成功：{}:{}", host, port);
-                        } else {
-                            log.error("NDC客户端启动失败：{}:{}", host, port);
-                        }
-                    }).channel().closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.connect(host, port);
+            channelFuture.addListener(future -> {
+                if (future.isSuccess()) {
+                    GlobalBeanContext.NDC_CLIENT = this;
+                    log.info("NDC客户端启动成功：{}:{}", host, port);
+                } else {
+                    log.error("NDC客户端启动失败：{}:{}", host, port);
+                }
+            });
+            this.clientChannel = channelFuture.channel();
+            // 阻塞直到客户端连接关闭
+            channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
-            log.error("NDC客户端启动失败", e);
+            ndcClientConfiguration.getFailCallback().accept(e);
         } finally {
-            workerGroup.shutdownGracefully();
-            int timeoutSecond = ndcClientConfiguration.getTimeoutSecond();
-            log.error("连接断开，等待{}秒，进行第{}次尝试重连", timeoutSecond, retryTimes++);
-            try {
-                TimeUnit.SECONDS.sleep(timeoutSecond);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            //判定是否重连
+            if (ndcClientConfiguration.reconnectThisTime()) {
+                //todo 再次启动
+
+                int timeoutSecond = ndcClientConfiguration.getTimeoutSecond();
+                log.error("连接断开，等待{}秒，进行第{}次尝试重连", timeoutSecond, retryTimes++);
+                try {
+                    TimeUnit.SECONDS.sleep(timeoutSecond);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                start(ndcClientConfiguration);
+            } else {
+                stop();
             }
 
-            //再次启动
-            start(ndcClientConfiguration);
         }
+
+
     }
 
     private void handleTCPInActive(NDCPacket ndcPacket) {

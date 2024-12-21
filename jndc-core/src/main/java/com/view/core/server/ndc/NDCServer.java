@@ -12,7 +12,6 @@ import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
 import com.view.core.protocol.callback.ChannelRead0CallBack;
-import com.view.core.utils.RuntimeUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -29,7 +28,7 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
-    private Runnable stopCallback;
+    private NDCServerConfiguration ndcServerConfiguration;
 
     private String ndcServerId;
 
@@ -50,23 +49,25 @@ public class NDCServer {
             log.info("NDC服务关闭");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
-            stopCallback.run();
+            ndcServerConfiguration.getStopCallback().run();
         }
 
     }
 
 
-    public void start(String host, int port, Runnable startedCallback, Runnable stopCallback, Consumer<Exception> failCallback) {
-        //运行目录下创建
-        start(host, port, startedCallback, stopCallback, failCallback, RuntimeUtils.getRuntimeUniqueId());
-    }
+    public void start(NDCServerConfiguration ndcServerConfiguration) {
 
-    public void start(String host, int port, Runnable startedCallback, Runnable stopCallback, Consumer<Exception> failCallback, String uniqueId) {
-        this.stopCallback = stopCallback;
-        this.ndcServerId = uniqueId;
+        //设置配置
+        ndcServerConfiguration.check();
 
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
+        String host = ndcServerConfiguration.getHost();
+        int port = ndcServerConfiguration.getPort();
+        Runnable startedCallback = ndcServerConfiguration.getStartedCallback();
+        Consumer<Exception> failCallback = ndcServerConfiguration.getFailCallback();
+
+
         try {
 
 
@@ -152,6 +153,7 @@ public class NDCServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(channelInitializer);
 
+
             log.info("起动NDC服务，{}：{}", host, port);
             ChannelFuture channelFuture = b.bind(host, port).sync();
             channelFuture.addListener(future -> {
@@ -163,7 +165,7 @@ public class NDCServer {
                     log.error("NDC服务启动失败，{}：{}", host, port);
                     failCallback.accept(new RuntimeException("NDC服务启动失败"));
                 }
-            }).channel();
+            });
             serverChannel = channelFuture.channel();
             // 阻塞直到服务器关闭
             channelFuture.channel().closeFuture().sync();

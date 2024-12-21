@@ -1,6 +1,7 @@
 package com.view.core.ndc;
 
 import com.view.core.server.ndc.NDCServer;
+import com.view.core.server.ndc.NDCServerConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,20 @@ public class NDCServerTest {
 
     @Test
     public void runServer() {
-        ndcServer.start(10886, () -> {
+        NDCServerConfiguration ndcServerConfiguration = new NDCServerConfiguration();
+        ndcServerConfiguration.setHost("127.0.0.1");
+        ndcServerConfiguration.setPort(8888);
+        ndcServerConfiguration.setUniqueId("server1");
+        ndcServerConfiguration.setStartedCallback(() -> {
+            System.out.println("服务启动成功");
         });
+        ndcServerConfiguration.setStopCallback(() -> {
+            System.out.println("服务停止成功");
+        });
+        ndcServerConfiguration.setFailCallback(e -> {
+            System.out.println("服务启动失败");
+        });
+
+        ndcServer.start(ndcServerConfiguration);
     }
 }
