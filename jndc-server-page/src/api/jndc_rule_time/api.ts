@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
 
-const path = "/jndcClientService";
+const path = "/jndcRuleTime";
 /** 新增 */
 export const addOperation = (data?: object) => {
   return http.request<any>("post", `${path}/save`, { data });
@@ -25,7 +25,7 @@ export const deleteOperation = (id: string) => {
 
 /** 删除批量 */
 export const deleteBatchOperation = (id: string[]) => {
-  return http.request<any>("post", `${path}/delete`, {
+  return http.request<any>("post", `${path}/deleteBatch`, {
     data: { idString: id }
   });
 };

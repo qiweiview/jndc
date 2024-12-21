@@ -11,11 +11,7 @@ import {
   addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server/api";
-
-import jndcLog from "@/views/jndc_log/index.vue";
-import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
-import { formatDate } from "@/utils/date_format";
+} from "@/api/jndc_rule_time/api";
 
 export function useHook() {
   //分页
@@ -32,55 +28,53 @@ export function useHook() {
     current: pagination.currentPage
   });
 
+  const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
   const isLinkage = ref(false);
 
-  // 日志弹窗
+  // 数据项弹窗
   const dictDataDrawer = ref(false);
 
   //表格
   const columns: TableColumnList = [
     {
-      label: "id",
-      prop: "idString",
-      fixed: "left"
-    },
-    {
-      label: "服务名称",
-      prop: "serverName"
-    },
-    {
-      label: "监听域名",
-      prop: "bindHost"
-    },
-    {
-      label: "监听端口",
-      prop: "bindPort"
-    },
-    {
-      label: "服务状态",
-      prop: "serverStatus"
-    },
-    {
-      label: "唯一id",
-      prop: "uniqueId"
+      label: "所属id",
+      prop: "belongId"
     },
     {
       label: "创建时间",
-      prop: "createTime",
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
+      prop: "createTime"
+    },
+    {
+      label: "截至时间",
+      prop: "effectEndTime"
+    },
+    {
+      label: "起始时间",
+      prop: "effectStartTime"
+    },
+    {
+      label: "id",
+      prop: "id"
+    },
+    {
+      label: "规则名称",
+      prop: "ruleName"
+    },
+    {
+      label: "是否生效",
+      prop: "ruleStatus"
+    },
+    {
+      label: "规则类型",
+      prop: "ruleType"
     },
     {
       label: "修改时间",
-      prop: "updateTime",
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
+      prop: "updateTime"
     },
     {
       label: "操作",
@@ -150,44 +144,19 @@ export function useHook() {
     onSearch();
   };
 
-  function openLogDialog(row) {
-    addDialog({
-      title: "运行日志",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcLog,
-      props: {
-        sourceIdString: row.idString
-      }
-    });
-  }
-
-  function openAcceptHistoryDialog(row) {
-    addDialog({
-      title: "连接历史",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcServerAcceptHistory,
-      props: {
-        id: row.idString
-      }
-    });
-  }
-
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
-          bindPort: row?.bindPort ?? 9866,
-          bindHost: row?.bindHost ?? "0.0.0.0",
-          bindTactics: row?.bindTactics ?? null,
+          belongId: row?.belongId ?? null,
           createTime: row?.createTime ?? null,
+          effectEndTime: row?.effectEndTime ?? null,
+          effectStartTime: row?.effectStartTime ?? null,
           id: row?.id ?? null,
-          serverName: row?.serverName ?? "test",
-          serverRemark: row?.serverRemark ?? null,
-          serverStatus: row?.serverStatus ?? "pause",
-          uniqueId: row?.uniqueId ?? null,
+          ruleName: row?.ruleName ?? null,
+          ruleStatus: row?.ruleStatus ?? null,
+          ruleType: row?.ruleType ?? null,
           updateTime: row?.updateTime ?? null,
           idString: row?.idString ?? null
         }
@@ -244,6 +213,7 @@ export function useHook() {
   return {
     form,
     isShow,
+    curRow,
     loading,
     columns,
     dataList,
@@ -253,8 +223,6 @@ export function useHook() {
     onSearch,
     resetForm,
     openDialog,
-    openLogDialog,
-    openAcceptHistoryDialog,
     handleDelete,
     handleSizeChange,
     handleCurrentChange,

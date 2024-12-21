@@ -1,6 +1,6 @@
 import { http } from "@/utils/http";
 
-const path = "/jndcClient";
+const path = "/jndcRuleIp";
 /** 新增 */
 export const addOperation = (data?: object) => {
   return http.request<any>("post", `${path}/save`, { data });

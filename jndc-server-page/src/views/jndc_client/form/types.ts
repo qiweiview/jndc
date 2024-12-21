@@ -3,13 +3,14 @@
 interface FormItemProps {
   id?: number;
   idString?: string;
-  clientId?: string;
-  connectTime?: string;
+  clientName?: string;
+  clientRemark?: string;
+  clientStatus?: string;
   createTime?: string;
-  interruptTime?: string;
-  serverId?: string;
-  sourceIp?: string;
-  sourcePort?: string;
+  disguisedProtocol?: string;
+  serverHost?: string;
+  serverPort?: string;
+  uniqueId?: string;
   updateTime?: string;
 }
 

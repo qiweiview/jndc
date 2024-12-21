@@ -11,10 +11,7 @@ import {
   addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server/api";
-
-import jndcLog from "@/views/jndc_log/index.vue";
-import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
+} from "@/api/jndc_client/api";
 import { formatDate } from "@/utils/date_format";
 
 export function useHook() {
@@ -32,13 +29,14 @@ export function useHook() {
     current: pagination.currentPage
   });
 
+  const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
   const isLinkage = ref(false);
 
-  // 日志弹窗
+  // 数据项弹窗
   const dictDataDrawer = ref(false);
 
   //表格
@@ -49,20 +47,20 @@ export function useHook() {
       fixed: "left"
     },
     {
-      label: "服务名称",
-      prop: "serverName"
+      label: "客户端名称",
+      prop: "clientName"
     },
     {
-      label: "监听域名",
-      prop: "bindHost"
+      label: "客户端状态",
+      prop: "clientStatus"
     },
     {
-      label: "监听端口",
-      prop: "bindPort"
+      label: "服务主机",
+      prop: "serverHost"
     },
     {
-      label: "服务状态",
-      prop: "serverStatus"
+      label: "服务端口",
+      prop: "serverPort"
     },
     {
       label: "唯一id",
@@ -150,43 +148,19 @@ export function useHook() {
     onSearch();
   };
 
-  function openLogDialog(row) {
-    addDialog({
-      title: "运行日志",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcLog,
-      props: {
-        sourceIdString: row.idString
-      }
-    });
-  }
-
-  function openAcceptHistoryDialog(row) {
-    addDialog({
-      title: "连接历史",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcServerAcceptHistory,
-      props: {
-        id: row.idString
-      }
-    });
-  }
-
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
-          bindPort: row?.bindPort ?? 9866,
-          bindHost: row?.bindHost ?? "0.0.0.0",
-          bindTactics: row?.bindTactics ?? null,
+          clientName: row?.clientName ?? "test",
+          clientRemark: row?.clientRemark ?? null,
+          clientStatus: row?.clientStatus ?? "pause",
           createTime: row?.createTime ?? null,
+          disguisedProtocol: row?.disguisedProtocol ?? null,
           id: row?.id ?? null,
-          serverName: row?.serverName ?? "test",
-          serverRemark: row?.serverRemark ?? null,
-          serverStatus: row?.serverStatus ?? "pause",
+          serverHost: row?.serverHost ?? "127.0.0.1",
+          serverPort: row?.serverPort ?? 9866,
           uniqueId: row?.uniqueId ?? null,
           updateTime: row?.updateTime ?? null,
           idString: row?.idString ?? null
@@ -244,6 +218,7 @@ export function useHook() {
   return {
     form,
     isShow,
+    curRow,
     loading,
     columns,
     dataList,
@@ -253,8 +228,6 @@ export function useHook() {
     onSearch,
     resetForm,
     openDialog,
-    openLogDialog,
-    openAcceptHistoryDialog,
     handleDelete,
     handleSizeChange,
     handleCurrentChange,

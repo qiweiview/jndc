@@ -53,12 +53,16 @@ export function useHook() {
       prop: "createTime"
     },
     {
-      label: "",
+      label: "id",
       prop: "id"
     },
     {
       label: "中断时间",
       prop: "interruptTime"
+    },
+    {
+      label: "服务id",
+      prop: "serverId"
     },
     {
       label: "来源ip",
@@ -150,6 +154,7 @@ export function useHook() {
           createTime: row?.createTime ?? null,
           id: row?.id ?? null,
           interruptTime: row?.interruptTime ?? null,
+          serverId: row?.serverId ?? null,
           sourceIp: row?.sourceIp ?? null,
           sourcePort: row?.sourcePort ?? null,
           updateTime: row?.updateTime ?? null,

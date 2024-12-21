@@ -25,7 +25,7 @@ export const deleteOperation = (id: string) => {
 
 /** 删除批量 */
 export const deleteBatchOperation = (id: string[]) => {
-  return http.request<any>("post", `${path}/delete`, {
+  return http.request<any>("post", `${path}/deleteBatch`, {
     data: { idString: id }
   });
 };

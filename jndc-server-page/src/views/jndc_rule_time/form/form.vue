@@ -5,14 +5,14 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    clientId: null,
-    connectTime: null,
+    belongId: null,
     createTime: null,
+    effectEndTime: null,
+    effectStartTime: null,
     id: null,
-    interruptTime: null,
-    serverId: null,
-    sourceIp: null,
-    sourcePort: null,
+    ruleName: null,
+    ruleStatus: null,
+    ruleType: null,
     updateTime: null,
     idString: null
   })
@@ -29,52 +29,52 @@ defineExpose({ getRef });
 
 <template>
   <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
-    <el-form-item label="客户端id：" prop="clientId">
+    <el-form-item label="所属id：" prop="belongId">
       <el-input
-        v-model="newFormInline.clientId"
+        v-model="newFormInline.belongId"
         autocomplete="off"
         clearable
-        placeholder="请输入客户端id"
+        placeholder="请输入所属id"
       />
     </el-form-item>
-    <el-form-item label="连接时间：" prop="connectTime">
+    <el-form-item label="截至时间：" prop="effectEndTime">
       <el-input
-        v-model="newFormInline.connectTime"
+        v-model="newFormInline.effectEndTime"
         autocomplete="off"
         clearable
-        placeholder="请输入连接时间"
+        placeholder="请输入截至时间"
       />
     </el-form-item>
-    <el-form-item label="中断时间：" prop="interruptTime">
+    <el-form-item label="起始时间：" prop="effectStartTime">
       <el-input
-        v-model="newFormInline.interruptTime"
+        v-model="newFormInline.effectStartTime"
         autocomplete="off"
         clearable
-        placeholder="请输入中断时间"
+        placeholder="请输入起始时间"
       />
     </el-form-item>
-    <el-form-item label="服务id：" prop="serverId">
+    <el-form-item label="规则名称：" prop="ruleName">
       <el-input
-        v-model="newFormInline.serverId"
+        v-model="newFormInline.ruleName"
         autocomplete="off"
         clearable
-        placeholder="请输入服务id"
+        placeholder="请输入规则名称"
       />
     </el-form-item>
-    <el-form-item label="来源ip：" prop="sourceIp">
+    <el-form-item label="是否生效：" prop="ruleStatus">
       <el-input
-        v-model="newFormInline.sourceIp"
+        v-model="newFormInline.ruleStatus"
         autocomplete="off"
         clearable
-        placeholder="请输入来源ip"
+        placeholder="请输入是否生效"
       />
     </el-form-item>
-    <el-form-item label="来源端口：" prop="sourcePort">
+    <el-form-item label="规则类型：" prop="ruleType">
       <el-input
-        v-model="newFormInline.sourcePort"
+        v-model="newFormInline.ruleType"
         autocomplete="off"
         clearable
-        placeholder="请输入来源端口"
+        placeholder="请输入规则类型"
       />
     </el-form-item>
   </el-form>
