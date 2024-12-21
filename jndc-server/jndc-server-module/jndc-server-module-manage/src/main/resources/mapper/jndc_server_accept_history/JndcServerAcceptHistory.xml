@@ -10,6 +10,7 @@
                 <result property="connectTime" column="connect_time" />
                 <result property="createTime" column="create_time" />
                 <result property="interruptTime" column="interrupt_time" />
+        <result property="serverId" column="server_id"/>
                 <result property="sourceIp" column="source_ip" />
                 <result property="sourcePort" column="source_port" />
                 <result property="updateTime" column="update_time" />
@@ -22,6 +23,7 @@
             create_time,
             id,
             interrupt_time,
+            server_id,
             source_ip,
             source_port,
             update_time
@@ -35,7 +37,9 @@
         from
         jndc_server_accept_history
         <where>
-            <if test=""
+            <if test="do.serverId!=null and do.serverId!=''">
+                and server_id = #{do.serverId}
+            </if>
         </where>
     </select>
 

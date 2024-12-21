@@ -14,7 +14,7 @@ import lombok.Data;
 public class JndcServerAcceptHistoryDO {
   /** 客户端id */
   @TableField(value = "client_id")
-  private String clientId;
+  private Long clientId;
 
   /** 连接时间 */
   @TableField(value = "connect_time")
@@ -24,13 +24,21 @@ public class JndcServerAcceptHistoryDO {
   @TableField(value = "create_time")
   private java.time.LocalDateTime createTime;
 
-  /** */
+    /**
+     * id
+     */
   @TableId(value = "id", type = IdType.AUTO)
   private Long id;
 
   /** 中断时间 */
   @TableField(value = "interrupt_time")
   private java.time.LocalDateTime interruptTime;
+
+    /**
+     * 服务id
+     */
+    @TableField(value = "server_id")
+    private Long serverId;
 
   /** 来源ip */
   @TableField(value = "source_ip")

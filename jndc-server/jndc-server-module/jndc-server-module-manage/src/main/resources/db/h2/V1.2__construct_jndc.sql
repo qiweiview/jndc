@@ -42,17 +42,36 @@ CREATE TABLE jndc_log
     PRIMARY KEY (id)
 );
 
+DROP TABLE IF EXISTS jndc_client;
+CREATE TABLE jndc_client
+(
+    id                 BIGINT NOT NULL,           -- 移除 COMMENT 部分
+    create_time        TIMESTAMP    DEFAULT NULL, -- 将 datetime 改为 TIMESTAMP
+    update_time        TIMESTAMP    DEFAULT NULL, -- 同上
+    client_name        VARCHAR(255) DEFAULT NULL, -- 移除 CHARACTER SET 和 COLLATE
+    client_status      VARCHAR(255) DEFAULT NULL, -- 同上
+    server_host        VARCHAR(255) DEFAULT NULL, -- 同上
+    server_port        INT          DEFAULT NULL,
+    disguised_protocol VARCHAR(255) DEFAULT NULL, -- 同上
+    unique_id          VARCHAR(36)  DEFAULT NULL, -- 同上
+    client_remark      VARCHAR(255) DEFAULT NULL, -- 同上
+    PRIMARY KEY (id)                              -- 直接指定主键，不需要 `USING BTREE`
+);
+
+
 DROP TABLE IF EXISTS jndc_server_accept_history;
 CREATE TABLE jndc_server_accept_history
 (
     id             BIGINT NOT NULL,           -- 移除 COMMENT 部分
     create_time    TIMESTAMP    DEFAULT NULL, -- 将 datetime 改为 TIMESTAMP
     update_time    TIMESTAMP    DEFAULT NULL, -- 同上
-    client_id      VARCHAR(36)  DEFAULT NULL, -- 移除 CHARACTER SET 和 COLLATE
+    server_id BIGINT       DEFAULT NULL,      -- 同上
+    client_id BIGINT       DEFAULT NULL,      -- 同上
     connect_time   TIMESTAMP    DEFAULT NULL, -- 同上
     interrupt_time TIMESTAMP    DEFAULT NULL, -- 同上
-    source_ip      VARCHAR(255) DEFAULT NULL, -- 同上
+    source_ip VARCHAR(255) DEFAULT NULL,      -- 移除 CHARACTER SET 和 COLLATE
     source_port    INT          DEFAULT NULL,
     PRIMARY KEY (id)                          -- 直接指定主键，不需要 `USING BTREE`
 );
+
 

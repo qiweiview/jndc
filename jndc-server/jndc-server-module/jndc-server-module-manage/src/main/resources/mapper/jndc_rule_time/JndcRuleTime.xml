@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_rule_time.JndcRuleTimeDao">
+
+    <resultMap type="com.view.jndc.manage.model.jndc_rule_time.d_o.JndcRuleTimeDO" id="JndcRuleTimeMap">
+        <id property="id" column="id"/>
+        <result property="belongId" column="belong_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="effectEndTime" column="effect_end_time"/>
+        <result property="effectStartTime" column="effect_start_time"/>
+        <result property="ruleName" column="rule_name"/>
+        <result property="ruleStatus" column="rule_status"/>
+        <result property="ruleType" column="rule_type"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        belong_id
+        ,
+            create_time,
+            effect_end_time,
+            effect_start_time,
+            id,
+            rule_name,
+            rule_status,
+            rule_type,
+            update_time
+    </sql>
+
+
+    <select id="listPage" resultMap="JndcRuleTimeMap"
+            parameterType="com.view.jndc.manage.model.jndc_rule_time.d_o.JndcRuleTimeDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_rule_time
+    </select>
+
+    <select id="list" resultMap="JndcRuleTimeMap"
+            parameterType="com.view.jndc.manage.model.jndc_rule_time.d_o.JndcRuleTimeDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_rule_time
+    </select>
+
+</mapper>

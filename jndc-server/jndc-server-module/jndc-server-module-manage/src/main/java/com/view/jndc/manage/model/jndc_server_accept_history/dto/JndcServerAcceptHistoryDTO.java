@@ -11,7 +11,12 @@ import java.io.Serializable;
 public class JndcServerAcceptHistoryDTO implements Serializable {
 
   /** 客户端id */
-  private String clientId;
+  private Long clientId;
+
+    /**
+     * 客户端id
+     */
+    private String clientIds;
 
   /** 连接时间 */
   private java.time.LocalDateTime connectTime;
@@ -19,17 +24,15 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
   /** 创建时间 */
   private java.time.LocalDateTime createTime;
 
-  /** */
+    /** id */
   private Long id;
 
     /**
-     *
+     * id
      */
     private String ids;
 
-    /**
-     * 字符id（处理浏览器long精度丢失问题）
-     */
+    /** 字符id（处理浏览器long精度丢失问题） */
   private String idString;
 
   public void setId(Long id) {
@@ -49,13 +52,23 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
   /** 中断时间 */
   private java.time.LocalDateTime interruptTime;
 
-  /** 来源ip */
-  private String sourceIp;
+    /**
+     * 服务id
+     */
+    private Long serverId;
 
     /**
-     * 来源端口
+     * 服务id
      */
-    private Integer sourcePort;
+    private String serverIds;
+
+    /**
+     * 来源ip
+     */
+    private String sourceIp;
+
+  /** 来源端口 */
+  private Integer sourcePort;
 
   /** 修改时间 */
   private java.time.LocalDateTime updateTime;
