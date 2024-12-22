@@ -14,4 +14,9 @@ public interface JndcClientDao extends BaseMapper<JndcClientDO> {
     IPage<JndcClientDO> listPage(Page page, @Param("do") JndcClientDO jndcClientDO);
 
     List<JndcClientDO> list(JndcClientDO jndcClientDO);
+
+    void updateStatus(@Param("id") Long id, @Param("status") String status);
+
+    void resetAllClientStatus();
+
 }

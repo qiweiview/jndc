@@ -9,7 +9,7 @@ public enum JNDCClientStatusEnum {
 
     PAUSE("暂停", "pause"),
 
-    CONNECT("监听", "connect"),
+    CONNECT("连接", "connect"),
 
     PROCESSING("处理中", "processing"),
     ;

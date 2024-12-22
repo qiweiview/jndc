@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
+import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
 import com.view.jndc.manage.enums.JNDCClientServiceStatusEnum;
 import com.view.jndc.manage.model.jndc_client_service.JndcClientServiceStructMapper;
@@ -69,6 +70,7 @@ public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
         JndcClientServiceDO copy = JndcClientServiceStructMapper.INSTANCE.toDO(jndcClientServiceDTO);
         copy.setId(snowflakeIdWorker.nextId());
         copy.setCreateTime(LocalDateTime.now());
+        copy.setServiceUniqueId(UniqueId.generate());
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientServiceDao.insert(copy);
 

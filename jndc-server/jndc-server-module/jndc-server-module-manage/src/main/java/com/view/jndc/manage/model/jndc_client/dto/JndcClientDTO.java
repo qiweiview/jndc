@@ -3,9 +3,11 @@ package com.view.jndc.manage.model.jndc_client.dto;
 import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
 import com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO;
 import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
+import com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class JndcClientDTO implements Serializable {
@@ -50,6 +52,8 @@ public class JndcClientDTO implements Serializable {
      * 字符id（处理浏览器long精度丢失问题）
      */
     private String idString;
+
+    private List<JndcClientServiceDO> clientServices;
 
     public void setId(Long id) {
         this.id = id;
@@ -100,6 +104,10 @@ public class JndcClientDTO implements Serializable {
      * 当前页码
      */
     protected Long current;
+
+    public boolean autoRegister() {
+        return autoReconnect != null && autoReconnect == 1;
+    }
 
     public JndcClientDO toDO() {
         return JndcClientStructMapper.INSTANCE.toDO(this);

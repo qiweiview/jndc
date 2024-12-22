@@ -158,8 +158,10 @@ public class NDCClient {
                 if (future.isSuccess()) {
                     GlobalBeanContext.NDC_CLIENT = this;
                     log.info("NDC客户端启动成功：{}:{}", host, port);
+                    ndcClientConfiguration.getStartedCallback().run();
                 } else {
                     log.error("NDC客户端启动失败：{}:{}", host, port);
+                    ndcClientConfiguration.getFailCallback().accept(new RuntimeException("NDC客户端启动失败"));
                 }
             });
             this.clientChannel = channelFuture.channel();

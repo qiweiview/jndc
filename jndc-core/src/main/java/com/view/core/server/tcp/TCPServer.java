@@ -98,7 +98,10 @@ public class TCPServer extends ControllableServer {
         ByteServerHandler byteServerHandler = sessionMap.get(appServerSessionId);
         if (byteServerHandler != null) {
             ChannelHandlerContext channelHandlerContext = byteServerHandler.getChannelHandlerContext();
-            channelHandlerContext.writeAndFlush(tcpDataTransport.getData());
+            byte[] data = tcpDataTransport.getData();
+            if (data != null) {
+                channelHandlerContext.writeAndFlush(data);
+            }
         }
     }
 

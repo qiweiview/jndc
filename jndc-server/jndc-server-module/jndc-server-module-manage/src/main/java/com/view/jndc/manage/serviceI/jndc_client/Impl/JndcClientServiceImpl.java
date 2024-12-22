@@ -6,6 +6,7 @@ import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
+import com.view.jndc.manage.component.JNDCClientHolder;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
 import com.view.jndc.manage.enums.JNDCClientStatusEnum;
@@ -26,6 +27,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class JndcClientServiceImpl implements JndcClientServiceI {
+
+    private final JNDCClientHolder jndcClientHolder;
 
     private final JndcClientDao jndcClientDao;
 
@@ -71,8 +74,20 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         copy.setCreateTime(LocalDateTime.now());
         copy.setUniqueId(UniqueId.generate());
 
+
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.insert(copy);
+
+        String clientStatus = copy.getClientStatus();
+        if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
+            List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(copy.getId());
+            jndcClientDTO.setClientServices(jndcClientServiceDOS);
+
+            jndcClientDTO.setId(copy.getId());
+            jndcClientHolder.startClient(jndcClientDTO);
+        }
+
+
         return copy;
     }
 
@@ -82,12 +97,34 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
     @Override
     public void updateById(JndcClientDTO jndcClientDTO) {
         // 确认存在
-        getById(jndcClientDTO.getId());
+        JndcClientDTO dbData = getById(jndcClientDTO.getId());
+        String clientStatusDB = dbData.getClientStatus();
+        String clientStatus = jndcClientDTO.getClientStatus();
 
         JndcClientDO copy = JndcClientStructMapper.INSTANCE.toDO(jndcClientDTO);
         copy.setUpdateTime(LocalDateTime.now());
+
+        if (JNDCClientStatusEnum.PROCESSING.value.equals(clientStatus)) {
+            // todo 停止服务
+            //不更新
+            copy.setClientStatus(null);
+        }
+
+
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.updateById(copy);
+
+        if (!clientStatusDB.equals(clientStatus)) {
+            //todo 有状态变化才操作
+            if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
+                List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(dbData.getId());
+                jndcClientDTO.setClientServices(jndcClientServiceDOS);
+                jndcClientHolder.startClient(jndcClientDTO);
+            } else if (JNDCClientStatusEnum.PAUSE.value.equals(clientStatus)) {
+                // todo 停止服务
+                jndcClientHolder.stopClient(jndcClientDTO);
+            }
+        }
     }
 
     /**
@@ -123,5 +160,11 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
             throw new BizException("数据不存在");
         }
         return JndcClientStructMapper.INSTANCE.toDTO(JndcClientDO);
+    }
+
+    @Override
+    public void resetAllClientStatus() {
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        jndcClientDao.resetAllClientStatus();
     }
 }

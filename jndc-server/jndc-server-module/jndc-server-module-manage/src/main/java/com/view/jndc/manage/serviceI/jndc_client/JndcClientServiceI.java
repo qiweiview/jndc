@@ -20,4 +20,7 @@ public interface JndcClientServiceI {
     void removeById(Serializable id);
 
     JndcClientDTO getById(Serializable id);
+
+    void resetAllClientStatus();
+
 }

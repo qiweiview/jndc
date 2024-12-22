@@ -130,10 +130,10 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         if (!serverStatusDB.equals(serverStatus)) {
             //todo 有状态变化才操作
             if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
-                jndcServerHolder.startServer(dbData);
+                jndcServerHolder.startServer(jndcServerDTO);
             } else if (JNDCServerStatusEnum.PAUSE.value.equals(serverStatus)) {
                 // todo 停止服务
-                jndcServerHolder.stopServer(dbData);
+                jndcServerHolder.stopServer(jndcServerDTO);
             }
         }
 

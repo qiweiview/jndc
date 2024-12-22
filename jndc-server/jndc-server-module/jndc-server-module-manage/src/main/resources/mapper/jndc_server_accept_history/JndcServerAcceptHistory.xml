@@ -41,6 +41,7 @@
                 and server_id = #{do.serverId}
             </if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="list" resultMap="JndcServerAcceptHistoryMap"
