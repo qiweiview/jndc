@@ -29,6 +29,13 @@ public class NDCServerTest {
         ndcServerConfiguration.setFailCallback(e -> {
             System.out.println("服务启动失败");
         });
+        ndcServerConfiguration.setConnectActive((e) -> {
+            System.out.println("连接激活");
+            return e;
+        });
+        ndcServerConfiguration.setConnectInActive((e) -> {
+            System.out.println("连接失活");
+        });
 
         ndcServer.start(ndcServerConfiguration);
     }

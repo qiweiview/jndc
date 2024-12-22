@@ -4,6 +4,7 @@ import com.view.core.model.CheckAbleConfiguration;
 import lombok.Data;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Data
 public class NDCServerConfiguration extends CheckAbleConfiguration {
@@ -13,11 +14,18 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
 
     private int port;
 
-    private Runnable startedCallback;
+    /*------服务端本身------*/
+    private Runnable startedCallback = EMPTY_CALLBACK;
 
-    private Runnable stopCallback;
+    private Runnable stopCallback = EMPTY_CALLBACK;
 
-    private Consumer<Exception> failCallback;
+    private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
+
+    /*------服务端连接------*/
+    private Function<SessionContext, SessionContext> connectActive = EMPTY_FUNCTION(SessionContext.class);
+
+    private Consumer<SessionContext> connectInActive = EMPTY_CONSUMER(SessionContext.class);
+
 
     @Override
     public void check() {
@@ -32,16 +40,6 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
             throw new IllegalArgumentException("uniqueId不能为空");
         }
 
-        if (startedCallback == null) {
-            throw new IllegalArgumentException("startedCallback不能为空");
-        }
 
-        if (stopCallback == null) {
-            throw new IllegalArgumentException("stopCallback不能为空");
-        }
-
-        if (failCallback == null) {
-            throw new IllegalArgumentException("failCallback不能为空");
-        }
     }
 }

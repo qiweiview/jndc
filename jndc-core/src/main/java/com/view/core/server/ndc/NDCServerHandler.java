@@ -1,21 +1,30 @@
 package com.view.core.server.ndc;
 
 import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.callback.ChannelRead0CallBack;
+import com.view.core.protocol.callback.ChannelRead0Consumer;
+import com.view.core.protocol.callback.ChannelRead0Function;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
 @Slf4j
 public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
+    public static final String SESSION_CONTEXT = "SESSION_CONTEXT";
 
-    private ChannelRead0CallBack active;
-    private ChannelRead0CallBack<NDCPacket> read;
-    private ChannelRead0CallBack inactive;
+    private SessionContext sessionContext;
 
-    public NDCServerHandler(ChannelRead0CallBack active, ChannelRead0CallBack read, ChannelRead0CallBack inactive) {
+    private ChannelRead0Function<NDCPacket, SessionContext> active;
+
+    private ChannelRead0Consumer<NDCPacket> read;
+
+    private ChannelRead0Consumer<NDCPacket> inactive;
+
+    public NDCServerHandler(ChannelRead0Function<NDCPacket, SessionContext> active,
+                            ChannelRead0Consumer<NDCPacket> read,
+                            ChannelRead0Consumer<NDCPacket> inactive) {
         this.active = active;
         this.read = read;
         this.inactive = inactive;
@@ -24,7 +33,10 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.debug("连接成功：{}", ctx.channel().remoteAddress());
-        active.accept(ctx);
+
+        //创建会话上下文
+        sessionContext = active.accept(ctx);
+        ctx.channel().attr(AttributeKey.valueOf(SESSION_CONTEXT)).set(sessionContext);
     }
 
     @Override

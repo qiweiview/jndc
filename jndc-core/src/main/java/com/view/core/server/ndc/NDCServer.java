@@ -11,7 +11,8 @@ import com.view.core.protocol.NDCPCodec;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
-import com.view.core.protocol.callback.ChannelRead0CallBack;
+import com.view.core.protocol.callback.ChannelRead0Consumer;
+import com.view.core.protocol.callback.ChannelRead0Function;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -57,6 +58,7 @@ public class NDCServer {
 
     public void start(NDCServerConfiguration ndcServerConfiguration) {
 
+        this.ndcServerConfiguration = ndcServerConfiguration;
         //设置配置
         ndcServerConfiguration.check();
 
@@ -72,12 +74,20 @@ public class NDCServer {
 
 
             //active回调
-            ChannelRead0CallBack activeCallback = (ctx, msg) -> {
+            ChannelRead0Function<NDCPacket, SessionContext> activeCallback = (ctx, msg) -> {
                 //todo active回调
+                SessionContext sessionContext = SessionContext.of(ctx);
+                try {
+                    SessionContext apply = ndcServerConfiguration.getConnectActive().apply(sessionContext);
+                    return apply;
+                } catch (Exception e) {
+                    log.error("连接激活回调异常", e);
+                }
+                return sessionContext;
             };
 
             //read回调
-            ChannelRead0CallBack<NDCPacket> readCallback = (ctx, msg) -> {
+            ChannelRead0Consumer<NDCPacket> readCallback = (ctx, msg) -> {
                 //todo read回调
 
 
@@ -109,17 +119,30 @@ public class NDCServer {
                 } else {
                     log.warn("未知的数据包类型:{}", ndcPacket.getType());
                 }
+
             };
 
 
             //inActive回调
-            ChannelRead0CallBack inActiveCallback = (ctx, msg) -> {
+            ChannelRead0Consumer<NDCPacket> inActiveCallback = (ctx, msg) -> {
                 //todo inActive回调
+
+                Channel channel = ctx.channel();
+                SessionContext sessionContext = (SessionContext) channel.attr(AttributeKey.valueOf(NDCServerHandler.SESSION_CONTEXT)).get();
+
+                try {
+                    ndcServerConfiguration.getConnectInActive().accept(sessionContext);
+                } catch (Exception e) {
+                    log.error("连接中断回调异常", e);
+                } finally {
+                    //todo 移除上下文
+                    channel.attr(AttributeKey.valueOf(NDCServerHandler.SESSION_CONTEXT)).remove();
+                }
 
                 String clientId = getClientId(ctx);
                 if (clientId == null) {
                     log.error("未绑定客户端编号");
-                    return;
+
                 }
                 log.info("连接关闭，客户端编号:{}", clientId);
 

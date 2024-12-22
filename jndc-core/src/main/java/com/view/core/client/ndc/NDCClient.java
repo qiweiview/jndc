@@ -8,7 +8,9 @@ import com.view.core.protocol.NDCPCodec;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
-import com.view.core.protocol.callback.ChannelRead0CallBack;
+import com.view.core.protocol.callback.ChannelRead0Consumer;
+import com.view.core.protocol.callback.ChannelRead0Function;
+import com.view.core.server.ndc.SessionContext;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -71,8 +73,9 @@ public class NDCClient {
         try {
 
             //active回调
-            ChannelRead0CallBack activeCallback = (ctx, msg) -> {
+            ChannelRead0Function<NDCPacket, SessionContext> activeCallback = (ctx, msg) -> {
                 //todo active回调
+                SessionContext sessionContext = SessionContext.of(ctx);
 
                 //重置重试次数
                 retryTimes = 0;
@@ -85,10 +88,12 @@ public class NDCClient {
                 channelOpen.setNdcClientId(ndcClientConfiguration.getUniqueId());
                 NDCPacket openChannelPacket = NDCPacketBuilder.openChannelPacket(channelOpen);
                 ctx.writeAndFlush(openChannelPacket);
+
+                return sessionContext;
             };
 
             //read回调
-            ChannelRead0CallBack<NDCPacket> readCallback = (ctx, msg) -> {
+            ChannelRead0Consumer<NDCPacket> readCallback = (ctx, msg) -> {
                 //todo read回调
 
                 //获取消息
@@ -113,7 +118,7 @@ public class NDCClient {
             };
 
             //inActive回调
-            ChannelRead0CallBack inActiveCallback = (ctx, msg) -> {
+            ChannelRead0Consumer<NDCPacket> inActiveCallback = (ctx, msg) -> {
                 //todo inActive回调
             };
 
@@ -144,8 +149,8 @@ public class NDCClient {
             //设置处理器
             bootstrap.handler(channelInitializer);
 
-            String host = ndcClientConfiguration.getHost();
-            int port = ndcClientConfiguration.getPort();
+            String host = ndcClientConfiguration.getServerHost();
+            int port = ndcClientConfiguration.getServerPort();
 
             // Start the client.
             ChannelFuture channelFuture = bootstrap.connect(host, port);
@@ -167,7 +172,7 @@ public class NDCClient {
             if (ndcClientConfiguration.reconnectThisTime()) {
                 //todo 再次启动
 
-                int timeoutSecond = ndcClientConfiguration.getTimeoutSecond();
+                int timeoutSecond = ndcClientConfiguration.getReconnectInterval();
                 log.error("连接断开，等待{}秒，进行第{}次尝试重连", timeoutSecond, retryTimes++);
                 try {
                     TimeUnit.SECONDS.sleep(timeoutSecond);

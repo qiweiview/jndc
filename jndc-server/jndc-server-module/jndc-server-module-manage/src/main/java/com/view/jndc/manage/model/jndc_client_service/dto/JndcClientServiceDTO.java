@@ -20,6 +20,21 @@ public class JndcClientServiceDTO implements Serializable {
      */
     private Long clientId;
 
+    private String clientIdString;
+
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
+        if (clientId != null && clientIdString == null) {
+            this.clientIdString = clientId.toString();
+        }
+    }
+
+    public void setClientIdString(String clientIdString) {
+        this.clientIdString = clientIdString;
+        if (clientIdString != null) {
+            this.clientId = Long.parseLong(clientIdString);
+        }
+    }
     /**
      * 所属客户端id
      */

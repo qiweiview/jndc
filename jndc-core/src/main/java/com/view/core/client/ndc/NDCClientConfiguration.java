@@ -10,25 +10,26 @@ import java.util.function.Consumer;
 @Slf4j
 public class NDCClientConfiguration extends CheckAbleConfiguration {
     //IP
-    private String host;
+    private String serverHost;
 
     //端口
-    private int port;
+    private int serverPort;
 
     //唯一ID
     private String uniqueId;
 
-    //重连次数
-    private int reconnectTimes = 0;
+    //重连次数(内存中)
+    private volatile Integer reconnectTimes;
 
     //重连次数限制
-    private int reconnectLimit = 0;
+    private Integer reconnectMaxTimes;
+
+    //重试间隔
+    private Integer reconnectInterval;
 
     //是否自动重连
     private Boolean autoReconnect;
 
-    //超时时间
-    private int timeoutSecond = 15;
 
     //启动回调
     private Runnable startedCallback;
@@ -40,12 +41,16 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
     private Consumer<Exception> failCallback;
 
     public void printConfiguration() {
-        log.info("启动客户端使用配置：IP:{},端口:{},超时:{}秒", host, port, timeoutSecond);
+        log.info("启动客户端使用配置：IP:{},端口:{},超时:{}秒", serverHost, serverPort, reconnectInterval);
     }
 
     public boolean reconnectThisTime() {
         if (autoReconnect) {
-            if (reconnectLimit == -1 || reconnectTimes < reconnectLimit) {
+            if (reconnectTimes == null) {
+                reconnectTimes = 0;
+            }
+
+            if (reconnectMaxTimes == -1 || reconnectTimes < reconnectMaxTimes) {
                 reconnectTimes++;
                 return true;
             }
@@ -55,10 +60,10 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
     @Override
     public void check() {
-        if (host == null || host.isEmpty()) {
+        if (serverHost == null || serverHost.isEmpty()) {
             throw new IllegalArgumentException("host不能为空");
         }
-        if (port <= 0) {
+        if (serverPort <= 0) {
             throw new IllegalArgumentException("port必须大于0");
         }
 
@@ -74,11 +79,11 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
             throw new IllegalArgumentException("failCallback不能为空");
         }
 
-        if (timeoutSecond <= 0) {
+        if (reconnectInterval == null || reconnectInterval <= 0) {
             throw new IllegalArgumentException("timeoutSecond必须大于0");
         }
 
-        if (reconnectLimit <= 0 && reconnectLimit != -1) {
+        if ((reconnectMaxTimes == null || reconnectMaxTimes < 0) && reconnectMaxTimes != -1) {
             throw new IllegalArgumentException("reconnectLimit必须大于0");
         }
 

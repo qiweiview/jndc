@@ -45,6 +45,11 @@
         <include refid="Base_Column_List"></include>
         from
         jndc_client_service
+        <where>
+            <if test="do.clientId != null and do.clientId != ''">
+                and client_id = #{do.clientId}
+            </if>
+        </where>
     </select>
 
     <select id="list" resultMap="JndcClientServiceMap"
@@ -53,6 +58,15 @@
         <include refid="Base_Column_List"></include>
         from
         jndc_client_service
+    </select>
+
+    <select id="listByClientId"
+            resultType="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_client_service
+        where client_id = #{clientId}
     </select>
 
 </mapper>

@@ -1,18 +1,22 @@
 package com.view.core.client.ndc;
 
 import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.callback.ChannelRead0CallBack;
+import com.view.core.protocol.callback.ChannelRead0Consumer;
+import com.view.core.protocol.callback.ChannelRead0Function;
+import com.view.core.server.ndc.SessionContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
-    private ChannelRead0CallBack active;
-    private ChannelRead0CallBack<NDCPacket> read;
-    private ChannelRead0CallBack inactive;
+    private ChannelRead0Function<NDCPacket, SessionContext> active;
+    private ChannelRead0Consumer<NDCPacket> read;
+    private ChannelRead0Consumer<NDCPacket> inactive;
 
-    public NDCClientHandler(ChannelRead0CallBack active, ChannelRead0CallBack read, ChannelRead0CallBack inactive) {
+    public NDCClientHandler(ChannelRead0Function<NDCPacket, SessionContext> active,
+                            ChannelRead0Consumer<NDCPacket> read,
+                            ChannelRead0Consumer<NDCPacket> inactive) {
         this.active = active;
         this.read = read;
         this.inactive = inactive;

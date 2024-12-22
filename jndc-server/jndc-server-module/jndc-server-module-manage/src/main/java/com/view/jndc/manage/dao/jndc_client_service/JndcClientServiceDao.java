@@ -7,6 +7,7 @@ import com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Mapper
@@ -15,4 +16,6 @@ public interface JndcClientServiceDao extends BaseMapper<JndcClientServiceDO> {
             Page page, @Param("do") JndcClientServiceDO jndcClientServiceDO);
 
     List<JndcClientServiceDO> list(JndcClientServiceDO jndcClientServiceDO);
+
+    List<JndcClientServiceDO> listByClientId(@Param("clientId") Serializable clientId);
 }

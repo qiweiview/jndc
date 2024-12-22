@@ -15,6 +15,21 @@ public class JndcClientServiceVO {
      */
     private Long clientId;
 
+    private String clientIdString;
+
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
+        if (clientId != null && clientIdString == null) {
+            this.clientIdString = clientId.toString();
+        }
+    }
+
+    public void setClientIdString(String clientIdString) {
+        this.clientIdString = clientIdString;
+        if (clientIdString != null) {
+            this.clientId = Long.parseLong(clientIdString);
+        }
+    }
     /**
      * 创建时间
      */

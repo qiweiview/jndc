@@ -6,11 +6,14 @@ import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
+import com.view.jndc.manage.enums.JNDCClientServiceStatusEnum;
 import com.view.jndc.manage.model.jndc_client_service.JndcClientServiceStructMapper;
 import com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO;
 import com.view.jndc.manage.model.jndc_client_service.dto.JndcClientServiceDTO;
 import com.view.jndc.manage.model.jndc_client_service.vo.JndcClientServiceVO;
+import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.serviceI.jndc_client_service.JndcClientServiceServiceI;
+import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
 
     private final JndcClientServiceDao jndcClientServiceDao;
+
+    private final JndcLogServiceI logServiceI;
 
     private final SnowflakeIdWorker snowflakeIdWorker;
 
@@ -66,6 +71,15 @@ public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
         copy.setCreateTime(LocalDateTime.now());
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientServiceDao.insert(copy);
+
+        JndcLogDTO jndcLogDTO = new JndcLogDTO();
+        jndcLogDTO.setLogContent("创建服务：" + copy.getServiceName());
+        jndcLogDTO.setLogTime(LocalDateTime.now());
+        jndcLogDTO.setLogType("client");
+        jndcLogDTO.setSourceId(jndcClientServiceDTO.getClientId());
+
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        logServiceI.save(jndcLogDTO);
         return copy;
     }
 
@@ -89,10 +103,23 @@ public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
     @Override
     public void removeById(Serializable id) {
         // 确认存在
-        getById(id);
+        JndcClientServiceDTO byId = getById(id);
+
+        if (JNDCClientServiceStatusEnum.REGISTER.value.equals(byId.getServiceStatus())) {
+            throw new BizException("服务已注册，请先取消注册");
+        }
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientServiceDao.deleteById(id);
+
+        JndcLogDTO jndcLogDTO = new JndcLogDTO();
+        jndcLogDTO.setLogContent("删除服务：" + byId.getServiceName());
+        jndcLogDTO.setLogTime(LocalDateTime.now());
+        jndcLogDTO.setLogType("client");
+        jndcLogDTO.setSourceId(byId.getClientId());
+
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        logServiceI.save(jndcLogDTO);
     }
 
     /**

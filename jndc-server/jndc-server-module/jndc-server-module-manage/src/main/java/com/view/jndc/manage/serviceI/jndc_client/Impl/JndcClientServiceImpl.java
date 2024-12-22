@@ -7,10 +7,13 @@ import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
+import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
+import com.view.jndc.manage.enums.JNDCClientStatusEnum;
 import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
 import com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
 import com.view.jndc.manage.model.jndc_client.vo.JndcClientVO;
+import com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO;
 import com.view.jndc.manage.serviceI.jndc_client.JndcClientServiceI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
 public class JndcClientServiceImpl implements JndcClientServiceI {
 
     private final JndcClientDao jndcClientDao;
+
+    private final JndcClientServiceDao jndcClientServiceDao;
 
     private final SnowflakeIdWorker snowflakeIdWorker;
 
@@ -91,7 +96,17 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
     @Override
     public void removeById(Serializable id) {
         // 确认存在
-        getById(id);
+        JndcClientDTO byId = getById(id);
+
+        if (JNDCClientStatusEnum.CONNECT.value.equals(byId.getClientStatus())) {
+            throw new BizException("请先断开连接");
+        }
+
+        List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(id);
+        if (!jndcClientServiceDOS.isEmpty()) {
+            throw new BizException("该客户端存在" + jndcClientServiceDOS.size() + "个注册服务，请先删除注册的服务");
+        }
+
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.deleteById(id);

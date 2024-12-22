@@ -24,9 +24,9 @@ public class NDCClientTest {
 
 
         NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();
-        ndcClientConfiguration.setHost("127.0.0.1");
-        ndcClientConfiguration.setPort(8888);
-        ndcClientConfiguration.setTimeoutSecond(3);
+        ndcClientConfiguration.setServerHost("127.0.0.1");
+        ndcClientConfiguration.setServerPort(9866);
+        ndcClientConfiguration.setReconnectInterval(3);
 
         log.info("---准备发起注册---");
 
@@ -77,7 +77,7 @@ public class NDCClientTest {
 
         ndcClientConfiguration.setAutoReconnect(true);
 
-        ndcClientConfiguration.setReconnectLimit(-1);
+        ndcClientConfiguration.setReconnectMaxTimes(-1);
 
         ndcClientConfiguration.setUniqueId("client1");
 
