@@ -1,11 +1,15 @@
 package com.view.jndc.manage.component;
 
 import com.view.core.server.ndc.NDCServer;
+import com.view.core.server.ndc.NDCServerConfiguration;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
 import com.view.jndc.manage.enums.JNDCServerStatusEnum;
 import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
+import com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO;
+import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
 import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
+import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,6 +36,8 @@ public class JNDCServerHolder {
 
     private final JndcLogServiceI jndcLogServiceI;
 
+    private final JndcServerAcceptHistoryServiceI jndcServerAcceptHistoryServiceI;
+
     public void startServer(JndcServerDTO jndcServerDTO) {
         executorService.submit(() -> {
 
@@ -55,7 +61,11 @@ public class JNDCServerHolder {
             }
 
             try {
-                ndcServer.start(jndcServerDTO.getBindHost(),bindPort, () -> {
+                NDCServerConfiguration jndcServerConfiguration = new NDCServerConfiguration();
+                jndcServerConfiguration.setHost(jndcServerDTO.getBindHost());
+                jndcServerConfiguration.setPort(bindPort);
+                jndcServerConfiguration.setUniqueId(uniqueId);
+                jndcServerConfiguration.setStartedCallback(() -> {
                     //todo 启动回调
                     jndcServerDao.updateStatus(id, JNDCServerStatusEnum.LISTEN.value);
 
@@ -65,7 +75,9 @@ public class JNDCServerHolder {
                     jndcLogDTO.setSourceId(id);
                     jndcLogDTO.setLogContent("服务启动");
                     jndcLogServiceI.save(jndcLogDTO);
-                },()->{
+                });
+
+                jndcServerConfiguration.setStopCallback(() -> {
                     //todo 停止回调
                     jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PAUSE.value);
                     bindPortSet.remove(bindPort);
@@ -78,7 +90,9 @@ public class JNDCServerHolder {
                     jndcLogDTO.setLogContent("服务停止");
                     jndcLogServiceI.save(jndcLogDTO);
 
-                }, (e) -> {
+                });
+
+                jndcServerConfiguration.setFailCallback((e) -> {
                     //todo 启动异常回调
                     jndcServerDao.updateStatus(id, JNDCServerStatusEnum.PAUSE.value);
 
@@ -91,7 +105,41 @@ public class JNDCServerHolder {
 
                     bindPortSet.remove(bindPort);
                     serverMap.remove(uniqueId);
-                }, uniqueId);
+                });
+
+
+                /*------------------- 会话部分 -------------------*/
+                jndcServerConfiguration.setConnectActive((e) -> {
+                    //todo 连接激活
+
+
+                    JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO = new JndcServerAcceptHistoryDTO();
+                    jndcServerAcceptHistoryDTO.setServerId(id);
+                    jndcServerAcceptHistoryDTO.setConnectTime(LocalDateTime.now());
+                    jndcServerAcceptHistoryDTO.setSourceIp(e.getHost());
+                    jndcServerAcceptHistoryDTO.setSourcePort(e.getPort());
+                    JndcServerAcceptHistoryDO save = jndcServerAcceptHistoryServiceI.save(jndcServerAcceptHistoryDTO);
+
+                    e.setAcceptHistoryId(save.getId());
+                    return e;
+                });
+
+                jndcServerConfiguration.setConnectInActive((e) -> {
+                    //todo 连接失活
+                    Long acceptHistoryId = e.getAcceptHistoryId();
+                    JndcServerAcceptHistoryDTO byId = jndcServerAcceptHistoryServiceI.getById(acceptHistoryId);
+                    if (byId == null) {
+                        log.warn("连接历史记录不存在");
+                    } else {
+                        byId.setInterruptTime(LocalDateTime.now());
+                        jndcServerAcceptHistoryServiceI.updateById(byId);
+                    }
+
+
+                });
+
+
+                ndcServer.start(jndcServerConfiguration);
             } catch (Exception e) {
                 bindPortSet.remove(bindPort);
                 serverMap.remove(uniqueId);
@@ -103,8 +151,8 @@ public class JNDCServerHolder {
         String uniqueId = jndcServerDTO.getUniqueId();
         NDCServer ndcServer = serverMap.get(uniqueId);
         if (ndcServer == null) {
-            log.warn("服务:{}未启动",uniqueId);
-        }else{
+            log.warn("服务:{}未启动", uniqueId);
+        } else {
             ndcServer.stop();
             serverMap.remove(uniqueId);
             Long id = jndcServerDTO.getId();

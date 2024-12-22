@@ -39,6 +39,13 @@
         where id = #{id}
     </update>
 
+    <update id="resetAllServerStatus">
+        update jndc_server
+        <set>
+            server_status = 'pause'
+        </set>
+    </update>
+
 
     <select id="listPage" resultMap="JndcServerMap"
             parameterType="com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO">

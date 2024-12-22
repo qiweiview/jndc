@@ -13,6 +13,12 @@ import lombok.Data;
 @Data
 public class JndcClientDO {
     /**
+     * 自动重连
+     */
+    @TableField(value = "auto_reconnect")
+    private Integer autoReconnect;
+
+    /**
      * 客户端名称
      */
     @TableField(value = "client_name")
@@ -42,11 +48,21 @@ public class JndcClientDO {
     @TableField(value = "disguised_protocol")
     private String disguisedProtocol;
 
-    /**
-     * id
-     */
+    /** id */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    /**
+     * 重连间隔
+     */
+    @TableField(value = "reconnect_interval")
+    private Integer reconnectInterval;
+
+    /**
+     * 重连次数限制
+     */
+    @TableField(value = "reconnect_max_times")
+    private Integer reconnectMaxTimes;
 
     /**
      * 服务主机
@@ -74,9 +90,9 @@ public class JndcClientDO {
 
     public JndcClientDTO toDTO() {
         return JndcClientStructMapper.INSTANCE.toDTO(this);
-    }
+  }
 
-    public JndcClientVO toVO() {
-        return JndcClientStructMapper.INSTANCE.toVO(this);
-    }
+  public JndcClientVO toVO() {
+    return JndcClientStructMapper.INSTANCE.toVO(this);
+  }
 }

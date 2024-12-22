@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao">
+
+    <resultMap type="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO" id="JndcClientServiceMap">
+        <id property="id" column="id"/>
+        <result property="autoRegister" column="auto_register"/>
+        <result property="clientId" column="client_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="expectPort" column="expect_port"/>
+        <result property="serviceHost" column="service_host"/>
+        <result property="serviceMode" column="service_mode"/>
+        <result property="serviceName" column="service_name"/>
+        <result property="servicePort" column="service_port"/>
+        <result property="serviceProtocol" column="service_protocol"/>
+        <result property="serviceStatus" column="service_status"/>
+        <result property="serviceUniqueId" column="service_unique_id"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        auto_register
+        ,
+            client_id,
+            create_time,
+            expect_port,
+            id,
+            service_host,
+            service_mode,
+            service_name,
+            service_port,
+            service_protocol,
+            service_status,
+            service_unique_id,
+            update_time
+    </sql>
+
+
+    <select id="listPage" resultMap="JndcClientServiceMap"
+            parameterType="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_client_service
+    </select>
+
+    <select id="list" resultMap="JndcClientServiceMap"
+            parameterType="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_client_service
+    </select>
+
+</mapper>

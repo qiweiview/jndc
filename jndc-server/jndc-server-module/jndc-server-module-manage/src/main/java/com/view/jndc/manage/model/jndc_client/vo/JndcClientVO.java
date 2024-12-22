@@ -6,6 +6,11 @@ import lombok.Data;
 public class JndcClientVO {
 
     /**
+     * 自动重连
+     */
+    private Integer autoReconnect;
+
+    /**
      * 客户端名称
      */
     private String clientName;
@@ -15,9 +20,7 @@ public class JndcClientVO {
      */
     private String clientRemark;
 
-    /**
-     * 客户端状态
-     */
+    /** 客户端状态 */
     private String clientStatus;
 
     /**
@@ -25,9 +28,7 @@ public class JndcClientVO {
      */
     private java.time.LocalDateTime createTime;
 
-    /**
-     * 伪装协议
-     */
+    /** 伪装协议 */
     private String disguisedProtocol;
 
     /**
@@ -55,6 +56,16 @@ public class JndcClientVO {
     }
 
     /**
+     * 重连间隔
+     */
+    private Integer reconnectInterval;
+
+    /**
+     * 重连次数限制
+     */
+    private Integer reconnectMaxTimes;
+
+    /**
      * 服务主机
      */
     private String serverHost;
@@ -64,13 +75,9 @@ public class JndcClientVO {
      */
     private Integer serverPort;
 
-    /**
-     * 唯一id
-     */
-    private String uniqueId;
+  /** 唯一id */
+  private String uniqueId;
 
-    /**
-     * 修改时间
-     */
-    private java.time.LocalDateTime updateTime;
+  /** 修改时间 */
+  private java.time.LocalDateTime updateTime;
 }

@@ -6,11 +6,14 @@
 
     <resultMap type="com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO" id="JndcClientMap">
         <id property="id" column="id"/>
+        <result property="autoReconnect" column="auto_reconnect"/>
         <result property="clientName" column="client_name"/>
         <result property="clientRemark" column="client_remark"/>
         <result property="clientStatus" column="client_status"/>
         <result property="createTime" column="create_time"/>
         <result property="disguisedProtocol" column="disguised_protocol"/>
+        <result property="reconnectInterval" column="reconnect_interval"/>
+        <result property="reconnectMaxTimes" column="reconnect_max_times"/>
         <result property="serverHost" column="server_host"/>
         <result property="serverPort" column="server_port"/>
         <result property="uniqueId" column="unique_id"/>
@@ -19,13 +22,16 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        client_name
+        auto_reconnect
         ,
+            client_name,
             client_remark,
             client_status,
             create_time,
             disguised_protocol,
             id,
+            reconnect_interval,
+            reconnect_max_times,
             server_host,
             server_port,
             unique_id,

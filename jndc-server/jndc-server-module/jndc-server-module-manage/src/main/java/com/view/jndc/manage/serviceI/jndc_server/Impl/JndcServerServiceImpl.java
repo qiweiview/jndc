@@ -171,4 +171,12 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         }
         return JndcServerStructMapper.INSTANCE.toDTO(JndcServerDO);
     }
+
+    @Override
+    public void resetAllServerStatus() {
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        int i = jndcServerDao.resetAllServerStatus();
+
+        log.info("重置服务状态数量:{}", i);
+    }
 }

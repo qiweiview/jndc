@@ -11,6 +11,11 @@ import java.io.Serializable;
 public class JndcClientDTO implements Serializable {
 
     /**
+     * 自动重连
+     */
+    private Integer autoReconnect;
+
+    /**
      * 客户端名称
      */
     private String clientName;
@@ -20,9 +25,7 @@ public class JndcClientDTO implements Serializable {
      */
     private String clientRemark;
 
-    /**
-     * 客户端状态
-     */
+    /** 客户端状态 */
     private String clientStatus;
 
     /**
@@ -30,9 +33,7 @@ public class JndcClientDTO implements Serializable {
      */
     private java.time.LocalDateTime createTime;
 
-    /**
-     * 伪装协议
-     */
+    /** 伪装协议 */
     private String disguisedProtocol;
 
     /**
@@ -65,6 +66,16 @@ public class JndcClientDTO implements Serializable {
     }
 
     /**
+     * 重连间隔
+     */
+    private Integer reconnectInterval;
+
+    /**
+     * 重连次数限制
+     */
+    private Integer reconnectMaxTimes;
+
+    /**
      * 服务主机
      */
     private String serverHost;
@@ -74,14 +85,10 @@ public class JndcClientDTO implements Serializable {
      */
     private Integer serverPort;
 
-    /**
-     * 唯一id
-     */
+    /** 唯一id */
     private String uniqueId;
 
-    /**
-     * 修改时间
-     */
+    /** 修改时间 */
     private java.time.LocalDateTime updateTime;
 
     /**
@@ -96,9 +103,9 @@ public class JndcClientDTO implements Serializable {
 
     public JndcClientDO toDO() {
         return JndcClientStructMapper.INSTANCE.toDO(this);
-    }
+  }
 
-    public JndcClientVO toVO() {
-        return JndcClientStructMapper.INSTANCE.toVO(this);
-    }
+  public JndcClientVO toVO() {
+    return JndcClientStructMapper.INSTANCE.toVO(this);
+  }
 }

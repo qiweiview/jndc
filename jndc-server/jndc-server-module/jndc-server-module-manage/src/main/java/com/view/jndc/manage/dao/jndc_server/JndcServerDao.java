@@ -19,4 +19,6 @@ public interface JndcServerDao extends BaseMapper<JndcServerDO> {
 
   int updateStatus(@Param("id") Long id, @Param("status") String status);
 
+    int resetAllServerStatus();
+
 }
