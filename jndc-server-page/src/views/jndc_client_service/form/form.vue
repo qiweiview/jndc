@@ -52,7 +52,7 @@ defineExpose({ getRef });
       />
     </el-form-item>
     <el-form-item label="服务端口：" prop="servicePort">
-      <el-input
+      <el-input-number
         v-model="newFormInline.servicePort"
         autocomplete="off"
         clearable
@@ -60,7 +60,7 @@ defineExpose({ getRef });
       />
     </el-form-item>
     <el-form-item label="期望端口：" prop="expectPort">
-      <el-input
+      <el-input-number
         v-model="newFormInline.expectPort"
         autocomplete="off"
         clearable

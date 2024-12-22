@@ -188,7 +188,7 @@ export function useHook(clientId: string) {
           autoRegister: autoRegister,
           clientId: row?.clientId ?? null,
           createTime: row?.createTime ?? null,
-          expectPort: row?.expectPort ?? null,
+          expectPort: row?.expectPort ?? 1443,
           id: row?.id ?? null,
           serviceHost: row?.serviceHost ?? "github.com",
           serviceMode: row?.serviceMode ?? null,

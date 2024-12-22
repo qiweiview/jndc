@@ -11,5 +11,8 @@ export const formRules = reactive(<FormRules>{
   servicePort: [{ required: true, message: "服务端口为必填", trigger: "blur" }],
   serviceStatus: [
     { required: true, message: "服务状态为必填", trigger: "blur" }
+  ],
+  expectPort: [
+    { required: true, message: "期望绑定端口为必填", trigger: "blur" }
   ]
 });
