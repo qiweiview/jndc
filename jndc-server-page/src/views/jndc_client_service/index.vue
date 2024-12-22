@@ -5,32 +5,16 @@ import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
 import Delete from "@iconify-icons/ep/delete";
+import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
+import AddFill from "@iconify-icons/ri/add-circle-line";
 
 defineOptions({
-  name: "jndcServer"
+  name: "jndcClientService"
 });
 
 const formRef = ref();
-
-const {
-  form,
-  tableRef,
-  handlebatchDelete,
-  handleSelectionCancel,
-  selectedNum,
-  isShow,
-  loading,
-  columns,
-  dataList,
-  pagination,
-  onSearch,
-  resetForm,
-  handleDelete,
-  handleSizeChange,
-  handleCurrentChange,
-  handleSelectionChange
-} = useHook();
+const tableRef = ref();
 
 const props = defineProps({
   sourceIdString: {
@@ -38,44 +22,31 @@ const props = defineProps({
   }
 });
 
-//如果sourceIdString不为空则写入form
-if (props.sourceIdString) {
-  form.sourceIdString = props.sourceIdString;
+const sourceIdString = props.sourceIdString;
+
+const {
+  form,
+  isShow,
+  loading,
+  columns,
+  dataList,
+  pagination,
+  onSearch,
+  resetForm,
+  openDialog,
+  handleDelete,
+  handleSizeChange,
+  handleCurrentChange,
+  handleSelectionChange
+} = useHook(sourceIdString);
+
+if (sourceIdString) {
+  form.clientIdString = sourceIdString;
 }
 </script>
 
 <template>
   <div class="main">
-    <el-form
-      ref="formRef"
-      :inline="true"
-      :model="form"
-      class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
-    >
-      <!--      <el-form-item label="来源id" prop="title">-->
-      <!--        <el-input-->
-      <!--          v-model="form.sourceIdString"-->
-      <!--          placeholder="请输入来源id"-->
-      <!--          clearable-->
-      <!--          class="!w-[240px]"-->
-      <!--          @keyup.enter="onSearch"-->
-      <!--        />-->
-      <!--      </el-form-item>-->
-      <el-form-item>
-        <el-button
-          type="primary"
-          :icon="useRenderIcon('ri:search-line')"
-          :loading="loading"
-          @click="onSearch"
-        >
-          搜索
-        </el-button>
-        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
-          重置
-        </el-button>
-      </el-form-item>
-    </el-form>
-
     <div
       ref="contentRef"
       :class="['flex', deviceDetection() ? 'flex-wrap' : '']"
@@ -87,34 +58,16 @@ if (props.sourceIdString) {
         :columns="columns"
         @refresh="onSearch"
       >
-        <template #buttons />
-        <template v-slot="{ size, dynamicColumns }">
-          <div
-            v-if="selectedNum > 0"
-            v-motion-fade
-            class="bg-[var(--el-fill-color-light)] w-full h-[46px] mb-2 pl-4 flex items-center"
+        <template #buttons>
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(AddFill)"
+            @click="openDialog()"
           >
-            <div class="flex-auto">
-              <span
-                style="font-size: var(--el-font-size-base)"
-                class="text-[rgba(42,46,54,0.5)] dark:text-[rgba(220,220,242,0.5)]"
-              >
-                已选 {{ selectedNum }} 项
-              </span>
-              <el-button type="primary" text @click="handleSelectionCancel">
-                取消选择
-              </el-button>
-            </div>
-
-            <el-button
-              type="danger"
-              text
-              class="mr-1"
-              @click="handlebatchDelete"
-            >
-              批量删除
-            </el-button>
-          </div>
+            新增
+          </el-button>
+        </template>
+        <template v-slot="{ size, dynamicColumns }">
           <pure-table
             ref="tableRef"
             row-key="id"
@@ -138,6 +91,16 @@ if (props.sourceIdString) {
             @page-current-change="handleCurrentChange"
           >
             <template #operation="{ row }">
+              <el-button
+                class="reset-margin"
+                link
+                type="primary"
+                :size="size"
+                :icon="useRenderIcon(EditPen)"
+                @click="openDialog('修改', row)"
+              >
+                修改
+              </el-button>
               <el-button
                 class="reset-margin"
                 link

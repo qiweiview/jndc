@@ -31,6 +31,17 @@ const {
   handleCurrentChange,
   handleSelectionChange
 } = useHook();
+
+const props = defineProps({
+  id: {
+    type: String
+  }
+});
+
+//如果sourceIdString不为空则写入form
+if (props.id) {
+  form.serverId = props.id;
+}
 </script>
 
 <template>
@@ -41,6 +52,15 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
+      <el-form-item label="来源id" prop="title">
+        <el-input
+          v-model="form.serverIdString"
+          placeholder="请输入来源id"
+          clearable
+          class="!w-[240px]"
+          @keyup.enter="onSearch"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"

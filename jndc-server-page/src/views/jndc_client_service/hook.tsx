@@ -11,10 +11,16 @@ import {
   addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server_accept_history/api";
+} from "@/api/jndc_client_service/api";
 import { formatDate } from "@/utils/date_format";
+import { getLabelTypeByValue, getLabelByValue } from "./form/enums";
 
-export function useHook() {
+export function useHook(clientId: string) {
+  //注册clientId
+  if (clientId) {
+    console.log("clientId", clientId);
+  }
+
   //分页
   const pagination = reactive<PaginationProps>({
     total: 0,
@@ -27,7 +33,7 @@ export function useHook() {
   const form = reactive({
     size: pagination.pageSize,
     current: pagination.currentPage,
-    serverIdString: null
+    clientIdString: null
   });
 
   const curRow = ref({ dictName: "" });
@@ -43,41 +49,57 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "客户端id",
-      prop: "clientId"
+      label: "服务名称",
+      prop: "serviceName"
     },
     {
-      label: "来源ip",
-      prop: "sourceIp"
+      label: "服务主机",
+      prop: "serviceHost"
     },
     {
-      label: "来源端口",
-      prop: "sourcePort"
+      label: "服务端口",
+      prop: "servicePort"
     },
     {
-      label: "连接时间",
-      prop: "connectTime",
+      label: "期望绑定端口",
+      prop: "expectPort"
+    },
+    {
+      label: "服务状态",
+      prop: "serviceStatus",
+      cellRenderer: ({ row }) => (
+        <el-tag type={getLabelTypeByValue(row.serviceStatus)} effect="plain">
+          {getLabelByValue(row.serviceStatus)}
+        </el-tag>
+      )
+    },
+    {
+      label: "是否自动注册",
+      prop: "autoRegister",
       formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      },
-      width: 160
+        return cellValue === 1 ? "是" : "否";
+      }
     },
     {
-      label: "中断时间",
-      prop: "interruptTime",
+      label: "唯一服务id",
+      prop: "serviceUniqueId"
+    },
+    {
+      label: "创建时间",
+      prop: "createTime",
+      minWidth: 160,
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }
     },
     {
-      label: "创建时间",
-      prop: "createTime",
+      label: "修改时间",
+      prop: "updateTime",
+      minWidth: 160,
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
-      },
-      width: 160
+      }
     },
-
     {
       label: "操作",
       fixed: "right",
@@ -147,18 +169,34 @@ export function useHook() {
   };
 
   function openDialog(title = "新增", row?: FormItemProps) {
+    //处理组建值问题
+    let autoRegister: number;
+    if (typeof row !== "undefined") {
+      if (row.autoRegister === 1) {
+        autoRegister = 0;
+      } else {
+        autoRegister = 1;
+      }
+    } else {
+      autoRegister = 1;
+    }
+
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
+          autoRegister: autoRegister,
           clientId: row?.clientId ?? null,
-          connectTime: row?.connectTime ?? null,
           createTime: row?.createTime ?? null,
+          expectPort: row?.expectPort ?? null,
           id: row?.id ?? null,
-          interruptTime: row?.interruptTime ?? null,
-          serverId: row?.serverId ?? null,
-          sourceIp: row?.sourceIp ?? null,
-          sourcePort: row?.sourcePort ?? null,
+          serviceHost: row?.serviceHost ?? "github.com",
+          serviceMode: row?.serviceMode ?? null,
+          serviceName: row?.serviceName ?? "github",
+          servicePort: row?.servicePort ?? 443,
+          serviceProtocol: row?.serviceProtocol ?? null,
+          serviceStatus: row?.serviceStatus ?? "unregister",
+          serviceUniqueId: row?.serviceUniqueId ?? null,
           updateTime: row?.updateTime ?? null,
           idString: row?.idString ?? null
         }
@@ -184,6 +222,11 @@ export function useHook() {
         FormRef.validate(async valid => {
           if (valid) {
             console.log("curData", curData);
+
+            curData.clientIdString = clientId;
+            //处理autoRegister
+            curData.autoRegister = curData.autoRegister === 0 ? 1 : 0;
+
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作

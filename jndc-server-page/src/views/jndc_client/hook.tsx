@@ -13,6 +13,13 @@ import {
   updateOperation
 } from "@/api/jndc_client/api";
 import { formatDate } from "@/utils/date_format";
+import { convertNumber } from "@/utils/value_format/number_fornmat";
+import jndcLog from "@/views/jndc_log/index.vue";
+import jndcClientService from "@/views/jndc_client_service/index.vue";
+import {
+  getLabelTypeByValue,
+  getLabelByValue
+} from "@/views/jndc_client/form/enums";
 
 export function useHook() {
   //分页
@@ -42,33 +49,63 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "id",
-      prop: "idString",
+      label: "客户端名称",
+      prop: "clientName",
+      minWidth: 120,
       fixed: "left"
     },
     {
-      label: "客户端名称",
-      prop: "clientName"
-    },
-    {
-      label: "客户端状态",
-      prop: "clientStatus"
-    },
-    {
       label: "服务主机",
-      prop: "serverHost"
+      prop: "serverHost",
+      minWidth: 120
     },
     {
       label: "服务端口",
-      prop: "serverPort"
+      prop: "serverPort",
+      minWidth: 120
+    },
+    {
+      label: "客户端状态",
+      prop: "clientStatus",
+      minWidth: 120,
+      cellRenderer: ({ row }) => (
+        <el-tag type={getLabelTypeByValue(row.clientStatus)} effect="plain">
+          {getLabelByValue(row.clientStatus)}
+        </el-tag>
+      )
+    },
+    {
+      label: "自动重连",
+      prop: "autoReconnect",
+      minWidth: 120,
+      formatter(row, column, cellValue) {
+        return convertNumber(cellValue);
+      }
+    },
+    {
+      label: "重连间隔",
+      prop: "reconnectInterval",
+      minWidth: 120
+    },
+    {
+      label: "重连次数限制",
+      prop: "reconnectMaxTimes",
+      minWidth: 120
+    },
+    {
+      label: "id",
+      prop: "idString"
     },
     {
       label: "唯一id",
-      prop: "uniqueId"
+      prop: "uniqueId",
+      minWidth: 120
     },
     {
       label: "创建时间",
       prop: "createTime",
+      minWidth: 160,
+      fixed: "right",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }
@@ -76,9 +113,7 @@ export function useHook() {
     {
       label: "修改时间",
       prop: "updateTime",
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
+      minWidth: 120
     },
     {
       label: "操作",
@@ -148,17 +183,43 @@ export function useHook() {
     onSearch();
   };
 
+  function openLogDialog(row) {
+    addDialog({
+      title: "运行日志",
+      fullscreen: true,
+      hideFooter: true,
+      contentRenderer: () => jndcLog,
+      props: {
+        sourceIdString: row.idString
+      }
+    });
+  }
+  function openServiceDialog(row) {
+    addDialog({
+      title: "注册服务",
+      fullscreen: true,
+      hideFooter: true,
+      contentRenderer: () => jndcClientService,
+      props: {
+        sourceIdString: row.idString
+      }
+    });
+  }
+
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
+          autoReconnect: row?.autoReconnect ?? 1,
           clientName: row?.clientName ?? "test",
           clientRemark: row?.clientRemark ?? null,
           clientStatus: row?.clientStatus ?? "pause",
           createTime: row?.createTime ?? null,
           disguisedProtocol: row?.disguisedProtocol ?? null,
           id: row?.id ?? null,
+          reconnectInterval: row?.reconnectInterval ?? 15,
+          reconnectMaxTimes: row?.reconnectMaxTimes ?? -1,
           serverHost: row?.serverHost ?? "127.0.0.1",
           serverPort: row?.serverPort ?? 9866,
           uniqueId: row?.uniqueId ?? null,
@@ -225,6 +286,8 @@ export function useHook() {
     isLinkage,
     pagination,
     dictDataDrawer,
+    openServiceDialog,
+    openLogDialog,
     onSearch,
     resetForm,
     openDialog,

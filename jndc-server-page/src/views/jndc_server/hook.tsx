@@ -16,6 +16,10 @@ import {
 import jndcLog from "@/views/jndc_log/index.vue";
 import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
 import { formatDate } from "@/utils/date_format";
+import {
+  getLabelByValue,
+  getLabelTypeByValue
+} from "@/views/jndc_server/form/enums";
 
 export function useHook() {
   //分页
@@ -44,13 +48,9 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "id",
-      prop: "idString",
-      fixed: "left"
-    },
-    {
       label: "服务名称",
-      prop: "serverName"
+      prop: "serverName",
+      fixed: "left"
     },
     {
       label: "监听域名",
@@ -62,15 +62,27 @@ export function useHook() {
     },
     {
       label: "服务状态",
-      prop: "serverStatus"
+      prop: "serverStatus",
+      cellRenderer: ({ row }) => (
+        <el-tag type={getLabelTypeByValue(row.serverStatus)} effect="plain">
+          {getLabelByValue(row.serverStatus)}
+        </el-tag>
+      )
+    },
+    {
+      label: "id",
+      prop: "idString"
     },
     {
       label: "唯一id",
-      prop: "uniqueId"
+      prop: "uniqueId",
+      minWidth: 120
     },
     {
       label: "创建时间",
       prop: "createTime",
+      minWidth: 160,
+      fixed: "right",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }
@@ -78,6 +90,7 @@ export function useHook() {
     {
       label: "修改时间",
       prop: "updateTime",
+      minWidth: 160,
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }

@@ -7,8 +7,8 @@ import { useDictStoreHook } from "@/store/modules/dict";
 import type { Router } from "vue-router";
 
 export const ruleForm = reactive({
-  username: "superAdmin",
-  password: "admin123456"
+  username: import.meta.env.VITE_DEFAULT_NAME,
+  password: import.meta.env.VITE_DEFAULT_PASSWORD
 });
 
 export const onLogin = async (

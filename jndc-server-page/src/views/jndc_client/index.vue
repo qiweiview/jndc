@@ -8,6 +8,7 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import More from "@iconify-icons/ep/more-filled";
 
 defineOptions({
   name: "jndcClient"
@@ -23,6 +24,8 @@ const {
   columns,
   dataList,
   pagination,
+  openServiceDialog,
+  openLogDialog,
   onSearch,
   resetForm,
   openDialog,
@@ -120,6 +123,42 @@ const {
               >
                 删除
               </el-button>
+
+              <el-dropdown>
+                <el-button
+                  class="ml-3 mt-[2px]"
+                  link
+                  type="primary"
+                  :size="size"
+                  :icon="useRenderIcon(More)"
+                />
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>
+                      <el-button
+                        class="reset-margin"
+                        link
+                        type="primary"
+                        :size="size"
+                        @click="openServiceDialog(row)"
+                      >
+                        注册服务
+                      </el-button>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <el-button
+                        class="reset-margin"
+                        link
+                        type="primary"
+                        :size="size"
+                        @click="openLogDialog(row)"
+                      >
+                        运行日志
+                      </el-button>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
           </pure-table>
         </template>

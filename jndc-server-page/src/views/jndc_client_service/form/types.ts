@@ -3,17 +3,18 @@
 interface FormItemProps {
   id?: number;
   idString?: string;
-  autoReconnect?: number;
-  clientName?: string;
-  clientRemark?: string;
-  clientStatus?: string;
+  autoRegister?: number;
+  clientId?: string;
+  clientIdString?: string;
   createTime?: string;
-  disguisedProtocol?: string;
-  reconnectInterval?: number;
-  reconnectMaxTimes?: number;
-  serverHost?: string;
-  serverPort?: number;
-  uniqueId?: string;
+  expectPort?: number;
+  serviceHost?: string;
+  serviceMode?: string;
+  serviceName?: string;
+  servicePort?: number;
+  serviceProtocol?: string;
+  serviceStatus?: string;
+  serviceUniqueId?: string;
   updateTime?: string;
 }
 

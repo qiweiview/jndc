@@ -65,6 +65,7 @@ defineExpose({ getRef });
       >
         <el-radio
           v-for="item in jndcServerStatus"
+          v-show="item.optional"
           :key="item.value"
           :value="item.value"
           border
