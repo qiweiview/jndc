@@ -25,6 +25,8 @@ CREATE TABLE jndc_log
     source_id   BIGINT    NULL DEFAULT NULL,
     PRIMARY KEY (id)
 );
+CREATE INDEX idx_source ON jndc_log (source_id);
+
 
 DROP TABLE IF EXISTS jndc_client;
 CREATE TABLE jndc_client
@@ -60,6 +62,7 @@ CREATE TABLE jndc_server_accept_history
     source_port    INT          DEFAULT NULL,
     PRIMARY KEY (id)                          -- 直接指定主键，不需要 `USING BTREE`
 );
+CREATE INDEX idx_server ON jndc_server_accept_history (server_id);
 
 DROP TABLE IF EXISTS jndc_client_service;
 CREATE TABLE jndc_client_service

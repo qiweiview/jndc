@@ -34,4 +34,8 @@ public class NDCPacketHelper {
     public static boolean isTCPInActivePacket(NDCPacket ndcPacket) {
         return ndcPacket.getType() == NDCPacket.TCP_IN_ACTIVE;
     }
+
+    public static boolean isServiceUnRegisterPacket(NDCPacket ndcPacket) {
+        return ndcPacket.getType() == NDCPacket.SERVICE_UNREGISTER;
+    }
 }

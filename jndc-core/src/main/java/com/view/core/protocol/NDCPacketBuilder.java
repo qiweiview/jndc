@@ -31,6 +31,18 @@ public class NDCPacketBuilder {
         return ndcPacket;
     }
 
+    public static NDCPacket unregisterServicePacket(VirtualTCPService virtualTCPService) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.SERVICE_UNREGISTER);
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
+        return ndcPacket;
+    }
+
     public static NDCPacket openChannelPacket(ChannelOpen channelOpen) {
         NDCPacket ndcPacket = NDCPacket.of(
                 NDCPacket.BLANK_ADDRESS,

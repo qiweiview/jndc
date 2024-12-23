@@ -70,8 +70,8 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         List<JndcServerDO> jndcServerDOS = jndcServerDao.listByBindPort(jndcServerDTO.getBindPort());
         if (jndcServerDOS.size() > 0) {
-           log.warn("端口已被占用");
-           jndcServerDTO.setServerStatus(JNDCServerStatusEnum.PAUSE.value);
+            log.warn("端口已被占用");
+            jndcServerDTO.setServerStatus(JNDCServerStatusEnum.PAUSE.value);
         }
 
         //初始化唯一id
@@ -106,7 +106,6 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         JndcServerDTO dbData = getById(jndcServerDTO.getId());
 
 
-
         JndcServerDO copy = JndcServerStructMapper.INSTANCE.toDO(jndcServerDTO);
         copy.setUpdateTime(LocalDateTime.now());
         copy.setUniqueId(null);
@@ -115,11 +114,10 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         String serverStatusDB = dbData.getServerStatus();
 
 
-
-          if (JNDCServerStatusEnum.PROCESSING.value.equals(serverStatus)) {
+        if (JNDCServerStatusEnum.PROCESSING.value.equals(serverStatus)) {
             // todo 停止服务
-              //不更新
-              copy.setServerStatus(null);
+            //不更新
+            copy.setServerStatus(null);
         }
 
         //先更新数据库
@@ -136,8 +134,6 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
                 jndcServerHolder.stopServer(jndcServerDTO);
             }
         }
-
-
 
 
     }
@@ -178,5 +174,27 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         int i = jndcServerDao.resetAllServerStatus();
 
         log.info("重置服务状态数量:{}", i);
+    }
+
+    @Override
+    public void listenOperation(Long id) {
+        JndcServerDTO byId = getById(id);
+        if (!JNDCServerStatusEnum.PAUSE.value.equals(byId.getServerStatus())) {
+            throw new BizException("服务器状态必须为暂停");
+        }
+        byId.setServerStatus(JNDCServerStatusEnum.LISTEN.value);
+        //复用链路，存在重复查询，频率较低，不做优化
+        updateById(byId);
+    }
+
+    @Override
+    public void pauseOperation(Long id) {
+        JndcServerDTO byId = getById(id);
+        if (!JNDCServerStatusEnum.LISTEN.value.equals(byId.getServerStatus())) {
+            throw new BizException("服务器状态必须为监听");
+        }
+        byId.setServerStatus(JNDCServerStatusEnum.PAUSE.value);
+        //复用链路，存在重复查询，频率较低，不做优化
+        updateById(byId);
     }
 }

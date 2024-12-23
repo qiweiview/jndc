@@ -97,4 +97,8 @@ public class JndcClientServiceDO {
     public JndcClientServiceVO toVO() {
         return JndcClientServiceStructMapper.INSTANCE.toVO(this);
     }
+
+    public boolean checkAutoRegister() {
+        return autoRegister != null && autoRegister == 1;
+    }
 }

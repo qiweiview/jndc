@@ -111,6 +111,9 @@ public class NDCServer {
                 } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                     //todo 服务注册消息
                     handleServiceRegister(ctx, ndcPacket);
+                } else if (NDCPacketHelper.isServiceUnRegisterPacket(ndcPacket)) {
+                    //todo 服务取消注册
+                    handleServiceUnRegister(ctx, ndcPacket);
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                     //todo 数据包
                     handleTCPDataPackage(ctx, ndcPacket);
@@ -198,6 +201,21 @@ public class NDCServer {
         } finally {
             stop();
         }
+    }
+
+    private void handleServiceUnRegister(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
+        VirtualTCPService virtualTCPService = ndcPacket.getObject(VirtualTCPService.class);
+        //设置所属客户端
+        String clientId = getClientId(ctx);
+        if (clientId == null) {
+            log.error("未绑定客户端编号");
+            return;
+        }
+        virtualTCPService.setNdcClientId(clientId);
+        ServiceOperation serviceOperation = ServiceOperation.ofWithdraw(virtualTCPService);
+        serviceOperation.setNdcServerId(ndcServerId);
+        //异步处理
+        GlobalBeanContext.EVENT_BUS.post(serviceOperation);
     }
 
     /**

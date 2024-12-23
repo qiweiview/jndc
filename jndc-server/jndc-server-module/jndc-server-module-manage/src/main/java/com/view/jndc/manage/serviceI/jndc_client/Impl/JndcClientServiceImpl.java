@@ -81,6 +81,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
 
         String clientStatus = copy.getClientStatus();
         if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
+            //查询所有服务
             List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(copy.getId());
             jndcClientDTO.setClientServices(jndcClientServiceDOS);
 
@@ -124,6 +125,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
                     throw new BizException("请先停止客户端后再继续操作");
                 }
 
+                //查询所有服务
                 List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(dbData.getId());
                 jndcClientDTO.setClientServices(jndcClientServiceDOS);
                 jndcClientHolder.startClient(jndcClientDTO);
@@ -178,10 +180,22 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
     @Override
     public void forceStopOperation(Long id) {
         JndcClientDTO byId = getById(id);
-        if (JNDCClientStatusEnum.PROCESSING.value.equals(byId.getClientStatus())) {
-            jndcClientHolder.stopClient(byId);
-        } else {
-            throw new BizException("只能关闭处理中的客户端");
+        if (JNDCClientStatusEnum.PAUSE.value.equals(byId.getClientStatus())) {
+            throw new BizException("只能停止连接或处理中的客户端");
         }
+        byId.setClientStatus(JNDCClientStatusEnum.PAUSE.value);
+        //复用逻辑，存在重复查询，由于次数较少，暂不优化
+        updateById(byId);
+    }
+
+    @Override
+    public void connectOperation(Long id) {
+        JndcClientDTO byId = getById(id);
+        if (!JNDCClientStatusEnum.PAUSE.value.equals(byId.getClientStatus())) {
+            throw new BizException("只能启动停止的客户端");
+        }
+        byId.setClientStatus(JNDCClientStatusEnum.CONNECT.value);
+        //复用逻辑，存在重复查询，由于次数较少，暂不优化
+        updateById(byId);
     }
 }

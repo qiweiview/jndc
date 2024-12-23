@@ -1,1 +1,0 @@
-import{u as n}from"./dict-DcfAz0EH.js";var c=(t=>(t.OPER_BUSINESS_TYPE="oper_business_type",t.OPER_OPERATOR_TYPE="oper_operator_type",t))(c||{});function a(t){const e=n().dictList.find(i=>i.dictCode===t);if(e)return e.dictValue}function s(t,o){const e=a(t);if(e){const i=e.find(r=>r.value===o);return i?i.name:void 0}}export{c as D,s as g};

@@ -25,4 +25,6 @@ public interface JndcClientServiceI {
 
     void forceStopOperation(Long id);
 
+    void connectOperation(Long id);
+
 }

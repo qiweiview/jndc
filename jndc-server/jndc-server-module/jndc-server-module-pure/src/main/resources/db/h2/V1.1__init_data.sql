@@ -1,8 +1,8 @@
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
-INSERT INTO `sys_menu` VALUES (1, 'System', '系统管理', 0, 1, '/system', '', NULL, 0, 0, 0, '', 'ep:brush-filled', 1, '2024-06-04 10:37:13', 1, '2024-08-22 11:12:15', '', 0, '', 0, '');
-INSERT INTO `sys_menu` VALUES (1867209453162561538, 'SystemMonitor', '系统监控', 0, 2, '/monitor', '', NULL, 0, 0, 0, '', 'ri:notification-3-fill', 1, '2024-07-02 20:12:30', 1, '2024-08-21 10:44:52', '', 0, '', 0, '');
+INSERT INTO `sys_menu` VALUES (1, 'System', '系统管理', 0, 2, '/system', '', NULL, 0, 0, 0, '', 'ep:brush-filled', 1, '2024-06-04 10:37:13', 1, '2024-08-22 11:12:15', '', 0, '', 0, '');
+INSERT INTO `sys_menu` VALUES (1867209453162561538, 'SystemMonitor', '系统监控', 0, 3, '/monitor', '', NULL, 0, 0, 0, '', 'ri:notification-3-fill', 1, '2024-07-02 20:12:30', 1, '2024-08-21 10:44:52', '', 0, '', 0, '');
 
 -- 系统管理
 INSERT INTO `sys_menu` VALUES (3, 'SystemMenu', '菜单管理', 1, 2, '/system/menu', 'system/menu/index', NULL, 0, 1, 0, NULL, 'ep:menu', 1, '2024-06-05 10:07:13', 1, '2024-08-04 20:05:47', '', 0, '', 0, '');
@@ -44,9 +44,6 @@ INSERT INTO `sys_menu` VALUES (58, '', '获取用户所分配角色', 9, 1, '', 
 -- Records of sys_role
 -- ----------------------------
 INSERT INTO `sys_role` VALUES (1, '超级管理员', 'super-admin', 0, 0, 1, '2024-05-09 15:00:27', 1, '2024-07-01 22:41:18', '拥有一切权限');
-INSERT INTO `sys_role` VALUES (2, '管理员', 'admin', 0, 0, 1, '2024-05-09 15:03:17', 1, '2024-08-21 10:08:44', '可以进入后台');
-INSERT INTO `sys_role` VALUES (3, '普通用户', 'user', 0, 0, 1, '2024-05-09 15:07:49', 1, '2024-08-21 10:09:49', '普通用户');
-
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -59,17 +56,8 @@ INSERT INTO `sys_role_menu` VALUES (9, 1, 9);
 INSERT INTO `sys_role_menu` VALUES (46, 1, 15);
 INSERT INTO `sys_role_menu` VALUES (47, 1, 16);
 INSERT INTO `sys_role_menu` VALUES (48, 1, 17);
-INSERT INTO `sys_role_menu` VALUES (63, 2, 16);
-INSERT INTO `sys_role_menu` VALUES (64, 2, 1);
-INSERT INTO `sys_role_menu` VALUES (65, 2, 17);
-INSERT INTO `sys_role_menu` VALUES (66, 2, 3);
-INSERT INTO `sys_role_menu` VALUES (67, 2, 4);
-INSERT INTO `sys_role_menu` VALUES (68, 2, 8);
-INSERT INTO `sys_role_menu` VALUES (69, 2, 9);
-INSERT INTO `sys_role_menu` VALUES (70, 2, 15);
 INSERT INTO `sys_role_menu` VALUES (71, 1, 14);
 INSERT INTO `sys_role_menu` VALUES (72, 1, 13);
-INSERT INTO `sys_role_menu` VALUES (73, 2, 13);
 INSERT INTO `sys_role_menu` VALUES (74, 1, 18);
 INSERT INTO `sys_role_menu` VALUES (75, 1, 19);
 INSERT INTO `sys_role_menu` VALUES (76, 1, 20);
@@ -116,16 +104,6 @@ INSERT INTO `sys_role_menu` VALUES (119, 1, 58);
 INSERT INTO `sys_role_menu` VALUES (120, 1, 59);
 INSERT INTO `sys_role_menu` VALUES (121, 1, 60);
 INSERT INTO `sys_role_menu` VALUES (122, 1, 61);
-INSERT INTO `sys_role_menu` VALUES (123, 2, 33);
-INSERT INTO `sys_role_menu` VALUES (124, 2, 37);
-INSERT INTO `sys_role_menu` VALUES (125, 2, 12);
-INSERT INTO `sys_role_menu` VALUES (126, 2, 14);
-INSERT INTO `sys_role_menu` VALUES (127, 2, 47);
-INSERT INTO `sys_role_menu` VALUES (128, 2, 52);
-INSERT INTO `sys_role_menu` VALUES (129, 2, 54);
-INSERT INTO `sys_role_menu` VALUES (130, 2, 27);
-INSERT INTO `sys_role_menu` VALUES (131, 2, 60);
-INSERT INTO `sys_role_menu` VALUES (132, 2, 43);
 INSERT INTO `sys_role_menu` VALUES (154, 1, 85);
 INSERT INTO `sys_role_menu` VALUES (155, 1, 86);
 INSERT INTO `sys_role_menu` VALUES (156, 1, 87);
@@ -137,17 +115,13 @@ INSERT INTO `sys_role_menu` VALUES (1867209863487127557, 1, 88);
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1,'o1', 'superAdmin', 'a66abb5684c45962d887564f08346e8d', '', '', '奥特曼', '/logo.svg', '我是超级管理员', 0, '2001-02-21 16:00:00', 0, '2024-05-09 17:22:35', 1, '2024-09-11 11:23:20', 1, '内网IP', 0);
-INSERT INTO `sys_user` VALUES (2,'o2', 'admin', 'a66abb5684c45962d887564f08346e8d', '', '', '哆啦A梦', '/logo.svg', '', 0, '2024-08-02 16:00:00', 0, '2024-07-10 22:20:18', 1, '2024-08-27 17:49:29', 1, NULL, 0);
-INSERT INTO `sys_user` VALUES (3,'o3', 'user', 'a66abb5684c45962d887564f08346e8d', '', '', '哆啦A梦', '/logo.svg', '', 0, '2024-08-02 16:00:00', 0, '2024-07-10 22:20:18', 1, '2024-08-27 17:49:29', 1, NULL, 0);
+INSERT INTO `sys_user` VALUES (1,'o1', 'superAdmin', '5cb217326dd832648b513ab7a4d9b61d', '', '', '奥特曼', '/logo.svg', '我是超级管理员', 0, '2001-02-21 16:00:00', 0, '2024-05-09 17:22:35', 1, '2024-09-11 11:23:20', 1, '内网IP', 0);
 
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
 INSERT INTO `sys_user_role` VALUES (1, 1, 1);
-INSERT INTO `sys_user_role` VALUES (2, 1, 2);
-INSERT INTO `sys_user_role` VALUES (3, 2, 2);
-INSERT INTO `sys_user_role` VALUES (4, 3, 3);
+
 
 
 -- ----------------------------

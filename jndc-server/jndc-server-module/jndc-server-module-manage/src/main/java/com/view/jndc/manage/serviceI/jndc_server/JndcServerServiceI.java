@@ -9,18 +9,22 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface JndcServerServiceI {
-  IPage<JndcServerVO> queryPage(JndcServerDTO jndcServerDTO);
+    IPage<JndcServerVO> queryPage(JndcServerDTO jndcServerDTO);
 
-  List<JndcServerVO> queryList(JndcServerDTO jndcServerDTO);
+    List<JndcServerVO> queryList(JndcServerDTO jndcServerDTO);
 
-  JndcServerDO save(JndcServerDTO jndcServerDTO);
+    JndcServerDO save(JndcServerDTO jndcServerDTO);
 
-  void updateById(JndcServerDTO jndcServerDTO);
+    void updateById(JndcServerDTO jndcServerDTO);
 
-  void removeById(Serializable id);
+    void removeById(Serializable id);
 
-  JndcServerDTO getById(Serializable id);
+    JndcServerDTO getById(Serializable id);
 
     void resetAllServerStatus();
+
+    void listenOperation(Long id);
+
+    void pauseOperation(Long id);
 
 }

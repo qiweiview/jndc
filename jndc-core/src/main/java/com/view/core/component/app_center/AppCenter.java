@@ -67,6 +67,29 @@ public class AppCenter {
 
     }
 
+    public void withdrawService(VirtualTCPService virtualTCPService) {
+        String ndcClientId = virtualTCPService.getNdcClientId();
+        String serviceId = virtualTCPService.getServiceId();
+        if (ndcClientId == null) {
+            log.error("服务部署失败：clientId为空");
+            return;
+        }
+
+        if (serviceId == null) {
+            log.error("服务部署失败：serviceId为空");
+            return;
+        }
+
+        TCPServer tcpServer = tcpServerMap.get(serviceId);
+        if (tcpServer == null) {
+            log.warn("未找到对应的服务");
+        } else {
+            //todo 停止服务
+            tcpServer.stop();
+            tcpServerMap.remove(serviceId);
+        }
+    }
+
 
     public void withdrawRelationalService(String clientId) {
         tcpServerMap.forEach((k, tcpServer) -> {
@@ -97,4 +120,6 @@ public class AppCenter {
             tcpServer.receiveData(tcpDataTransport);
         }
     }
+
+
 }

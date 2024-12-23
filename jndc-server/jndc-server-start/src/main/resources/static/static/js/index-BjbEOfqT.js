@@ -1,1 +1,0 @@
-import{_ as o,c as t,e as s,o as c}from"./index-BjE2BxpS.js";const n={},r={class:"welcome"};function a(l,e){return c(),t("div",r,e[0]||(e[0]=[s("h1",null,"Welcome to Free Lite Life",-1)]))}const i=o(n,[["render",a]]);export{i as default};

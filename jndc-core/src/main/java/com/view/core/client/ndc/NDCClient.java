@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class NDCClient {
@@ -31,7 +32,7 @@ public class NDCClient {
 
     private EventLoopGroup workerGroup;
 
-    private List<NDCPacket> tobeSendPackage = new ArrayList<>();
+    private List<NDCPacket> bufferPackage = new ArrayList<>();
 
     private ChannelHandlerContext serverContext;
 
@@ -45,7 +46,9 @@ public class NDCClient {
 
     public void stop() {
         //停止重试
-        ndcClientConfiguration.doBreakOperation();
+        if (ndcClientConfiguration != null) {
+            ndcClientConfiguration.doBreakOperation();
+        }
         if (clientChannel != null && clientChannel.isOpen()) {
             clientChannel.close();
             log.info("NDC客户端关闭");
@@ -55,8 +58,22 @@ public class NDCClient {
 
     }
 
+    /**
+     * 重置客户端
+     */
+    public void resetClientForReconnect() {
+        ndcClientSessionMap = new ConcurrentHashMap<>();
+        clientChannel = null;
+        serverContext = null;
+        if (ndcClientConfiguration != null) {
+            ndcClientConfiguration.resetRetryBreak();
+        }
+    }
+
     public void start(NDCClientConfiguration ndcClientConfiguration) {
-        ndcClientConfiguration.resetRetryBreak();
+        //重置客户端
+        resetClientForReconnect();
+
 
         //设置配置，适配重连
         if (this.ndcClientConfiguration == null) {
@@ -204,6 +221,11 @@ public class NDCClient {
 
     }
 
+    /**
+     * 处理远程连接激活
+     *
+     * @param ndcPacket
+     */
     private void handleTCPInActive(NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         String clientServiceId = tcpDataTransport.getClientServiceId();
@@ -220,6 +242,8 @@ public class NDCClient {
     }
 
     /**
+     * 处理远程连接激活
+     *
      * @param ndcPacket
      */
     public void handleTCPActive(NDCPacket ndcPacket) {
@@ -256,6 +280,11 @@ public class NDCClient {
         }
     }
 
+    /**
+     * 处理数据包
+     *
+     * @param ndcPacket
+     */
     private void handleDataPackage(NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         String clientServiceId = tcpDataTransport.getClientServiceId();
@@ -279,18 +308,69 @@ public class NDCClient {
      */
     private void handleOpenChannel(NDCPacket ndcPacket) {
         ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
-        log.debug("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), tobeSendPackage.size());
+        log.debug("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), bufferPackage.size());
         //发送缓冲区报文
-        tobeSendPackage.forEach(tobeSend -> {
+        bufferPackage.forEach(tobeSend -> {
             VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
-            writePackage(tobeSend, () -> {
-                ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
-            });
+            if (ndcClientSessionMap.containsKey(virtualTCPService.getServiceId())) {
+                log.warn("服务已经注册{}", virtualTCPService.getServiceId());
+            } else {
+                writePackage(tobeSend, () -> {
+                    ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+                });
+            }
+
         });
     }
 
+
     public void registerService(VirtualTCPService virtualTCPService) {
-        tobeSendPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
+        //无论是否连接都放入队列，用于重连
+        List<NDCPacket> collect = bufferPackage.parallelStream().filter(tobeSend -> {
+            //todo 匹配的服务
+            VirtualTCPService service = tobeSend.getObject(VirtualTCPService.class);
+            return service.getServiceId().equals(virtualTCPService.getServiceId());
+        }).collect(Collectors.toList());
+
+        if (collect.isEmpty()) {
+            bufferPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
+        }
+
+
+        if (serverContext != null) {
+            //todo 放入等待队列
+
+            if (ndcClientSessionMap.containsKey(virtualTCPService.getServiceId())) {
+                log.warn("服务已经注册{}", virtualTCPService.getServiceId());
+            } else {
+                writePackage(NDCPacketBuilder.registerServicePacket(virtualTCPService), () -> {
+                    ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+                });
+            }
+        }
+
+    }
+
+    public void unRegisterService(VirtualTCPService virtualTCPService) {
+        //集合bufferPackage中删除
+        bufferPackage = bufferPackage.stream().filter(tobeSend -> {
+            //过滤掉要取消注册的服务
+            VirtualTCPService service = tobeSend.getObject(VirtualTCPService.class);
+            return !service.getServiceId().equals(virtualTCPService.getServiceId());
+        }).collect(Collectors.toList());
+
+        if (serverContext == null) {
+            //todo 放入等待队列
+            log.warn("未连接到服务器，无法取消注册服务");
+        } else {
+            //todo 立刻发送
+
+            //取消注册
+            writePackage(NDCPacketBuilder.unregisterServicePacket(virtualTCPService), () -> {
+                //todo 删除服务
+                ndcClientSessionMap.remove(virtualTCPService.getServiceId());
+            });
+        }
     }
 
     public void writePackage(NDCPacket ndcPacket) {

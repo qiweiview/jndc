@@ -20,4 +20,9 @@ public interface JndcClientServiceServiceI {
     void removeById(Serializable id);
 
     JndcClientServiceDTO getById(Serializable id);
+
+    void unRegisterOperation(Long id);
+
+    void resetAllClientServiceStatus();
+
 }

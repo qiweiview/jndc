@@ -22,6 +22,13 @@ public class ServiceOperation {
         return serviceOperation;
     }
 
+    public static ServiceOperation ofWithdraw(VirtualTCPService virtualTCPService) {
+        ServiceOperation serviceOperation = new ServiceOperation();
+        serviceOperation.setOperationType(ServiceOperationTypes.WITHDRAW.value);
+        serviceOperation.setVirtualTCPService(virtualTCPService);
+        return serviceOperation;
+    }
+
     public static ServiceOperation ofData(VirtualTCPService virtualTCPService) {
         ServiceOperation serviceOperation = new ServiceOperation();
         serviceOperation.setOperationType(ServiceOperationTypes.DEPLOY.value);

@@ -1,1 +1,0 @@
-import{aP as e,aQ as s}from"./index-BjE2BxpS.js";const a="/sysDict",c=t=>e.request("post",s(`${a}/create`),{data:t}),u=t=>e.request("get",s(`${a}/list`),{params:t}),n=t=>e.request("put",s(`${a}/update`),{data:t}),i=t=>e.request("delete",s("/sysDict/delete"),{data:{id:t}}),d=()=>e.request("get",s(`${a}/getAllDictAndData`));export{c as a,i as d,d as g,u as l,n as u};

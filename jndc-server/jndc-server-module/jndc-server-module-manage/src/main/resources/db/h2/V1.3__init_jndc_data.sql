@@ -1,5 +1,5 @@
 INSERT INTO `sys_menu`
-VALUES (1867209453162561537, 'JNDCManage', 'JNDC管理', 0, 3, '/jndc_namage', '', NULL, 0, 0, 0, '', 'ep:camera-filled',
+VALUES (1867209453162561537, 'JNDCManage', 'JNDC管理', 0, 1, '/jndc_namage', '', NULL, 0, 0, 0, '', 'ep:camera-filled',
         1, '2024-12-12 22:06:39', 1, '2024-12-12 22:15:34', '', 0, '', 0, '');
 
 INSERT INTO `sys_menu`

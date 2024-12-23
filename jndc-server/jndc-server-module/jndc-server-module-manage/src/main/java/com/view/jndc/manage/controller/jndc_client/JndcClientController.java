@@ -53,6 +53,11 @@ public class JndcClientController {
         jndcClientService.forceStopOperation(jndcClientDTO.getId());
         return EncryptedResponse.success("操作成功");
     }
+    @RequestMapping(value = "connectOperation", method = RequestMethod.POST)
+    public EncryptedResponse connectOperation(@RequestBody(required = false) JndcClientDTO jndcClientDTO) {
+        jndcClientService.connectOperation(jndcClientDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
 
     /**
      * 分页查询JndcClient

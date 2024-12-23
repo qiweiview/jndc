@@ -38,6 +38,17 @@
             update_time
     </sql>
 
+    <update id="resetAllClientServiceStatus">
+        update jndc_client_service
+        set service_status = 'unregister'
+    </update>
+
+    <update id="updateStatus">
+        update jndc_client_service
+        set service_status = #{status}
+        where client_id = #{clientId}
+    </update>
+
 
     <select id="listPage" resultMap="JndcClientServiceMap"
             parameterType="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO">

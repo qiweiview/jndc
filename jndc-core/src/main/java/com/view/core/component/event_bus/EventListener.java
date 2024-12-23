@@ -16,11 +16,17 @@ public class EventListener {
     @AllowConcurrentEvents
     @Subscribe
     public void acceptServiceOperation(ServiceOperation serviceOperation) {
-        log.debug("接收到服务注册{}", serviceOperation);
+
         VirtualTCPService virtualTCPService = serviceOperation.getVirtualTCPService();
 
         if (serviceOperation.isDeploy()) {
+            log.debug("接收到服务注册{}", serviceOperation);
             GlobalBeanContext.APP_CENTER.deployService(virtualTCPService);
+        }
+
+        if (serviceOperation.isWithdraw()) {
+            log.debug("接收到服务撤销{}", serviceOperation);
+            GlobalBeanContext.APP_CENTER.withdrawService(virtualTCPService);
         }
 
     }

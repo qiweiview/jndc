@@ -2,6 +2,7 @@ package com.view.jndc.manage.config;
 
 
 import com.view.jndc.manage.serviceI.jndc_client.JndcClientServiceI;
+import com.view.jndc.manage.serviceI.jndc_client_service.JndcClientServiceServiceI;
 import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
 
     private final JndcServerServiceI jndcServerServiceI;
 
+    private final JndcClientServiceServiceI jndcClientServiceServiceI;
+
     private final JndcServerAcceptHistoryServiceI jndcServerAcceptHistoryServiceI;
 
 
@@ -29,6 +32,8 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
             jndcClientServiceI.resetAllClientStatus();
 
             jndcServerServiceI.resetAllServerStatus();
+
+            jndcClientServiceServiceI.resetAllClientServiceStatus();
 
             jndcServerAcceptHistoryServiceI.resetAllAcceptHistory();
         }

@@ -51,6 +51,12 @@ public class JndcClientServiceController {
         return EncryptedResponse.success("操作成功");
     }
 
+    @RequestMapping(value = "unRegisterOperation", method = RequestMethod.POST)
+    public EncryptedResponse unRegisterOperation(@RequestBody(required = false) JndcClientServiceDTO jndcClientServiceDTO) {
+        jndcClientServiceService.unRegisterOperation(jndcClientServiceDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
     /**
      * 分页查询JndcClientService
      */

@@ -1,20 +1,18 @@
 package com.view.jndc.manage.controller.jndc_server;
 
-import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
-
-import java.util.List;
-
-import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
-import com.view.free_lite.common.config.model.base.EncryptedResponse;
-import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
-import com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO;
-import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.view.free_lite.common.config.model.base.EncryptedResponse;
+import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
+import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
+import com.view.jndc.manage.model.jndc_server.vo.JndcServerVO;
+import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/jndcServer")
@@ -47,6 +45,18 @@ public class JndcServerController {
     @RequestMapping(value = "delete", method = RequestMethod.POST)
     public EncryptedResponse delete(@RequestBody(required = false) JndcServerDTO jndcServerDTO) {
         jndcServerService.removeById(jndcServerDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
+    @RequestMapping(value = "listenOperation", method = RequestMethod.POST)
+    public EncryptedResponse listenOperation(@RequestBody(required = false) JndcServerDTO jndcServerDTO) {
+        jndcServerService.listenOperation(jndcServerDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
+    @RequestMapping(value = "pauseOperation", method = RequestMethod.POST)
+    public EncryptedResponse pauseOperation(@RequestBody(required = false) JndcServerDTO jndcServerDTO) {
+        jndcServerService.pauseOperation(jndcServerDTO.getId());
         return EncryptedResponse.success("操作成功");
     }
 
