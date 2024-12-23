@@ -18,7 +18,8 @@ public class GeneralControl {
     private Map<String, NetworkTrafficAnalyser> serviceIdMap = new ConcurrentHashMap<>();
 
     public GeneralControl() {
-        initHealthyChecker();
+        //健康检查
+        //initHealthyChecker();
     }
 
     /**

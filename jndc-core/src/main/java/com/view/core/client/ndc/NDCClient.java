@@ -31,7 +31,6 @@ public class NDCClient {
 
     private EventLoopGroup workerGroup;
 
-
     private List<NDCPacket> tobeSendPackage = new ArrayList<>();
 
     private ChannelHandlerContext serverContext;
@@ -45,6 +44,8 @@ public class NDCClient {
 
 
     public void stop() {
+        //停止重试
+        ndcClientConfiguration.doBreakOperation();
         if (clientChannel != null && clientChannel.isOpen()) {
             clientChannel.close();
             log.info("NDC客户端关闭");
@@ -55,6 +56,7 @@ public class NDCClient {
     }
 
     public void start(NDCClientConfiguration ndcClientConfiguration) {
+        ndcClientConfiguration.resetRetryBreak();
 
         //设置配置，适配重连
         if (this.ndcClientConfiguration == null) {
@@ -174,15 +176,25 @@ public class NDCClient {
             if (ndcClientConfiguration.reconnectThisTime()) {
                 //todo 再次启动
 
+                ndcClientConfiguration.getProcessingCallback().run();
+
                 int timeoutSecond = ndcClientConfiguration.getReconnectInterval();
                 log.error("连接断开，等待{}秒，进行第{}次尝试重连", timeoutSecond, retryTimes++);
+                Thread thread = Thread.currentThread();
+                ndcClientConfiguration.setWaitingThread(thread);
                 try {
                     TimeUnit.SECONDS.sleep(timeoutSecond);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    log.warn("等待重连被中断");
                 }
 
-                start(ndcClientConfiguration);
+                if (ndcClientConfiguration.getRetryBreak()) {
+                    //todo 重试中断
+                    ndcClientConfiguration.getStopCallback().run();
+                } else {
+                    start(ndcClientConfiguration);
+                }
+
             } else {
                 stop();
             }

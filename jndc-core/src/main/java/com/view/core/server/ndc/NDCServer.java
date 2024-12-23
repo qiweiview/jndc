@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
+    //配置
     private NDCServerConfiguration ndcServerConfiguration;
 
     private String ndcServerId;
@@ -233,13 +234,23 @@ public class NDCServer {
         GlobalBeanContext.EVENT_BUS.post(serviceOperation);
     }
 
+    /**
+     * 处理打开通道
+     *
+     * @param ctx
+     * @param ndcPacket
+     */
     private void handleOpenChannel(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
-        //绑定channel
+        //todo 绑定channel
 
+        ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
+        String ndcClientId = channelOpen.getNdcClientId();
+
+        //通道绑定事件
         Runnable runnable = () -> {
             //todo 异步处理
-            ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
-            String ndcClientId = channelOpen.getNdcClientId();
+
+            //绑定channel
             channelBind(ndcClientId, ctx);
 
             NDCClientInfo ndcClientInfo = new NDCClientInfo();
@@ -257,6 +268,18 @@ public class NDCServer {
         };
 
         GlobalBeanContext.EVENT_BUS.post(runnable);
+
+        Channel channel = ctx.channel();
+        SessionContext sessionContext = (SessionContext) channel.attr(AttributeKey.valueOf(NDCServerHandler.SESSION_CONTEXT)).get();
+
+        //通道打开事件
+        Runnable runnable1 = () -> {
+            sessionContext.setClientUniqueId(ndcClientId);
+            ndcServerConfiguration.getOpenChannel().accept(sessionContext);
+        };
+        GlobalBeanContext.EVENT_BUS.post(runnable1);
+
+
     }
 
     /**

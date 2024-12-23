@@ -13,7 +13,7 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
     /**
      * 客户端id
      */
-    private Long clientId;
+    private String clientId;
 
     /**
      * 客户端id
@@ -105,6 +105,8 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
      * 修改时间
      */
     private java.time.LocalDateTime updateTime;
+
+    private Boolean onlyAvailable;
 
     /**
      * 一页页的条数

@@ -32,12 +32,11 @@ public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHisto
      */
     @Override
     public IPage queryPage(JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO) {
-        JndcServerAcceptHistoryDO copy =
-                JndcServerAcceptHistoryStructMapper.INSTANCE.toDO(jndcServerAcceptHistoryDTO);
+
         Page page =
                 new Page(jndcServerAcceptHistoryDTO.getCurrent(), jndcServerAcceptHistoryDTO.getSize());
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
-        IPage<JndcServerAcceptHistoryDO> pageResult = jndcServerAcceptHistoryDao.listPage(page, copy);
+        IPage<JndcServerAcceptHistoryDO> pageResult = jndcServerAcceptHistoryDao.listPage(page, jndcServerAcceptHistoryDTO);
         IPage<JndcServerAcceptHistoryVO> convert =
                 pageResult.convert(x -> JndcServerAcceptHistoryStructMapper.INSTANCE.toVO(x));
         return convert;
@@ -112,5 +111,13 @@ public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHisto
             throw new BizException("数据不存在");
         }
         return JndcServerAcceptHistoryStructMapper.INSTANCE.toDTO(JndcServerAcceptHistoryDO);
+    }
+
+    @Override
+    public void resetAllAcceptHistory() {
+        LocalDateTime now = LocalDateTime.now();
+
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+        jndcServerAcceptHistoryDao.resetAllAcceptHistory(now);
     }
 }

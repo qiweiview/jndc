@@ -14,7 +14,7 @@ import lombok.Data;
 public class JndcServerAcceptHistoryDO {
   /** 客户端id */
   @TableField(value = "client_id")
-  private Long clientId;
+  private String clientId;
 
   /** 连接时间 */
   @TableField(value = "connect_time")

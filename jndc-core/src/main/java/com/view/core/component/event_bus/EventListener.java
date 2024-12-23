@@ -43,7 +43,11 @@ public class EventListener {
     @AllowConcurrentEvents
     @Subscribe
     public void acceptChannelOperation(Runnable runnable) {
-        runnable.run();
+        try {
+            runnable.run();
+        } catch (Exception e) {
+            log.warn("异步事件执行失败", e);
+        }
     }
 
 

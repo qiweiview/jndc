@@ -138,6 +138,18 @@ public class JNDCServerHolder {
 
                 });
 
+                jndcServerConfiguration.setOpenChannel(e -> {
+                    Long acceptHistoryId = e.getAcceptHistoryId();
+                    String clientUniqueId = e.getClientUniqueId();
+                    JndcServerAcceptHistoryDTO byId = jndcServerAcceptHistoryServiceI.getById(acceptHistoryId);
+                    if (byId == null) {
+                        log.warn("连接历史记录不存在");
+                    } else {
+                        byId.setClientId(clientUniqueId);
+                        jndcServerAcceptHistoryServiceI.updateById(byId);
+                    }
+                });
+
 
                 ndcServer.start(jndcServerConfiguration);
             } catch (Exception e) {

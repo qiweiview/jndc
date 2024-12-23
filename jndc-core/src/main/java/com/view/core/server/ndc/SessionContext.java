@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 public class SessionContext {
     private Long acceptHistoryId;
 
+    private String clientUniqueId;
+
     private String host;
 
     private int port;

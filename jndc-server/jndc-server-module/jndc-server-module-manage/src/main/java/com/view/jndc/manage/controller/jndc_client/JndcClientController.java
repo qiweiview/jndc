@@ -48,6 +48,12 @@ public class JndcClientController {
         return EncryptedResponse.success("操作成功");
     }
 
+    @RequestMapping(value = "forceStopOperation", method = RequestMethod.POST)
+    public EncryptedResponse forceStopOperation(@RequestBody(required = false) JndcClientDTO jndcClientDTO) {
+        jndcClientService.forceStopOperation(jndcClientDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
     /**
      * 分页查询JndcClient
      */

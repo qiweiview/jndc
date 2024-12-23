@@ -48,7 +48,8 @@ public class JNDCClientHolder {
             NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();
             ndcClientConfiguration.setServerHost(jndcClientDTO.getServerHost());
             ndcClientConfiguration.setServerPort(jndcClientDTO.getServerPort());
-            ndcClientConfiguration.setReconnectInterval(jndcClientDTO.getReconnectInterval());
+            Integer reconnectInterval = jndcClientDTO.getReconnectInterval();
+            ndcClientConfiguration.setReconnectInterval(reconnectInterval);
             ndcClientConfiguration.setStartedCallback(() -> {
                 JndcLogDTO jndcLogDTO = new JndcLogDTO();
                 jndcLogDTO.setLogContent("客户端启动");
@@ -85,6 +86,16 @@ public class JNDCClientHolder {
             ndcClientConfiguration.setReconnectMaxTimes(jndcClientDTO.getReconnectMaxTimes());
             ndcClientConfiguration.setUniqueId(jndcClientDTO.getUniqueId());
 
+            ndcClientConfiguration.setProcessingCallback(() -> {
+                JndcLogDTO jndcLogDTO = new JndcLogDTO();
+                jndcLogDTO.setLogContent("等待" + reconnectInterval + "秒间隔后重试...");
+                jndcLogDTO.setLogTime(LocalDateTime.now());
+                jndcLogDTO.setLogType("client");
+                jndcLogDTO.setSourceId(id);
+                DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+                jndcLogServiceI.save(jndcLogDTO);
+                jndcClientDao.updateStatus(id, JNDCClientStatusEnum.PROCESSING.value);
+            });
 
             NDCClient ndcClient = new NDCClient();
             List<JndcClientServiceDO> clientServices = jndcClientDTO
@@ -135,7 +146,7 @@ public class JNDCClientHolder {
         String uniqueId = dbData.getUniqueId();
         NDCClient ndcClient = clientMap.get(uniqueId);
         if (ndcClient == null) {
-            log.warn("客户端:{}未启动", uniqueId);
+            log.warn("客户端:{}未启动,map中有{}个客户端", uniqueId, clientMap.size());
         } else {
             ndcClient.stop();
             clientMap.remove(uniqueId);

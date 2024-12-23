@@ -8,7 +8,7 @@ public class JndcServerAcceptHistoryVO {
     /**
      * 客户端id
      */
-    private Long clientId;
+    private String clientId;
 
     /**
      * 连接时间

@@ -24,6 +24,8 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
     /*------服务端连接------*/
     private Function<SessionContext, SessionContext> connectActive = EMPTY_FUNCTION(SessionContext.class);
 
+    private Consumer<SessionContext> openChannel = EMPTY_CONSUMER(SessionContext.class);
+
     private Consumer<SessionContext> connectInActive = EMPTY_CONSUMER(SessionContext.class);
 
 

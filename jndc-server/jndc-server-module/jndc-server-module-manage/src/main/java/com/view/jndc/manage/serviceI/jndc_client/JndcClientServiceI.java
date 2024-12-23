@@ -23,4 +23,6 @@ public interface JndcClientServiceI {
 
     void resetAllClientStatus();
 
+    void forceStopOperation(Long id);
+
 }

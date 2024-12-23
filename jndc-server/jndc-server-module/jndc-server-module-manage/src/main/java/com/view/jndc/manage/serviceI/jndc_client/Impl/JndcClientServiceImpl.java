@@ -72,7 +72,8 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         JndcClientDO copy = JndcClientStructMapper.INSTANCE.toDO(jndcClientDTO);
         copy.setId(snowflakeIdWorker.nextId());
         copy.setCreateTime(LocalDateTime.now());
-        copy.setUniqueId(UniqueId.generate());
+        String generate = UniqueId.generate();
+        copy.setUniqueId(generate);
 
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
@@ -84,6 +85,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
             jndcClientDTO.setClientServices(jndcClientServiceDOS);
 
             jndcClientDTO.setId(copy.getId());
+            jndcClientDTO.setUniqueId(generate);
             jndcClientHolder.startClient(jndcClientDTO);
         }
 
@@ -105,7 +107,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         copy.setUpdateTime(LocalDateTime.now());
 
         if (JNDCClientStatusEnum.PROCESSING.value.equals(clientStatus)) {
-            // todo 停止服务
+            // todo 处理中
             //不更新
             copy.setClientStatus(null);
         }
@@ -117,6 +119,11 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         if (!clientStatusDB.equals(clientStatus)) {
             //todo 有状态变化才操作
             if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
+                if (JNDCClientStatusEnum.PROCESSING.value.equals(clientStatusDB)) {
+                    // todo 处理中
+                    throw new BizException("请先停止客户端后再继续操作");
+                }
+
                 List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(dbData.getId());
                 jndcClientDTO.setClientServices(jndcClientServiceDOS);
                 jndcClientHolder.startClient(jndcClientDTO);
@@ -166,5 +173,15 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
     public void resetAllClientStatus() {
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.resetAllClientStatus();
+    }
+
+    @Override
+    public void forceStopOperation(Long id) {
+        JndcClientDTO byId = getById(id);
+        if (JNDCClientStatusEnum.PROCESSING.value.equals(byId.getClientStatus())) {
+            jndcClientHolder.stopClient(byId);
+        } else {
+            throw new BizException("只能关闭处理中的客户端");
+        }
     }
 }

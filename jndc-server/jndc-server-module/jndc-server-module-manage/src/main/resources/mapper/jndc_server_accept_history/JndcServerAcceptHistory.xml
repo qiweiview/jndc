@@ -29,16 +29,25 @@
             update_time
     </sql>
 
+    <update id="resetAllAcceptHistory">
+        update jndc_server_accept_history
+        set interrupt_time = now()
+        where interrupt_time is null
+    </update>
+
 
     <select id="listPage" resultMap="JndcServerAcceptHistoryMap"
-            parameterType="com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO">
+            parameterType="com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO">
         select
         <include refid="Base_Column_List"></include>
         from
         jndc_server_accept_history
         <where>
-            <if test="do.serverId!=null and do.serverId!=''">
-                and server_id = #{do.serverId}
+            <if test="dto.serverId!=null and dto.serverId!=''">
+                and server_id = #{dto.serverId}
+            </if>
+            <if test="dto.onlyAvailable!=null and dto.onlyAvailable">
+                and interrupt_time is null
             </if>
         </where>
         order by create_time desc

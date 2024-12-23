@@ -30,15 +30,22 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
     //是否自动重连
     private Boolean autoReconnect;
 
+    //重试中断(内存中)
+    private Boolean retryBreak = false;
+
+    private Thread waitingThread;
 
     //启动回调
-    private Runnable startedCallback;
+    private Runnable startedCallback = EMPTY_CALLBACK;
+
+    //处理回调
+    private Runnable processingCallback = EMPTY_CALLBACK;
 
     //停止回调
-    private Runnable stopCallback;
+    private Runnable stopCallback = EMPTY_CALLBACK;
 
     //失败回调
-    private Consumer<Exception> failCallback;
+    private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
 
     public void printConfiguration() {
         log.info("启动客户端使用配置：IP:{},端口:{},超时:{}秒", serverHost, serverPort, reconnectInterval);
@@ -89,6 +96,18 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
         if (autoReconnect == null) {
             throw new IllegalArgumentException("autoReconnect不能为空");
+        }
+    }
+
+    public void resetRetryBreak() {
+        retryBreak = false;
+        waitingThread = null;
+    }
+
+    public void doBreakOperation() {
+        retryBreak = true;
+        if (waitingThread != null) {
+            waitingThread.interrupt();
         }
     }
 }

@@ -1,11 +1,12 @@
 package com.view.jndc.manage.serviceI.jndc_server_accept_history;
 
-import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO;
 import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import java.util.List;
+import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
+
 import java.io.Serializable;
+import java.util.List;
 
 public interface JndcServerAcceptHistoryServiceI {
   IPage<JndcServerAcceptHistoryVO> queryPage(JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO);
@@ -19,4 +20,7 @@ public interface JndcServerAcceptHistoryServiceI {
   void removeById(Serializable id);
 
   JndcServerAcceptHistoryDTO getById(Serializable id);
+
+    void resetAllAcceptHistory();
+
 }
