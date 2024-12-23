@@ -12,7 +12,7 @@ import {
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server_accept_history/api";
-import { formatDate } from "@/utils/date_format";
+import { calculateDateBetween, formatDate } from "@/utils/date_format";
 
 export function useHook() {
   //分页
@@ -27,7 +27,8 @@ export function useHook() {
   const form = reactive({
     size: pagination.pageSize,
     current: pagination.currentPage,
-    serverIdString: null
+    serverIdString: null,
+    onlyAvailable: false
   });
 
   const curRow = ref({ dictName: "" });
@@ -44,18 +45,21 @@ export function useHook() {
   const columns: TableColumnList = [
     {
       label: "客户端id",
-      prop: "clientId"
+      prop: "clientId",
+      width: 360
     },
     {
       label: "来源ip",
-      prop: "sourceIp"
+      prop: "sourceIp",
+      width: 180
     },
     {
       label: "来源端口",
-      prop: "sourcePort"
+      prop: "sourcePort",
+      width: 180
     },
     {
-      label: "连接时间",
+      label: "接入时间",
       prop: "connectTime",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
@@ -63,7 +67,15 @@ export function useHook() {
       width: 160
     },
     {
-      label: "中断时间",
+      label: "连接时长",
+      prop: "connectTime",
+      formatter: (row, column, cellValue) => {
+        return calculateDateBetween(row.connectTime, row.interruptTime);
+      },
+      width: 160
+    },
+    {
+      label: "断开时间",
       prop: "interruptTime",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);

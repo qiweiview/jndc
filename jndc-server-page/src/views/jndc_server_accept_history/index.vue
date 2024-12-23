@@ -40,7 +40,7 @@ const props = defineProps({
 
 //如果sourceIdString不为空则写入form
 if (props.id) {
-  form.serverId = props.id;
+  form.serverIdString = props.id;
 }
 </script>
 
@@ -52,28 +52,28 @@ if (props.id) {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
-      <el-form-item label="来源id" prop="title">
-        <el-input
-          v-model="form.serverIdString"
-          placeholder="请输入来源id"
-          clearable
-          class="!w-[240px]"
-          @keyup.enter="onSearch"
+      <el-form-item label="仅显示存活连接" prop="title">
+        <el-switch
+          v-model="form.onlyAvailable"
+          inline-prompt
+          active-text="是"
+          inactive-text="否"
+          @change="onSearch"
         />
       </el-form-item>
-      <el-form-item>
-        <el-button
-          type="primary"
-          :icon="useRenderIcon('ri:search-line')"
-          :loading="loading"
-          @click="onSearch"
-        >
-          搜索
-        </el-button>
-        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">
-          重置
-        </el-button>
-      </el-form-item>
+      <!--      <el-form-item>-->
+      <!--        <el-button-->
+      <!--          type="primary"-->
+      <!--          :icon="useRenderIcon('ri:search-line')"-->
+      <!--          :loading="loading"-->
+      <!--          @click="onSearch"-->
+      <!--        >-->
+      <!--          搜索-->
+      <!--        </el-button>-->
+      <!--        <el-button :icon="useRenderIcon(Refresh)" @click="resetForm(formRef)">-->
+      <!--          重置-->
+      <!--        </el-button>-->
+      <!--      </el-form-item>-->
     </el-form>
 
     <div

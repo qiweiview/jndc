@@ -53,27 +53,21 @@ export function useHook() {
       reserveSelection: true // 数据刷新后保留选项
     },
     {
-      label: "id",
-      prop: "idString"
+      label: "日志日期",
+      prop: "logTime",
+      formatter: (row, column, cellValue) => {
+        return formatDate(cellValue);
+      },
+      width: 160
     },
     {
-      label: "来源id",
-      prop: "sourceIdString"
+      label: "日志类型",
+      prop: "logType",
+      width: 120
     },
     {
       label: "日志内容",
       prop: "logContent"
-    },
-    {
-      label: "日志类型",
-      prop: "logType"
-    },
-    {
-      label: "创建日期",
-      prop: "logTime",
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
     },
     {
       label: "操作",

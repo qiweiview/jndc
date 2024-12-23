@@ -23,6 +23,12 @@ export const deleteOperation = (id: string) => {
   });
 };
 
+export const forceStopOperation = (id: string) => {
+  return http.request<any>("post", `${path}/forceStopOperation`, {
+    data: { idString: id }
+  });
+};
+
 /** 删除批量 */
 export const deleteBatchOperation = (id: string[]) => {
   return http.request<any>("post", `${path}/deleteBatch`, {

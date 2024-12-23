@@ -13,3 +13,29 @@ export const formatDate = (dateStr: string): string => {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
+
+export const calculateDateBetween = (
+  connectTime: string,
+  interruptTime: string
+): string => {
+  if (!connectTime) {
+    return "-";
+  }
+  const date = new Date(connectTime);
+  let now;
+  if (interruptTime) {
+    now = new Date(interruptTime);
+  } else {
+    now = new Date();
+  }
+
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (24 * 3600 * 1000));
+  const leave1 = diff % (24 * 3600 * 1000);
+  const hours = Math.floor(leave1 / (3600 * 1000));
+  const leave2 = leave1 % (3600 * 1000);
+  const minutes = Math.floor(leave2 / (60 * 1000));
+  const leave3 = leave2 % (60 * 1000);
+  const seconds = Math.round(leave3 / 1000);
+  return `${days}天${hours}小时${minutes}分${seconds}秒`;
+};

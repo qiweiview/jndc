@@ -10,7 +10,8 @@ import {
   listOperation,
   addOperation,
   deleteOperation,
-  updateOperation
+  updateOperation,
+  forceStopOperation
 } from "@/api/jndc_client/api";
 import { formatDate } from "@/utils/date_format";
 import { convertNumber } from "@/utils/value_format/number_fornmat";
@@ -93,13 +94,9 @@ export function useHook() {
       minWidth: 120
     },
     {
-      label: "id",
-      prop: "idString"
-    },
-    {
       label: "唯一id",
       prop: "uniqueId",
-      minWidth: 120
+      minWidth: 360
     },
     {
       label: "创建时间",
@@ -118,7 +115,7 @@ export function useHook() {
     {
       label: "操作",
       fixed: "right",
-      width: 220,
+      minWidth: 320,
       slot: "operation"
     }
   ];
@@ -161,6 +158,30 @@ export function useHook() {
   function handleSelectionChange(val) {
     console.log("handleSelectionChange", val);
   }
+
+  const forceStopCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要停止
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.clientName}
+          </strong>
+          吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await forceStopOperation(row.idString);
+        if (res.code == 0) {
+          toast(`已停止"${row.clientName}`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
 
   async function onSearch() {
     loading.value = true;
@@ -286,6 +307,7 @@ export function useHook() {
     isLinkage,
     pagination,
     dictDataDrawer,
+    forceStopCheck,
     openServiceDialog,
     openLogDialog,
     onSearch,

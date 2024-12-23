@@ -7,9 +7,9 @@ interface FormItemProps {
   connectTime?: string;
   createTime?: string;
   interruptTime?: string;
-  serverId?: string;
+  serverId?: number;
   sourceIp?: string;
-  sourcePort?: string;
+  sourcePort?: number;
   updateTime?: string;
 }
 
