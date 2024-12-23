@@ -212,10 +212,9 @@ public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
             throw new BizException("服务不存在");
         }
 
-        JndcClientServiceDTO jndcClientServiceDTO = new JndcClientServiceDTO();
-        jndcClientServiceDTO.setId(id);
-        jndcClientServiceDTO.setServiceStatus(JNDCClientServiceStatusEnum.UN_REGISTER.value);
-        updateById(jndcClientServiceDTO);
+        byId.setId(id);
+        byId.setServiceStatus(JNDCClientServiceStatusEnum.UN_REGISTER.value);
+        updateById(byId);
     }
 
     @Override

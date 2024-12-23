@@ -231,7 +231,7 @@ public class NDCClient {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
         if (virtualTCPService == null) {
-            log.warn("未找到对应的服务{}", clientServiceId);
+            log.warn("handleTCPInActive未找到对应的服务{}", clientServiceId);
         } else {
             //异步处理
             Runnable runnable = () -> {
@@ -252,7 +252,7 @@ public class NDCClient {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
         if (virtualTCPService == null) {
-            log.warn("未找到对应的服务{}", clientServiceId);
+            log.warn("handleTCPActive未找到对应的服务{}", clientServiceId);
         } else {
             //todo 打开本地服务端
 
@@ -290,7 +290,7 @@ public class NDCClient {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
         if (virtualTCPService == null) {
-            log.warn("未找到对应的服务{}", clientServiceId);
+            log.warn("handleDataPackage未找到对应的服务{}", clientServiceId);
         } else {
             //异步处理
             Runnable runnable = () -> {

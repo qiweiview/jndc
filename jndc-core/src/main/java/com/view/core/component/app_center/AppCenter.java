@@ -82,7 +82,7 @@ public class AppCenter {
 
         TCPServer tcpServer = tcpServerMap.get(serviceId);
         if (tcpServer == null) {
-            log.warn("未找到对应的服务");
+            log.warn("未找到{}对应的TCPServer服务",serviceId);
         } else {
             //todo 停止服务
             tcpServer.stop();
@@ -104,7 +104,7 @@ public class AppCenter {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         TCPServer tcpServer = tcpServerMap.get(clientServiceId);
         if (tcpServer == null) {
-            log.warn("未找到对应的服务");
+            log.warn("未找到{}对应的TCPServer服务",clientServiceId);
         } else {
             //todo 通知客户端已经就绪
             tcpServer.noticeActiveCompleted(tcpDataTransport);
@@ -115,7 +115,7 @@ public class AppCenter {
         String clientServiceId = tcpDataTransport.getClientServiceId();
         TCPServer tcpServer = tcpServerMap.get(clientServiceId);
         if (tcpServer == null) {
-            log.warn("未找到对应的服务");
+            log.warn("未找到{}对应的TCPServer服务",clientServiceId);
         } else {
             tcpServer.receiveData(tcpDataTransport);
         }

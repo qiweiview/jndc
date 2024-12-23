@@ -10,6 +10,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 
 @Data
@@ -72,9 +74,16 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("TCP客户端异常，准备通知远程断开连接", cause);
+        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        log.error("{}:{}  {}:{}TCP客户端异常，准备通知远程断开连接:{}",
+                localAddress.getHostName(),
+                localAddress.getPort(),
+                remoteAddress.getHostName(),
+                remoteAddress.getPort(),
+                cause.getMessage());
         //当作断开连接处理
-        channelInactive(ctx);
+        //channelInactive(ctx);
     }
 
     @Override
@@ -106,13 +115,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
 
     public void write(byte[] bytes) {
         if (ctx != null) {
-            ctx.writeAndFlush(bytes).addListener(future -> {
-                if (future.isSuccess()) {
-                    log.debug("TCP客户端写出:\n{}", new String(bytes));
-                } else {
-                    log.warn("数据发送失败");
-                }
-            });
+            ctx.writeAndFlush(bytes);
 
         } else {
             log.warn("ChannelHandlerContext is null");

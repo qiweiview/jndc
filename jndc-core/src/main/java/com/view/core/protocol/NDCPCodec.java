@@ -43,7 +43,12 @@ public class NDCPCodec extends ByteToMessageCodec<NDCPacket> {
                 //todo 固定长度获取完成
                 byte[] bytes = new byte[NDCPacket.FIX_LENGTH];
                 byteBuf.readBytes(bytes);
-                ndcPacket = NDCPacket.parseFixInfo(bytes);//解析定长信息
+                try {
+                    ndcPacket = NDCPacket.parseFixInfo(bytes);//解析定长信息
+                } catch (Exception e) {
+                    //todo 解析失败直接关闭连接
+                    channelHandlerContext.channel().closeFuture();
+                }
                 if (ndcPacket.getDataSize() == 0) {
                     list.add(ndcPacket);
                     ndcPacket = null;

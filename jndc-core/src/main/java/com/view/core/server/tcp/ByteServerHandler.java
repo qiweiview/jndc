@@ -4,12 +4,14 @@ import com.view.core.component.GlobalBeanContext;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.time.LocalTime;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -112,9 +114,15 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("TCP服务端异常，准备通知客户端断开连接", cause);
+        Channel channel = ctx.channel();
+        InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
+        String hostString = socketAddress.getHostString();
+        int port = socketAddress.getPort();
+
+
+        log.error("TCP服务端{}:{}异常，准备通知客户端断开连接{}", hostString,port,cause.getMessage());
         //当作连接断开处理
-        channelInactive(ctx);
+        //channelInactive(ctx);
     }
 
     /**
@@ -144,12 +152,14 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     private void bufferFlush() {
         if (!bufferQueue.isEmpty()) {
+            long l = System.currentTimeMillis();
             synchronized (this) {
+
                 if (!bufferQueue.isEmpty()) {
                     bufferQueue.forEach(this::writeDataIntoChannel);
                     bufferQueue.clear();
                     directWrite = true;
-                    log.info("缓冲区刷新完成");
+                    log.info("{}缓冲区刷新完成{}",directWrite, System.currentTimeMillis() - l);
                 }
             }
         }

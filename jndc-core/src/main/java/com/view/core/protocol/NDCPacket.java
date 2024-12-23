@@ -246,18 +246,6 @@ public class NDCPacket {
         return NdcPacket;
     }
 
-    /**
-     * decode
-     *
-     * @param bytes
-     * @return
-     */
-    public static NDCPacket parseTotal(byte[] bytes) {
-        NDCPacket NdcPacket = parseFixInfo(bytes);
-        byte[] data = Arrays.copyOfRange(bytes, FIX_LENGTH, FIX_LENGTH + NdcPacket.getDataSize());
-        NdcPacket.setDataWithVerification(data);
-        return NdcPacket;
-    }
 
 
     /**
