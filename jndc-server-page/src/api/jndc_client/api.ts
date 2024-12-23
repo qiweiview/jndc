@@ -29,6 +29,12 @@ export const forceStopOperation = (id: string) => {
   });
 };
 
+export const connectOperation = (id: string) => {
+  return http.request<any>("post", `${path}/connectOperation`, {
+    data: { idString: id }
+  });
+};
+
 /** 删除批量 */
 export const deleteBatchOperation = (id: string[]) => {
   return http.request<any>("post", `${path}/deleteBatch`, {

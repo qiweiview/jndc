@@ -117,6 +117,7 @@ if (props.sourceIdString) {
           </div>
           <pure-table
             ref="tableRef"
+            border
             row-key="id"
             align-whole="center"
             showOverflowTooltip

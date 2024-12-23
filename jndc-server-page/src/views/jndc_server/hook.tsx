@@ -7,8 +7,10 @@ import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
 import {
-  listOperation,
   addOperation,
+  listOperation,
+  listenOperation,
+  pauseOperation,
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server/api";
@@ -82,7 +84,6 @@ export function useHook() {
       label: "创建时间",
       prop: "createTime",
       minWidth: 160,
-      fixed: "right",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }
@@ -98,7 +99,7 @@ export function useHook() {
     {
       label: "操作",
       fixed: "right",
-      width: 220,
+      minWidth: 320,
       slot: "operation"
     }
   ];
@@ -187,6 +188,54 @@ export function useHook() {
     });
   }
 
+  const pauseCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要停止
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.serverName}
+          </strong>
+          监听吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await pauseOperation(row.idString);
+        if (res.code == 0) {
+          toast(`已停止"${row.serverName}监听`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
+
+  const listenCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要开启
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.serverName}
+          </strong>
+          监听吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await listenOperation(row.idString);
+        if (res.code == 0) {
+          toast(`开始"${row.serverName}监听`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
+
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
@@ -263,6 +312,8 @@ export function useHook() {
     isLinkage,
     pagination,
     dictDataDrawer,
+    listenCheck,
+    pauseCheck,
     onSearch,
     resetForm,
     openDialog,

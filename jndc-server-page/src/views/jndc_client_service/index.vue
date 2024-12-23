@@ -8,6 +8,7 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import stopCircleLine from "@iconify-icons/ri/stop-circle-line";
 
 defineOptions({
   name: "jndcClientService"
@@ -31,8 +32,8 @@ const {
   columns,
   dataList,
   pagination,
+  unRegisterCheck,
   onSearch,
-  resetForm,
   openDialog,
   handleDelete,
   handleSizeChange,
@@ -92,6 +93,7 @@ if (sourceIdString) {
           >
             <template #operation="{ row }">
               <el-button
+                v-show="row.serviceStatus != 'register'"
                 class="reset-margin"
                 link
                 type="primary"
@@ -102,6 +104,7 @@ if (sourceIdString) {
                 修改
               </el-button>
               <el-button
+                v-show="row.serviceStatus != 'register'"
                 class="reset-margin"
                 link
                 type="danger"
@@ -110,6 +113,15 @@ if (sourceIdString) {
                 @click="handleDelete(row)"
               >
                 删除
+              </el-button>
+              <el-button
+                v-show="row.serviceStatus == 'register'"
+                link
+                type="danger"
+                :icon="useRenderIcon(stopCircleLine)"
+                @click="unRegisterCheck(row)"
+              >
+                取消注册
               </el-button>
             </template>
           </pure-table>

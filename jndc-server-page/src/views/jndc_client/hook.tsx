@@ -11,6 +11,7 @@ import {
   addOperation,
   deleteOperation,
   updateOperation,
+  connectOperation,
   forceStopOperation
 } from "@/api/jndc_client/api";
 import { formatDate } from "@/utils/date_format";
@@ -102,7 +103,6 @@ export function useHook() {
       label: "创建时间",
       prop: "createTime",
       minWidth: 160,
-      fixed: "right",
       formatter: (row, column, cellValue) => {
         return formatDate(cellValue);
       }
@@ -110,12 +110,15 @@ export function useHook() {
     {
       label: "修改时间",
       prop: "updateTime",
-      minWidth: 120
+      minWidth: 160,
+      formatter: (row, column, cellValue) => {
+        return formatDate(cellValue);
+      }
     },
     {
       label: "操作",
       fixed: "right",
-      minWidth: 320,
+      minWidth: 220,
       slot: "operation"
     }
   ];
@@ -159,6 +162,29 @@ export function useHook() {
     console.log("handleSelectionChange", val);
   }
 
+  const connectCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要启动
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.clientName}
+          </strong>
+          吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await connectOperation(row.idString);
+        if (res.code == 0) {
+          toast(`已启动"${row.clientName}`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
   const forceStopCheck = (row: FormItemProps) => {
     showDialog("警告", {
       contentRenderer: () => (
@@ -307,6 +333,7 @@ export function useHook() {
     isLinkage,
     pagination,
     dictDataDrawer,
+    connectCheck,
     forceStopCheck,
     openServiceDialog,
     openLogDialog,

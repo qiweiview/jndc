@@ -67,7 +67,9 @@ export function useHook() {
     },
     {
       label: "日志内容",
-      prop: "logContent"
+      prop: "logContent",
+      align: "left",
+      headerAlign: "center"
     },
     {
       label: "操作",

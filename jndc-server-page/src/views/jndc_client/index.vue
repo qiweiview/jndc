@@ -10,6 +10,7 @@ import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 import More from "@iconify-icons/ep/more-filled";
 import stopCircleLine from "@iconify-icons/ri/stop-circle-line";
+import VedioPlay from "@iconify-icons/ep/video-play";
 
 defineOptions({
   name: "jndcClient"
@@ -25,6 +26,7 @@ const {
   columns,
   dataList,
   pagination,
+  connectCheck,
   forceStopCheck,
   openServiceDialog,
   openLogDialog,
@@ -106,6 +108,29 @@ const {
           >
             <template #operation="{ row }">
               <el-button
+                v-show="row.clientStatus == 'pause'"
+                link
+                type="success"
+                :icon="useRenderIcon(VedioPlay)"
+                @click="connectCheck(row)"
+              >
+                启动
+              </el-button>
+
+              <el-button
+                v-show="
+                  row.clientStatus == 'processing' ||
+                  row.clientStatus == 'connect'
+                "
+                link
+                type="danger"
+                :icon="useRenderIcon(stopCircleLine)"
+                @click="forceStopCheck(row)"
+              >
+                中断
+              </el-button>
+
+              <el-button
                 v-show="row.clientStatus !== 'processing'"
                 class="reset-margin"
                 link
@@ -126,16 +151,6 @@ const {
                 @click="handleDelete(row)"
               >
                 删除
-              </el-button>
-
-              <el-button
-                v-show="row.clientStatus == 'processing'"
-                link
-                type="danger"
-                :icon="useRenderIcon(stopCircleLine)"
-                @click="forceStopCheck(row)"
-              >
-                中断
               </el-button>
 
               <el-dropdown>

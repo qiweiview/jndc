@@ -23,6 +23,12 @@ export const deleteOperation = (id: string) => {
   });
 };
 
+export const unRegisterOperation = (id: string) => {
+  return http.request<any>("post", `${path}/unRegisterOperation`, {
+    data: { idString: id }
+  });
+};
+
 /** 删除批量 */
 export const deleteBatchOperation = (id: string[]) => {
   return http.request<any>("post", `${path}/deleteBatch`, {

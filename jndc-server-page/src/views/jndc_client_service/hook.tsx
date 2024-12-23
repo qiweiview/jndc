@@ -7,6 +7,7 @@ import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
 import {
+  unRegisterOperation,
   listOperation,
   addOperation,
   deleteOperation,
@@ -147,6 +148,30 @@ export function useHook(clientId: string) {
     console.log("handleSelectionChange", val);
   }
 
+  const unRegisterCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要取消注册
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.serviceName}
+          </strong>
+          吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await unRegisterOperation(row.idString);
+        if (res.code == 0) {
+          toast(`已取消注册"${row.serviceName}`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
+
   async function onSearch() {
     loading.value = true;
     form.current = pagination.currentPage;
@@ -265,6 +290,7 @@ export function useHook(clientId: string) {
     isLinkage,
     pagination,
     dictDataDrawer,
+    unRegisterCheck,
     onSearch,
     resetForm,
     openDialog,

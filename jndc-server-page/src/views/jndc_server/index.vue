@@ -4,15 +4,14 @@ import { ref } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
-import Printer from "@iconify-icons/ep/printer";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
 import More from "@iconify-icons/ep/more-filled";
-import Upload from "@iconify-icons/ri/upload-line";
-import Password from "@iconify-icons/ri/lock-password-line";
-import Role from "@iconify-icons/ri/admin-line";
+import VedioPlay from "@iconify-icons/ep/video-play";
+
+import stopCircleLine from "@iconify-icons/ri/stop-circle-line";
 
 defineOptions({
   name: "jndcServer"
@@ -28,6 +27,8 @@ const {
   columns,
   dataList,
   pagination,
+  listenCheck,
+  pauseCheck,
   onSearch,
   resetForm,
   openDialog,
@@ -108,6 +109,27 @@ const {
           >
             <template #operation="{ row }">
               <el-button
+                v-show="row.serverStatus == 'pause'"
+                link
+                type="success"
+                :icon="useRenderIcon(VedioPlay)"
+                @click="listenCheck(row)"
+              >
+                启动
+              </el-button>
+
+              <el-button
+                v-show="row.serverStatus == 'listen'"
+                link
+                type="danger"
+                :icon="useRenderIcon(stopCircleLine)"
+                @click="pauseCheck(row)"
+              >
+                停止
+              </el-button>
+
+              <el-button
+                v-show="row.serverStatus == 'pause'"
                 class="reset-margin"
                 link
                 type="primary"
@@ -118,6 +140,7 @@ const {
                 修改
               </el-button>
               <el-button
+                v-show="row.serverStatus == 'pause'"
                 class="reset-margin"
                 link
                 type="danger"
