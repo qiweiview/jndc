@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 
 @Data
@@ -53,8 +52,11 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         tcpDataTransport.setData(msg);
 
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
+
         //组包，发送
-        writePackageIntoChannel(tcpDataTransport);
+        writePackageIntoChannel(tcpDataTransport,socketAddress);
 
     }
 
@@ -63,8 +65,14 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
      *
      * @param tcpDataTransport
      */
-    private void writePackageIntoChannel(TCPDataTransport tcpDataTransport) {
+    private void writePackageIntoChannel(TCPDataTransport tcpDataTransport, InetSocketAddress socketAddress) {
         NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+        ndcPacket.setLocalAddress(socketAddress.getAddress());
+        ndcPacket.setLocalPort(socketAddress.getPort());
+
+        log.debug("准备发送数据包：{}:{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort());
+
+
         if (GlobalBeanContext.NDC_CLIENT != null) {
             GlobalBeanContext.NDC_CLIENT.writePackage(ndcPacket);
         } else {
@@ -91,8 +99,10 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         //向通道发送关闭消息
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
 
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
         //组包，发送
-        writePackageIntoChannel(tcpDataTransport);
+        writePackageIntoChannel(tcpDataTransport,socketAddress);
     }
 
 

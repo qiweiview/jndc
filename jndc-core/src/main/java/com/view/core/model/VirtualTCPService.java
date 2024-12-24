@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 @Slf4j
 @Data
 public class VirtualTCPService implements Serializable {
+    private static final long serialVersionUID = -5630844448490385143L;
+
     //由上下文填写
     private String ndcClientId;
 

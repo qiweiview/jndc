@@ -48,7 +48,9 @@ public class NDCPCodec extends ByteToMessageCodec<NDCPacket> {
                 } catch (Exception e) {
                     //todo 解析失败直接关闭连接
                     channelHandlerContext.channel().closeFuture();
+                    return;
                 }
+
                 if (ndcPacket.getDataSize() == 0) {
                     list.add(ndcPacket);
                     ndcPacket = null;

@@ -25,7 +25,7 @@ public class NDCClientTest {
 
         NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();
         ndcClientConfiguration.setServerHost("127.0.0.1");
-        ndcClientConfiguration.setServerPort(9866);
+        ndcClientConfiguration.setServerPort(8888);
         ndcClientConfiguration.setReconnectInterval(3);
 
         log.info("---准备发起注册---");

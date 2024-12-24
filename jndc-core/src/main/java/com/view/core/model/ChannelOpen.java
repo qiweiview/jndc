@@ -11,6 +11,8 @@ import java.io.Serializable;
 @Data
 @Slf4j
 public class ChannelOpen implements Serializable {
+    public static final long serialVersionUID = -4599902495744735536L;
+
     //磁盘固定生成
     private String ndcClientId;
 

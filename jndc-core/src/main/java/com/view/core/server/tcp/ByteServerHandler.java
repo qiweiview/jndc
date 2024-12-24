@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.time.LocalTime;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -152,14 +151,15 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     private void bufferFlush() {
         if (!bufferQueue.isEmpty()) {
-            long l = System.currentTimeMillis();
             synchronized (this) {
 
                 if (!bufferQueue.isEmpty()) {
-                    bufferQueue.forEach(this::writeDataIntoChannel);
+                    bufferQueue.forEach(X->{
+                        //TODO 顺序循环写入
+                        writeDataIntoChannel(X);
+                    });
                     bufferQueue.clear();
                     directWrite = true;
-                    log.info("{}缓冲区刷新完成{}",directWrite, System.currentTimeMillis() - l);
                 }
             }
         }
@@ -199,6 +199,11 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
         //构建报文
         NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+
+        //设置该包来源地址
+        InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+        ndcPacket.setRemoteAddress(socketAddress.getAddress());
+        ndcPacket.setRemotePort(socketAddress.getPort());
         GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
     }
 

@@ -42,7 +42,10 @@ public class NDCPacket {
             4byte
 |          remote port         |
  --------------------------------
-            4byte
+            8byte
+|        timestamp (ms)        |
+ --------------------------------
+             4byte
 |          data length         |
  --------------------------------
     data length byte
@@ -95,7 +98,7 @@ public class NDCPacket {
     public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024;
 
     //the length of the fixed part of protocol
-    public static final int FIX_LENGTH = 29;
+    public static final int FIX_LENGTH = 37;
 
     //magic variable
     public static final byte[] BLANK = "BLANK".getBytes();
@@ -127,6 +130,8 @@ public class NDCPacket {
 
     private int localPort;
 
+    private long timestamp = System.currentTimeMillis();
+
     private int dataSize;
 
     private byte[] data;
@@ -148,6 +153,7 @@ public class NDCPacket {
         ndcPacket.setServerPort(getServerPort());
         ndcPacket.setRemotePort(getRemotePort());
         ndcPacket.setType(getType());
+        ndcPacket.setTimestamp(getTimestamp());
 
         //clear data
         if (withData) {
@@ -182,7 +188,8 @@ public class NDCPacket {
                                int remotePort,
                                int serverPort,
                                int localPort,
-                               byte type) {
+                               byte type,
+                               long timestamp) {
 
         NDCPacket NdcPacket = new NDCPacket();
         NdcPacket.setRemoteAddress(remoteAddress);
@@ -191,6 +198,7 @@ public class NDCPacket {
         NdcPacket.setServerPort(serverPort);
         NdcPacket.setRemotePort(remotePort);
         NdcPacket.setType(type);
+        NdcPacket.setTimestamp(timestamp);
         NdcPacket.setData(new byte[0]);
         return NdcPacket;
     }
@@ -209,25 +217,27 @@ public class NDCPacket {
 
 
         //replace with Arrays.compare in jdk 9
-        if (!Arrays.equals(MAGIC, Arrays.copyOfRange(bytes, 0, 3))) {
+        if (!Arrays.equals(MAGIC, Arrays.copyOfRange(bytes, 0, 3))) {//3 byte
             throw new RuntimeException("unSupportProtocol");
         }
 
-        byte version = Arrays.copyOfRange(bytes, 3, 4)[0];
+        byte version = Arrays.copyOfRange(bytes, 3, 4)[0];//1 byte
 
-        byte type = Arrays.copyOfRange(bytes, 4, 5)[0];
+        byte type = Arrays.copyOfRange(bytes, 4, 5)[0];//1 byte
 
-        byte[] localInetAddress = Arrays.copyOfRange(bytes, 5, 9);
+        byte[] localInetAddress = Arrays.copyOfRange(bytes, 5, 9);//4 byte
 
-        byte[] remoteInetAddress = Arrays.copyOfRange(bytes, 9, 13);
+        byte[] remoteInetAddress = Arrays.copyOfRange(bytes, 9, 13);//4 byte
 
-        int localPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 13, 17));
+        int localPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 13, 17));//4 byte
 
-        int serverPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 17, 21));
+        int serverPort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 17, 21));//4 byte
 
-        int remotePort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 21, 25));
+        int remotePort = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 21, 25));//4 byte
 
-        int dataSize = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 25, FIX_LENGTH));
+        long timestamp = HexUtils.byteArray2Long(Arrays.copyOfRange(bytes, 25, 33));//8 byte
+
+        int dataSize = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 33, FIX_LENGTH));//4 byte
 
         NDCPacket NdcPacket = new NDCPacket();
         NdcPacket.setVersion(version);
@@ -243,9 +253,9 @@ public class NDCPacket {
         NdcPacket.setServerPort(serverPort);
         NdcPacket.setRemotePort(remotePort);
         NdcPacket.setDataSize(dataSize);
+        NdcPacket.setTimestamp(timestamp);
         return NdcPacket;
     }
-
 
 
     /**
@@ -307,12 +317,13 @@ public class NDCPacket {
             byteArrayOutputStream.write(HexUtils.int2ByteArray(localPort));//4 byte -->17
             byteArrayOutputStream.write(HexUtils.int2ByteArray(serverPort));//4 byte -->21
             byteArrayOutputStream.write(HexUtils.int2ByteArray(remotePort));//4 byte -->25
+            byteArrayOutputStream.write(HexUtils.longToBytes(timestamp));//8 byte -->33
 
             dataSize = data.length;
             if (dataSize > AUTO_UNPACK_LENGTH) {
                 throw new RuntimeException("too long data,need run autoUnpack()");
             }
-            byteArrayOutputStream.write(HexUtils.int2ByteArray(dataSize));//4 byte -->29
+            byteArrayOutputStream.write(HexUtils.int2ByteArray(dataSize));//4 byte -->37
             byteArrayOutputStream.write(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -338,4 +349,11 @@ public class NDCPacket {
     }
 
 
+    /**
+     * 计算单包延迟
+     * @return
+     */
+    public long packageTimeout() {
+        return System.currentTimeMillis() - timestamp;
+    }
 }

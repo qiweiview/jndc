@@ -8,6 +8,8 @@ import java.io.Serializable;
 @Data
 @Slf4j
 public class TCPDataTransport implements Serializable {
+    private static final long serialVersionUID = 5613575214075644978L;
+
     //远程
     private String ndcServerId;
 

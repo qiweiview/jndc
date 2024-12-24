@@ -287,6 +287,8 @@ public class NDCClient {
      */
     private void handleDataPackage(NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getRemoteAddress(),ndcPacket.getRemotePort(),ndcPacket.packageTimeout());
+
         String clientServiceId = tcpDataTransport.getClientServiceId();
         VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
         if (virtualTCPService == null) {

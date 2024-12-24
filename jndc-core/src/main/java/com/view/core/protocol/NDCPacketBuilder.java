@@ -14,7 +14,9 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.CHANNEL_HEART_BEAT);
+                NDCPacket.CHANNEL_HEART_BEAT,
+                System.currentTimeMillis()
+        );
         ndcPacket.setData(NDCPacket.BLANK_DATA);
         return ndcPacket;
     }
@@ -26,7 +28,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.SERVICE_REGISTER);
+                NDCPacket.SERVICE_REGISTER,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
         return ndcPacket;
     }
@@ -38,7 +41,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.SERVICE_UNREGISTER);
+                NDCPacket.SERVICE_UNREGISTER,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
         return ndcPacket;
     }
@@ -50,7 +54,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.OPEN_CHANNEL);
+                NDCPacket.OPEN_CHANNEL,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(channelOpen));
         return ndcPacket;
     }
@@ -63,7 +68,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.TCP_DATA);
+                NDCPacket.TCP_DATA,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
         return ndcPacket;
     }
@@ -75,7 +81,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.TCP_ACTIVE);
+                NDCPacket.TCP_ACTIVE,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
         return ndcPacket;
     }
@@ -87,7 +94,8 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.TCP_IN_ACTIVE);
+                NDCPacket.TCP_IN_ACTIVE,
+                System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
         return ndcPacket;
     }

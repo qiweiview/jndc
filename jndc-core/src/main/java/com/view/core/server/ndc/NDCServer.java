@@ -97,11 +97,10 @@ public class NDCServer {
 
 
                 //流量统计
-
-                String clientId = getClientId(ctx);
-                if (clientId != null) {
-                    GlobalBeanContext.GENERAL_CONTROL.addTraffic(clientId, ndcPacket.getDataSize());
-                }
+//                String clientId = getClientId(ctx);
+//                if (clientId != null) {
+//                    GlobalBeanContext.GENERAL_CONTROL.addTraffic(clientId, ndcPacket.getDataSize());
+//                }
 
 
                 //判断
@@ -234,6 +233,7 @@ public class NDCServer {
 
     private void handleTCPDataPackage(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort(),ndcPacket.packageTimeout());
         GlobalBeanContext.EVENT_BUS.post(tcpDataTransport);
     }
 
