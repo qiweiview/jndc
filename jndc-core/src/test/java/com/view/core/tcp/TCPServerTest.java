@@ -23,18 +23,19 @@ public class TCPServerTest {
 
     @Test
     public void runServer() {
-        new Thread(() -> {
-            try {
-                TimeUnit.SECONDS.sleep(15);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            tcpServer.stop();
-            log.info("执行关闭");
-        }).start();
+
+//        new Thread(() -> {
+//            try {
+//                TimeUnit.SECONDS.sleep(15);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            tcpServer.stop();
+//            log.info("执行关闭");
+//        }).start();
 
         tcpServer.start(888, () -> {
-            log.info("15秒后关闭");
+            log.info("服务启动成功");
         });
     }
 

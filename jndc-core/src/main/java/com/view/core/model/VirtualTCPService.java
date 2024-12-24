@@ -43,7 +43,7 @@ public class VirtualTCPService implements Serializable {
      *
      * @param tcpDataTransport 远程会话信息
      */
-    public void openLocalServiceClient(TCPDataTransport tcpDataTransport, Consumer<TCPClient> consumer) {
+    public void openLocalServiceClient(TCPDataTransport tcpDataTransport, Consumer<TCPClient> clientStartedCallback) {
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
         String appServerId = tcpDataTransport.getAppServerId();
 
@@ -57,7 +57,7 @@ public class VirtualTCPService implements Serializable {
 
             //注册客户端
             controllableClientMap.put(appServerSessionId, tcpClient);
-            consumer.accept(tcpClient);
+            clientStartedCallback.accept(tcpClient);
         });
     }
 

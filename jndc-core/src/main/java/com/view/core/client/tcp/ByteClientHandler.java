@@ -16,19 +16,17 @@ import java.util.List;
 @Data
 @Slf4j
 public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
+    private TCPClientConfiguration tcpClientConfiguration;
+
     private  SupportEnvironment supportEnvironment;
 
     private TCPClient tcpClient;
 
     private ChannelHandlerContext ctx;
 
-    private List<DataSlot<byte[]>> slots;
-
-
     public ByteClientHandler(TCPClient tcpClient,SupportEnvironment supportEnvironment) {
         this.supportEnvironment = supportEnvironment;
         this.tcpClient = tcpClient;
-        this.slots = tcpClient.getSlots();
     }
 
     @Override
@@ -41,15 +39,8 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
         log.debug("TCP客户端读取数据\n{}", new String(msg));
 
-        if (slots != null) {
-            try {
-                slots.forEach(x -> {
-                    x.getConsumer().accept(msg);
-                });
-            } catch (Exception e) {
-                log.warn("插槽处理异常", e);
-            }
-        }
+        //tcp
+        tcpClientConfiguration.getReadCallBack().accept(msg);
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         tcpDataTransport.setData(msg);
@@ -59,7 +50,6 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
 
         //组包，发送
         writePackageIntoChannel(tcpDataTransport,socketAddress);
-
     }
 
     /**

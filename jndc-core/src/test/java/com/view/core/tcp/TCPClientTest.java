@@ -9,10 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Slf4j
 public class TCPClientTest {
 
     private TCPClient client;
+
     private SupportEnvironment supportEnvironment;
 
     @BeforeEach
@@ -23,12 +26,21 @@ public class TCPClientTest {
 
     @Test
     public void runClient() {
+        AtomicBoolean ready = new AtomicBoolean(false);
         new Thread(() -> {
+            while (!ready.get()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             client.receiveData("hello im client".getBytes());
         }).start();
 
         client.start("127.0.0.1", 888, () -> {
-
+            log.info("客户端启动成功");
+            ready.set(true);
         });
 
     }
