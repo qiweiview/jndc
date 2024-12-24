@@ -1,7 +1,7 @@
 package com.view.core.server.ndc;
 
 import com.view.core.client.ndc.NDCClientInfo;
-import com.view.core.component.GlobalBeanContext;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
+    private SupportEnvironment supportEnvironment =new SupportEnvironment();
+
     //配置
     private NDCServerConfiguration ndcServerConfiguration;
 
@@ -79,7 +81,7 @@ public class NDCServer {
                 //todo active回调
                 SessionContext sessionContext = SessionContext.of(ctx);
                 try {
-                    SessionContext apply = ndcServerConfiguration.getConnectActive().apply(sessionContext);
+                    SessionContext apply = ndcServerConfiguration.getConnectActiveCallback().apply(sessionContext);
                     return apply;
                 } catch (Exception e) {
                     log.error("连接激活回调异常", e);
@@ -95,12 +97,6 @@ public class NDCServer {
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
 
-
-                //流量统计
-//                String clientId = getClientId(ctx);
-//                if (clientId != null) {
-//                    GlobalBeanContext.GENERAL_CONTROL.addTraffic(clientId, ndcPacket.getDataSize());
-//                }
 
 
                 //判断
@@ -134,7 +130,7 @@ public class NDCServer {
                 SessionContext sessionContext = (SessionContext) channel.attr(AttributeKey.valueOf(NDCServerHandler.SESSION_CONTEXT)).get();
 
                 try {
-                    ndcServerConfiguration.getConnectInActive().accept(sessionContext);
+                    ndcServerConfiguration.getConnectInActiveCallback().accept(sessionContext);
                 } catch (Exception e) {
                     log.error("连接中断回调异常", e);
                 } finally {
@@ -151,7 +147,7 @@ public class NDCServer {
 
                 ChannelOperation channelOperation = ChannelOperation.ofInactive(clientId);
                 //【异步处理】连接中断事件
-                GlobalBeanContext.EVENT_BUS.post(channelOperation);
+                supportEnvironment.EVENT_BUS.post(channelOperation);
 
                 //移除
                 ndcClientSessionMap.remove(clientId);
@@ -184,7 +180,7 @@ public class NDCServer {
             ChannelFuture channelFuture = b.bind(host, port).sync();
             channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
-                    GlobalBeanContext.NDC_SERVER = this;
+                    supportEnvironment.NDC_SERVER = this;
                     startedCallback.run();
                     log.info("NDC服务启动成功，{}：{}", host, port);
                 } else {
@@ -214,7 +210,7 @@ public class NDCServer {
         ServiceOperation serviceOperation = ServiceOperation.ofWithdraw(virtualTCPService);
         serviceOperation.setNdcServerId(ndcServerId);
         //异步处理
-        GlobalBeanContext.EVENT_BUS.post(serviceOperation);
+        supportEnvironment.EVENT_BUS.post(serviceOperation);
     }
 
     /**
@@ -225,16 +221,16 @@ public class NDCServer {
         Runnable runnable = () -> {
             //todo 异步处理
             TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-            GlobalBeanContext.APP_CENTER.noticeActiveCompleted(tcpDataTransport);
+            supportEnvironment.APP_CENTER.noticeActiveCompleted(tcpDataTransport);
         };
 
-        GlobalBeanContext.EVENT_BUS.post(runnable);
+        supportEnvironment.EVENT_BUS.post(runnable);
     }
 
     private void handleTCPDataPackage(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort(),ndcPacket.packageTimeout());
-        GlobalBeanContext.EVENT_BUS.post(tcpDataTransport);
+        supportEnvironment.EVENT_BUS.post(tcpDataTransport);
     }
 
     private void handleServiceRegister(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
@@ -249,7 +245,7 @@ public class NDCServer {
         ServiceOperation serviceOperation = ServiceOperation.ofDeploy(virtualTCPService);
         serviceOperation.setNdcServerId(ndcServerId);
         //异步处理
-        GlobalBeanContext.EVENT_BUS.post(serviceOperation);
+        supportEnvironment.EVENT_BUS.post(serviceOperation);
     }
 
     /**
@@ -285,7 +281,7 @@ public class NDCServer {
             ctx.writeAndFlush(NDCPacketBuilder.openChannelPacket(channelOpen));
         };
 
-        GlobalBeanContext.EVENT_BUS.post(runnable);
+        supportEnvironment.EVENT_BUS.post(runnable);
 
         Channel channel = ctx.channel();
         SessionContext sessionContext = (SessionContext) channel.attr(AttributeKey.valueOf(NDCServerHandler.SESSION_CONTEXT)).get();
@@ -293,9 +289,9 @@ public class NDCServer {
         //通道打开事件
         Runnable runnable1 = () -> {
             sessionContext.setClientUniqueId(ndcClientId);
-            ndcServerConfiguration.getOpenChannel().accept(sessionContext);
+            ndcServerConfiguration.getOpenChannelCallback().accept(sessionContext);
         };
-        GlobalBeanContext.EVENT_BUS.post(runnable1);
+        supportEnvironment.EVENT_BUS.post(runnable1);
 
 
     }

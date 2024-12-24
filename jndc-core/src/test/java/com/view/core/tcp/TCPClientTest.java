@@ -1,7 +1,7 @@
 package com.view.core.tcp;
 
 import com.view.core.client.tcp.TCPClient;
-import com.view.core.component.GlobalBeanContext;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.utils.UniqueId;
@@ -13,10 +13,12 @@ import org.junit.jupiter.api.Test;
 public class TCPClientTest {
 
     private TCPClient client;
+    private SupportEnvironment supportEnvironment;
 
     @BeforeEach
     public void init() {
-        client = new TCPClient();
+          supportEnvironment = new SupportEnvironment();
+        client = new TCPClient(supportEnvironment);
     }
 
     @Test
@@ -78,7 +80,7 @@ public class TCPClientTest {
             });
 
             //异步发送数据
-            GlobalBeanContext.EVENT_BUS.post(callBack);
+            supportEnvironment.EVENT_BUS.post(callBack);
         });
 
 

@@ -10,90 +10,67 @@ import java.io.Serializable;
 @Data
 public class JndcRuleIpDTO implements Serializable {
 
-    /**
-     * 所属id
-     */
-    private Long belongId;
+  /** 所属id */
+  private Long belongId;
 
-    /**
-     * 所属id
-     */
-    private String belongIds;
+  /** 所属id */
+  private String belongIds;
 
-    /**
-     * 创建时间
-     */
-    private java.time.LocalDateTime createTime;
+  /** 创建时间 */
+  private java.time.LocalDateTime createTime;
 
-    /**
-     * id
-     */
-    private Long id;
+  /** id */
+  private Long id;
 
-    /**
-     * id
-     */
-    private String ids;
+  /** id */
+  private String ids;
 
-    /**
-     * 字符id（处理浏览器long精度丢失问题）
-     */
-    private String idString;
+  /** 字符id（处理浏览器long精度丢失问题） */
+  private String idString;
 
-    public void setId(Long id) {
-        this.id = id;
-        if (id != null && idString == null) {
-            this.idString = id.toString();
-        }
+  public void setId(Long id) {
+    this.id = id;
+    if (id != null && idString == null) {
+      this.idString = id.toString();
     }
+  }
 
-    public void setIdString(String idString) {
-        this.idString = idString;
-        if (idString != null) {
-            this.id = Long.parseLong(idString);
-        }
+  public void setIdString(String idString) {
+    this.idString = idString;
+    if (idString != null) {
+      this.id = Long.parseLong(idString);
     }
+  }
 
-    /**
-     * ip地址
-     */
-    private String ipAddress;
+  /** ip地址 */
+  private String ipAddress;
 
-    /**
-     * 规则名称
-     */
-    private String ruleName;
+  /** 规则名称 */
+  private String ruleName;
 
-    /**
-     * 是否生效
-     */
-    private String ruleStatus;
+  /** 是否生效 */
+  private String ruleStatus;
 
-    /**
-     * 规则类型
-     */
-    private String ruleType;
+  /** 规则类型 */
+  private String ruleType;
 
-    /**
-     * 修改时间
-     */
-    private java.time.LocalDateTime updateTime;
+  /** 采样长度 */
+  private Integer samplingLength;
 
-    /**
-     * 一页页的条数
-     */
-    private Long size;
+  /** 修改时间 */
+  private java.time.LocalDateTime updateTime;
 
-    /**
-     * 当前页码
-     */
-    protected Long current;
+  /** 一页页的条数 */
+  private Long size;
 
-    public JndcRuleIpDO toDO() {
-        return JndcRuleIpStructMapper.INSTANCE.toDO(this);
-    }
+  /** 当前页码 */
+  protected Long current;
 
-    public JndcRuleIpVO toVO() {
-        return JndcRuleIpStructMapper.INSTANCE.toVO(this);
-    }
+  public JndcRuleIpDO toDO() {
+    return JndcRuleIpStructMapper.INSTANCE.toDO(this);
+  }
+
+  public JndcRuleIpVO toVO() {
+    return JndcRuleIpStructMapper.INSTANCE.toVO(this);
+  }
 }

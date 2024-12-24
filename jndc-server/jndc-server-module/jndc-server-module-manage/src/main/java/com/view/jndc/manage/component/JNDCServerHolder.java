@@ -1,13 +1,16 @@
 package com.view.jndc.manage.component;
 
+import com.google.common.eventbus.AsyncEventBus;
 import com.view.core.server.ndc.NDCServer;
 import com.view.core.server.ndc.NDCServerConfiguration;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
 import com.view.jndc.manage.enums.JNDCServerStatusEnum;
+import com.view.jndc.manage.model.jndc_access_history.dto.JndcAccessHistoryDTO;
 import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.view.jndc.manage.model.jndc_server_accept_history.d_o.JndcServerAcceptHistoryDO;
 import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
+import com.view.jndc.manage.serviceI.jndc_access_history.JndcAccessHistoryServiceI;
 import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +35,15 @@ public class JNDCServerHolder {
 
     private Set<Integer> bindPortSet = new ConcurrentSkipListSet<>();
 
+    private final AsyncEventBus asyncEventBus;
+
     private final JndcServerDao jndcServerDao;
 
     private final JndcLogServiceI jndcLogServiceI;
 
     private final JndcServerAcceptHistoryServiceI jndcServerAcceptHistoryServiceI;
+
+    private final JndcAccessHistoryServiceI jndcAccessHistoryServiceI;
 
     public void startServer(JndcServerDTO jndcServerDTO) {
         executorService.submit(() -> {
@@ -109,9 +116,19 @@ public class JNDCServerHolder {
 
 
                 /*------------------- 会话部分 -------------------*/
-                jndcServerConfiguration.setConnectActive((e) -> {
+                jndcServerConfiguration.setConnectActiveCallback((e) -> {
                     //todo 连接激活
 
+                    //异步保存访问记录
+                    Runnable runnable=()->{
+                        //连接记录
+                        JndcAccessHistoryDTO jndcAccessHistoryDTO = new JndcAccessHistoryDTO();
+                        jndcAccessHistoryDTO.setRemoteIp(e.getHost());
+                        jndcAccessHistoryDTO.setRemotePort(e.getPort());
+                        jndcAccessHistoryDTO.setDestination("jndc-server");
+                        jndcAccessHistoryServiceI.save(jndcAccessHistoryDTO);
+                    };
+                    asyncEventBus.post(runnable);
 
                     JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO = new JndcServerAcceptHistoryDTO();
                     jndcServerAcceptHistoryDTO.setServerId(id);
@@ -120,11 +137,15 @@ public class JNDCServerHolder {
                     jndcServerAcceptHistoryDTO.setSourcePort(e.getPort());
                     JndcServerAcceptHistoryDO save = jndcServerAcceptHistoryServiceI.save(jndcServerAcceptHistoryDTO);
 
+                    //todo 保存连接历史记录
                     e.setAcceptHistoryId(save.getId());
+
+
+
                     return e;
                 });
 
-                jndcServerConfiguration.setConnectInActive((e) -> {
+                jndcServerConfiguration.setConnectInActiveCallback((e) -> {
                     //todo 连接失活
                     Long acceptHistoryId = e.getAcceptHistoryId();
                     JndcServerAcceptHistoryDTO byId = jndcServerAcceptHistoryServiceI.getById(acceptHistoryId);
@@ -138,7 +159,7 @@ public class JNDCServerHolder {
 
                 });
 
-                jndcServerConfiguration.setOpenChannel(e -> {
+                jndcServerConfiguration.setOpenChannelCallback(e -> {
                     Long acceptHistoryId = e.getAcceptHistoryId();
                     String clientUniqueId = e.getClientUniqueId();
                     JndcServerAcceptHistoryDTO byId = jndcServerAcceptHistoryServiceI.getById(acceptHistoryId);

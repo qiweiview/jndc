@@ -1,6 +1,7 @@
 package com.view.core.client.tcp;
 
 import com.view.core.client.ControllableClient;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.DataSlot;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -22,6 +23,8 @@ import java.util.function.Consumer;
 @Slf4j
 @Data
 public class TCPClient extends ControllableClient {
+    private  SupportEnvironment supportEnvironment;
+
     private ByteClientHandler byteClientHandler;
 
     private EventLoopGroup workerGroup;
@@ -31,6 +34,11 @@ public class TCPClient extends ControllableClient {
     private String host;
 
     private int port;
+
+
+    public TCPClient(SupportEnvironment supportEnvironment) {
+        this.supportEnvironment = supportEnvironment;
+    }
 
     public void start(String host, int port, Runnable callBack) {
         TCPClient tcpClient = this;
@@ -53,7 +61,7 @@ public class TCPClient extends ControllableClient {
                 pipeline.addLast(new ByteArrayDecoder());
                 pipeline.addLast(new ByteArrayEncoder());
 
-                byteClientHandler = new ByteClientHandler(tcpClient);
+                byteClientHandler = new ByteClientHandler(tcpClient,supportEnvironment);
 
                 pipeline.addLast(byteClientHandler);
 

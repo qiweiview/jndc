@@ -16,18 +16,18 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     private SessionContext sessionContext;
 
-    private ChannelRead0Function<NDCPacket, SessionContext> active;
+    private ChannelRead0Function<NDCPacket, SessionContext> activeCallBack;
 
-    private ChannelRead0Consumer<NDCPacket> read;
+    private ChannelRead0Consumer<NDCPacket> readCallBack;
 
-    private ChannelRead0Consumer<NDCPacket> inactive;
+    private ChannelRead0Consumer<NDCPacket> inactiveCallBack;
 
-    public NDCServerHandler(ChannelRead0Function<NDCPacket, SessionContext> active,
-                            ChannelRead0Consumer<NDCPacket> read,
-                            ChannelRead0Consumer<NDCPacket> inactive) {
-        this.active = active;
-        this.read = read;
-        this.inactive = inactive;
+    public NDCServerHandler(ChannelRead0Function<NDCPacket, SessionContext> activeCallBack,
+                            ChannelRead0Consumer<NDCPacket> readCallBack,
+                            ChannelRead0Consumer<NDCPacket> inactiveCallBack) {
+        this.activeCallBack = activeCallBack;
+        this.readCallBack = readCallBack;
+        this.inactiveCallBack = inactiveCallBack;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
         log.debug("连接成功：{}", ctx.channel().remoteAddress());
 
         //创建会话上下文
-        sessionContext = active.accept(ctx);
+        sessionContext = activeCallBack.accept(ctx);
         ctx.channel().attr(AttributeKey.valueOf(SESSION_CONTEXT)).set(sessionContext);
     }
 
@@ -54,12 +54,12 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NDCPacket msg) throws Exception {
         log.debug("server收到消息：{}", msg);
-        read.accept(ctx, msg);
+        readCallBack.accept(ctx, msg);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        inactive.accept(ctx);
+        inactiveCallBack.accept(ctx);
     }
 
 

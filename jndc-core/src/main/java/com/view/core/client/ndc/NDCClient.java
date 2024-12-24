@@ -1,6 +1,6 @@
 package com.view.core.client.ndc;
 
-import com.view.core.component.GlobalBeanContext;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class NDCClient {
+    private SupportEnvironment supportEnvironment =new SupportEnvironment();
 
     private Channel clientChannel;
 
@@ -126,7 +127,7 @@ public class NDCClient {
                     //todo 远程连接激活
                     handleTCPActive(ndcPacket);
                 } else if (NDCPacketHelper.isTCPInActivePacket(ndcPacket)) {
-                    //todo 远程连接激活
+                    //todo 远程连接关闭
                     handleTCPInActive(ndcPacket);
                 } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                     //todo 数据包
@@ -175,7 +176,7 @@ public class NDCClient {
             ChannelFuture channelFuture = bootstrap.connect(host, port);
             channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
-                    GlobalBeanContext.NDC_CLIENT = this;
+                    supportEnvironment.NDC_CLIENT = this;
                     log.info("NDC客户端启动成功：{}:{}", host, port);
                     ndcClientConfiguration.getStartedCallback().run();
                 } else {
@@ -237,7 +238,7 @@ public class NDCClient {
             Runnable runnable = () -> {
                 virtualTCPService.stopServiceClient(tcpDataTransport);
             };
-            GlobalBeanContext.EVENT_BUS.post(runnable);
+            supportEnvironment.EVENT_BUS.post(runnable);
         }
     }
 
@@ -276,7 +277,7 @@ public class NDCClient {
             };
 
             //异步处理
-            GlobalBeanContext.EVENT_BUS.post(runnable);
+            supportEnvironment.EVENT_BUS.post(runnable);
         }
     }
 
@@ -298,7 +299,7 @@ public class NDCClient {
             Runnable runnable = () -> {
                 virtualTCPService.receiveDataFromRemote(tcpDataTransport);
             };
-            GlobalBeanContext.EVENT_BUS.post(runnable);
+            supportEnvironment.EVENT_BUS.post(runnable);
         }
     }
 
@@ -314,6 +315,7 @@ public class NDCClient {
         //发送缓冲区报文
         bufferPackage.forEach(tobeSend -> {
             VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
+            virtualTCPService.setSupportEnvironment(supportEnvironment);
             if (ndcClientSessionMap.containsKey(virtualTCPService.getServiceId())) {
                 log.warn("服务已经注册{}", virtualTCPService.getServiceId());
             } else {

@@ -9,6 +9,7 @@ interface FormItemProps {
   ruleName?: string;
   ruleStatus?: string;
   ruleType?: string;
+  samplingLength?: string;
   updateTime?: string;
 }
 

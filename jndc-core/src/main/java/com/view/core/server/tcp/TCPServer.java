@@ -1,6 +1,7 @@
 package com.view.core.server.tcp;
 
 
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.server.ControllableServer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -21,6 +22,8 @@ import java.util.Map;
 @Data
 @Slf4j
 public class TCPServer extends ControllableServer {
+    private SupportEnvironment supportEnvironment;
+
     private EventLoopGroup bossGroup;
 
     private EventLoopGroup workerGroup;
@@ -29,7 +32,9 @@ public class TCPServer extends ControllableServer {
 
     private int port;
 
-
+    public TCPServer(SupportEnvironment supportEnvironment) {
+        this.supportEnvironment = supportEnvironment;
+    }
 
     /**
      * 启动服务
@@ -53,7 +58,7 @@ public class TCPServer extends ControllableServer {
 
                         pipeline.addLast(new ByteArrayDecoder());
                         pipeline.addLast(new ByteArrayEncoder());
-                        pipeline.addLast(new ByteServerHandler(tcpServer));
+                        pipeline.addLast(new ByteServerHandler(tcpServer,supportEnvironment));
                     }
                 });
 

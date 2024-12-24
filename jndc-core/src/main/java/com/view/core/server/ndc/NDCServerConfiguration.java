@@ -22,11 +22,11 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
     private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
 
     /*------服务端连接------*/
-    private Function<SessionContext, SessionContext> connectActive = EMPTY_FUNCTION(SessionContext.class);
+    private Function<SessionContext, SessionContext> connectActiveCallback = EMPTY_FUNCTION(SessionContext.class);
 
-    private Consumer<SessionContext> openChannel = EMPTY_CONSUMER(SessionContext.class);
+    private Consumer<SessionContext> openChannelCallback = EMPTY_CONSUMER(SessionContext.class);
 
-    private Consumer<SessionContext> connectInActive = EMPTY_CONSUMER(SessionContext.class);
+    private Consumer<SessionContext> connectInActiveCallback = EMPTY_CONSUMER(SessionContext.class);
 
 
     @Override

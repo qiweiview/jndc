@@ -7,5 +7,6 @@ export const formRules = reactive(<FormRules>{
   ipAddress: [{ required: true, message: "ip地址为必填", trigger: "blur" }],
   ruleName: [{ required: true, message: "规则名称为必填", trigger: "blur" }],
   ruleStatus: [{ required: true, message: "是否生效为必填", trigger: "blur" }],
-  ruleType: [{ required: true, message: "规则类型为必填", trigger: "blur" }]
+  ruleType: [{ required: true, message: "规则类型为必填", trigger: "blur" }],
+  samplingLength: [{ required: true, message: "采样长度为必填", trigger: "blur" }],
 });

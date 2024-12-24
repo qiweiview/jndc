@@ -5,15 +5,16 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-    belongId: null,
+        belongId: null,
     createTime: null,
     id: null,
     ipAddress: null,
     ruleName: null,
     ruleStatus: null,
     ruleType: null,
+    samplingLength: null,
     updateTime: null,
-    idString: null
+    idString:null
   })
 });
 
@@ -27,7 +28,11 @@ defineExpose({ getRef });
 </script>
 
 <template>
-  <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
+  <el-form
+    ref="ruleFormRef"
+    :model="newFormInline"
+    :rules="formRules"
+  >
     <el-form-item label="所属id：" prop="belongId">
       <el-input
         v-model="newFormInline.belongId"
@@ -66,6 +71,14 @@ defineExpose({ getRef });
         autocomplete="off"
         clearable
         placeholder="请输入规则类型"
+      />
+    </el-form-item>
+    <el-form-item label="采样长度：" prop="samplingLength">
+      <el-input
+        v-model="newFormInline.samplingLength"
+        autocomplete="off"
+        clearable
+        placeholder="请输入采样长度"
       />
     </el-form-item>
   </el-form>

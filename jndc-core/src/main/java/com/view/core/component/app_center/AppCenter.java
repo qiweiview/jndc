@@ -1,5 +1,6 @@
 package com.view.core.component.app_center;
 
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.VirtualTCPService;
 import com.view.core.server.tcp.TCPServer;
@@ -14,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 @Slf4j
 public class AppCenter {
+    private SupportEnvironment supportEnvironment;
+
     //key:serviceId
     private Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
 
@@ -51,7 +54,7 @@ public class AppCenter {
         int expectPort = virtualTCPService.getExpectPort();
         if (portBindable(expectPort)) {
             //todo 可以绑定
-            TCPServer tcpServer = new TCPServer();
+            TCPServer tcpServer = new TCPServer(supportEnvironment);
             tcpServer.setDescription(virtualTCPService.prettyDescription());
             tcpServer.setNdcClientId(ndcClientId);
             tcpServer.setClientServiceId(virtualTCPService.getServiceId());

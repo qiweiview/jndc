@@ -2,6 +2,7 @@ package com.view.core.model;
 
 import com.view.core.client.ControllableClient;
 import com.view.core.client.tcp.TCPClient;
+import com.view.core.component.SupportEnvironment;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,8 @@ public class VirtualTCPService implements Serializable {
     //由上下文填写
     private String ndcClientId;
 
+    //不序列化
+    private transient SupportEnvironment supportEnvironment;
 
     /*------本地服务------*/
     private int expectPort;
@@ -45,7 +48,7 @@ public class VirtualTCPService implements Serializable {
         String appServerId = tcpDataTransport.getAppServerId();
 
         //todo 创建客户端
-        TCPClient tcpClient = new TCPClient();
+        TCPClient tcpClient = new TCPClient(supportEnvironment);
         tcpClient.setAppServerId(appServerId);
         tcpClient.setAppServerSessionId(appServerSessionId);
         tcpClient.setClientServiceId(serviceId);

@@ -1,6 +1,6 @@
 package com.view.core.client.tcp;
 
-import com.view.core.component.GlobalBeanContext;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.DataSlot;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.protocol.NDCPacket;
@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @Slf4j
 public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
+    private  SupportEnvironment supportEnvironment;
 
     private TCPClient tcpClient;
 
@@ -24,7 +25,8 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     private List<DataSlot<byte[]>> slots;
 
 
-    public ByteClientHandler(TCPClient tcpClient) {
+    public ByteClientHandler(TCPClient tcpClient,SupportEnvironment supportEnvironment) {
+        this.supportEnvironment = supportEnvironment;
         this.tcpClient = tcpClient;
         this.slots = tcpClient.getSlots();
     }
@@ -73,8 +75,8 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
         log.debug("准备发送数据包：{}:{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort());
 
 
-        if (GlobalBeanContext.NDC_CLIENT != null) {
-            GlobalBeanContext.NDC_CLIENT.writePackage(ndcPacket);
+        if (supportEnvironment.NDC_CLIENT != null) {
+            supportEnvironment.NDC_CLIENT.writePackage(ndcPacket);
         } else {
             log.warn("NDC_CLIENT未初始化");
         }
@@ -84,12 +86,12 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
         InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        log.error("{}:{}  {}:{}TCP客户端异常，准备通知远程断开连接:{}",
+        log.error("{}:{}  {}:{}TCP客户端异常，准备通知远程断开连接:",
                 localAddress.getHostName(),
                 localAddress.getPort(),
                 remoteAddress.getHostName(),
                 remoteAddress.getPort(),
-                cause.getMessage());
+                cause);
         //当作断开连接处理
         //channelInactive(ctx);
     }

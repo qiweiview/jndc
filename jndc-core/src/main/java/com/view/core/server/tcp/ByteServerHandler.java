@@ -1,6 +1,6 @@
 package com.view.core.server.tcp;
 
-import com.view.core.component.GlobalBeanContext;
+import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
@@ -11,12 +11,13 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.time.LocalTime;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Data
 @Slf4j
 public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
+    private SupportEnvironment supportEnvironment;
+
     private String appServerSessionId;
 
     private TCPServer tcpServer;
@@ -37,7 +38,8 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     private volatile boolean directWrite = false;
 
 
-    public ByteServerHandler(TCPServer tcpServer) {
+    public ByteServerHandler(TCPServer tcpServer,SupportEnvironment supportEnvironment) {
+        this.supportEnvironment = supportEnvironment;
         this.tcpServer = tcpServer;
         this.connectedTime = System.currentTimeMillis();
     }
@@ -51,21 +53,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        String ip = socketAddress.getHostString();
-        boolean block = GlobalBeanContext.IP_BLOCKER.checkBlock(ip);
-        if (block) {
-            log.info("IP:{}被阻断", ip);
-            ctx.close();
-            return;
-        }
-
-        boolean b = GlobalBeanContext.TIME_BLOCKER.checkBlock(LocalTime.now());
-        if (b) {
-            log.info("当前时间被阻断");
-            ctx.close();
-            return;
-        }
 
 
         appServerSessionId = ctx.channel().id().asLongText();
@@ -82,7 +69,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
         //构建报文
         NDCPacket ndcPacket = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
-        GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
+        supportEnvironment.NDC_SERVER.write(ndcClientId, ndcPacket);
     }
 
     /**
@@ -107,7 +94,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         //向通道发送关闭消息
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         NDCPacket ndcPacket = NDCPacketBuilder.tcpInactivePacket(tcpDataTransport);
-        GlobalBeanContext.NDC_SERVER.write(tcpServer.getNdcClientId(), ndcPacket);
+        supportEnvironment.NDC_SERVER.write(tcpServer.getNdcClientId(), ndcPacket);
     }
 
 
@@ -119,7 +106,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         int port = socketAddress.getPort();
 
 
-        log.error("TCP服务端{}:{}异常，准备通知客户端断开连接{}", hostString,port,cause.getMessage());
+        log.error("TCP服务端{}:{}异常，准备通知客户端断开连接", hostString,port,cause);
         //当作连接断开处理
         //channelInactive(ctx);
     }
@@ -204,7 +191,7 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
         ndcPacket.setRemoteAddress(socketAddress.getAddress());
         ndcPacket.setRemotePort(socketAddress.getPort());
-        GlobalBeanContext.NDC_SERVER.write(ndcClientId, ndcPacket);
+        supportEnvironment.NDC_SERVER.write(ndcClientId, ndcPacket);
     }
 
     /**
