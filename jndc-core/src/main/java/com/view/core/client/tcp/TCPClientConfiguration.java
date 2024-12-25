@@ -22,7 +22,7 @@ public class TCPClientConfiguration extends CheckAbleConfiguration {
 
     private Consumer<TCPDataTransport> readCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(TCPDataTransport.class);
 
-    BiConsumer<TCPDataTransport, TCPClient> readCompleteCallBack = CheckAbleConfiguration.EMPTY_BICONSUMER(TCPDataTransport.class, TCPClient.class);
+    private BiConsumer<TCPDataTransport, TCPClient> readCompleteCallBack = CheckAbleConfiguration.EMPTY_BICONSUMER(TCPDataTransport.class, TCPClient.class);
 
     private BiConsumer<TCPDataTransport, TCPClient> inactiveCallBack = CheckAbleConfiguration.EMPTY_BICONSUMER(TCPDataTransport.class, TCPClient.class);
 
