@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 
 @Data
 @Slf4j
@@ -25,6 +26,10 @@ public class TCPDataTransport implements Serializable {
     private String clientServiceSessionId;
 
     private byte[] data;
+
+
+    private InetSocketAddress remote;
+
 
 
 }

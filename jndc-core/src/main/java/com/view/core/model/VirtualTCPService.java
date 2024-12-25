@@ -2,11 +2,16 @@ package com.view.core.model;
 
 import com.view.core.client.ControllableClient;
 import com.view.core.client.tcp.TCPClient;
+import com.view.core.client.tcp.TCPClientConfiguration;
 import com.view.core.component.SupportEnvironment;
+import com.view.core.protocol.NDCPacket;
+import com.view.core.protocol.NDCPacketBuilder;
+import com.view.core.utils.UniqueId;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -47,18 +52,59 @@ public class VirtualTCPService implements Serializable {
         String appServerSessionId = tcpDataTransport.getAppServerSessionId();
         String appServerId = tcpDataTransport.getAppServerId();
 
-        //todo 创建客户端
-        TCPClient tcpClient = new TCPClient(supportEnvironment);
-        tcpClient.setAppServerId(appServerId);
-        tcpClient.setAppServerSessionId(appServerSessionId);
-        tcpClient.setClientServiceId(serviceId);
-        tcpClient.start(host, port, () -> {
+
+        TCPClientConfiguration tcpClientConfiguration = new TCPClientConfiguration();
+        //读取数据回调
+        tcpClientConfiguration.setReadCallBack(x -> {
+            //todo 接收到数据
+
+            byte[] data = x.getData();
+            InetSocketAddress socketAddress = x.getRemote();
+
+
+            TCPDataTransport dataTransport = new TCPDataTransport();
+
+            //服务端信息
+
+            dataTransport.setAppServerId(appServerId);
+            dataTransport.setAppServerSessionId(appServerSessionId);
+
+            //客户端信息
+            dataTransport.setClientServiceId(serviceId);
+            dataTransport.setClientServiceSessionId(UniqueId.generate());
+            dataTransport.setData(data);
+
+
+            NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+            ndcPacket.setLocalAddress(socketAddress.getAddress());
+            ndcPacket.setLocalPort(socketAddress.getPort());
+
+
+            //向通道发送数据包
+            if (supportEnvironment.NDC_CLIENT != null) {
+                supportEnvironment.NDC_CLIENT.writePackage(ndcPacket);
+            } else {
+                log.warn("NDC_CLIENT未初始化");
+            }
+        });
+
+        //启动成功回调
+        tcpClientConfiguration.setStartSuccessCallBack((tcpClient) -> {
+
             //todo 回调
 
             //注册客户端
             controllableClientMap.put(appServerSessionId, tcpClient);
             clientStartedCallback.accept(tcpClient);
+
         });
+
+        //todo 创建客户端
+        TCPClient tcpClient = new TCPClient();
+        tcpClient.setAppServerId(appServerId);
+        tcpClient.setAppServerSessionId(appServerSessionId);
+        tcpClient.setClientServiceId(serviceId);
+        tcpClient.start(tcpClientConfiguration);
     }
 
     /**
@@ -89,7 +135,7 @@ public class VirtualTCPService implements Serializable {
             //todo 接收数据
             log.warn("未找到客户端，数据丢弃：{}", appServerSessionId);
         } else {
-            controllableClient.receiveData(tcpDataTransport.getData());
+            controllableClient.sendData(tcpDataTransport.getData());
         }
 
     }

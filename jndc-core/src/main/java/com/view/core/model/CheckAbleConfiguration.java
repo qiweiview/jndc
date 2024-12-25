@@ -3,6 +3,7 @@ package com.view.core.model;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -17,6 +18,11 @@ public abstract class CheckAbleConfiguration {
 
     public static <T> Consumer<T> EMPTY_CONSUMER(Class<T> tClass) {
         return (t) -> {
+        };
+    }
+
+    public static <T, Z> BiConsumer<T, Z> EMPTY_BICONSUMER(Class<T> tClass, Class<Z> tClass2) {
+        return (t, z) -> {
         };
     }
 

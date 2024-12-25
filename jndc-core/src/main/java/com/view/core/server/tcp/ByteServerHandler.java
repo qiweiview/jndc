@@ -72,12 +72,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         supportEnvironment.NDC_SERVER.write(ndcClientId, ndcPacket);
     }
 
-    /**
-     * 读、写都算活跃
-     */
-    private void active() {
-        this.recentActiveTime = System.currentTimeMillis();
-    }
 
 
     /**
@@ -154,7 +148,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-        active();
 
         if (activeCompleted) {
             //todo 准备好了直接写入
@@ -175,7 +168,6 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     }
 
     private void writeDataIntoChannel(byte[] bytes) {
-        active();
 
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
         tcpDataTransport.setData(bytes);
@@ -198,14 +190,10 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
      * 通知客户端已经就绪
      */
     public void noticeActiveCompleted() {
-        active();
         bufferFlush();
         activeCompleted = true;
     }
 
-    public boolean idleOverLimit() {
-        return System.currentTimeMillis() - recentActiveTime > timeoutLimit;
-    }
 
     public void close() {
         channelHandlerContext.close();

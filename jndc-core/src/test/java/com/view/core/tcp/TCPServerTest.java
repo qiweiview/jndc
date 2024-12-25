@@ -6,8 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 
 public class TCPServerTest {
@@ -24,15 +22,6 @@ public class TCPServerTest {
     @Test
     public void runServer() {
 
-//        new Thread(() -> {
-//            try {
-//                TimeUnit.SECONDS.sleep(15);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            tcpServer.stop();
-//            log.info("执行关闭");
-//        }).start();
 
         tcpServer.start(888, () -> {
             log.info("服务启动成功");

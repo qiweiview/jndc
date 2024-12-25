@@ -1,17 +1,13 @@
 package com.view.core.client.tcp;
 
 import com.view.core.component.SupportEnvironment;
-import com.view.core.model.DataSlot;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.NDCPacketBuilder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 @Data
 @Slf4j
@@ -24,53 +20,40 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
 
     private ChannelHandlerContext ctx;
 
-    public ByteClientHandler(TCPClient tcpClient,SupportEnvironment supportEnvironment) {
-        this.supportEnvironment = supportEnvironment;
+    public ByteClientHandler(TCPClient tcpClient, TCPClientConfiguration tcpClientConfiguration) {
         this.tcpClient = tcpClient;
+        this.tcpClientConfiguration = tcpClientConfiguration;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
-        log.debug("TCP客户端channelActive");
+
+        TCPDataTransport tcpDataTransport = createTCPDataTransport();
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        tcpDataTransport.setRemote(socketAddress);
+        tcpClientConfiguration.getActiveCallBack().accept(tcpDataTransport, tcpClient);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        TCPDataTransport tcpDataTransport = createTCPDataTransport();
+        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        tcpDataTransport.setRemote(socketAddress);
+        tcpClientConfiguration.getReadCompleteCallBack().accept(tcpDataTransport, tcpClient);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-        log.debug("TCP客户端读取数据\n{}", new String(msg));
-
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        TCPDataTransport dataTransport = new TCPDataTransport();
+        dataTransport.setData(msg);
+        dataTransport.setRemote(inetSocketAddress);
         //tcp
-        tcpClientConfiguration.getReadCallBack().accept(msg);
-
-        TCPDataTransport tcpDataTransport = createTCPDataTransport();
-        tcpDataTransport.setData(msg);
-
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-
-
-        //组包，发送
-        writePackageIntoChannel(tcpDataTransport,socketAddress);
+        tcpClientConfiguration.getReadCallBack().accept(dataTransport);
     }
 
-    /**
-     * 向通道发送数据包
-     *
-     * @param tcpDataTransport
-     */
-    private void writePackageIntoChannel(TCPDataTransport tcpDataTransport, InetSocketAddress socketAddress) {
-        NDCPacket ndcPacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-        ndcPacket.setLocalAddress(socketAddress.getAddress());
-        ndcPacket.setLocalPort(socketAddress.getPort());
 
-        log.debug("准备发送数据包：{}:{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort());
-
-
-        if (supportEnvironment.NDC_CLIENT != null) {
-            supportEnvironment.NDC_CLIENT.writePackage(ndcPacket);
-        } else {
-            log.warn("NDC_CLIENT未初始化");
-        }
-    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
@@ -90,14 +73,20 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //向通道发送关闭消息
         TCPDataTransport tcpDataTransport = createTCPDataTransport();
-
         InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        tcpDataTransport.setRemote(socketAddress);
+        tcpClientConfiguration.getInactiveCallBack().accept(tcpDataTransport, tcpClient);
 
         //组包，发送
-        writePackageIntoChannel(tcpDataTransport,socketAddress);
+        //writePackageIntoChannel(tcpDataTransport,socketAddress);
     }
 
 
+    /**
+     * 创建TCP数据传输对象
+     *
+     * @return
+     */
     private TCPDataTransport createTCPDataTransport() {
         TCPDataTransport tcpDataTransport = new TCPDataTransport();
 

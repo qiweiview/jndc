@@ -134,18 +134,6 @@ public class TCPServer extends ControllableServer {
         sessionMap.remove(appServerSessionId);
     }
 
-    /**
-     * 检查健康
-     */
-    public void checkHealthy() {
-        Map<String, ByteServerHandler> sessionMap = getSessionMap();
-        sessionMap.forEach((k, server) -> {
-            if (server.idleOverLimit()) {
-                server.close();
-                sessionMap.remove(k);
-            }
-        });
-    }
 
 
 }

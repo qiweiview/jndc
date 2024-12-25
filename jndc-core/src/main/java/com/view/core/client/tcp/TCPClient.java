@@ -1,8 +1,6 @@
 package com.view.core.client.tcp;
 
 import com.view.core.client.ControllableClient;
-import com.view.core.component.SupportEnvironment;
-import com.view.core.model.DataSlot;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -16,34 +14,28 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
 @Data
 public class TCPClient extends ControllableClient {
-    private  SupportEnvironment supportEnvironment;
+    private TCPClientConfiguration tcpClientConfiguration;
 
     private ByteClientHandler byteClientHandler;
 
     private EventLoopGroup workerGroup;
 
-    private List<DataSlot<byte[]>> slots = new ArrayList<>();
 
-    private String host;
+    public void start(TCPClientConfiguration tcpClientConfiguration) {
+        tcpClientConfiguration.check();
 
-    private int port;
-
-
-    public TCPClient(SupportEnvironment supportEnvironment) {
-        this.supportEnvironment = supportEnvironment;
-    }
-
-    public void start(String host, int port, Runnable callBack) {
         TCPClient tcpClient = this;
-        this.host = host;
-        this.port = port;
+
+        String host = tcpClientConfiguration.getHost();
+        int port = tcpClientConfiguration.getPort();
+        Consumer<TCPClient> startedCallback = tcpClientConfiguration.getStartSuccessCallBack();
+        Consumer<TCPClient> startFailCallBack = tcpClientConfiguration.getStartFailCallBack();
+
 
         workerGroup = new NioEventLoopGroup();
 
@@ -61,7 +53,7 @@ public class TCPClient extends ControllableClient {
                 pipeline.addLast(new ByteArrayDecoder());
                 pipeline.addLast(new ByteArrayEncoder());
 
-                byteClientHandler = new ByteClientHandler(tcpClient,supportEnvironment);
+                byteClientHandler = new ByteClientHandler(tcpClient, tcpClientConfiguration);
 
                 pipeline.addLast(byteClientHandler);
 
@@ -74,10 +66,11 @@ public class TCPClient extends ControllableClient {
             bootstrap.connect(host, port)
                     .addListener(future -> {
                         if (future.isSuccess()) {
-                            callBack.run();
                             log.info("TCP客户端启动成功：{}:{}", host, port);
+                            startedCallback.accept(tcpClient);
                         } else {
                             log.error("TCP客户端启动失败：{}:{}", host, port);
+                            startFailCallBack.accept(tcpClient);
                         }
                     }).channel().closeFuture().sync();
         } catch (Exception e) {
@@ -94,7 +87,7 @@ public class TCPClient extends ControllableClient {
     }
 
     @Override
-    public void receiveData(byte[] data) {
+    public void sendData(byte[] data) {
         write(data);
     }
 
@@ -103,16 +96,13 @@ public class TCPClient extends ControllableClient {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-        log.debug("TCP客户端关闭{}:{}", host, port);
+
+        if (tcpClientConfiguration != null) {
+            String host = tcpClientConfiguration.getHost();
+            int port = tcpClientConfiguration.getPort();
+            log.debug("TCP客户端关闭{}:{}", host, port);
+        }
     }
 
-    /**
-     * 添加插槽
-     *
-     * @param o
-     */
-    public void addSlot(Consumer<byte[]> o) {
-        DataSlot<byte[]> dataSlot = new DataSlot<>(o);
-        slots.add(dataSlot);
-    }
+
 }
