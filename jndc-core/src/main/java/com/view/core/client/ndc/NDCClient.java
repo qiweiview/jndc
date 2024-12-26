@@ -3,19 +3,18 @@ package com.view.core.client.ndc;
 import com.view.core.component.SupportEnvironment;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.model.VirtualTCPService;
+import com.view.core.model.local_service.LocalService;
 import com.view.core.protocol.NDCPCodec;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
-import com.view.core.protocol.callback.ChannelRead0Consumer;
-import com.view.core.protocol.callback.ChannelRead0Function;
 import com.view.core.server.ndc.SessionContext;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -25,9 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Data
 @Slf4j
 public class NDCClient {
-    private SupportEnvironment supportEnvironment =new SupportEnvironment();
+    private SupportEnvironment supportEnvironment = new SupportEnvironment();
 
     private Channel clientChannel;
 
@@ -42,7 +42,7 @@ public class NDCClient {
     private int retryTimes = 0;
 
 
-    private Map<String, VirtualTCPService> ndcClientSessionMap = new ConcurrentHashMap<>();
+    private Map<String, LocalService> ndcClientSessionMap = new ConcurrentHashMap<>();
 
 
     public void stop() {
@@ -230,13 +230,13 @@ public class NDCClient {
     private void handleTCPInActive(NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         String clientServiceId = tcpDataTransport.getClientServiceId();
-        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
-        if (virtualTCPService == null) {
+        LocalService localService = ndcClientSessionMap.get(clientServiceId);
+        if (localService == null) {
             log.warn("handleTCPInActive未找到对应的服务{}", clientServiceId);
         } else {
             //异步处理
             Runnable runnable = () -> {
-                virtualTCPService.stopServiceClient(tcpDataTransport);
+                localService.stopServiceClient(tcpDataTransport);
             };
             supportEnvironment.EVENT_BUS.post(runnable);
         }
@@ -251,8 +251,8 @@ public class NDCClient {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
         log.debug("收到打开本地连接请求包,远程会话id：{}", tcpDataTransport.getAppServerSessionId());
         String clientServiceId = tcpDataTransport.getClientServiceId();
-        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
-        if (virtualTCPService == null) {
+        LocalService localService = ndcClientSessionMap.get(clientServiceId);
+        if (localService == null) {
             log.warn("handleTCPActive未找到对应的服务{}", clientServiceId);
         } else {
             //todo 打开本地服务端
@@ -262,7 +262,7 @@ public class NDCClient {
                 //todo 异步处理
 
                 //打开本地服务端
-                virtualTCPService.openLocalServiceClient(tcpDataTransport, tcpClient -> {
+                localService.openLocalServiceClient(tcpDataTransport, tcpClient -> {
                     //todo 打开本地服务端成功回调
 
                     //设置客户端会话id
@@ -288,16 +288,16 @@ public class NDCClient {
      */
     private void handleDataPackage(NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getRemoteAddress(),ndcPacket.getRemotePort(),ndcPacket.packageTimeout());
+        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getRemoteAddress(), ndcPacket.getRemotePort(), ndcPacket.packageTimeout());
 
         String clientServiceId = tcpDataTransport.getClientServiceId();
-        VirtualTCPService virtualTCPService = ndcClientSessionMap.get(clientServiceId);
-        if (virtualTCPService == null) {
+        LocalService localService = ndcClientSessionMap.get(clientServiceId);
+        if (localService == null) {
             log.warn("handleDataPackage未找到对应的服务{}", clientServiceId);
         } else {
             //异步处理
             Runnable runnable = () -> {
-                virtualTCPService.receiveDataFromRemote(tcpDataTransport);
+                localService.receiveDataFromRemote(tcpDataTransport);
             };
             supportEnvironment.EVENT_BUS.post(runnable);
         }
@@ -314,13 +314,13 @@ public class NDCClient {
         log.debug("得到服务器{}打开通道确认消息，准备发送缓冲区数据包：{}", channelOpen.getNdcServerId(), bufferPackage.size());
         //发送缓冲区报文
         bufferPackage.forEach(tobeSend -> {
-            VirtualTCPService virtualTCPService = tobeSend.getObject(VirtualTCPService.class);
-            virtualTCPService.setSupportEnvironment(supportEnvironment);
-            if (ndcClientSessionMap.containsKey(virtualTCPService.getServiceId())) {
-                log.warn("服务已经注册{}", virtualTCPService.getServiceId());
+            LocalService localService = tobeSend.getObject(LocalService.class);
+            localService.setSupportEnvironment(supportEnvironment);
+            if (ndcClientSessionMap.containsKey(localService.getServiceId())) {
+                log.warn("服务已经注册{}", localService.getServiceId());
             } else {
                 writePackage(tobeSend, () -> {
-                    ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
+                    ndcClientSessionMap.put(localService.getServiceId(), localService);
                 });
             }
 
@@ -328,39 +328,44 @@ public class NDCClient {
     }
 
 
-    public void registerService(VirtualTCPService virtualTCPService) {
+    /**
+     * 注册服务
+     *
+     * @param localService
+     */
+    public void registerService(LocalService localService) {
         //无论是否连接都放入队列，用于重连
-        List<NDCPacket> collect = bufferPackage.parallelStream().filter(tobeSend -> {
-            //todo 匹配的服务
-            VirtualTCPService service = tobeSend.getObject(VirtualTCPService.class);
-            return service.getServiceId().equals(virtualTCPService.getServiceId());
-        }).collect(Collectors.toList());
+        distinctAdd(localService);
 
-        if (collect.isEmpty()) {
-            bufferPackage.add(NDCPacketBuilder.registerServicePacket(virtualTCPService));
-        }
-
-
-        if (serverContext != null) {
+        if (serverContext == null) {
             //todo 放入等待队列
-
-            if (ndcClientSessionMap.containsKey(virtualTCPService.getServiceId())) {
-                log.warn("服务已经注册{}", virtualTCPService.getServiceId());
-            } else {
-                writePackage(NDCPacketBuilder.registerServicePacket(virtualTCPService), () -> {
-                    ndcClientSessionMap.put(virtualTCPService.getServiceId(), virtualTCPService);
-                });
-            }
+            log.warn("未连接到服务器，无法注册服务");
+        } else {
+            //todo 立刻发送
+            NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
+            serverContext.writeAndFlush(registerServicePacket);
         }
 
     }
 
-    public void unRegisterService(VirtualTCPService virtualTCPService) {
+    private void distinctAdd(LocalService localService) {
+        List<NDCPacket> collect = bufferPackage.parallelStream().filter(tobeSend -> {
+            //todo 匹配的服务
+            LocalService service = tobeSend.getObject(LocalService.class);
+            return service.getServiceId().equals(localService.getServiceId());
+        }).collect(Collectors.toList());
+
+        if (collect.isEmpty()) {
+            bufferPackage.add(NDCPacketBuilder.registerServicePacket(localService));
+        }
+    }
+
+    public void unRegisterService(LocalService localService) {
         //集合bufferPackage中删除
         bufferPackage = bufferPackage.stream().filter(tobeSend -> {
             //过滤掉要取消注册的服务
-            VirtualTCPService service = tobeSend.getObject(VirtualTCPService.class);
-            return !service.getServiceId().equals(virtualTCPService.getServiceId());
+            LocalService service = tobeSend.getObject(LocalService.class);
+            return !service.getServiceId().equals(localService.getServiceId());
         }).collect(Collectors.toList());
 
         if (serverContext == null) {
@@ -370,9 +375,9 @@ public class NDCClient {
             //todo 立刻发送
 
             //取消注册
-            writePackage(NDCPacketBuilder.unregisterServicePacket(virtualTCPService), () -> {
+            writePackage(NDCPacketBuilder.unregisterServicePacket(localService), () -> {
                 //todo 删除服务
-                ndcClientSessionMap.remove(virtualTCPService.getServiceId());
+                ndcClientSessionMap.remove(localService.getServiceId());
             });
         }
     }

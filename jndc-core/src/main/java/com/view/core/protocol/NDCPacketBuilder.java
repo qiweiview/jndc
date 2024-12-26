@@ -2,7 +2,7 @@ package com.view.core.protocol;
 
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.model.VirtualTCPService;
+import com.view.core.model.local_service.LocalService;
 import com.view.core.utils.ObjectSerializableUtils;
 
 public class NDCPacketBuilder {
@@ -22,7 +22,7 @@ public class NDCPacketBuilder {
     }
 
 
-    public static NDCPacket registerServicePacket(VirtualTCPService virtualTCPService) {
+    public static NDCPacket registerServicePacket(LocalService localService) {
         NDCPacket ndcPacket = NDCPacket.of(
                 NDCPacket.BLANK_ADDRESS,
                 NDCPacket.BLANK_ADDRESS,
@@ -31,11 +31,11 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.SERVICE_REGISTER,
                 System.currentTimeMillis());
-        ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(localService));
         return ndcPacket;
     }
 
-    public static NDCPacket unregisterServicePacket(VirtualTCPService virtualTCPService) {
+    public static NDCPacket unregisterServicePacket(LocalService localService) {
         NDCPacket ndcPacket = NDCPacket.of(
                 NDCPacket.BLANK_ADDRESS,
                 NDCPacket.BLANK_ADDRESS,
@@ -44,7 +44,7 @@ public class NDCPacketBuilder {
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.SERVICE_UNREGISTER,
                 System.currentTimeMillis());
-        ndcPacket.setData(ObjectSerializableUtils.object2bytes(virtualTCPService));
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(localService));
         return ndcPacket;
     }
 

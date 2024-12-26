@@ -2,7 +2,7 @@ package com.view.jndc.manage.component;
 
 import com.view.core.client.ndc.NDCClient;
 import com.view.core.client.ndc.NDCClientConfiguration;
-import com.view.core.model.VirtualTCPService;
+import com.view.core.model.local_service.LocalService;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
@@ -181,13 +181,13 @@ public class JNDCClientHolder {
             log.warn("客户端:{}未启动,map中有{}个客户端", clientUniqueId, clientMap.size());
         }else {
             //todo 发起注册
-            VirtualTCPService virtualTCPService = new VirtualTCPService();
-            virtualTCPService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
-            virtualTCPService.setDescription(jndcClientServiceDTO.getServiceName());
-            virtualTCPService.setHost(jndcClientServiceDTO.getServiceHost());
-            virtualTCPService.setPort(jndcClientServiceDTO.getServicePort());
-            virtualTCPService.setExpectPort(jndcClientServiceDTO.getExpectPort());
-            ndcClient.registerService(virtualTCPService);
+            LocalService localService = new LocalService();
+            localService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
+            localService.setName(jndcClientServiceDTO.getServiceName());
+            localService.setHost(jndcClientServiceDTO.getServiceHost());
+            localService.setPort(jndcClientServiceDTO.getServicePort());
+            localService.setExpectBindPort(jndcClientServiceDTO.getExpectPort());
+            ndcClient.registerService(localService);
         }
 
     }
@@ -198,13 +198,13 @@ public class JNDCClientHolder {
             log.warn("客户端:{}未启动,map中有{}个客户端", uniqueId, clientMap.size());
         }else {
             //todo 发起取消注册
-            VirtualTCPService virtualTCPService = new VirtualTCPService();
-            virtualTCPService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
-            virtualTCPService.setDescription(jndcClientServiceDTO.getServiceName());
-            virtualTCPService.setHost(jndcClientServiceDTO.getServiceHost());
-            virtualTCPService.setPort(jndcClientServiceDTO.getServicePort());
-            virtualTCPService.setExpectPort(jndcClientServiceDTO.getExpectPort());
-            ndcClient.unRegisterService(virtualTCPService);
+            LocalService localService = new LocalService();
+            localService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
+            localService.setName(jndcClientServiceDTO.getServiceName());
+            localService.setHost(jndcClientServiceDTO.getServiceHost());
+            localService.setPort(jndcClientServiceDTO.getServicePort());
+            localService.setExpectBindPort(jndcClientServiceDTO.getExpectPort());
+            ndcClient.unRegisterService(localService);
         }
     }
 }

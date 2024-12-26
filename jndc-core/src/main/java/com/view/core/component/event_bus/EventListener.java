@@ -4,9 +4,9 @@ import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.model.VirtualTCPService;
 import com.view.core.model.event_bus.ChannelOperation;
 import com.view.core.model.event_bus.ServiceOperation;
+import com.view.core.model.local_service.LocalService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,16 +20,16 @@ public class EventListener {
     @Subscribe
     public void acceptServiceOperation(ServiceOperation serviceOperation) {
 
-        VirtualTCPService virtualTCPService = serviceOperation.getVirtualTCPService();
+        LocalService localService = serviceOperation.getLocalService();
 
         if (serviceOperation.isDeploy()) {
             log.debug("接收到服务注册{}", serviceOperation);
-            supportEnvironment.APP_CENTER.deployService(virtualTCPService);
+            supportEnvironment.APP_CENTER.deployService(localService);
         }
 
         if (serviceOperation.isWithdraw()) {
             log.debug("接收到服务撤销{}", serviceOperation);
-            supportEnvironment.APP_CENTER.withdrawService(virtualTCPService);
+            supportEnvironment.APP_CENTER.withdrawService(localService);
         }
 
     }

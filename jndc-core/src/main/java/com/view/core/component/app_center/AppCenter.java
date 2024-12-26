@@ -2,7 +2,7 @@ package com.view.core.component.app_center;
 
 import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.model.VirtualTCPService;
+import com.view.core.model.local_service.LocalService;
 import com.view.core.server.tcp.TCPServer;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +35,11 @@ public class AppCenter {
     /**
      * 部署服务
      *
-     * @param virtualTCPService
+     * @param localService
      */
-    public void deployService(VirtualTCPService virtualTCPService) {
-        String ndcClientId = virtualTCPService.getNdcClientId();
-        String serviceId = virtualTCPService.getServiceId();
+    public void deployService(LocalService localService) {
+        String ndcClientId = localService.getNdcClientId();
+        String serviceId = localService.getServiceId();
         if (ndcClientId == null) {
             log.error("服务部署失败：clientId为空");
             return;
@@ -51,15 +51,15 @@ public class AppCenter {
         }
 
 
-        int expectPort = virtualTCPService.getExpectPort();
+        int expectPort = localService.getExpectBindPort();
         if (portBindable(expectPort)) {
             //todo 可以绑定
             TCPServer tcpServer = new TCPServer(supportEnvironment);
-            tcpServer.setDescription(virtualTCPService.prettyDescription());
+            tcpServer.setDescription(localService.prettyDescription());
             tcpServer.setNdcClientId(ndcClientId);
-            tcpServer.setClientServiceId(virtualTCPService.getServiceId());
+            tcpServer.setClientServiceId(localService.getServiceId());
             tcpServer.start(expectPort, () -> {
-                String serviceId1 = virtualTCPService.getServiceId();
+                String serviceId1 = localService.getServiceId();
                 tcpServerMap.put(serviceId1, tcpServer);
                 log.info("tcp服务部署成功：服务id为{}的服务已部署", serviceId1);
             });
@@ -70,9 +70,9 @@ public class AppCenter {
 
     }
 
-    public void withdrawService(VirtualTCPService virtualTCPService) {
-        String ndcClientId = virtualTCPService.getNdcClientId();
-        String serviceId = virtualTCPService.getServiceId();
+    public void withdrawService(LocalService localService) {
+        String ndcClientId = localService.getNdcClientId();
+        String serviceId = localService.getServiceId();
         if (ndcClientId == null) {
             log.error("服务部署失败：clientId为空");
             return;

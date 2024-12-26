@@ -4,9 +4,9 @@ import com.view.core.client.ndc.NDCClientInfo;
 import com.view.core.component.SupportEnvironment;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.model.VirtualTCPService;
 import com.view.core.model.event_bus.ChannelOperation;
 import com.view.core.model.event_bus.ServiceOperation;
+import com.view.core.model.local_service.LocalService;
 import com.view.core.protocol.NDCPCodec;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
-    private SupportEnvironment supportEnvironment =new SupportEnvironment();
+    private SupportEnvironment supportEnvironment = new SupportEnvironment();
 
     //配置
     private NDCServerConfiguration ndcServerConfiguration;
@@ -43,7 +43,9 @@ public class NDCServer {
     private Channel serverChannel;
 
     //key:ndcClientId
-    private Map<String, NDCClientInfo> ndcClientSessionMap = new ConcurrentHashMap<>();
+    private Map<String, ChannelOpen> ndcClientSessionMap = new ConcurrentHashMap<>();
+
+
 
     public static final String CLIENT_ID = "CLIENT_ID";
 
@@ -96,7 +98,6 @@ public class NDCServer {
 
                 //获取消息
                 NDCPacket ndcPacket = msg[0];
-
 
 
                 //判断
@@ -199,15 +200,15 @@ public class NDCServer {
     }
 
     private void handleServiceUnRegister(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
-        VirtualTCPService virtualTCPService = ndcPacket.getObject(VirtualTCPService.class);
+        LocalService localService = ndcPacket.getObject(LocalService.class);
         //设置所属客户端
         String clientId = getClientId(ctx);
         if (clientId == null) {
             log.error("未绑定客户端编号");
             return;
         }
-        virtualTCPService.setNdcClientId(clientId);
-        ServiceOperation serviceOperation = ServiceOperation.ofWithdraw(virtualTCPService);
+        localService.setNdcClientId(clientId);
+        ServiceOperation serviceOperation = ServiceOperation.ofWithdraw(localService);
         serviceOperation.setNdcServerId(ndcServerId);
         //异步处理
         supportEnvironment.EVENT_BUS.post(serviceOperation);
@@ -229,20 +230,20 @@ public class NDCServer {
 
     private void handleTCPDataPackage(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
         TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
-        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getLocalAddress(),ndcPacket.getLocalPort(),ndcPacket.packageTimeout());
+        log.debug("收到数据包：{}:{}，延迟：{}", ndcPacket.getLocalAddress(), ndcPacket.getLocalPort(), ndcPacket.packageTimeout());
         supportEnvironment.EVENT_BUS.post(tcpDataTransport);
     }
 
     private void handleServiceRegister(ChannelHandlerContext ctx, NDCPacket ndcPacket) {
-        VirtualTCPService virtualTCPService = ndcPacket.getObject(VirtualTCPService.class);
+        LocalService localService = ndcPacket.getObject(LocalService.class);
         //设置所属客户端
         String clientId = getClientId(ctx);
         if (clientId == null) {
             log.error("未绑定客户端编号");
             return;
         }
-        virtualTCPService.setNdcClientId(clientId);
-        ServiceOperation serviceOperation = ServiceOperation.ofDeploy(virtualTCPService);
+        localService.setNdcClientId(clientId);
+        ServiceOperation serviceOperation = ServiceOperation.ofDeploy(localService);
         serviceOperation.setNdcServerId(ndcServerId);
         //异步处理
         supportEnvironment.EVENT_BUS.post(serviceOperation);
@@ -320,20 +321,6 @@ public class NDCServer {
     private void channelBind(String clientId, ChannelHandlerContext ctx) {
         ctx.channel().attr(AttributeKey.valueOf(CLIENT_ID)).set(clientId);
         log.info("客户端{}打开通道", clientId);
-    }
-
-    /**
-     * 向通道写出消息
-     *
-     * @param ndcClientId
-     * @param ndcPacket
-     */
-    public void write(String ndcClientId, NDCPacket ndcPacket) {
-        NDCClientInfo ndcClientInfo = ndcClientSessionMap.get(ndcClientId);
-
-        if (ndcClientInfo != null) {
-            ndcClientInfo.getChannelHandlerContext().writeAndFlush(ndcPacket);
-        }
     }
 
 

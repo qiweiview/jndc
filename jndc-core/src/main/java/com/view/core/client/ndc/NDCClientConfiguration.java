@@ -48,7 +48,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
     /*------服务端通讯------*/
     private Consumer<ChannelHandlerContext> connectActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
 
-    private BiConsumer<NDCPacket, ChannelHandlerContext> dataReadCallback = EMPTY_BICONSUMER(NDCPacket.class, ChannelHandlerContext.class);
+    private BiConsumer<NDCPacket, ClientCallbackContext> dataReadCallback = EMPTY_BICONSUMER(NDCPacket.class, ClientCallbackContext.class);
 
     private Consumer<ChannelHandlerContext> connectInActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
 

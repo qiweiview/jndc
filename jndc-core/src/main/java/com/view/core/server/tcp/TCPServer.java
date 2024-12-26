@@ -3,7 +3,6 @@ package com.view.core.server.tcp;
 
 import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
-import com.view.core.server.ControllableServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -18,10 +17,16 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 @Slf4j
-public class TCPServer extends ControllableServer {
+public class TCPServer {
+
+    private Map<String, ChannelHandlerContext> sessionMap = new ConcurrentHashMap<>();
+
+    private TCPServerConfiguration tcpServerConfiguration;
+
     private SupportEnvironment supportEnvironment;
 
     private EventLoopGroup bossGroup;
@@ -30,21 +35,16 @@ public class TCPServer extends ControllableServer {
 
     private String description;
 
-    private int port;
-
-    public TCPServer(SupportEnvironment supportEnvironment) {
-        this.supportEnvironment = supportEnvironment;
-    }
 
     /**
      * 启动服务
-     *
-     * @param port          端口
-     * @param startCallBack 启动回调
      */
-    public void start(int port, Runnable startCallBack) {
+    public void start(TCPServerConfiguration tcpServerConfiguration) {
+        this.tcpServerConfiguration = tcpServerConfiguration;
+
         TCPServer tcpServer = this;
-        this.port = port;
+        int port = tcpServerConfiguration.getPort();
+
 
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
@@ -58,7 +58,7 @@ public class TCPServer extends ControllableServer {
 
                         pipeline.addLast(new ByteArrayDecoder());
                         pipeline.addLast(new ByteArrayEncoder());
-                        pipeline.addLast(new ByteServerHandler(tcpServer,supportEnvironment));
+                        pipeline.addLast(new ByteServerHandler(tcpServer, tcpServerConfiguration));
                     }
                 });
 
@@ -66,9 +66,10 @@ public class TCPServer extends ControllableServer {
             serverBootstrap.bind(port).sync().addListener(future -> {
                 if (future.isSuccess()) {
                     log.info("TCP服务启动成功，端口：{}", port);
-                    startCallBack.run();
+                    tcpServerConfiguration.getStartSuccessCallBack().accept(tcpServer);
                 } else {
                     log.error("TCP服务启动失败，端口：{}", port);
+                    tcpServerConfiguration.getStartFailCallBack().accept(tcpServer);
                 }
             }).channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -88,7 +89,8 @@ public class TCPServer extends ControllableServer {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();
         }
-        log.debug("tcp服务{}端口监听关闭成功", port);
+
+        tcpServerConfiguration.getStopCallBack().accept(this);
     }
 
 
@@ -133,7 +135,6 @@ public class TCPServer extends ControllableServer {
         Map<String, ByteServerHandler> sessionMap = getSessionMap();
         sessionMap.remove(appServerSessionId);
     }
-
 
 
 }
