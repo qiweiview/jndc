@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_access_history.JndcAccessHistoryDao" >
+
+    <resultMap type="com.view.jndc.manage.model.jndc_access_history.d_o.JndcAccessHistoryDO" id="JndcAccessHistoryMap" >
+                <id property="id" column="id" />
+                <result property="createTime" column="create_time" />
+                <result property="destination" column="destination" />
+                <result property="destinationId" column="destination_id" />
+                <result property="packageSampling" column="package_sampling" />
+                <result property="remoteIp" column="remote_ip" />
+                <result property="remotePort" column="remote_port" />
+    </resultMap>
+    
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+            create_time,
+            destination,
+            destination_id,
+            id,
+            package_sampling,
+            remote_ip,
+            remote_port
+    </sql>
+    
+    
+    <select id="listPage" resultMap="JndcAccessHistoryMap"
+            parameterType="com.view.jndc.manage.model.jndc_access_history.d_o.JndcAccessHistoryDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_access_history
+    </select>
+
+    <select id="list" resultMap="JndcAccessHistoryMap"
+            parameterType="com.view.jndc.manage.model.jndc_access_history.d_o.JndcAccessHistoryDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_access_history
+    </select>
+
+</mapper>
