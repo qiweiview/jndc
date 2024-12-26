@@ -27,8 +27,8 @@ public class NDCPacketHelper {
         return ndcPacket.getType() == NDCPacket.TCP_ACTIVE;
     }
 
-    public static boolean isChannelHeartBeat(NDCPacket ndcPacket) {
-        return ndcPacket.getType() == NDCPacket.CHANNEL_HEART_BEAT;
+    public static boolean isReadyToAcceptPacket(NDCPacket ndcPacket) {
+        return ndcPacket.getType() == NDCPacket.READ_TO_ACCEPT_PACKAGE;
     }
 
     public static boolean isTCPInActivePacket(NDCPacket ndcPacket) {

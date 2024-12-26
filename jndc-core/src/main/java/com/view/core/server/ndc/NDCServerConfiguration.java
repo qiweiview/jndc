@@ -1,10 +1,12 @@
 package com.view.core.server.ndc;
 
 import com.view.core.model.CheckAbleConfiguration;
+import com.view.core.protocol.NDCPacket;
+import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @Data
 public class NDCServerConfiguration extends CheckAbleConfiguration {
@@ -21,12 +23,12 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
 
     private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
 
-    /*------服务端连接------*/
-    private Function<SessionContext, SessionContext> connectActiveCallback = EMPTY_FUNCTION(SessionContext.class);
+    /*------服务端通讯------*/
+    private Consumer<ChannelHandlerContext> connectActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
 
-    private Consumer<SessionContext> openChannelCallback = EMPTY_CONSUMER(SessionContext.class);
+    private BiConsumer<NDCPacket, ServerCallbackContext> dataReadCallback = EMPTY_BICONSUMER(NDCPacket.class, ServerCallbackContext.class);
 
-    private Consumer<SessionContext> connectInActiveCallback = EMPTY_CONSUMER(SessionContext.class);
+    private Consumer<ChannelHandlerContext> connectInActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
 
 
     @Override

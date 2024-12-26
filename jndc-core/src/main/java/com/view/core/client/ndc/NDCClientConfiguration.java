@@ -1,9 +1,12 @@
 package com.view.core.client.ndc;
 
 import com.view.core.model.CheckAbleConfiguration;
+import com.view.core.protocol.NDCPacket;
+import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Data
@@ -35,17 +38,21 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
     private Thread waitingThread;
 
-    //启动回调
+    /*------服务端本身------*/
     private Runnable startedCallback = EMPTY_CALLBACK;
 
-    //处理回调
-    private Runnable processingCallback = EMPTY_CALLBACK;
-
-    //停止回调
     private Runnable stopCallback = EMPTY_CALLBACK;
 
-    //失败回调
     private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
+
+    /*------服务端通讯------*/
+    private Consumer<ChannelHandlerContext> connectActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
+
+    private BiConsumer<NDCPacket, ChannelHandlerContext> dataReadCallback = EMPTY_BICONSUMER(NDCPacket.class, ChannelHandlerContext.class);
+
+    private Consumer<ChannelHandlerContext> connectInActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
+
+
 
     public void printConfiguration() {
         log.info("启动客户端使用配置：IP:{},端口:{},超时:{}秒", serverHost, serverPort, reconnectInterval);

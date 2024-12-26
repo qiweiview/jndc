@@ -66,15 +66,11 @@ public class NDCPacket {
 
     public static final byte TCP_IN_ACTIVE = 0x05;//TCP关闭数据包
 
-    public static final byte NO_ACCESS = 0x06;//鉴权不通过数据包
+    public static final byte READ_TO_ACCEPT_PACKAGE = 0x06;//准备接收数据包
 
     public static final byte USER_ERROR = 0x07;//业务异常数据包
 
-    public static final byte UN_CATCHABLE_ERROR = 0x08;//系统异常数据包
-
-    public static final byte CHANNEL_HEART_BEAT = 0x09;//心跳数据包
-
-    public static final byte OPEN_CHANNEL = 0X0A;//通道打开数据包
+    public static final byte OPEN_CHANNEL = 0X08;//通道打开数据包
 
 
     /*--------------------- static variable ---------------------*/

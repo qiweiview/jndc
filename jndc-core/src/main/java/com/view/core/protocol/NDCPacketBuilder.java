@@ -7,19 +7,20 @@ import com.view.core.utils.ObjectSerializableUtils;
 
 public class NDCPacketBuilder {
 
-    public static NDCPacket heartBeatPacket() {
+    public static NDCPacket readyToAcceptPacket() {
         NDCPacket ndcPacket = NDCPacket.of(
                 NDCPacket.BLANK_ADDRESS,
                 NDCPacket.BLANK_ADDRESS,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
                 NDCPacket.UN_USED_PORT,
-                NDCPacket.CHANNEL_HEART_BEAT,
+                NDCPacket.READ_TO_ACCEPT_PACKAGE,
                 System.currentTimeMillis()
         );
         ndcPacket.setData(NDCPacket.BLANK_DATA);
         return ndcPacket;
     }
+
 
     public static NDCPacket registerServicePacket(VirtualTCPService virtualTCPService) {
         NDCPacket ndcPacket = NDCPacket.of(
