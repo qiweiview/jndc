@@ -1,6 +1,5 @@
 package com.view.core.client.tcp;
 
-import com.view.core.component.SupportEnvironment;
 import com.view.core.model.TCPDataTransport;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -14,7 +13,6 @@ import java.net.InetSocketAddress;
 public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     private TCPClientConfiguration tcpClientConfiguration;
 
-    private  SupportEnvironment supportEnvironment;
 
     private TCPClient tcpClient;
 
@@ -42,31 +40,20 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     }
 
 
-
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        InetSocketAddress localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        log.error("{}:{}  {}:{}TCP客户端异常，准备通知远程断开连接:",
-                localAddress.getHostName(),
-                localAddress.getPort(),
-                remoteAddress.getHostName(),
-                remoteAddress.getPort(),
-                cause);
-        //当作断开连接处理
-        //channelInactive(ctx);
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        TCPDataTransport dataTransport = new TCPDataTransport();
+        dataTransport.setRemote(inetSocketAddress);
+        tcpClientConfiguration.getReadCompleteCallBack().accept(dataTransport, tcpClient);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        //向通道发送关闭消息
-        TCPDataTransport tcpDataTransport = new TCPDataTransport();
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        tcpDataTransport.setRemote(socketAddress);
-        tcpClientConfiguration.getInactiveCallBack().accept(tcpDataTransport, tcpClient);
-
-        //组包，发送
-        //writePackageIntoChannel(tcpDataTransport,socketAddress);
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        TCPDataTransport dataTransport = new TCPDataTransport();
+        dataTransport.setRemote(inetSocketAddress);
+        tcpClientConfiguration.getInactiveCallBack().accept(dataTransport);
     }
 
 

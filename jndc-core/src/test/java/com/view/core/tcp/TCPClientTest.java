@@ -40,7 +40,7 @@ public class TCPClientTest {
             log.info("客户端启动失败");
         });
 
-        tcpClientConfiguration.setActiveCallBack((tcpDataTransport, client) -> {
+        tcpClientConfiguration.setActiveCallBack((context) -> {
             log.info("连接成功");
             //发送消息
             String data = "GET / HTTP/1.1\n" +
@@ -53,12 +53,9 @@ public class TCPClientTest {
                     "\n" +
                     "\n";
 
-            client.sendData(data.getBytes());
+            context.writeAndFlush(data.getBytes());
         });
 
-        tcpClientConfiguration.setInactiveCallBack((tcpDataTransport, client) -> {
-            log.info("连接断开");
-        });
 
         client.start(tcpClientConfiguration);
 

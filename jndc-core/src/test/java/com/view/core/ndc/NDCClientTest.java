@@ -139,10 +139,19 @@ public class NDCClientTest {
                         context.writeAndFlush(tcpActivePacket);
                     });
                     tcpClientConfiguration.setReadCallBack((data) -> {
+                        data.setTcpResponse(TCPResponse.SUCCESS);
                         data.setNdcClientId(clientId);
                         data.setServiceId(serviceId);
                         data.setTcpChannelId(tcpChannelId);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                        context.writeAndFlush(tcpActivePacket);
+                    });
+                    tcpClientConfiguration.setInactiveCallBack(tcpClientInactive -> {
+                        log.info("TCP客户端已停止");
+                        tcpClientInactive.setNdcClientId(clientId);
+                        tcpClientInactive.setServiceId(serviceId);
+                        tcpClientInactive.setTcpChannelId(tcpChannelId);
+                        NDCPacket tcpActivePacket = NDCPacketBuilder.tcpInactivePacket(tcpClientInactive);
                         context.writeAndFlush(tcpActivePacket);
                     });
 
@@ -156,18 +165,90 @@ public class NDCClientTest {
                 //todo 收到TCP数据包
                 TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                 String serviceId = tcpDataTransport.getServiceId();
+                String tcpChannelId = tcpDataTransport.getTcpChannelId();
+
+
+                if (tcpDataTransport.isSuccessful()) {
+                    //todo 数据发送成功
+                    LocalService localService = serviceMap.get(serviceId);
+                    if (localService == null) {
+                        //todo 服务不存在
+                        tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
+                        NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                        context.writeAndFlush(tcpActivePacket);
+                        return;
+                    }
+                    Map<String, TCPClient> tcpClientMap = localService.getTcpClientMap();
+                    TCPClient tcpClient = tcpClientMap.get(tcpChannelId);
+                    if (tcpClient == null) {
+                        //todo 客户端不存在
+                        tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
+                        NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                        context.writeAndFlush(tcpActivePacket);
+                        return;
+                    }
+                    tcpClient.writeAndFlush(tcpDataTransport.getData());
+
+                } else if (tcpDataTransport.isServiceNotExist()) {
+                    //todo 服务不存在
+                    LocalService localService = serviceMap.get(serviceId);
+                    if (localService == null) {
+                        //todo 服务不存在
+                        log.error("未找到服务:{}", serviceId);
+                    } else {
+                        localService.stop();
+                        log.info("服务{}已停止", localService.getName());
+                    }
+                }
+
+
+            } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
+                //todo 收到TCP激活包
+                TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+                String serviceId = tcpDataTransport.getServiceId();
+                String tcpChannelId = tcpDataTransport.getTcpChannelId();
+
                 LocalService localService = serviceMap.get(serviceId);
                 if (localService == null) {
                     //todo 服务不存在
                     log.error("未找到服务:{}", serviceId);
-                } else {
-                    localService.stop();
-                    log.info("服务{}已停止", localService.getName());
+                    return;
+                }
+                Map<String, TCPClient> tcpClientMap = localService.getTcpClientMap();
+                TCPClient tcpClient = tcpClientMap.get(tcpChannelId);
+                if (tcpClient == null) {
+                    //todo 正常逻辑链路
+                    log.error("未找到客户端:{}", serviceId);
+                    return;
+                }
+                tcpClient.stop();
+            } else if (NDCPacketHelper.isTCPInActivePacket(ndcPacket)) {
+                //todo 收到TCP停止包
+                TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+                String serviceId = tcpDataTransport.getServiceId();
+                if (tcpDataTransport.isServiceNotExist()) {
+                    //todo 服务不存在
+                    log.error("未找到服务:{}", tcpDataTransport.getServiceId());
+                    LocalService remove = serviceMap.remove(serviceId);
+                    if (remove != null) {
+                        remove.stop();
+                    }
                 }
 
             } else {
                 log.warn("未知的数据包类型:{}", ndcPacket.getType());
             }
+        });
+
+
+        ndcClientConfiguration.setConnectInActiveCallback((ctx) -> {
+            log.error("连接断开");
+            NDCClient ndcClient1 = ctx.getNdcClient();
+            Map<String, LocalService> serviceMap = ndcClient1.getNdcClientSessionMap();
+            serviceMap.forEach((serviceId, localService) -> {
+                localService.stop();
+            });
+            serviceMap.clear();
         });
 
 

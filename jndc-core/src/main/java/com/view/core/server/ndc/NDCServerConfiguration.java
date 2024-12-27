@@ -28,7 +28,7 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
 
     private BiConsumer<NDCPacket, ServerCallbackContext> dataReadCallback = EMPTY_BICONSUMER(NDCPacket.class, ServerCallbackContext.class);
 
-    private Consumer<ChannelHandlerContext> connectInActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
+    private Consumer<ServerCallbackContext> connectInActiveCallback = EMPTY_CONSUMER(ServerCallbackContext.class);
 
 
     @Override

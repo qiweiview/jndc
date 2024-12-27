@@ -1,7 +1,7 @@
 package com.view.core.tcp;
 
-import com.view.core.component.SupportEnvironment;
 import com.view.core.server.tcp.TCPServer;
+import com.view.core.server.tcp.TCPServerConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,21 +11,20 @@ import org.junit.jupiter.api.Test;
 public class TCPServerTest {
 
     private TCPServer tcpServer;
-    private SupportEnvironment supportEnvironment;
+
 
     @BeforeEach
     public void init() {
-        supportEnvironment = new SupportEnvironment();
-        tcpServer = new TCPServer(supportEnvironment);
+
+        tcpServer = new TCPServer();
     }
 
     @Test
     public void runServer() {
+        TCPServerConfiguration tcpServerConfiguration = new TCPServerConfiguration();
+        tcpServerConfiguration.setPort(8080);
 
-
-        tcpServer.start(888, () -> {
-            log.info("服务启动成功");
-        });
+        tcpServer.start(tcpServerConfiguration);
     }
 
 

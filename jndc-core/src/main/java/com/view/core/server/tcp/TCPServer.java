@@ -1,8 +1,6 @@
 package com.view.core.server.tcp;
 
 
-import com.view.core.component.SupportEnvironment;
-import com.view.core.model.TCPDataTransport;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
@@ -27,7 +25,6 @@ public class TCPServer {
 
     private TCPServerConfiguration tcpServerConfiguration;
 
-    private SupportEnvironment supportEnvironment;
 
     private EventLoopGroup bossGroup;
 
@@ -80,7 +77,6 @@ public class TCPServer {
     /**
      * 停止服务
      */
-    @Override
     public void stop() {
         if (bossGroup != null) {
             bossGroup.shutdownGracefully();
@@ -94,47 +90,7 @@ public class TCPServer {
     }
 
 
-    /**
-     * 接收数据
-     *
-     * @param tcpDataTransport
-     */
-    public void receiveData(TCPDataTransport tcpDataTransport) {
-        Map<String, ByteServerHandler> sessionMap = getSessionMap();
-        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
-        ByteServerHandler byteServerHandler = sessionMap.get(appServerSessionId);
-        if (byteServerHandler != null) {
-            ChannelHandlerContext channelHandlerContext = byteServerHandler.getChannelHandlerContext();
-            byte[] data = tcpDataTransport.getData();
-            if (data != null) {
-                channelHandlerContext.writeAndFlush(data);
-            }
-        }
-    }
 
-    /**
-     * 通知客服务端已经就绪
-     *
-     * @param tcpDataTransport
-     */
-    public void noticeActiveCompleted(TCPDataTransport tcpDataTransport) {
-        Map<String, ByteServerHandler> sessionMap = getSessionMap();
-        String appServerSessionId = tcpDataTransport.getAppServerSessionId();
-        ByteServerHandler byteServerHandler = sessionMap.get(appServerSessionId);
-        if (byteServerHandler != null) {
-            byteServerHandler.noticeActiveCompleted();
-        }
-    }
-
-    /**
-     * 取消注册
-     *
-     * @param appServerSessionId
-     */
-    public void unRegisterSession(String appServerSessionId) {
-        Map<String, ByteServerHandler> sessionMap = getSessionMap();
-        sessionMap.remove(appServerSessionId);
-    }
 
 
 }

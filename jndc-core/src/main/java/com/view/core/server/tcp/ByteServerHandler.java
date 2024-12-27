@@ -94,10 +94,13 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
 
         Consumer<TCPDataTransport> readCallBack = tcpServerConfiguration.getReadCallBack();
-        InetSocketAddress inetSocketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+        Channel channel = ctx.channel();
+        InetSocketAddress inetSocketAddress = (InetSocketAddress) channel.remoteAddress();
         TCPDataTransport dataTransport = new TCPDataTransport();
         dataTransport.setData(msg);
         dataTransport.setRemote(inetSocketAddress);
+        String longText = channel.id().asLongText();
+        dataTransport.setTcpChannelId(longText);
 
 
         readCallBack.accept(dataTransport);

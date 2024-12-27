@@ -1,7 +1,7 @@
 package com.view.core.server.ndc;
 
 
-import com.view.core.component.SupportEnvironment;
+
 import com.view.core.model.ChannelOpen;
 import com.view.core.protocol.NDCPCodec;
 import io.netty.bootstrap.ServerBootstrap;
@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 @Data
 @Slf4j
 public class NDCServer {
-    private SupportEnvironment supportEnvironment = new SupportEnvironment();
 
     //配置
     private NDCServerConfiguration ndcServerConfiguration;
@@ -56,6 +55,8 @@ public class NDCServer {
 
     public void start(NDCServerConfiguration ndcServerConfiguration) {
 
+        NDCServer ndcServer = this;
+
         this.ndcServerConfiguration = ndcServerConfiguration;
         //设置配置
         ndcServerConfiguration.check();
@@ -79,7 +80,7 @@ public class NDCServer {
                     //NDC协议处理
                     pipeline.addLast(new NDCPCodec());
 
-                    NDCServerHandler ndcServerHandler = new NDCServerHandler(ndcServerConfiguration);
+                    NDCServerHandler ndcServerHandler = new NDCServerHandler(ndcServer, ndcServerConfiguration);
 
                     //NDC Packet 处理器
                     pipeline.addLast(ndcServerHandler);
@@ -96,7 +97,6 @@ public class NDCServer {
             ChannelFuture channelFuture = b.bind(host, port).sync();
             channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
-                    supportEnvironment.NDC_SERVER = this;
                     startedCallback.run();
                     log.info("NDC服务启动成功，{}：{}", host, port);
                 } else {

@@ -1,6 +1,5 @@
 package com.view.core.client.tcp;
 
-import com.view.core.client.ControllableClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -18,7 +17,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Data
-public class TCPClient extends ControllableClient {
+public class TCPClient {
     private TCPClientConfiguration tcpClientConfiguration;
 
     private ByteClientHandler byteClientHandler;
@@ -78,20 +77,7 @@ public class TCPClient extends ControllableClient {
         }
     }
 
-    private void write(byte[] bytes) {
-        if (byteClientHandler != null) {
-            byteClientHandler.write(bytes);
-        } else {
-            log.warn("byteArrayHandler is null");
-        }
-    }
 
-    @Override
-    public void sendData(byte[] data) {
-        write(data);
-    }
-
-    @Override
     public void stop() {
         if (workerGroup != null) {
             workerGroup.shutdownGracefully();

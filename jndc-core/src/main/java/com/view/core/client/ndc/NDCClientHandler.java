@@ -36,7 +36,10 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ndcClientConfiguration.getConnectInActiveCallback().accept(ctx);
+        log.debug("连接断开：{}", ctx.channel().remoteAddress());
+        ClientCallbackContext clientCallbackContext = new ClientCallbackContext();
+        clientCallbackContext.setContext(ctx);
+        ndcClientConfiguration.getConnectInActiveCallback().accept(clientCallbackContext);
     }
 
 
