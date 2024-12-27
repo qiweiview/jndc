@@ -19,7 +19,7 @@ public class TCPClientConfiguration extends CheckAbleConfiguration {
 
     private Consumer<TCPClient> startFailCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(TCPClient.class);
 
-    private Consumer<ChannelHandlerContext> activeCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(ChannelHandlerContext.class, TCPClient.class);
+    private Consumer<ChannelHandlerContext> activeCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(ChannelHandlerContext.class);
 
     private Consumer<TCPDataTransport> readCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(TCPDataTransport.class);
 

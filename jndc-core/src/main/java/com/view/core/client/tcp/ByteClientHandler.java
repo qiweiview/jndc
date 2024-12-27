@@ -28,19 +28,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
-
-        TCPDataTransport tcpDataTransport = createTCPDataTransport();
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        tcpDataTransport.setRemote(socketAddress);
-        tcpClientConfiguration.getActiveCallBack().accept(tcpDataTransport, tcpClient);
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        TCPDataTransport tcpDataTransport = createTCPDataTransport();
-        InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-        tcpDataTransport.setRemote(socketAddress);
-        tcpClientConfiguration.getReadCompleteCallBack().accept(tcpDataTransport, tcpClient);
+        tcpClientConfiguration.getActiveCallBack().accept(ctx);
     }
 
     @Override
@@ -72,7 +60,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //向通道发送关闭消息
-        TCPDataTransport tcpDataTransport = createTCPDataTransport();
+        TCPDataTransport tcpDataTransport = new TCPDataTransport();
         InetSocketAddress socketAddress = (InetSocketAddress) ctx.channel().remoteAddress();
         tcpDataTransport.setRemote(socketAddress);
         tcpClientConfiguration.getInactiveCallBack().accept(tcpDataTransport, tcpClient);
@@ -82,26 +70,7 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     }
 
 
-    /**
-     * 创建TCP数据传输对象
-     *
-     * @return
-     */
-    private TCPDataTransport createTCPDataTransport() {
-        TCPDataTransport tcpDataTransport = new TCPDataTransport();
 
-        //服务端信息
-
-        tcpDataTransport.setAppServerId(tcpClient.getAppServerId());
-        tcpDataTransport.setAppServerSessionId(tcpClient.getAppServerSessionId());
-
-        //客户端信息
-
-        tcpDataTransport.setClientServiceId(tcpClient.getClientServiceId());
-        tcpDataTransport.setClientServiceSessionId(tcpClient.getClientServiceSessionId());
-
-        return tcpDataTransport;
-    }
 
 
     public void write(byte[] bytes) {

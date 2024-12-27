@@ -4,6 +4,7 @@ import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
 import com.view.core.model.local_service.LocalService;
 import com.view.core.model.local_service.RegisterResponse;
+import com.view.core.model.tcp_data.TCPResponse;
 import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
@@ -138,6 +139,18 @@ public class NDCServerTest {
                     ctx.writeAndFlush(NDCPacketBuilder.tcpActivePacket(tcpDataTransport));
                 });
 
+                tcpServerConfiguration.setReadCallBack((tcpDataTransport) -> {
+                    log.info("TCP服务读取数据：{}", serviceId);
+                    String tcpChannelId = tcpDataTransport.getTcpChannelId();
+                    ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
+                    if (channelHandlerContext == null) {
+                        log.error("未找到会话:{}", tcpChannelId);
+                        return;
+                    }
+                    byte[] data = tcpDataTransport.getData();
+                    channelHandlerContext.writeAndFlush(data);
+                });
+
                 //启动服务
                 tcpServerExist.start(tcpServerConfiguration);
 
@@ -173,13 +186,13 @@ public class NDCServerTest {
 
 
             } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
-                //todo 数据包
-                TCPDataTransport object = ndcPacket.getObject(TCPDataTransport.class);
-                if (object.isServiceNotExist()) {
+                //todo tcp激活响应
+                TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+                if (tcpDataTransport.isServiceNotExist()) {
                     //todo 服务不存在
-                    String ndcClientId = object.getNdcClientId();
-                    String serviceId = object.getServiceId();
-                    String tcpChannelId = object.getTcpChannelId();
+                    String ndcClientId = tcpDataTransport.getNdcClientId();
+                    String serviceId = tcpDataTransport.getServiceId();
+                    String tcpChannelId = tcpDataTransport.getTcpChannelId();
                     ChannelOpen channelOpen = ndcClientSessionMap.get(ndcClientId);
                     if (channelOpen == null) {
                         log.error("未找到客户端:{}", ndcClientId);
@@ -187,6 +200,10 @@ public class NDCServerTest {
                     }
                     Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
                     TCPServer tcpServer = tcpServerMap.get(serviceId);
+                    if (tcpServer == null) {
+                        log.error("未找到服务:{}", serviceId);
+                        return;
+                    }
                     Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
                     ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
                     if (channelHandlerContext == null) {
@@ -199,10 +216,39 @@ public class NDCServerTest {
 
                 }
 
+            } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
+                //todo tcp数据包
+                TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
+                String ndcClientId = tcpDataTransport.getNdcClientId();
+                String serviceId = tcpDataTransport.getServiceId();
+                String tcpChannelId = tcpDataTransport.getTcpChannelId();
+                ChannelOpen channelOpen = ndcClientSessionMap.get(ndcClientId);
+                if (channelOpen == null) {
+                    log.error("未找到客户端:{}", ndcClientId);
+                    return;
+                }
+                Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
+                TCPServer tcpServer = tcpServerMap.get(serviceId);
+                if (tcpServer == null) {
+                    log.error("未找到服务:{}", serviceId);
+                    tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
+                    NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                    ctx.writeAndFlush(tcpActivePacket);
+                    return;
+                }
+                Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
+                ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
+                if (channelHandlerContext == null) {
+                    log.error("未找到会话:{}", tcpChannelId);
+                    return;
+                }
+                byte[] data = tcpDataTransport.getData();
+                channelHandlerContext.writeAndFlush(data);
             } else {
                 log.info("未知数据包:{}", ndcPacket);
             }
         });
+
 
         ndcServer.start(ndcServerConfiguration);
     }

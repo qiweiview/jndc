@@ -105,4 +105,7 @@ public class TCPClient extends ControllableClient {
     }
 
 
+    public void writeAndFlush(byte[] data) {
+        byteClientHandler.write(data);
+    }
 }

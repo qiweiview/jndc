@@ -98,6 +98,8 @@ public class ByteServerHandler extends SimpleChannelInboundHandler<byte[]> {
         TCPDataTransport dataTransport = new TCPDataTransport();
         dataTransport.setData(msg);
         dataTransport.setRemote(inetSocketAddress);
+
+
         readCallBack.accept(dataTransport);
     }
 }

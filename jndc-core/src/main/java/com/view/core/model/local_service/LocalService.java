@@ -54,4 +54,10 @@ public class LocalService implements Serializable {
     }
 
 
+    public void stop() {
+        //关闭所有客户端
+        tcpClientMap.forEach((s, tcpClient) -> {
+            tcpClient.stop();
+        });
+    }
 }
