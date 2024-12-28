@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 public class NDCServerTest {
@@ -46,8 +47,10 @@ public class NDCServerTest {
 
         ndcServerConfiguration.setDataReadCallback((ndcPacket, serverCallbackContext) -> {
             NDCServer ndcServer = serverCallbackContext.getNdcServer();
-            ChannelHandlerContext ctx = serverCallbackContext.getContext();
+            ExecutorService executorService = ndcServer.getExecutorService();
+            ChannelHandlerContext ndcContex = serverCallbackContext.getContext();
             Map<String, ChannelOpen> ndcClientSessionMap = ndcServer.getNdcClientSessionMap();
+
 
 
             if (NDCPacketHelper.isOpenChannelPacket(ndcPacket)) {
@@ -56,10 +59,10 @@ public class NDCServerTest {
                 String clientId = object.getNdcClientId();
                 ndcClientSessionMap.put(clientId, object);
 
-                ctx.channel().attr(AttributeKey.valueOf(NDCServer.CLIENT_ID)).set(clientId);
+                ndcContex.channel().attr(AttributeKey.valueOf(NDCServer.CLIENT_ID)).set(clientId);
 
                 log.info("record change:{}", clientId);
-                ctx.writeAndFlush(ndcPacket);
+                ndcContex.writeAndFlush(ndcPacket);
             } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                 //todo 注册
                 LocalService localService = ndcPacket.getObject(LocalService.class);
@@ -73,7 +76,7 @@ public class NDCServerTest {
                     log.error("未找到客户端:{}", ndcClientId);
                     localService.setRegisterResponse(RegisterResponse.CLIENT_NOT_EXIST);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                     return;
                 }
 
@@ -84,7 +87,7 @@ public class NDCServerTest {
                     log.error("服务已经注册:{}", serviceId);
                     localService.setRegisterResponse(RegisterResponse.SERVICE_EXIST);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                     return;
                 }
 
@@ -95,7 +98,7 @@ public class NDCServerTest {
                     log.error("端口{}已被占用", port);
                     localService.setRegisterResponse(RegisterResponse.PORT_HAS_BOUND);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                 }
 
                 tcpServerExist = new TCPServer();
@@ -109,46 +112,43 @@ public class NDCServerTest {
                 tcpServerConfiguration.setServiceId(serviceId);
 
                 tcpServerConfiguration.setStartSuccessCallBack(tcpServer -> {
-                    log.info("TCP服务启动成功：{}", serviceId);
                     localService.setRegisterResponse(RegisterResponse.SUCCESS);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
+                    log.info("TCP服务启动成功：{}，发送响应", serviceId);
                     tcpServerMap.put(serviceId, tcpServer);
                 });
+
+
                 tcpServerConfiguration.setStartFailCallBack(tcpServer -> {
                     log.error("TCP服务启动失败：{}", serviceId);
-                    localService.setRegisterResponse(RegisterResponse.OTHER_ERROR);
+                    localService.setRegisterResponse(RegisterResponse.TCP_SERVER_START_FAIL);
                     NDCPacket registerServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                     ndcClientSessionMap.remove(serviceId);
                 });
 
-                tcpServerConfiguration.setStopCallBack(tcpServer -> {
-                    log.info("TCP服务关闭：{}", serviceId);
-                    localService.setRegisterResponse(RegisterResponse.OTHER_ERROR);
-                    NDCPacket registerServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
-                    ndcClientSessionMap.remove(serviceId);
-                });
+
 
                 tcpServerConfiguration.setActiveCallBack((tcpDataTransport, context) -> {
-                    log.info("TCP服务激活：{}", serviceId);
-                    String tcpChannelId = tcpDataTransport.getTcpChannelId();
 
+                    String tcpChannelId = tcpDataTransport.getTcpChannelId();
+                    log.info("TCP服务激活：{}，接收远程会话", tcpChannelId);
                     sessionMap.put(tcpChannelId, context);
 
                     tcpDataTransport.setNdcClientId(ndcClientId);
                     tcpDataTransport.setServiceId(serviceId);
-                    ctx.writeAndFlush(NDCPacketBuilder.tcpActivePacket(tcpDataTransport));
+                    ndcContex.writeAndFlush(NDCPacketBuilder.tcpActivePacket(tcpDataTransport));
                 });
 
                 tcpServerConfiguration.setReadCallBack((tcpDataTransport) -> {
                     //todo tcp 服务端读取数据
+                    log.debug("TCP服务端读取数据：{}", serviceId);
                     tcpDataTransport.setTcpResponse(TCPResponse.SUCCESS);
                     tcpDataTransport.setNdcClientId(ndcClientId);
                     tcpDataTransport.setServiceId(serviceId);
                     NDCPacket registerServicePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                 });
 
                 tcpServerConfiguration.setInactiveCallBack((tcpDataTransport, tcpServer) -> {
@@ -156,16 +156,19 @@ public class NDCServerTest {
                     log.info("TCP服务端断开连接：{}", serviceId);
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
                     sessionMap.remove(tcpChannelId);
-
+                    tcpDataTransport.setTcpResponse(TCPResponse.REMOTE_CONNECTION_INTERRUPT);
                     tcpDataTransport.setNdcClientId(ndcClientId);
                     tcpDataTransport.setServiceId(serviceId);
 
                     NDCPacket registerServicePacket = NDCPacketBuilder.tcpInactivePacket(tcpDataTransport);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                 });
 
-                //启动服务
-                tcpServerExist.start(tcpServerConfiguration);
+                TCPServer finalTcpServerExist = tcpServerExist;
+                executorService.submit(() -> {
+                    //启动服务
+                    finalTcpServerExist.start(tcpServerConfiguration);
+                });
 
 
             } else if (NDCPacketHelper.isServiceUnRegisterPacket(ndcPacket)) {
@@ -181,7 +184,7 @@ public class NDCServerTest {
                     log.error("未找到客户端:{}", ndcClientId);
                     localService.setRegisterResponse(RegisterResponse.CLIENT_NOT_EXIST);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                     return;
                 }
                 ndcClientSessionMap.remove(ndcClientId);
@@ -192,7 +195,7 @@ public class NDCServerTest {
                     log.error("服务不存在:{}", serviceId);
                     localService.setRegisterResponse(RegisterResponse.SERVICE_NOT_EXIST);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-                    ctx.writeAndFlush(registerServicePacket);
+                    ndcContex.writeAndFlush(registerServicePacket);
                     return;
                 }
 
@@ -229,10 +232,13 @@ public class NDCServerTest {
                     channelHandlerContext.close();
 
 
+                }else {
+                    log.error("未知数据包:{}", ndcPacket);
                 }
 
             } else if (NDCPacketHelper.isTCPDataPacket(ndcPacket)) {
                 //todo tcp数据包
+                log.debug("收到TCP数据包");
                 TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                 if (tcpDataTransport.isSuccessful()) {
                     String ndcClientId = tcpDataTransport.getNdcClientId();
@@ -249,7 +255,7 @@ public class NDCServerTest {
                         log.error("未找到服务:{}", serviceId);
                         tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-                        ctx.writeAndFlush(tcpActivePacket);
+                        ndcContex.writeAndFlush(tcpActivePacket);
                         return;
                     }
                     Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
@@ -260,6 +266,7 @@ public class NDCServerTest {
                     }
                     byte[] data = tcpDataTransport.getData();
                     channelHandlerContext.writeAndFlush(data);
+                    log.debug("写出数据包至客户端{}",tcpChannelId);
                 } else if (tcpDataTransport.isServiceNotExist()) {
                     //todo 服务不存在
                     String ndcClientId = tcpDataTransport.getNdcClientId();
@@ -285,6 +292,8 @@ public class NDCServerTest {
                     //关闭远程连接
                     channelHandlerContext.close();
 
+                }else {
+                    log.error("未知数据包:{}", ndcPacket);
                 }
 
 
@@ -306,7 +315,7 @@ public class NDCServerTest {
 
                     tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                     NDCPacket tcpActivePacket = NDCPacketBuilder.tcpInactivePacket(tcpDataTransport);
-                    ctx.writeAndFlush(tcpActivePacket);
+                    ndcContex.writeAndFlush(tcpActivePacket);
                     return;
                 }
                 Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
@@ -335,7 +344,9 @@ public class NDCServerTest {
                     Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
                     tcpServerMap.forEach((serviceId, tcpServer) -> {
                         tcpServer.stop();
+                        log.info("关闭服务：{}", serviceId);
                     });
+
 
                     ndcClientSessionMap.remove(clientId);
                 }

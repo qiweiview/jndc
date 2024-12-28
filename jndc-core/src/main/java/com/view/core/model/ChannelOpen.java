@@ -19,4 +19,5 @@ public class ChannelOpen implements Serializable {
     private String ndcClientId;
 
     private Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
+
 }

@@ -5,14 +5,14 @@ import { FormProps } from "./types";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
-        createTime: null,
+    createTime: null,
     destination: null,
     destinationId: null,
     id: null,
     packageSampling: null,
     remoteIp: null,
     remotePort: null,
-    idString:null
+    idString: null
   })
 });
 
@@ -26,11 +26,7 @@ defineExpose({ getRef });
 </script>
 
 <template>
-  <el-form
-    ref="ruleFormRef"
-    :model="newFormInline"
-    :rules="formRules"
-  >
+  <el-form ref="ruleFormRef" :model="newFormInline" :rules="formRules">
     <el-form-item label="访问目标：" prop="destination">
       <el-input
         v-model="newFormInline.destination"

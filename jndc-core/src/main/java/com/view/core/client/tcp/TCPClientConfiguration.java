@@ -5,6 +5,8 @@ import com.view.core.model.TCPDataTransport;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -14,6 +16,12 @@ public class TCPClientConfiguration extends CheckAbleConfiguration {
     private String host;
 
     private int port;
+
+    //default value is 5 seconds
+    private long connectTimeout=5*1000;
+
+    //create a thread safe list
+    private List<Thread> waitingActiveThead = new CopyOnWriteArrayList<>();
 
     private Consumer<TCPClient> startSuccessCallBack = CheckAbleConfiguration.EMPTY_CONSUMER(TCPClient.class);
 

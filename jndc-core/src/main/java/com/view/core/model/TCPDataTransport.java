@@ -1,5 +1,6 @@
 package com.view.core.model;
 
+import com.view.core.model.local_service.RegisterResponse;
 import com.view.core.model.tcp_data.TCPResponse;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -33,4 +34,7 @@ public class TCPDataTransport implements Serializable {
         return TCPResponse.SERVICE_NOT_EXIST.equals(tcpResponse);
     }
 
+    public boolean isRemoteConnectionInterrupt() {
+        return TCPResponse.REMOTE_CONNECTION_INTERRUPT.equals(tcpResponse);
+    }
 }

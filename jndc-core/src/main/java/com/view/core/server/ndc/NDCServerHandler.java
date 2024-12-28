@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     private NDCServerConfiguration configuration;
+
     private NDCServer ndcServer;
 
     public NDCServerHandler(NDCServer ndcServer, NDCServerConfiguration configuration) {
@@ -23,6 +24,7 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NDCPacket msg) throws Exception {
+
         ServerCallbackContext serverCallbackContext = new ServerCallbackContext();
         serverCallbackContext.setContext(ctx);
         serverCallbackContext.setNdcServer(ndcServer);
@@ -37,5 +39,8 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
         configuration.getConnectInActiveCallback().accept(serverCallbackContext);
     }
 
-
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+    }
 }

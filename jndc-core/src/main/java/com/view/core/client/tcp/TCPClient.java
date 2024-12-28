@@ -13,6 +13,8 @@ import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -27,6 +29,7 @@ public class TCPClient {
 
     public void start(TCPClientConfiguration tcpClientConfiguration) {
         tcpClientConfiguration.check();
+        this.tcpClientConfiguration = tcpClientConfiguration;
 
         TCPClient tcpClient = this;
 
@@ -92,6 +95,24 @@ public class TCPClient {
 
 
     public void writeAndFlush(byte[] data) {
+        Thread thread = Thread.currentThread();
+        if (byteClientHandler == null||byteClientHandler.getCtx()==null) {
+            synchronized (thread) {
+                if (byteClientHandler == null||byteClientHandler.getCtx()==null) {
+                    List<Thread> waitingActiveThead = tcpClientConfiguration.getWaitingActiveThead();
+                    waitingActiveThead.add(thread);
+                    long timeout = tcpClientConfiguration.getConnectTimeout();
+                    try {
+                        log.warn("等待{}秒本地客户端建立", timeout);
+                        thread.wait(timeout);
+                    } catch (InterruptedException e) {
+                        log.error("等待{}秒本地客户端建立超时:{}", timeout, e.getMessage());
+                        throw new RuntimeException("等待本地客户端建立超时");
+                    }
+                }
+            }
+        }
+
         byteClientHandler.write(data);
     }
 }

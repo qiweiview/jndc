@@ -31,7 +31,7 @@ public class LocalService implements Serializable {
     private TCPServerConfiguration tcpServerConfiguration;
 
     //不序列化
-    private transient Map<String, TCPClient> tcpClientMap = new ConcurrentHashMap<>();
+    private transient Map<String, TCPClient> tcpClientMap;
 
     public boolean isSuccessful() {
         return RegisterResponse.SUCCESS.equals(registerResponse);
@@ -41,9 +41,11 @@ public class LocalService implements Serializable {
         return RegisterResponse.SERVICE_NOT_EXIST.equals(registerResponse);
     }
 
-    public boolean isOtherError() {
-        return RegisterResponse.OTHER_ERROR.equals(registerResponse);
+    public boolean isTCPServerStartFail() {
+        return RegisterResponse.TCP_SERVER_START_FAIL.equals(registerResponse);
     }
+
+
 
     public boolean isServiceExist() {
         return RegisterResponse.SERVICE_EXIST.equals(registerResponse);
@@ -59,5 +61,9 @@ public class LocalService implements Serializable {
         tcpClientMap.forEach((s, tcpClient) -> {
             tcpClient.stop();
         });
+    }
+
+    public void initTCPClientMap() {
+        tcpClientMap = new ConcurrentHashMap<>();
     }
 }

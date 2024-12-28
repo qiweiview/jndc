@@ -10,6 +10,7 @@ public enum TCPResponse {
 
     SERVICE_NOT_EXIST("服务不存在", "SERVICE_NOT_EXIST"),
 
+    REMOTE_CONNECTION_INTERRUPT("远程连接关闭", "REMOTE_CONNECTION_INTERRUPT"),
 
     ;
 

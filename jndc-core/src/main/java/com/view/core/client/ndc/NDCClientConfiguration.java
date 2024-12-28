@@ -1,13 +1,19 @@
 package com.view.core.client.ndc;
 
 import com.view.core.model.CheckAbleConfiguration;
+import com.view.core.model.local_service.LocalService;
 import com.view.core.protocol.NDCPacket;
+import com.view.core.protocol.NDCPacketBuilder;
+import com.view.core.protocol.NDCPacketHelper;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Data
 @Slf4j
@@ -45,6 +51,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
     private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
 
+
     /*------服务端通讯------*/
     private Consumer<ChannelHandlerContext> connectActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
 
@@ -52,6 +59,9 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
     private Consumer<ClientCallbackContext> connectInActiveCallback = EMPTY_CONSUMER(ClientCallbackContext.class);
 
+
+    /*------重试复用------*/
+    private List<NDCPacket> registerPackage = new ArrayList<>();
 
 
     public void printConfiguration() {
@@ -115,6 +125,26 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
         retryBreak = true;
         if (waitingThread != null) {
             waitingThread.interrupt();
+        }
+    }
+
+
+    public void distinctAddRegisterService(NDCPacket ndcPacket) {
+        List<NDCPacket> collect = registerPackage
+                .parallelStream()
+                .filter(tobeSend -> {
+                    //是否是服务注册消息
+                    if (!NDCPacketHelper.isServiceRegisterPacket(tobeSend)) {
+                        return false;
+                    }
+
+                    LocalService service = tobeSend.getObject(LocalService.class);
+                    LocalService type = ndcPacket.getObject(LocalService.class);
+                    return service.getServiceId().equals(type.getServiceId());
+                }).collect(Collectors.toList());
+
+        if (collect.isEmpty()) {
+            registerPackage.add(ndcPacket);
         }
     }
 }

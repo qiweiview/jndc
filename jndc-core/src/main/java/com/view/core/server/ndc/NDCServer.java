@@ -17,11 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 @Data
 @Slf4j
 public class NDCServer {
+
+    private ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
+
 
     //配置
     private NDCServerConfiguration ndcServerConfiguration;

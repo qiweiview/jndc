@@ -9,8 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
     private NDCClientConfiguration ndcClientConfiguration;
 
-    public NDCClientHandler(NDCClientConfiguration ndcClientConfiguration) {
+    private NDCClient ndcClient;
+
+    public NDCClientHandler(NDCClient ndcClient,NDCClientConfiguration ndcClientConfiguration) {
         this.ndcClientConfiguration = ndcClientConfiguration;
+        this.ndcClient = ndcClient;
     }
 
     @Override
@@ -19,18 +22,12 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
         ndcClientConfiguration.getConnectActiveCallback().accept(ctx);
     }
 
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("捕获异常：", cause);
-        //获取异常后关闭连接
-        ctx.close();
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NDCPacket msg) throws Exception {
         ClientCallbackContext clientCallbackContext = new ClientCallbackContext();
         clientCallbackContext.setContext(ctx);
-
+        clientCallbackContext.setNdcClient(ndcClient);
         ndcClientConfiguration.getDataReadCallback().accept(msg, clientCallbackContext);
     }
 
@@ -39,6 +36,7 @@ public class NDCClientHandler extends SimpleChannelInboundHandler<NDCPacket> {
         log.debug("连接断开：{}", ctx.channel().remoteAddress());
         ClientCallbackContext clientCallbackContext = new ClientCallbackContext();
         clientCallbackContext.setContext(ctx);
+        clientCallbackContext.setNdcClient(ndcClient);
         ndcClientConfiguration.getConnectInActiveCallback().accept(clientCallbackContext);
     }
 

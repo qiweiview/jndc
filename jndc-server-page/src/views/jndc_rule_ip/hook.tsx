@@ -149,16 +149,16 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-      belongId: row?.belongId ?? null,
-      createTime: row?.createTime ?? null,
-      id: row?.id ?? null,
-      ipAddress: row?.ipAddress ?? null,
-      ruleName: row?.ruleName ?? null,
-      ruleStatus: row?.ruleStatus ?? null,
-      ruleType: row?.ruleType ?? null,
-      samplingLength: row?.samplingLength ?? null,
-      updateTime: row?.updateTime ?? null,
-    idString:row?.idString?? null,
+          belongId: row?.belongId ?? null,
+          createTime: row?.createTime ?? null,
+          id: row?.id ?? null,
+          ipAddress: row?.ipAddress ?? null,
+          ruleName: row?.ruleName ?? null,
+          ruleStatus: row?.ruleStatus ?? null,
+          ruleType: row?.ruleType ?? null,
+          samplingLength: row?.samplingLength ?? null,
+          updateTime: row?.updateTime ?? null,
+          idString: row?.idString ?? null
         }
       },
       width: "40%",
@@ -201,7 +201,6 @@ export function useHook() {
       }
     });
   }
-
 
   function handleDrawerUpdate(newVal: boolean) {
     dictDataDrawer.value = newVal;

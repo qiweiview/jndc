@@ -13,7 +13,6 @@ import java.net.InetSocketAddress;
 public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     private TCPClientConfiguration tcpClientConfiguration;
 
-
     private TCPClient tcpClient;
 
     private ChannelHandlerContext ctx;

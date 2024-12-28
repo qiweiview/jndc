@@ -17,18 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Data
 @Slf4j
 public class NDCClient {
+    private ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
     private Channel clientChannel;
 
     private EventLoopGroup workerGroup;
-
-    private List<NDCPacket> bufferPackage = new ArrayList<>();
 
     private ChannelHandlerContext serverContext;
 
@@ -58,6 +59,7 @@ public class NDCClient {
      * 重置客户端
      */
     public void resetClientForReconnect() {
+        retryTimes = 0;
         ndcClientSessionMap = new ConcurrentHashMap<>();
         clientChannel = null;
         serverContext = null;
@@ -67,6 +69,8 @@ public class NDCClient {
     }
 
     public void start(NDCClientConfiguration ndcClientConfiguration) {
+        NDCClient ndcClient = this;
+
         //重置客户端
         resetClientForReconnect();
 
@@ -103,7 +107,7 @@ public class NDCClient {
                     pipeline.addLast(new NDCPCodec());
 
                     //创建ndc客户端处理器
-                    NDCClientHandler ndcClientHandler = new NDCClientHandler(ndcClientConfiguration);
+                    NDCClientHandler ndcClientHandler = new NDCClientHandler(ndcClient, ndcClientConfiguration);
 
                     //NDC Package 处理
                     pipeline.addLast(ndcClientHandler);
@@ -160,46 +164,5 @@ public class NDCClient {
             }
 
         }
-
-
     }
-
-
-
-    /**
-     * 注册服务
-     *
-     * @param localService
-     */
-    public void registerService(LocalService localService) {
-        //无论是否连接都放入队列，用于重连
-        distinctAdd(localService);
-
-        if (serverContext == null) {
-            //todo 放入等待队列
-            log.warn("未连接到服务器，无法注册服务");
-        } else {
-            //todo 立刻发送
-            NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
-            serverContext.writeAndFlush(registerServicePacket);
-        }
-
-    }
-
-    private void distinctAdd(LocalService localService) {
-        List<NDCPacket> collect = bufferPackage.parallelStream().filter(tobeSend -> {
-            //todo 匹配的服务
-            LocalService service = tobeSend.getObject(LocalService.class);
-            return service.getServiceId().equals(localService.getServiceId());
-        }).collect(Collectors.toList());
-
-        if (collect.isEmpty()) {
-            bufferPackage.add(NDCPacketBuilder.registerServicePacket(localService));
-        }
-    }
-
-
-
-
-
 }

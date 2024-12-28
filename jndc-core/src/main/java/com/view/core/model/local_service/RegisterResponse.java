@@ -14,7 +14,8 @@ public enum RegisterResponse {
 
     PORT_HAS_BOUND("端口已经绑定", "PORT_HAS_BOUND"),
 
-    OTHER_ERROR("其他异常", "OTHER_ERROR"),
+    TCP_SERVER_START_FAIL("服务启动异常", "TCP_SERVER_START_FAIL"),
+
 
 
     ;

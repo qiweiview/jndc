@@ -14,24 +14,22 @@ import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 
 public class NDCClientTest {
 
-    private NDCClient ndcClient;
-
-    @BeforeEach
-    public void init() {
-        ndcClient = new NDCClient();
-    }
 
     @Test
     public void runClient() {
+
+        NDCClient ndcClient = new NDCClient();
+        ExecutorService executorService = ndcClient.getExecutorService();
         ServiceIdManager serviceIdManager = new ServiceIdManager();
 
         String clientId = "client1";
@@ -59,7 +57,6 @@ public class NDCClientTest {
 
         ndcClientConfiguration.setDataReadCallback((ndcPacket, clientCallbackContext) -> {
             ChannelHandlerContext context = clientCallbackContext.getContext();
-            NDCClient ndcClient1 = clientCallbackContext.getNdcClient();
 
             Map<String, LocalService> serviceMap = ndcClient.getNdcClientSessionMap();
 
@@ -75,24 +72,32 @@ public class NDCClientTest {
                 //todo 通道打开成功
                 log.info("通道打开成功:{}");
 
-                ndcClient1.registerService(localService2);
+
+                NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService2);
+                context.writeAndFlush(registerServicePacket);
+                //加入配置缓存
+                ndcClientConfiguration.distinctAddRegisterService(registerServicePacket);
+
             } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                 //todo 服务注册响应
                 LocalService localService = ndcPacket.getObject(LocalService.class);
+                localService.initTCPClientMap();
                 if (localService.isSuccessful()) {
                     log.info("服务{}注册成功", localService.getName());
 
                     serviceMap.put(localService.getServiceId(), localService);
 
                     //注销服务
-                    NDCPacket unregisterServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
-                    context.writeAndFlush(unregisterServicePacket);
+                    //NDCPacket unregisterServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
+                    //context.writeAndFlush(unregisterServicePacket);
                 } else if (localService.isPortHasBound()) {
                     log.error("端口{}已被占用", localService.getPort());
                 } else if (localService.isServiceExist()) {
                     log.error("服务{}已存在", localService.getName());
-                } else if (localService.isOtherError()) {
+                } else if (localService.isTCPServerStartFail()) {
                     log.error("服务{}注册失败", localService.getName());
+                } else {
+                    log.error("非正常逻辑响应{}", localService.getRegisterResponse());
                 }
 
             } else if (NDCPacketHelper.isServiceUnRegisterPacket(ndcPacket)) {
@@ -106,6 +111,7 @@ public class NDCClientTest {
 
             } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
                 //todo 收到TCP激活包
+                log.info("收到TCP激活包");
                 TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                 String serviceId = tcpDataTransport.getServiceId();
                 String tcpChannelId = tcpDataTransport.getTcpChannelId();
@@ -129,6 +135,26 @@ public class NDCClientTest {
                     TCPClientConfiguration tcpClientConfiguration = new TCPClientConfiguration();
                     tcpClientConfiguration.setHost(localService.getHost());
                     tcpClientConfiguration.setPort(localService.getPort());
+                    tcpClientConfiguration.setStartSuccessCallBack((tcpClient1) -> {
+                        log.info("TCP客户端启动成功");
+                    });
+                    tcpClientConfiguration.setActiveCallBack((tcpClient1) -> {
+                        log.info("TCP客户端已连接");
+                        List<Thread> waitingActiveThead = tcpClientConfiguration.getWaitingActiveThead();
+                        if (!waitingActiveThead.isEmpty())
+                            synchronized (waitingActiveThead) {
+                                if (!waitingActiveThead.isEmpty()) {
+                                    waitingActiveThead.forEach(thread -> {
+                                        synchronized (thread) {
+                                            thread.notify();
+                                        }
+                                    });
+                                    waitingActiveThead.clear();
+                                }
+
+                            }
+
+                    });
                     tcpClientConfiguration.setStartFailCallBack((tcpClient1) -> {
                         log.error("TCP客户端启动失败");
                         tcpClientMap.remove(tcpChannelId);
@@ -138,13 +164,15 @@ public class NDCClientTest {
                         NDCPacket tcpActivePacket = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
                         context.writeAndFlush(tcpActivePacket);
                     });
+
                     tcpClientConfiguration.setReadCallBack((data) -> {
                         data.setTcpResponse(TCPResponse.SUCCESS);
                         data.setNdcClientId(clientId);
                         data.setServiceId(serviceId);
                         data.setTcpChannelId(tcpChannelId);
-                        NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                        NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(data);
                         context.writeAndFlush(tcpActivePacket);
+                        log.debug("收到Client TCP数据,已发回");
                     });
                     tcpClientConfiguration.setInactiveCallBack(tcpClientInactive -> {
                         log.info("TCP客户端已停止");
@@ -155,7 +183,11 @@ public class NDCClientTest {
                         context.writeAndFlush(tcpActivePacket);
                     });
 
-                    tcpClient.start(tcpClientConfiguration);
+                    TCPClient finalTcpClient = tcpClient;
+                    executorService.submit(() -> {
+                        finalTcpClient.start(tcpClientConfiguration);
+                    });
+
                 } else {
                     log.warn("异常情况TCP客户端已存在");
                 }
@@ -187,7 +219,13 @@ public class NDCClientTest {
                         context.writeAndFlush(tcpActivePacket);
                         return;
                     }
-                    tcpClient.writeAndFlush(tcpDataTransport.getData());
+                    try {
+                        tcpClient.writeAndFlush(tcpDataTransport.getData());
+                    } catch (Exception e) {
+                        tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
+                        NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
+                        context.writeAndFlush(tcpActivePacket);
+                    }
 
                 } else if (tcpDataTransport.isServiceNotExist()) {
                     //todo 服务不存在
@@ -199,6 +237,8 @@ public class NDCClientTest {
                         localService.stop();
                         log.info("服务{}已停止", localService.getName());
                     }
+                } else {
+                    log.error("未知的TCP数据包状态");
                 }
 
 
@@ -233,6 +273,15 @@ public class NDCClientTest {
                     if (remove != null) {
                         remove.stop();
                     }
+                } else if (tcpDataTransport.isRemoteConnectionInterrupt()) {
+                    //todo 远程连接中断
+                    log.error("远程连接中断:{}", tcpDataTransport.getServiceId());
+                    LocalService remove = serviceMap.remove(serviceId);
+                    if (remove != null) {
+                        remove.stop();
+                    }
+                } else {
+                    log.error("不合理的TCP停止包");
                 }
 
             } else {
