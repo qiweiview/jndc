@@ -22,7 +22,7 @@ public class NDCClientTest {
         String clientId = "client1";
         NDCClientConfiguration ndcClientConfiguration = new NDCClientConfiguration();
         ndcClientConfiguration.setServerHost("127.0.0.1");//服务端地址
-        ndcClientConfiguration.setServerPort(8888);//服务端端口
+        ndcClientConfiguration.setServerPort(9866);//服务端端口
         ndcClientConfiguration.setReconnectInterval(3);//重连间隔
         ndcClientConfiguration.setAutoReconnect(true);//自动重连
         ndcClientConfiguration.setReconnectMaxTimes(-1);//不限制最大重连次数
@@ -43,8 +43,11 @@ public class NDCClientTest {
 
 
         ClientFlowSlot emptyClientFlowSlot = new EmptyClientFlowSlot();
-        //注册服务
-        emptyClientFlowSlot.registerServiceManual(localService2, true);
+        new Thread(() -> {
+            //注册服务
+            emptyClientFlowSlot.registerServiceManual(localService2, true);
+        }).start();
+
         DesignedClientFlow designedClientFlow = new DesignedClientFlow(ndcClientConfiguration, emptyClientFlowSlot);
         designedClientFlow.run();
 

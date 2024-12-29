@@ -29,7 +29,6 @@ public class DesignedClientFlow {
     //string类型的id
     private String stringId;
 
-
     private NDCClientConfiguration ndcClientConfiguration;
 
     private ClientFlowSlot clientFlowSlot;
@@ -57,6 +56,7 @@ public class DesignedClientFlow {
         clientFlowSlot.setLongIdGetter(() -> longId);
 
         clientFlowSlot.setStingIdGetter(() -> stringId);
+
 
         ndcClientConfiguration.setStartedCallback(() -> {
             log.info("NDC客户端启动成功");
@@ -96,6 +96,7 @@ public class DesignedClientFlow {
                 List<NDCPacket> registerPackage = ndcClientConfiguration.getAuthRegisterServices();
                 registerPackage.forEach(context::writeAndFlush);
 
+                clientFlowSlot.wakeUpWaitingOperation();
 
                 clientFlowSlot.openChannelSafe();
             } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {

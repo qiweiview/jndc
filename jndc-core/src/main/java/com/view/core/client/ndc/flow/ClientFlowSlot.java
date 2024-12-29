@@ -8,6 +8,8 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -23,9 +25,11 @@ public abstract class ClientFlowSlot {
 
     private Supplier<String> clientIdGetter;
 
-    private Supplier<ChannelHandlerContext> channelHandlerContextGetter;
+    private volatile Supplier<ChannelHandlerContext> channelHandlerContextGetter;
 
     private Supplier<NDCClientConfiguration> ndcClientConfigurationGetter;
+
+    List<Thread> waitingOperation = new CopyOnWriteArrayList<>();
 
 
     /**
@@ -33,6 +37,8 @@ public abstract class ClientFlowSlot {
      * @param persistent   是否内存持久化，true则客户端重连时会自动注册
      */
     public void registerServiceManual(LocalService localService, boolean persistent) {
+
+        initCheck();
 
         NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
         if (persistent) {
@@ -44,11 +50,41 @@ public abstract class ClientFlowSlot {
         context.writeAndFlush(registerServicePacket);
     }
 
+    private void initCheck() {
+        if (channelHandlerContextGetter == null) {
+            Thread thread = Thread.currentThread();
+            synchronized (thread) {
+                try {
+                    waitingOperation.add(thread);
+                    thread.wait();
+                } catch (InterruptedException e) {
+                    log.error("registerServiceManual wait error", e);
+                }
+            }
+        }
+    }
+
+
+    public void wakeUpWaitingOperation() {
+        if (!waitingOperation.isEmpty()) {
+            synchronized (this) {
+                if (!waitingOperation.isEmpty()) {
+                    waitingOperation.forEach(t -> {
+                        synchronized (t) {
+                            t.notify();
+                        }
+                    });
+                }
+            }
+        }
+    }
+
     /**
      * @param localService
      * @param persistent   是否移除内存，true则客户端重连时不再注册
      */
     public void unregisterServiceManual(LocalService localService, boolean persistent) {
+        initCheck();
         NDCPacket unregisterServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
         if (persistent) {
             NDCClientConfiguration ndcClientConfiguration = ndcClientConfigurationGetter.get();

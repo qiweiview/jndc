@@ -49,11 +49,14 @@ public class WebServerFlowSlot extends ServerFlowSlot {
 
     @Override
     public void openChannel(String clientId, InetSocketAddress remote) {
+        Long l = getLongIdGetter().get();
+
         JndcServerAcceptHistoryDTO jndcServerAcceptHistoryDTO = new JndcServerAcceptHistoryDTO();
         jndcServerAcceptHistoryDTO.setClientId(clientId);
         jndcServerAcceptHistoryDTO.setSourceIp(remote.getHostString());
         jndcServerAcceptHistoryDTO.setSourcePort(remote.getPort());
         jndcServerAcceptHistoryDTO.setConnectTime(LocalDateTime.now());
+        jndcServerAcceptHistoryDTO.setServerIdString(l.toString());
         jndcServerAcceptHistoryServiceI.save(jndcServerAcceptHistoryDTO);
     }
 
