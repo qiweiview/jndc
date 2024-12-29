@@ -34,25 +34,34 @@ public class LocalService implements Serializable {
     private transient Map<String, TCPClient> tcpClientMap;
 
     public boolean isSuccessful() {
+        nullWarning();
         return RegisterResponse.SUCCESS.equals(registerResponse);
     }
 
     public boolean isServiceNotExist() {
+        nullWarning();
         return RegisterResponse.SERVICE_NOT_EXIST.equals(registerResponse);
     }
 
     public boolean isTCPServerStartFail() {
+        nullWarning();
         return RegisterResponse.TCP_SERVER_START_FAIL.equals(registerResponse);
     }
 
-
-
     public boolean isServiceExist() {
+        nullWarning();
         return RegisterResponse.SERVICE_EXIST.equals(registerResponse);
     }
 
     public boolean isPortHasBound() {
+        nullWarning();
         return RegisterResponse.PORT_HAS_BOUND.equals(registerResponse);
+    }
+
+    public void nullWarning() {
+        if (registerResponse == null) {
+            log.warn("registerResponse is null");
+        }
     }
 
 

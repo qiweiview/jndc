@@ -27,14 +27,23 @@ public class TCPDataTransport implements Serializable {
 
 
     public boolean isSuccessful() {
+        nullWarning();
         return TCPResponse.SUCCESS.equals(tcpResponse);
     }
 
     public boolean isServiceNotExist() {
+        nullWarning();
         return TCPResponse.SERVICE_NOT_EXIST.equals(tcpResponse);
     }
 
     public boolean isRemoteConnectionInterrupt() {
+        nullWarning();
         return TCPResponse.REMOTE_CONNECTION_INTERRUPT.equals(tcpResponse);
+    }
+
+    public void nullWarning() {
+        if (tcpResponse == null) {
+            log.warn("tcpResponse is null");
+        }
     }
 }
