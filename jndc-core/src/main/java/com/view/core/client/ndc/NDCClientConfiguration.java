@@ -3,14 +3,13 @@ package com.view.core.client.ndc;
 import com.view.core.model.CheckAbleConfiguration;
 import com.view.core.model.local_service.LocalService;
 import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -49,7 +48,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
     private Runnable stopCallback = EMPTY_CALLBACK;
 
-    private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
+    private Consumer<Exception> startFailCallback = EMPTY_CONSUMER(Exception.class);
 
 
     /*------服务端通讯------*/
@@ -61,7 +60,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
 
 
     /*------重试复用------*/
-    private List<NDCPacket> registerPackage = new ArrayList<>();
+    private List<NDCPacket> authRegisterServices = new CopyOnWriteArrayList<>();
 
 
     public void printConfiguration() {
@@ -99,7 +98,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
             throw new IllegalArgumentException("startedCallback不能为空");
         }
 
-        if (failCallback == null) {
+        if (startFailCallback == null) {
             throw new IllegalArgumentException("failCallback不能为空");
         }
 
@@ -128,9 +127,17 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
         }
     }
 
+    public void removeRegisterService(NDCPacket ndcPacket) {
+        authRegisterServices = authRegisterServices.parallelStream()
+                .filter(x -> {
+                    LocalService service = x.getObject(LocalService.class);
+                    LocalService type = ndcPacket.getObject(LocalService.class);
+                    return !service.getServiceId().equals(type.getServiceId());
+                }).collect(Collectors.toList());
+    }
 
     public void distinctAddRegisterService(NDCPacket ndcPacket) {
-        List<NDCPacket> collect = registerPackage
+        List<NDCPacket> collect = authRegisterServices
                 .parallelStream()
                 .filter(tobeSend -> {
                     //是否是服务注册消息
@@ -144,7 +151,7 @@ public class NDCClientConfiguration extends CheckAbleConfiguration {
                 }).collect(Collectors.toList());
 
         if (collect.isEmpty()) {
-            registerPackage.add(ndcPacket);
+            authRegisterServices.add(ndcPacket);
         }
     }
 }

@@ -86,7 +86,7 @@ public class JNDCClientHolder {
                 jndcClientDao.updateStatus(id, JNDCClientStatusEnum.PAUSE.value);
             });
 
-            ndcClientConfiguration.setFailCallback(e -> {
+            ndcClientConfiguration.setStartFailCallback(e -> {
                 JndcLogDTO jndcLogDTO = new JndcLogDTO();
                 jndcLogDTO.setLogContent("客户端启动失败");
                 jndcLogDTO.setLogTime(LocalDateTime.now());

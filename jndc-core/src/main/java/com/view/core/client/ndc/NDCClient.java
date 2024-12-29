@@ -3,8 +3,6 @@ package com.view.core.client.ndc;
 
 import com.view.core.model.local_service.LocalService;
 import com.view.core.protocol.NDCPCodec;
-import com.view.core.protocol.NDCPacket;
-import com.view.core.protocol.NDCPacketBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,14 +11,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Data
 @Slf4j
@@ -129,14 +124,14 @@ public class NDCClient {
                     ndcClientConfiguration.getStartedCallback().run();
                 } else {
                     log.error("NDC客户端启动失败：{}:{}", host, port);
-                    ndcClientConfiguration.getFailCallback().accept(new RuntimeException("NDC客户端启动失败"));
+                    ndcClientConfiguration.getStartFailCallback().accept(new RuntimeException("NDC客户端启动失败"));
                 }
             });
             this.clientChannel = channelFuture.channel();
             // 阻塞直到客户端连接关闭
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
-            ndcClientConfiguration.getFailCallback().accept(e);
+            ndcClientConfiguration.getStartFailCallback().accept(e);
         } finally {
             //判定是否重连
             if (ndcClientConfiguration.reconnectThisTime()) {

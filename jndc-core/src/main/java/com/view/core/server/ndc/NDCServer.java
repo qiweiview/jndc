@@ -1,7 +1,6 @@
 package com.view.core.server.ndc;
 
 
-
 import com.view.core.model.ChannelOpen;
 import com.view.core.protocol.NDCPCodec;
 import io.netty.bootstrap.ServerBootstrap;

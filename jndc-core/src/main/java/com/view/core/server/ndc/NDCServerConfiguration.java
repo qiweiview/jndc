@@ -21,7 +21,7 @@ public class NDCServerConfiguration extends CheckAbleConfiguration {
 
     private Runnable stopCallback = EMPTY_CALLBACK;
 
-    private Consumer<Exception> failCallback = EMPTY_FAIL_CALLBACK;
+    private Consumer<Exception> failCallback = EMPTY_CONSUMER(Exception.class);
 
     /*------服务端通讯------*/
     private Consumer<ChannelHandlerContext> connectActiveCallback = EMPTY_CONSUMER(ChannelHandlerContext.class);
