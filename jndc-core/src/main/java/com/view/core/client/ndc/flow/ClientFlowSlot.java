@@ -8,17 +8,25 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.function.Supplier;
+
 /**
  * 客户端流程槽
  */
 @Data
 @Slf4j
 public abstract class ClientFlowSlot {
-    private String clientId;
 
-    private ChannelHandlerContext context;
+    private Supplier<String> stingIdGetter;
 
-    private NDCClientConfiguration ndcClientConfiguration;
+    private Supplier<Long> longIdGetter;
+
+    private Supplier<String> clientIdGetter;
+
+    private Supplier<ChannelHandlerContext> channelHandlerContextGetter;
+
+    private Supplier<NDCClientConfiguration> ndcClientConfigurationGetter;
+
 
     /**
      * @param localService
@@ -28,8 +36,11 @@ public abstract class ClientFlowSlot {
 
         NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
         if (persistent) {
+            NDCClientConfiguration ndcClientConfiguration = ndcClientConfigurationGetter.get();
             ndcClientConfiguration.distinctAddRegisterService(registerServicePacket);
         }
+
+        ChannelHandlerContext context = channelHandlerContextGetter.get();
         context.writeAndFlush(registerServicePacket);
     }
 
@@ -40,8 +51,10 @@ public abstract class ClientFlowSlot {
     public void unregisterServiceManual(LocalService localService, boolean persistent) {
         NDCPacket unregisterServicePacket = NDCPacketBuilder.unregisterServicePacket(localService);
         if (persistent) {
+            NDCClientConfiguration ndcClientConfiguration = ndcClientConfigurationGetter.get();
             ndcClientConfiguration.removeRegisterService(unregisterServicePacket);
         }
+        ChannelHandlerContext context = channelHandlerContextGetter.get();
         context.writeAndFlush(unregisterServicePacket);
     }
 

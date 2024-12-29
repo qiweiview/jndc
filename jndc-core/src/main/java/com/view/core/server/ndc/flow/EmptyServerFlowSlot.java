@@ -20,7 +20,7 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void openChannel(String clientId) {
+    public void openChannel(String clientId, InetSocketAddress remote) {
 
     }
 

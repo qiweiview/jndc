@@ -12,18 +12,29 @@ import com.view.core.protocol.NDCPacket;
 import com.view.core.protocol.NDCPacketBuilder;
 import com.view.core.protocol.NDCPacketHelper;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+@Data
 @Slf4j
 public class DesignedClientFlow {
+
+    //long类型的id
+    private Long longId;
+
+    //string类型的id
+    private String stringId;
+
+
     private NDCClientConfiguration ndcClientConfiguration;
 
     private ClientFlowSlot clientFlowSlot;
 
+    private NDCClient ndcClient = new NDCClient();
 
     public DesignedClientFlow(NDCClientConfiguration ndcClientConfiguration, ClientFlowSlot clientFlowSlot) {
         this.ndcClientConfiguration = ndcClientConfiguration;
@@ -34,14 +45,18 @@ public class DesignedClientFlow {
      * 执行客户端流程（阻塞）
      */
     public void run() {
-        NDCClient ndcClient = new NDCClient();
+
         ExecutorService executorService = ndcClient.getExecutorService();
 
-        //设置客户端ID
-        String uniqueId = ndcClientConfiguration.getUniqueId();
-        clientFlowSlot.setClientId(uniqueId);
-        clientFlowSlot.setNdcClientConfiguration(ndcClientConfiguration);
+        //设置id回调
+        clientFlowSlot.setClientIdGetter(() -> ndcClientConfiguration.getUniqueId());
 
+        //设置配置回调
+        clientFlowSlot.setNdcClientConfigurationGetter(() -> ndcClientConfiguration);
+
+        clientFlowSlot.setLongIdGetter(() -> longId);
+
+        clientFlowSlot.setStingIdGetter(() -> stringId);
 
         ndcClientConfiguration.setStartedCallback(() -> {
             log.info("NDC客户端启动成功");
@@ -56,7 +71,7 @@ public class DesignedClientFlow {
         ndcClientConfiguration.setConnectActiveCallback((ctx) -> {
             log.info("连接已建立");
             clientFlowSlot.connectionActiveSafe();
-            clientFlowSlot.setContext(ctx);
+            clientFlowSlot.setChannelHandlerContextGetter(() -> ctx);
         });
 
         ndcClientConfiguration.setDataReadCallback((ndcPacket, clientCallbackContext) -> {
@@ -331,6 +346,10 @@ public class DesignedClientFlow {
 
         //定义服务
         ndcClient.start(ndcClientConfiguration);
+
+    }
+
+    public void stop() {
 
     }
 }

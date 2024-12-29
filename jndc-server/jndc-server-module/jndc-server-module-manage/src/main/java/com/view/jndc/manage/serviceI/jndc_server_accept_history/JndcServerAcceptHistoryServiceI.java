@@ -6,6 +6,7 @@ import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAccep
 import com.view.jndc.manage.model.jndc_server_accept_history.vo.JndcServerAcceptHistoryVO;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface JndcServerAcceptHistoryServiceI {
@@ -22,5 +23,7 @@ public interface JndcServerAcceptHistoryServiceI {
   JndcServerAcceptHistoryDTO getById(Serializable id);
 
     void resetAllAcceptHistory();
+
+    void updateDisconnectTime(String clientId, LocalDateTime now);
 
 }

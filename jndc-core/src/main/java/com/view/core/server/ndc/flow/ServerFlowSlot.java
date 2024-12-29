@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
+import java.util.function.Supplier;
 
 /**
  * 服务流程槽
@@ -11,7 +12,11 @@ import java.net.InetSocketAddress;
 @Data
 @Slf4j
 public abstract class ServerFlowSlot {
-    private String serverId;
+    private Supplier<String> stingIdGetter;
+
+    private Supplier<Long> longIdGetter;
+
+    private Supplier<String> serverIdGetter;
 
 
     public abstract void ndcServerStart();
@@ -20,7 +25,7 @@ public abstract class ServerFlowSlot {
 
     public abstract void connectActive();
 
-    public abstract void openChannel(String clientId);
+    public abstract void openChannel(String clientId, InetSocketAddress remote);
 
     public abstract void tcpServerStartSuccess(String ndcClientId, String serviceId);
 
@@ -66,9 +71,9 @@ public abstract class ServerFlowSlot {
         }
     }
 
-    public final void openChannelSafe(String clientId) {
+    public final void openChannelSafe(String clientId, InetSocketAddress remote) {
         try {
-            openChannel(clientId);
+            openChannel(clientId, remote);
         } catch (Exception e) {
             log.error("openChannelSafe call back error", e);
         }

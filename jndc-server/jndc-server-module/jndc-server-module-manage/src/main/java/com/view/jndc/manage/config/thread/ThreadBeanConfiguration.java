@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 @Configuration
 @Slf4j
-public class BeanConfiguration {
+public class ThreadBeanConfiguration {
 
 
     @Bean

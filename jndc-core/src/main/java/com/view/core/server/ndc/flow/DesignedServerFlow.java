@@ -15,17 +15,28 @@ import com.view.core.server.tcp.TCPServerConfiguration;
 import com.view.core.utils.TCPUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+@Data
 @Slf4j
 public class DesignedServerFlow {
+
+    //long类型的id
+    private Long longId;
+
+    //string类型的id
+    private String stringId;
+
     private NDCServerConfiguration ndcServerConfiguration;
 
     private ServerFlowSlot serverFlowSlot;
+
+    private NDCServer ndcServer = new NDCServer();
 
 
     public DesignedServerFlow(NDCServerConfiguration ndcServerConfiguration, ServerFlowSlot serverFlowSlot) {
@@ -34,15 +45,19 @@ public class DesignedServerFlow {
     }
 
     public void run() {
-        NDCServer ndcServer = new NDCServer();
 
-        //像插槽中注入服务端id
-        String uniqueId = ndcServerConfiguration.getUniqueId();
-        serverFlowSlot.setServerId(uniqueId);
+        //设置id获取回调
+        serverFlowSlot.setServerIdGetter(() -> ndcServerConfiguration.getUniqueId());
+
+        serverFlowSlot.setLongIdGetter(() -> longId);
+
+        serverFlowSlot.setStingIdGetter(() -> stringId);
 
         ndcServerConfiguration.setConnectActiveCallback(ctx -> {
+            ChannelHandlerContext context = ctx.getContext();
+
             NDCPacket ndcPacket = NDCPacketBuilder.readyToAcceptPacket();
-            ctx.channel().writeAndFlush(ndcPacket);
+            context.writeAndFlush(ndcPacket);
             log.info("连接激活");
             serverFlowSlot.connectActiveSafe();
         });
@@ -51,6 +66,8 @@ public class DesignedServerFlow {
             NDCServer ndcServerReferent = serverCallbackContext.getNdcServer();
             ExecutorService executorService = ndcServerReferent.getExecutorService();
             ChannelHandlerContext ndcContex = serverCallbackContext.getContext();
+            InetSocketAddress remote = serverCallbackContext.getRemote();
+
             Map<String, ChannelOpen> ndcClientSessionMap = ndcServerReferent.getNdcClientSessionMap();
 
 
@@ -64,7 +81,7 @@ public class DesignedServerFlow {
                 ndcContex.writeAndFlush(ndcPacket);
 
                 log.info("打开通道:{}", clientId);
-                serverFlowSlot.openChannelSafe(clientId);
+                serverFlowSlot.openChannelSafe(clientId, remote);
             } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                 //todo 注册
                 LocalService localService = ndcPacket.getObject(LocalService.class);
@@ -149,7 +166,7 @@ public class DesignedServerFlow {
                 tcpServerConfiguration.setReadCallBack((tcpDataTransport) -> {
                     //todo tcp 服务端读取数据
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
-                    InetSocketAddress remote = tcpDataTransport.getRemote();
+                    InetSocketAddress tcpRemote = tcpDataTransport.getRemote();
 
 
                     log.debug("TCP服务端读取数据：{}", serviceId);
@@ -159,14 +176,14 @@ public class DesignedServerFlow {
                     NDCPacket registerServicePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
                     ndcContex.writeAndFlush(registerServicePacket);
                     byte[] data = registerServicePacket.getData();
-                    serverFlowSlot.tcpChannelReadSafe(ndcClientId, serviceId, tcpChannelId, remote, data);
+                    serverFlowSlot.tcpChannelReadSafe(ndcClientId, serviceId, tcpChannelId, tcpRemote, data);
                 });
 
                 tcpServerConfiguration.setInactiveCallBack((tcpDataTransport, tcpServer) -> {
                     //todo tcp 服务端断开连接
                     log.info("TCP服务端断开连接：{}", serviceId);
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
-                    InetSocketAddress remote = tcpDataTransport.getRemote();
+                    InetSocketAddress tcpRemote = tcpDataTransport.getRemote();
                     sessionMap.remove(tcpChannelId);
                     tcpDataTransport.setTcpResponse(TCPResponse.REMOTE_CONNECTION_INTERRUPT);
                     tcpDataTransport.setNdcClientId(ndcClientId);
@@ -175,7 +192,7 @@ public class DesignedServerFlow {
                     NDCPacket registerServicePacket = NDCPacketBuilder.tcpInactivePacket(tcpDataTransport);
                     ndcContex.writeAndFlush(registerServicePacket);
 
-                    serverFlowSlot.tcpChannelInactiveSafe(ndcClientId, serviceId, tcpChannelId, remote);
+                    serverFlowSlot.tcpChannelInactiveSafe(ndcClientId, serviceId, tcpChannelId, tcpRemote);
                 });
 
                 tcpServerConfiguration.setStopCallBack(tcpServer -> {
@@ -198,6 +215,13 @@ public class DesignedServerFlow {
 
                 //判断客户端是否存在
                 String ndcClientId = localService.getNdcClientId();
+                if (ndcClientId == null) {
+                    log.error("未找到客户端:{}", ndcClientId);
+                    localService.setRegisterResponse(RegisterResponse.CLIENT_NOT_EXIST);
+                    NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
+                    ndcContex.writeAndFlush(registerServicePacket);
+                    return;
+                }
                 ChannelOpen channelOpen = ndcClientSessionMap.get(ndcClientId);
                 if (channelOpen == null) {
                     log.error("未找到客户端:{}", ndcClientId);
@@ -393,5 +417,9 @@ public class DesignedServerFlow {
         });
 
         ndcServer.start(ndcServerConfiguration);
+    }
+
+    public void stop() {
+        ndcServer.stop();
     }
 }

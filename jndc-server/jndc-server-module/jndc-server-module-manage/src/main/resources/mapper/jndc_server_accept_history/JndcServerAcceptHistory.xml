@@ -35,6 +35,13 @@
         where interrupt_time is null
     </update>
 
+    <update id="updateDisconnectTime">
+        update jndc_server_accept_history
+        set interrupt_time = now()
+        where client_id = #{clientId}
+          and interrupt_time is null
+    </update>
+
 
     <select id="listPage" resultMap="JndcServerAcceptHistoryMap"
             parameterType="com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO">

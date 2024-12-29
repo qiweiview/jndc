@@ -6,7 +6,7 @@ import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
-import com.view.jndc.manage.component.JNDCServerHolder;
+import com.view.jndc.manage.component.server.JNDCServerHolder;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
 import com.view.jndc.manage.enums.JNDCServerStatusEnum;
 import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
@@ -89,6 +89,7 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         jndcServerDTO.setId(copy.getId());
         String serverStatus = jndcServerDTO.getServerStatus();
         if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
+            jndcServerDao.updateStatus(copy.getId(), JNDCServerStatusEnum.PROCESSING.value);
             // todo 启动服务
             jndcServerHolder.startServer(jndcServerDTO);
         }
@@ -128,6 +129,7 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         if (!serverStatusDB.equals(serverStatus)) {
             //todo 有状态变化才操作
             if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
+                jndcServerDao.updateStatus(copy.getId(), JNDCServerStatusEnum.PROCESSING.value);
                 jndcServerHolder.startServer(jndcServerDTO);
             } else if (JNDCServerStatusEnum.PAUSE.value.equals(serverStatus)) {
                 // todo 停止服务

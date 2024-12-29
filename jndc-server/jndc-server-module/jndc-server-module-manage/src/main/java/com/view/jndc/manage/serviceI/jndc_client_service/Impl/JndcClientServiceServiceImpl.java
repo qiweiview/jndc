@@ -6,7 +6,7 @@ import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
-import com.view.jndc.manage.component.JNDCClientHolder;
+import com.view.jndc.manage.component.client.JNDCClientHolder;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
 import com.view.jndc.manage.enums.JNDCClientServiceStatusEnum;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
