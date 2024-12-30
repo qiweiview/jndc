@@ -56,19 +56,22 @@ public class JNDCClientHolder {
         }
     }
 
+    public LocalService serviceDTOToLocalService(JndcClientServiceDTO jndcClientServiceDTO) {
+        LocalService localService = new LocalService();
+        localService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
+        localService.setHost(jndcClientServiceDTO.getServiceHost());
+        localService.setPort(jndcClientServiceDTO.getServicePort());
+        localService.setName(jndcClientServiceDTO.getServiceName());
+        localService.setExpectBindPort(jndcClientServiceDTO.getExpectPort());
+        return localService;
+    }
+
     public void registerService(String clientUniqueId, JndcClientServiceDTO jndcClientServiceDTO) {
         DesignedClientFlow designedClientFlow = clientMap.get(clientUniqueId);
         if (designedClientFlow != null) {
             Integer autoRegister = jndcClientServiceDTO.getAutoRegister();
-            LocalService localService = new LocalService();
-            localService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
-            localService.setHost(jndcClientServiceDTO.getServiceHost());
-            localService.setPort(jndcClientServiceDTO.getServicePort());
-            localService.setName(jndcClientServiceDTO.getServiceName());
-            localService.setExpectBindPort(jndcClientServiceDTO.getExpectPort());
+            LocalService localService = serviceDTOToLocalService(jndcClientServiceDTO);
             localService.setNdcClientId(clientUniqueId);
-
-
             designedClientFlow.getClientFlowSlot().registerServiceManual(localService, autoRegister == 1);
         }
     }

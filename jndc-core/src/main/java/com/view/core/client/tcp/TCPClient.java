@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -68,7 +67,7 @@ public class TCPClient {
             bootstrap.connect(host, port)
                     .addListener(future -> {
                         if (future.isSuccess()) {
-                            log.info("TCP客户端启动成功：{}:{}", host, port);
+                            log.debug("TCP客户端启动成功：{}:{}", host, port);
                             startedCallback.accept(tcpClient);
                         } else {
                             log.error("TCP客户端启动失败：{}:{}", host, port);
@@ -103,7 +102,7 @@ public class TCPClient {
                     waitingActiveThead.add(thread);
                     long timeout = tcpClientConfiguration.getConnectTimeout();
                     try {
-                        log.warn("等待{}秒本地客户端建立", timeout);
+                        log.debug("等待{}秒本地客户端建立", timeout);
                         thread.wait(timeout);
                     } catch (InterruptedException e) {
                         log.error("等待{}秒本地客户端建立超时:{}", timeout, e.getMessage());

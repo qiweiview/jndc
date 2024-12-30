@@ -168,11 +168,11 @@ public class DesignedClientFlow {
                     tcpClientConfiguration.setHost(localService.getHost());
                     tcpClientConfiguration.setPort(localService.getPort());
                     tcpClientConfiguration.setStartSuccessCallBack((tcpClient1) -> {
-                        log.info("TCP客户端启动成功");
+                        log.debug("TCP客户端启动成功");
                         clientFlowSlot.tcpClientStartSafe(serviceId, tcpChannelId);
                     });
                     tcpClientConfiguration.setActiveCallBack((tcpClient1) -> {
-                        log.info("TCP客户端已连接");
+                        log.debug("TCP客户端已连接");
                         List<Thread> waitingActiveThead = tcpClientConfiguration.getWaitingActiveThead();
                         if (!waitingActiveThead.isEmpty())
                             synchronized (waitingActiveThead) {
@@ -215,7 +215,7 @@ public class DesignedClientFlow {
                         clientFlowSlot.tcpChannelReadSafe(serviceId, tcpChannelId, bytes);
                     });
                     tcpClientConfiguration.setInactiveCallBack(tcpClientInactive -> {
-                        log.info("TCP客户端已停止");
+                        log.debug("TCP客户端已停止");
                         tcpClientInactive.setNdcClientId(clientId);
                         tcpClientInactive.setServiceId(serviceId);
                         tcpClientInactive.setTcpChannelId(tcpChannelId);
@@ -319,7 +319,7 @@ public class DesignedClientFlow {
                     }
                 } else if (tcpDataTransport.isRemoteConnectionInterrupt()) {
                     //todo 远程连接中断
-                    log.error("远程连接中断:{}", tcpDataTransport.getServiceId());
+                    log.debug("远程连接中断:{}", tcpDataTransport.getServiceId());
                     LocalService localService = serviceMap.get(serviceId);
                     if (localService == null) {
                         log.error("服务{}不存在", serviceId);

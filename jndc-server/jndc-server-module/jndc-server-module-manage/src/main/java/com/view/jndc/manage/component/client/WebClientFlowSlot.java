@@ -2,11 +2,14 @@ package com.view.jndc.manage.component.client;
 
 import com.view.core.client.ndc.flow.ClientFlowSlot;
 import com.view.core.client.ndc.flow.DesignedClientFlow;
+import com.view.core.model.local_service.LocalService;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
 import com.view.jndc.manage.enums.JNDCClientServiceStatusEnum;
 import com.view.jndc.manage.enums.JNDCClientStatusEnum;
+import com.view.jndc.manage.model.jndc_client_service.JndcClientServiceStructMapper;
+import com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO;
 import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -79,6 +83,18 @@ public class WebClientFlowSlot extends ClientFlowSlot {
     public void openChannel() {
         Long id = getLongIdGetter().get();
         jndcClientDao.updateStatus(id, JNDCClientStatusEnum.CONNECT.value);
+
+        String clientId = getClientIdGetter().get();
+
+        //自动注册
+        List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(id);
+        jndcClientServiceDOS.parallelStream()
+                .filter(x -> x.checkAutoRegister())
+                .forEach(x -> {
+                    LocalService localService = jndcClientHolder.serviceDTOToLocalService(JndcClientServiceStructMapper.INSTANCE.toDTO(x));
+                    localService.setNdcClientId(clientId);
+                    registerServiceManual(localService, true);
+                });
 
 
         JndcLogDTO jndcLogDTO = new JndcLogDTO();

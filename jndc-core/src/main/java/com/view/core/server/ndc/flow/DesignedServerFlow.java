@@ -155,7 +155,7 @@ public class DesignedServerFlow {
                 tcpServerConfiguration.setActiveCallBack((tcpDataTransport, context) -> {
                     InetSocketAddress tcpRemote = tcpDataTransport.getRemote();
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
-                    log.info("TCP服务激活：{}，接收远程会话", tcpChannelId);
+                    log.debug("TCP服务激活：{}，接收远程会话", tcpChannelId);
                     sessionMap.put(tcpChannelId, context);
                     tcpDataTransport.setNdcClientId(ndcClientId);
                     tcpDataTransport.setServiceId(serviceId);
@@ -181,7 +181,7 @@ public class DesignedServerFlow {
 
                 tcpServerConfiguration.setInactiveCallBack((tcpDataTransport, tcpServer) -> {
                     //todo tcp 服务端断开连接
-                    log.info("TCP服务端断开连接：{}", serviceId);
+                    log.debug("TCP服务端断开连接：{}", serviceId);
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
                     InetSocketAddress tcpRemote = tcpDataTransport.getRemote();
                     sessionMap.remove(tcpChannelId);
@@ -366,7 +366,7 @@ public class DesignedServerFlow {
                 Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
                 ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
                 if (channelHandlerContext == null) {
-                    log.error("tcp inactive未找到会话:{}", tcpChannelId);
+                    log.debug("tcp inactive未找到会话:{}", tcpChannelId);
                     return;
                 }
                 sessionMap.remove(tcpChannelId);
