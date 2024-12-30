@@ -1,1 +1,0 @@
-import{aT as t,aY as s}from"./index-tdU-ZcS5.js";const l="/sysRole",a=e=>t.request("post",s(`${l}/create`),{data:e}),o=e=>t.request("get",s(`${l}/list`),{params:e}),u=e=>t.request("put",s(`${l}/update`),{data:e}),n=e=>t.request("delete",s(`${l}/delete`),{data:{id:e}}),p=e=>t.request("get",s(`${l}/listAll`),{params:e});export{o as a,a as b,n as d,p as l,u};

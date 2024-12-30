@@ -1,1 +1,0 @@
-import{_ as o,c as n,e as s,o as t}from"./index-tdU-ZcS5.js";const c={},a={class:"welcome"};function r(_,e){return t(),n("div",a,e[0]||(e[0]=[s("h1",null,"Java No Distance Connection",-1)]))}const l=o(c,[["render",r]]);export{l as default};

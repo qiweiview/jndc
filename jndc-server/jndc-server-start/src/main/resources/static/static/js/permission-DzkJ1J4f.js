@@ -1,0 +1,1 @@
+import{aT as e,aY as t}from"./index-kZj4YhiH.js";const r="/permission",a=s=>e.request("post",t(`${r}/getMenuIdList`),{data:{roleId:s}}),n=s=>e.request("post",t(`${r}/assignForRole`),{data:s}),l=s=>e.request("post",t(`${r}/getRoleIds`),{data:{userId:s}}),u=s=>e.request("post",t(`${r}/assignRoleForUser`),{data:s});export{n as a,u as b,l as g,a as l};
