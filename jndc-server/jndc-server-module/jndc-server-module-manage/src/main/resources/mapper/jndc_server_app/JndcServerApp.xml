@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.view.jndc.manage.dao.jndc_server_app.JndcServerAppDao" >
+
+    <resultMap type="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO" id="JndcServerAppMap" >
+                <id property="id" column="id" />
+                <result property="bindHost" column="bind_host" />
+                <result property="bindPort" column="bind_port" />
+                <result property="bindStatus" column="bind_status" />
+                <result property="createTime" column="create_time" />
+                <result property="serverId" column="server_id" />
+                <result property="sourceClientId" column="source_client_id" />
+                <result property="sourceServiceId" column="source_service_id" />
+    </resultMap>
+    
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+            bind_host,
+            bind_port,
+            bind_status,
+            create_time,
+            id,
+            server_id,
+            source_client_id,
+            source_service_id
+    </sql>
+    
+    
+    <select id="listPage" resultMap="JndcServerAppMap"
+            parameterType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_app
+    </select>
+
+    <select id="list" resultMap="JndcServerAppMap"
+            parameterType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_app
+    </select>
+
+</mapper>

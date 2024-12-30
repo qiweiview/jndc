@@ -1,0 +1,19 @@
+// 虽然字段很少 但是抽离出来 后续有扩展字段需求就很方便了
+
+interface FormItemProps {
+  id?: number;
+  idString?: string;
+  bindHost?: string;
+  bindPort?: string;
+  bindStatus?: string;
+  createTime?: string;
+  serverId?: string;
+  sourceClientId?: string;
+  sourceServiceId?: string;
+}
+
+interface FormProps {
+  formInline: FormItemProps;
+}
+
+export type { FormItemProps, FormProps };
