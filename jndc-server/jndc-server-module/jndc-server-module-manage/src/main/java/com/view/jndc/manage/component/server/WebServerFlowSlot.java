@@ -1,15 +1,19 @@
 package com.view.jndc.manage.component.server;
 
 import com.view.core.server.ndc.flow.ServerFlowSlot;
+import com.view.core.server.tcp.TCPServerConfiguration;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
-import com.view.jndc.manage.enums.JNDCServerStatusEnum;
+import com.view.jndc.manage.enums.server.JNDCServerAPPStatus;
+import com.view.jndc.manage.enums.server.JNDCServerStatusEnum;
 import com.view.jndc.manage.model.jndc_access_history.dto.JndcAccessHistoryDTO;
 import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
+import com.view.jndc.manage.model.jndc_server_app.dto.JndcServerAppDTO;
 import com.view.jndc.manage.serviceI.jndc_access_history.JndcAccessHistoryServiceI;
 import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
+import com.view.jndc.manage.serviceI.jndc_server_app.JndcServerAppServiceI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,6 +32,8 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     private final JndcLogServiceI jndcLogServiceI;
 
     private final JndcAccessHistoryServiceI jndcAccessHistoryService;
+
+    private final JndcServerAppServiceI jndcServerAppServiceI;
 
     @Override
     public void ndcServerStart() {
@@ -71,13 +77,31 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void tcpServerStartSuccess(String ndcClientId, String serviceId) {
+    public void tcpServerStartSuccess(TCPServerConfiguration   tcpServerConfiguration) {
+        String serviceId = tcpServerConfiguration.getServiceId();
+        String ndcClientId = tcpServerConfiguration.getNdcClientId();
+        Long serverId = getLongIdGetter().get();
+
+        JndcServerAppDTO jndcServerAppDTO = jndcServerAppServiceI.getByServiceId(serviceId);
+        if (jndcServerAppDTO == null) {
+            jndcServerAppDTO = new JndcServerAppDTO();
+            jndcServerAppDTO.setServerId(serverId);
+            jndcServerAppDTO.setSourceServiceId(serviceId);
+            jndcServerAppDTO.setSourceClientId(ndcClientId);
+            jndcServerAppDTO.setBindHost("0.0.0.0");
+            jndcServerAppDTO.setBindPort(tcpServerConfiguration.getPort());
+            jndcServerAppDTO.setBindStatus(JNDCServerAPPStatus.LISTEN.value);
+            jndcServerAppServiceI.save(jndcServerAppDTO);
+        }else {
+            jndcServerAppDTO.setBindStatus(JNDCServerAPPStatus.LISTEN.value);
+            jndcServerAppServiceI.updateById(jndcServerAppDTO);
+        }
 
     }
 
     @Override
     public void tcpServerStartFail(String ndcClientId, String serviceId) {
-
+        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.STOP.value);
     }
 
     @Override
@@ -106,7 +130,7 @@ public class WebServerFlowSlot extends ServerFlowSlot {
 
     @Override
     public void tcpServerStop(String ndcClientId, String serviceId) {
-
+        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.STOP.value);
     }
 
     @Override

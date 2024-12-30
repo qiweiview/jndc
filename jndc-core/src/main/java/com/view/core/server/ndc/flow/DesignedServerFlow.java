@@ -137,7 +137,7 @@ public class DesignedServerFlow {
                     log.info("TCP服务启动成功：{}，发送响应", serviceId);
                     tcpServerMap.put(serviceId, tcpServer);
 
-                    serverFlowSlot.tcpServerStartSuccessSafe(ndcClientId, serviceId);
+                    serverFlowSlot.tcpServerStartSuccessSafe(tcpServerConfiguration);
                 });
 
 

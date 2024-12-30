@@ -95,4 +95,20 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
     }
     return JndcServerAppStructMapper.INSTANCE.toDTO(JndcServerAppDO);
   }
+
+  @Override
+  public void updateStatusByServiceId(String serviceId, String value) {
+    DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+    jndcServerAppDao.updateStatusByServiceId(serviceId, value);
+  }
+
+  @Override
+  public JndcServerAppDTO getByServiceId(String serviceId) {
+    DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+    JndcServerAppDO JndcServerAppDO = jndcServerAppDao.getByServiceId(serviceId);
+    if (JndcServerAppDO == null) {
+      return null;
+    }
+    return JndcServerAppStructMapper.INSTANCE.toDTO(JndcServerAppDO);
+  }
 }

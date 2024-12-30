@@ -14,4 +14,9 @@ public interface JndcServerAppDao extends BaseMapper<JndcServerAppDO> {
   IPage<JndcServerAppDO> listPage(Page page, @Param("do") JndcServerAppDO jndcServerAppDO);
 
   List<JndcServerAppDO> list(JndcServerAppDO jndcServerAppDO);
+
+    void updateStatusByServiceId(@Param("serviceId") String serviceId, @Param("status") String status);
+
+  JndcServerAppDO getByServiceId(@Param("serviceId") String serviceId);
+
 }

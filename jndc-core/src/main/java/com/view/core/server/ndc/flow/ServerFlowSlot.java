@@ -1,5 +1,6 @@
 package com.view.core.server.ndc.flow;
 
+import com.view.core.server.tcp.TCPServerConfiguration;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +28,7 @@ public abstract class ServerFlowSlot {
 
     public abstract void openChannel(String clientId, InetSocketAddress remote);
 
-    public abstract void tcpServerStartSuccess(String ndcClientId, String serviceId);
+    public abstract void tcpServerStartSuccess(TCPServerConfiguration tcpServerConfiguration);
 
     public abstract void tcpServerStartFail(String ndcClientId, String serviceId);
 
@@ -79,9 +80,9 @@ public abstract class ServerFlowSlot {
         }
     }
 
-    public final void tcpServerStartSuccessSafe(String ndcClientId, String serviceId) {
+    public final void tcpServerStartSuccessSafe(TCPServerConfiguration tcpServerConfiguration) {
         try {
-            tcpServerStartSuccess(ndcClientId, serviceId);
+            tcpServerStartSuccess(tcpServerConfiguration);
         } catch (Exception e) {
             log.error("tcpServerStartSuccessSafe call back error", e);
         }

@@ -1,5 +1,7 @@
 package com.view.core.server.ndc.flow;
 
+import com.view.core.server.tcp.TCPServerConfiguration;
+
 import java.net.InetSocketAddress;
 
 public class EmptyServerFlowSlot extends ServerFlowSlot {
@@ -25,7 +27,7 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void tcpServerStartSuccess(String ndcClientId, String serviceId) {
+    public void tcpServerStartSuccess(TCPServerConfiguration tcpServerConfiguration) {
 
     }
 

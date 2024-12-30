@@ -119,30 +119,7 @@ if (props.id) {
             @selection-change="handleSelectionChange"
             @page-size-change="handleSizeChange"
             @page-current-change="handleCurrentChange"
-          >
-            <template #operation="{ row }">
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(EditPen)"
-                @click="openDialog('修改', row)"
-              >
-                修改
-              </el-button>
-              <el-button
-                class="reset-margin"
-                link
-                type="danger"
-                :size="size"
-                :icon="useRenderIcon(Delete)"
-                @click="handleDelete(row)"
-              >
-                删除
-              </el-button>
-            </template>
-          </pure-table>
+          />
         </template>
       </PureTableBar>
     </div>

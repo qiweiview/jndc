@@ -31,6 +31,17 @@ const {
   handleCurrentChange,
   handleSelectionChange
 } = useHook();
+
+const props = defineProps({
+  id: {
+    type: String
+  }
+});
+
+//如果sourceIdString不为空则写入form
+if (props.id) {
+  form.serverIdString = props.id;
+}
 </script>
 
 <template>
@@ -41,6 +52,15 @@ const {
       :model="form"
       class="search-form bg-bg_color w-[99/100] pl-8 pt-[12px] overflow-auto"
     >
+      <el-form-item>
+        <el-input
+          v-model="form.serverIdString"
+          placeholder="请输入服务器ID"
+          clearable
+          style="width: 200px"
+          @change="onSearch"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
@@ -67,15 +87,6 @@ const {
         :columns="columns"
         @refresh="onSearch"
       >
-        <template #buttons>
-          <el-button
-            type="primary"
-            :icon="useRenderIcon(AddFill)"
-            @click="openDialog()"
-          >
-            新增
-          </el-button>
-        </template>
         <template v-slot="{ size, dynamicColumns }">
           <pure-table
             ref="tableRef"
@@ -99,28 +110,7 @@ const {
             @page-size-change="handleSizeChange"
             @page-current-change="handleCurrentChange"
           >
-            <template #operation="{ row }">
-              <el-button
-                class="reset-margin"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(EditPen)"
-                @click="openDialog('修改', row)"
-              >
-                修改
-              </el-button>
-              <el-button
-                class="reset-margin"
-                link
-                type="danger"
-                :size="size"
-                :icon="useRenderIcon(Delete)"
-                @click="handleDelete(row)"
-              >
-                删除
-              </el-button>
-            </template>
+            <template #operation="{ row }" />
           </pure-table>
         </template>
       </PureTableBar>

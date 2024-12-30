@@ -17,6 +17,7 @@ import {
 
 import jndcLog from "@/views/jndc_log/index.vue";
 import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
+import jndcServerApp from "@/views/jndc_server_app/index.vue";
 import { formatDate } from "@/utils/date_format";
 import {
   getLabelByValue,
@@ -50,9 +51,14 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
+      label: "Id",
+      prop: "idString",
+      fixed: "left",
+      minWidth: 200
+    },
+    {
       label: "服务名称",
-      prop: "serverName",
-      fixed: "left"
+      prop: "serverName"
     },
     {
       label: "监听域名",
@@ -74,7 +80,7 @@ export function useHook() {
     {
       label: "唯一id",
       prop: "uniqueId",
-      minWidth: 220
+      minWidth: 300
     },
     {
       label: "创建时间",
@@ -178,6 +184,17 @@ export function useHook() {
       fullscreen: true,
       hideFooter: true,
       contentRenderer: () => jndcServerAcceptHistory,
+      props: {
+        id: row.idString
+      }
+    });
+  }
+  function openServerAppDialog(row) {
+    addDialog({
+      title: "关联应用",
+      fullscreen: true,
+      hideFooter: true,
+      contentRenderer: () => jndcServerApp,
       props: {
         id: row.idString
       }
@@ -314,6 +331,7 @@ export function useHook() {
     resetForm,
     openDialog,
     openLogDialog,
+    openServerAppDialog,
     openAcceptHistoryDialog,
     handleDelete,
     handleSizeChange,

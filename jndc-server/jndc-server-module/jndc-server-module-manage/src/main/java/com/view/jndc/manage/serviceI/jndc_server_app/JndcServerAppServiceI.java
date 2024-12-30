@@ -19,4 +19,9 @@ public interface JndcServerAppServiceI {
   void removeById(Serializable id);
 
   JndcServerAppDTO getById(Serializable id);
+
+  void updateStatusByServiceId(String serviceId, String value);
+
+  JndcServerAppDTO getByServiceId(String serviceId);
+
 }

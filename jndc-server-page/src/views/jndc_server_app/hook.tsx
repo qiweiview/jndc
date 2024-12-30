@@ -12,6 +12,7 @@ import {
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server_app/api";
+import { getLabelByValue, getLabelTypeByValue } from "./form/enums";
 
 export function useHook() {
   //分页
@@ -24,6 +25,7 @@ export function useHook() {
 
   //表单
   const form = reactive({
+    serverIdString: null,
     size: pagination.pageSize,
     current: pagination.currentPage
   });
@@ -50,27 +52,32 @@ export function useHook() {
     },
     {
       label: "监听状态",
-      prop: "bindStatus"
+      prop: "bindStatus",
+      cellRenderer: ({ row }) => (
+        <el-tag type={getLabelTypeByValue(row.bindStatus)} effect="plain">
+          {getLabelByValue(row.bindStatus)}
+        </el-tag>
+      )
     },
     {
       label: "创建时间",
-      prop: "createTime"
+      prop: "createTime",
+      width: 220
     },
     {
-      label: "id",
-      prop: "id"
-    },
-    {
-      label: "jndc服务id",
-      prop: "serverId"
-    },
-    {
-      label: "来源客户端",
-      prop: "sourceClientId"
+      label: "服务Id",
+      prop: "serverIdString",
+      width: 220
     },
     {
       label: "来源服务",
-      prop: "sourceServiceId"
+      prop: "sourceServiceId",
+      width: 300
+    },
+    {
+      label: "来源客户端",
+      prop: "sourceClientId",
+      width: 300
     },
     {
       label: "操作",
@@ -145,15 +152,15 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-      bindHost: row?.bindHost ?? null,
-      bindPort: row?.bindPort ?? null,
-      bindStatus: row?.bindStatus ?? null,
-      createTime: row?.createTime ?? null,
-      id: row?.id ?? null,
-      serverId: row?.serverId ?? null,
-      sourceClientId: row?.sourceClientId ?? null,
-      sourceServiceId: row?.sourceServiceId ?? null,
-    idString:row?.idString?? null,
+          bindHost: row?.bindHost ?? null,
+          bindPort: row?.bindPort ?? null,
+          bindStatus: row?.bindStatus ?? null,
+          createTime: row?.createTime ?? null,
+          id: row?.id ?? null,
+          serverId: row?.serverId ?? null,
+          sourceClientId: row?.sourceClientId ?? null,
+          sourceServiceId: row?.sourceServiceId ?? null,
+          idString: row?.idString ?? null
         }
       },
       width: "40%",
@@ -196,7 +203,6 @@ export function useHook() {
       }
     });
   }
-
 
   function handleDrawerUpdate(newVal: boolean) {
     dictDataDrawer.value = newVal;

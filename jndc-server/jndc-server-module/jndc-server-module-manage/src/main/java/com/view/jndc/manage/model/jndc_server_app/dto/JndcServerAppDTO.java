@@ -4,12 +4,15 @@ import com.view.jndc.manage.model.jndc_server_app.JndcServerAppStructMapper;
 import com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO;
 import com.view.jndc.manage.model.jndc_server_app.vo.JndcServerAppVO;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
 @Data
 public class JndcServerAppDTO implements Serializable {
 
+    private static final Logger log = LoggerFactory.getLogger(JndcServerAppDTO.class);
     /**
      * 监听域名
      */
@@ -18,7 +21,7 @@ public class JndcServerAppDTO implements Serializable {
     /**
      * 监听端口
      */
-    private String bindPort;
+    private Integer bindPort;
 
     /**
      * 监听状态
@@ -73,7 +76,11 @@ public class JndcServerAppDTO implements Serializable {
     public void setServerIdString(String serverIdString) {
         this.serverIdString = serverIdString;
         if (serverIdString != null) {
-            this.serverId = Long.parseLong(serverIdString);
+            try {
+                this.serverId = Long.parseLong(serverIdString);
+            } catch (NumberFormatException e) {
+                log.warn("类型转换失败{}", serverIdString);
+            }
         }
     }
 

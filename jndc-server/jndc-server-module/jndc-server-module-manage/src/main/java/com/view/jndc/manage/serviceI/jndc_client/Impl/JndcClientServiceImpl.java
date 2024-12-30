@@ -9,7 +9,7 @@ import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.component.client.JNDCClientHolder;
 import com.view.jndc.manage.dao.jndc_client.JndcClientDao;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
-import com.view.jndc.manage.enums.JNDCClientStatusEnum;
+import com.view.jndc.manage.enums.client.JNDCClientStatusEnum;
 import com.view.jndc.manage.model.jndc_client.JndcClientStructMapper;
 import com.view.jndc.manage.model.jndc_client.d_o.JndcClientDO;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;

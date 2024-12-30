@@ -10,7 +10,7 @@ public class JndcServerAppVO {
   private String bindHost;
 
   /** 监听端口 */
-  private String bindPort;
+  private Integer bindPort;
 
   /** 监听状态 */
   private String bindStatus;

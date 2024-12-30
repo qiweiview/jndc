@@ -8,7 +8,7 @@ import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.component.server.JNDCServerHolder;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
-import com.view.jndc.manage.enums.JNDCServerStatusEnum;
+import com.view.jndc.manage.enums.server.JNDCServerStatusEnum;
 import com.view.jndc.manage.model.jndc_server.JndcServerStructMapper;
 import com.view.jndc.manage.model.jndc_server.d_o.JndcServerDO;
 import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;

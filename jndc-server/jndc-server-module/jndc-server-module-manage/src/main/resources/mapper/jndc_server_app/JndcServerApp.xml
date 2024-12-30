@@ -14,7 +14,7 @@
                 <result property="sourceClientId" column="source_client_id" />
                 <result property="sourceServiceId" column="source_service_id" />
     </resultMap>
-    
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
             bind_host,
@@ -26,14 +26,27 @@
             source_client_id,
             source_service_id
     </sql>
-    
-    
+
+    <update id="updateStatusByServiceId">
+        update jndc_server_app
+        <set>
+            bind_status = #{bindStatus}
+        </set>
+        where source_service_id = #{sourceServiceId}
+    </update>
+
+
     <select id="listPage" resultMap="JndcServerAppMap"
             parameterType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
         select
         <include refid="Base_Column_List"></include>
         from
         jndc_server_app
+        <where>
+            <if test="do.serverId != null">
+                and server_id = #{do.serverId}
+            </if>
+        </where>
     </select>
 
     <select id="list" resultMap="JndcServerAppMap"
@@ -42,6 +55,13 @@
         <include refid="Base_Column_List"></include>
         from
         jndc_server_app
+    </select>
+    <select id="getByServiceId" resultType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_app
+        where source_service_id = #{serviceId}
     </select>
 
 </mapper>

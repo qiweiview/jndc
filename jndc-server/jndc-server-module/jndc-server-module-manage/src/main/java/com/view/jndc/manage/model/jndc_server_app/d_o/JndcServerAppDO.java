@@ -16,7 +16,7 @@ public class JndcServerAppDO {
 
   /** 监听端口 */
   @TableField(value = "bind_port")
-  private String bindPort;
+  private Integer bindPort;
 
   /** 监听状态 */
   @TableField(value = "bind_status")
