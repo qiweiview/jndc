@@ -35,7 +35,7 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void tcpChannelActive(String ndcClientId, String serviceId, String tcpChannelId) {
+    public void tcpChannelActive(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress tcpRemote) {
 
     }
 

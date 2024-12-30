@@ -83,10 +83,14 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
             //查询所有服务
             List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(copy.getId());
-            jndcClientDTO.setClientServices(jndcClientServiceDOS);
 
+            jndcClientDTO.setClientServices(jndcClientServiceDOS);
             jndcClientDTO.setId(copy.getId());
             jndcClientDTO.setUniqueId(generate);
+
+            DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+            jndcClientDao.updateStatus(copy.getId(), JNDCClientStatusEnum.PROCESSING.value);
+
             jndcClientHolder.startClient(jndcClientDTO);
         }
 
@@ -126,8 +130,13 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
                 }
 
                 //查询所有服务
+                DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
                 List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(dbData.getId());
                 jndcClientDTO.setClientServices(jndcClientServiceDOS);
+
+                DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+                jndcClientDao.updateStatus(copy.getId(), JNDCClientStatusEnum.PROCESSING.value);
+
                 jndcClientHolder.startClient(jndcClientDTO);
             } else if (JNDCClientStatusEnum.PAUSE.value.equals(clientStatus)) {
                 // todo 停止服务

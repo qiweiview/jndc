@@ -21,6 +21,6 @@ public interface JndcClientServiceDao extends BaseMapper<JndcClientServiceDO> {
 
     void resetAllClientServiceStatus();
 
-    void updateStatus(@Param("clientId")Long clientId, @Param("status")String status);
+    void updateStatus(@Param("serviceUniqueId") String serviceUniqueId, @Param("status") String status);
 
 }

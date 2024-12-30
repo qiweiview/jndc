@@ -92,7 +92,7 @@ CREATE TABLE jndc_access_history
     remote_port    INT          DEFAULT NULL,
     destination    VARCHAR(255) DEFAULT NULL, -- 同上
     destination_id BIGINT       DEFAULT NULL,
-    pacjage_sampling CLOB DEFAULT NULL,       -- 将 text 改为 CLOB 类型
+    package_sampling CLOB DEFAULT NULL,       -- 将 text 改为 CLOB 类型
     PRIMARY KEY (id)                          -- 直接指定主键，不需要 `USING BTREE`
 );
 

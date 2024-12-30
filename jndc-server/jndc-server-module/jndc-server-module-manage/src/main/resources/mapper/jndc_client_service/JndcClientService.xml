@@ -46,7 +46,7 @@
     <update id="updateStatus">
         update jndc_client_service
         set service_status = #{status}
-        where client_id = #{clientId}
+        where service_unique_id = #{serviceUniqueId}
     </update>
 
 

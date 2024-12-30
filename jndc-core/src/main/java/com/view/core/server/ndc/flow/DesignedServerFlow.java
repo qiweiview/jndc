@@ -86,7 +86,7 @@ public class DesignedServerFlow {
                 //todo 注册
                 LocalService localService = ndcPacket.getObject(LocalService.class);
                 String serviceId = localService.getServiceId();
-
+                int port = localService.getPort();
 
                 //判断客户端是否存在
                 String ndcClientId = localService.getNdcClientId();
@@ -111,7 +111,7 @@ public class DesignedServerFlow {
                 }
 
 
-                int port = localService.getPort();
+
                 boolean bindable = TCPUtils.portBindable(port);
                 if (!bindable) {
                     log.error("端口{}已被占用", port);
@@ -153,14 +153,14 @@ public class DesignedServerFlow {
 
 
                 tcpServerConfiguration.setActiveCallBack((tcpDataTransport, context) -> {
-
+                    InetSocketAddress tcpRemote = tcpDataTransport.getRemote();
                     String tcpChannelId = tcpDataTransport.getTcpChannelId();
                     log.info("TCP服务激活：{}，接收远程会话", tcpChannelId);
                     sessionMap.put(tcpChannelId, context);
                     tcpDataTransport.setNdcClientId(ndcClientId);
                     tcpDataTransport.setServiceId(serviceId);
                     ndcContex.writeAndFlush(NDCPacketBuilder.tcpActivePacket(tcpDataTransport));
-                    serverFlowSlot.tcpChannelActiveSafe(ndcClientId, serviceId, tcpChannelId);
+                    serverFlowSlot.tcpChannelActiveSafe(ndcClientId, serviceId, tcpChannelId, tcpRemote);
                 });
 
                 tcpServerConfiguration.setReadCallBack((tcpDataTransport) -> {
@@ -268,7 +268,7 @@ public class DesignedServerFlow {
                     Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
                     ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
                     if (channelHandlerContext == null) {
-                        log.error("未找到会话:{}", tcpChannelId);
+                        log.error("tcp active service not exist未找到会话:{}", tcpChannelId);
                         return;
                     }
                     //关闭远程连接
@@ -366,10 +366,11 @@ public class DesignedServerFlow {
                 Map<String, ChannelHandlerContext> sessionMap = tcpServer.getSessionMap();
                 ChannelHandlerContext channelHandlerContext = sessionMap.get(tcpChannelId);
                 if (channelHandlerContext == null) {
-                    log.error("未找到会话:{}", tcpChannelId);
+                    log.error("tcp inactive未找到会话:{}", tcpChannelId);
                     return;
                 }
                 sessionMap.remove(tcpChannelId);
+                log.info("移除tcp channel会话{}", tcpChannelId);
                 channelHandlerContext.close();
             } else {
                 log.info("未知数据包:{}", ndcPacket);

@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 public enum JNDCClientServiceStatusEnum {
 
 
-    REGISTER("暂停", "register"),
+    REGISTER("监听", "register"),
 
-    UN_REGISTER("监听", "unregister"),
+    UN_REGISTER("暂停", "unregister"),
 
     ;
 

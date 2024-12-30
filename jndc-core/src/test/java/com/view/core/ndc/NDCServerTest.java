@@ -16,7 +16,7 @@ public class NDCServerTest {
     public void runServer() {
         NDCServerConfiguration ndcServerConfiguration = new NDCServerConfiguration();
         ndcServerConfiguration.setHost("127.0.0.1");
-        ndcServerConfiguration.setPort(8888);
+        ndcServerConfiguration.setPort(9866);
         ndcServerConfiguration.setUniqueId("server1");
         //事件插槽
         ServerFlowSlot serverFlowSlot = new EmptyServerFlowSlot();

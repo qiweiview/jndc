@@ -31,7 +31,7 @@ public abstract class ServerFlowSlot {
 
     public abstract void tcpServerStartFail(String ndcClientId, String serviceId);
 
-    public abstract void tcpChannelActive(String ndcClientId, String serviceId, String tcpChannelId);
+    public abstract void tcpChannelActive(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress tcpRemote);
 
     public abstract void tcpChannelRead(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress remote, byte[] data);
 
@@ -95,9 +95,9 @@ public abstract class ServerFlowSlot {
         }
     }
 
-    public final void tcpChannelActiveSafe(String ndcClientId, String serviceId, String tcpChannelId) {
+    public final void tcpChannelActiveSafe(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress tcpRemote) {
         try {
-            tcpChannelActive(ndcClientId, serviceId, tcpChannelId);
+            tcpChannelActive(ndcClientId, serviceId, tcpChannelId, tcpRemote);
         } catch (Exception e) {
             log.error("tcpChannelActiveSafe call back error", e);
         }

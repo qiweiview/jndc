@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LocalService implements Serializable {
     private static final long serialVersionUID = -5630844448490385143L;
 
+    private long connectTimeout;
+
     private String host;
 
     private int port;
@@ -56,6 +58,11 @@ public class LocalService implements Serializable {
     public boolean isPortHasBound() {
         nullWarning();
         return RegisterResponse.PORT_HAS_BOUND.equals(registerResponse);
+    }
+
+    public boolean isClientNotExist() {
+        nullWarning();
+        return RegisterResponse.CLIENT_NOT_EXIST.equals(registerResponse);
     }
 
     public void nullWarning() {

@@ -5,6 +5,7 @@ import com.view.core.client.ndc.flow.DesignedClientFlow;
 import com.view.core.model.local_service.LocalService;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
 import com.view.jndc.manage.model.jndc_client_service.dto.JndcClientServiceDTO;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 @Component
 @Slf4j
+@Data
 public class JNDCClientHolder {
     private ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -49,7 +51,8 @@ public class JNDCClientHolder {
         DesignedClientFlow designedClientFlow = clientMap.get(dbData.getUniqueId());
         if (designedClientFlow != null) {
             designedClientFlow.stop();
-            clientMap.remove(dbData.getUniqueId());
+        } else {
+            log.warn("client not found:{}", dbData.getUniqueId());
         }
     }
 

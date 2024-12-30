@@ -32,7 +32,6 @@ public class NDCClient {
 
     private int retryTimes = 0;
 
-
     private Map<String, LocalService> ndcClientSessionMap = new ConcurrentHashMap<>();
 
 
@@ -54,7 +53,6 @@ public class NDCClient {
      * 重置客户端
      */
     public void resetClientForReconnect() {
-        retryTimes = 0;
         ndcClientSessionMap = new ConcurrentHashMap<>();
         clientChannel = null;
         serverContext = null;
@@ -120,6 +118,7 @@ public class NDCClient {
             ChannelFuture channelFuture = bootstrap.connect(host, port);
             channelFuture.addListener(future -> {
                 if (future.isSuccess()) {
+                    retryTimes = 0;
                     log.info("NDC客户端启动成功：{}:{}", host, port);
                     ndcClientConfiguration.getStartedCallback().run();
                 } else {

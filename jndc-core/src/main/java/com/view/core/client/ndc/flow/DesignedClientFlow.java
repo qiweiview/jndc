@@ -117,6 +117,8 @@ public class DesignedClientFlow {
                     log.error("服务{}已存在", localService.getName());
                 } else if (localService.isTCPServerStartFail()) {
                     log.error("服务{}注册失败", localService.getName());
+                } else if (localService.isClientNotExist()) {
+                    log.error("客户端{}不存在", localService.getName());
                 } else {
                     log.error("非正常逻辑响应{}", localService.getRegisterResponse());
                 }
@@ -136,7 +138,7 @@ public class DesignedClientFlow {
 
             } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {
                 //todo 收到TCP激活包
-                log.info("收到TCP激活包");
+                log.debug("收到TCP激活包");
                 TCPDataTransport tcpDataTransport = ndcPacket.getObject(TCPDataTransport.class);
                 String clientId = tcpDataTransport.getNdcClientId();
                 String serviceId = tcpDataTransport.getServiceId();
@@ -159,6 +161,10 @@ public class DesignedClientFlow {
                     tcpClientMap.put(tcpChannelId, tcpClient);
 
                     TCPClientConfiguration tcpClientConfiguration = new TCPClientConfiguration();
+                    long timeout = localService.getConnectTimeout();
+                    if (timeout > 0) {
+                        tcpClientConfiguration.setConnectTimeout(timeout);
+                    }
                     tcpClientConfiguration.setHost(localService.getHost());
                     tcpClientConfiguration.setPort(localService.getPort());
                     tcpClientConfiguration.setStartSuccessCallBack((tcpClient1) -> {
@@ -314,10 +320,19 @@ public class DesignedClientFlow {
                 } else if (tcpDataTransport.isRemoteConnectionInterrupt()) {
                     //todo 远程连接中断
                     log.error("远程连接中断:{}", tcpDataTransport.getServiceId());
-                    LocalService remove = serviceMap.remove(serviceId);
-                    if (remove != null) {
-                        remove.stop();
+                    LocalService localService = serviceMap.get(serviceId);
+                    if (localService == null) {
+                        log.error("服务{}不存在", serviceId);
+                        return;
                     }
+                    Map<String, TCPClient> tcpClientMap = localService.getTcpClientMap();
+                    TCPClient tcpClient = tcpClientMap.get(tcpDataTransport.getTcpChannelId());
+                    if (tcpClient == null) {
+                        log.error("客户端{}不存在", tcpDataTransport.getTcpChannelId());
+                        return;
+                    }
+                    tcpClient.stop();
+
                 } else {
                     log.error("不合理的TCP停止包");
                 }
@@ -351,6 +366,6 @@ public class DesignedClientFlow {
     }
 
     public void stop() {
-
+        ndcClient.stop();
     }
 }

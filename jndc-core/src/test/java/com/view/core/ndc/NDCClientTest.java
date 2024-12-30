@@ -31,15 +31,16 @@ public class NDCClientTest {
         log.info("---准备发起注册---");
 
         //定义暴露服务
-        String host2 = "qw607.com";
-        int port2 = 80;
+        String host2 = "github.com";
+        int port2 = 443;
         LocalService localService2 = new LocalService();
         localService2.setServiceId(serviceIdManager.generateServiceId(host2, port2));
-        localService2.setName("qw607");
+        localService2.setName("github.com");
         localService2.setHost(host2);
         localService2.setPort(port2);
-        localService2.setExpectBindPort(7777);
+        localService2.setExpectBindPort(1443);
         localService2.setNdcClientId(clientId);
+        localService2.setConnectTimeout(30 * 1000);
 
 
         ClientFlowSlot emptyClientFlowSlot = new EmptyClientFlowSlot();

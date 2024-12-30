@@ -1,10 +1,12 @@
 package com.view.jndc.manage.model.jndc_access_history.d_o;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.view.jndc.manage.model.jndc_access_history.JndcAccessHistoryStructMapper;
 import com.view.jndc.manage.model.jndc_access_history.dto.JndcAccessHistoryDTO;
 import com.view.jndc.manage.model.jndc_access_history.vo.JndcAccessHistoryVO;
-import com.baomidou.mybatisplus.annotation.*;
-import java.sql.Timestamp;
 import lombok.Data;
 
 @TableName("jndc_access_history")
@@ -28,7 +30,7 @@ public class JndcAccessHistoryDO {
 
   /** 数据采样 */
   @TableField(value = "package_sampling")
-  private String packpacjageSampling;
+  private String packageSampling;
 
   /** ip地址 */
   @TableField(value = "remote_ip")

@@ -62,7 +62,6 @@ public class ByteClientHandler extends SimpleChannelInboundHandler<byte[]> {
     public void write(byte[] bytes) {
         if (ctx != null) {
             ctx.writeAndFlush(bytes);
-
         } else {
             log.warn("ChannelHandlerContext is null");
         }
