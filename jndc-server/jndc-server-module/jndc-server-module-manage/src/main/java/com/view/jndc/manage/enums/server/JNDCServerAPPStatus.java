@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 public enum JNDCServerAPPStatus {
 
 
-    LISTEN("监听", "LISTEN"),
+    LISTEN("监听", "listen"),
 
-    STOP("停止", "STOP"),
+    PAUSE("停止", "pause"),
 
     ;
 

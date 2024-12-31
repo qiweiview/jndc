@@ -30,6 +30,8 @@ public class JndcServerAcceptHistoryDTO implements Serializable {
      */
     private java.time.LocalDateTime createTime;
 
+    private java.time.LocalDateTime latestHeartBeatTime;
+
     /**
      * id
      */

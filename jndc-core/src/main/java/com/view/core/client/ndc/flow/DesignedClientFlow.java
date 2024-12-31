@@ -6,6 +6,8 @@ import com.view.core.client.tcp.TCPClient;
 import com.view.core.client.tcp.TCPClientConfiguration;
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
+import com.view.core.model.heart_beat.HeartBeatPack;
+import com.view.core.model.heart_beat.HeartBeatSource;
 import com.view.core.model.local_service.LocalService;
 import com.view.core.model.tcp_data.TCPResponse;
 import com.view.core.protocol.NDCPacket;
@@ -34,6 +36,8 @@ public class DesignedClientFlow {
     private ClientFlowSlot clientFlowSlot;
 
     private NDCClient ndcClient = new NDCClient();
+
+    private ChannelOpen channelOpen=new ChannelOpen();
 
     public DesignedClientFlow(NDCClientConfiguration ndcClientConfiguration, ClientFlowSlot clientFlowSlot) {
         this.ndcClientConfiguration = ndcClientConfiguration;
@@ -75,7 +79,7 @@ public class DesignedClientFlow {
         });
 
         ndcClientConfiguration.setDataReadCallback((ndcPacket, clientCallbackContext) -> {
-            ChannelHandlerContext context = clientCallbackContext.getContext();
+            ChannelHandlerContext ndcContext = clientCallbackContext.getContext();
 
             Map<String, LocalService> serviceMap = ndcClient.getNdcClientSessionMap();
 
@@ -83,10 +87,10 @@ public class DesignedClientFlow {
             //判断
             if (NDCPacketHelper.isReadyToAcceptPacket(ndcPacket)) {
                 //todo 准备接受数据，发送通道打开请求
-                ChannelOpen channelOpen = new ChannelOpen();
                 channelOpen.setNdcClientId(ndcClientConfiguration.getUniqueId());
+                channelOpen.startHeartBeat(HeartBeatSource.CLIENT, ndcContext);
                 NDCPacket openChannelPacket = NDCPacketBuilder.openChannelPacket(channelOpen);
-                context.writeAndFlush(openChannelPacket);
+                ndcContext.writeAndFlush(openChannelPacket);
             } else if (NDCPacketHelper.isOpenChannelPacket(ndcPacket)) {
                 //todo 通道打开成功
                 log.info("通道打开成功:{}");
@@ -94,7 +98,7 @@ public class DesignedClientFlow {
 
                 //自动注册服务
                 List<NDCPacket> registerPackage = ndcClientConfiguration.getAuthRegisterServices();
-                registerPackage.forEach(context::writeAndFlush);
+                registerPackage.forEach(ndcContext::writeAndFlush);
 
                 clientFlowSlot.wakeUpWaitingOperation();
 
@@ -150,7 +154,7 @@ public class DesignedClientFlow {
                     log.error("未找到服务:{}", serviceId);
                     tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                     NDCPacket tcpActivePacket = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
-                    context.writeAndFlush(tcpActivePacket);
+                    ndcContext.writeAndFlush(tcpActivePacket);
                     return;
                 }
                 Map<String, TCPClient> tcpClientMap = localService.getTcpClientMap();
@@ -197,7 +201,7 @@ public class DesignedClientFlow {
                         //启动失败，即服务不存在
                         tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.tcpActivePacket(tcpDataTransport);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
 
                         clientFlowSlot.tcpClientStartFailSafe(serviceId, tcpChannelId);
                     });
@@ -208,7 +212,7 @@ public class DesignedClientFlow {
                         data.setServiceId(serviceId);
                         data.setTcpChannelId(tcpChannelId);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(data);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
                         log.debug("收到Client TCP数据,已发回");
                         byte[] bytes = data.getData();
 
@@ -220,7 +224,7 @@ public class DesignedClientFlow {
                         tcpClientInactive.setServiceId(serviceId);
                         tcpClientInactive.setTcpChannelId(tcpChannelId);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.tcpInactivePacket(tcpClientInactive);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
                         clientFlowSlot.tcpChannelInactiveSafe(serviceId, tcpChannelId);
                     });
 
@@ -248,7 +252,7 @@ public class DesignedClientFlow {
                         //todo 服务不存在
                         tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
                         return;
                     }
                     Map<String, TCPClient> tcpClientMap = localService.getTcpClientMap();
@@ -257,7 +261,7 @@ public class DesignedClientFlow {
                         //todo 客户端不存在
                         tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
                         return;
                     }
                     try {
@@ -265,7 +269,7 @@ public class DesignedClientFlow {
                     } catch (Exception e) {
                         tcpDataTransport.setTcpResponse(TCPResponse.SERVICE_NOT_EXIST);
                         NDCPacket tcpActivePacket = NDCPacketBuilder.dataPacket(tcpDataTransport);
-                        context.writeAndFlush(tcpActivePacket);
+                        ndcContext.writeAndFlush(tcpActivePacket);
                     }
 
                     byte[] bytes = tcpDataTransport.getData();
@@ -337,20 +341,33 @@ public class DesignedClientFlow {
                     log.error("不合理的TCP停止包");
                 }
 
-            } else {
+            }else if(NDCPacketHelper.isHeartBeatPacket(ndcPacket)) {
+                HeartBeatPack heartBeatPack = ndcPacket.getObject(HeartBeatPack.class);
+                if (heartBeatPack.isForServer()) {
+                    //写回给客户端
+                    NDCPacket response = NDCPacketBuilder.heartBeatPacket(heartBeatPack);
+                    ndcContext.writeAndFlush(response);
+                } else if (heartBeatPack.isForClient()) {
+                    //todo 发回给客户端的心跳包
+                } else {
+                    log.error("未知心跳包:{}", ndcPacket);
+                }
+            }
+            else {
                 log.warn("未知的数据包类型:{}", ndcPacket.getType());
             }
         });
 
 
-        ndcClientConfiguration.setConnectInActiveCallback((ctx) -> {
+        ndcClientConfiguration.setConnectInActiveCallback((clientCallbackContext) -> {
             log.error("连接断开");
-            NDCClient ndcClient1 = ctx.getNdcClient();
+            NDCClient ndcClient1 = clientCallbackContext.getNdcClient();
             Map<String, LocalService> serviceMap = ndcClient1.getNdcClientSessionMap();
             serviceMap.forEach((serviceId, localService) -> {
                 localService.stop();
             });
             serviceMap.clear();
+            channelOpen.stopHeartBeat();
             clientFlowSlot.ndcClientInActiveSafe();
         });
 

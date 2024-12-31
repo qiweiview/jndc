@@ -85,4 +85,6 @@ public class JndcServerAcceptHistoryVO {
      * 修改时间
      */
     private java.time.LocalDateTime updateTime;
+
+    private java.time.LocalDateTime latestHeartBeatTime;
 }

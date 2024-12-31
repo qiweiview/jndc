@@ -14,6 +14,7 @@
                 <result property="sourceIp" column="source_ip" />
                 <result property="sourcePort" column="source_port" />
                 <result property="updateTime" column="update_time" />
+                <result property="latestHeartBeatTime" column="latest_heart_beat_time" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -26,6 +27,7 @@
             server_id,
             source_ip,
             source_port,
+            latest_heart_beat_time,
             update_time
     </sql>
 
@@ -37,7 +39,14 @@
 
     <update id="updateDisconnectTime">
         update jndc_server_accept_history
-        set interrupt_time = now()
+        set interrupt_time = #{date}
+        where client_id = #{clientId}
+          and interrupt_time is null
+    </update>
+
+    <update id="updateLatestHeartBeatTime">
+        update jndc_server_accept_history
+        set latest_heart_beat_time = #{date}
         where client_id = #{clientId}
           and interrupt_time is null
     </update>

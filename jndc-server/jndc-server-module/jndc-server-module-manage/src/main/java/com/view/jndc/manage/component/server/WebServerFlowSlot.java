@@ -19,7 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Component
 @Slf4j
@@ -101,7 +104,7 @@ public class WebServerFlowSlot extends ServerFlowSlot {
 
     @Override
     public void tcpServerStartFail(String ndcClientId, String serviceId) {
-        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.STOP.value);
+        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.PAUSE.value);
     }
 
     @Override
@@ -130,12 +133,29 @@ public class WebServerFlowSlot extends ServerFlowSlot {
 
     @Override
     public void tcpServerStop(String ndcClientId, String serviceId) {
-        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.STOP.value);
+        jndcServerAppServiceI.updateStatusByServiceId(serviceId, JNDCServerAPPStatus.PAUSE.value);
     }
 
     @Override
     public void connectInActive(String clientId) {
         jndcServerAcceptHistoryServiceI.updateDisconnectTime(clientId, LocalDateTime.now());
+    }
+
+    @Override
+    protected void clientHeartBeat(String ndcClientId, long timestamp) {
+        //System.currentTimeMillis()转LocalDateTime
+
+        // 将时间戳转换为Instant对象
+        Instant instant = Instant.ofEpochMilli(timestamp);
+
+        // 根据Instant对象和系统默认时区获取ZonedDateTime对象
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+
+        // 从ZonedDateTime对象中提取LocalDateTime对象
+        LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
+
+        jndcServerAcceptHistoryServiceI.updateLatestHeartBeatTime(ndcClientId, localDateTime);
+
     }
 
     @Override

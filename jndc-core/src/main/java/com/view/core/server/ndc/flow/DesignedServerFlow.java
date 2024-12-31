@@ -2,6 +2,8 @@ package com.view.core.server.ndc.flow;
 
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
+import com.view.core.model.heart_beat.HeartBeatPack;
+import com.view.core.model.heart_beat.HeartBeatSource;
 import com.view.core.model.local_service.LocalService;
 import com.view.core.model.local_service.RegisterResponse;
 import com.view.core.model.tcp_data.TCPResponse;
@@ -73,9 +75,12 @@ public class DesignedServerFlow {
 
             if (NDCPacketHelper.isOpenChannelPacket(ndcPacket)) {
                 //todo 打开通道
-                ChannelOpen object = ndcPacket.getObject(ChannelOpen.class);
-                String clientId = object.getNdcClientId();
-                ndcClientSessionMap.put(clientId, object);
+                ChannelOpen channelOpen = ndcPacket.getObject(ChannelOpen.class);
+                String clientId = channelOpen.getNdcClientId();
+                ndcClientSessionMap.put(clientId, channelOpen);
+                //启动心跳
+                channelOpen.startHeartBeat(HeartBeatSource.SERVER, ndcContex);
+
 
                 ndcContex.channel().attr(AttributeKey.valueOf(NDCServer.CLIENT_ID)).set(clientId);
                 ndcContex.writeAndFlush(ndcPacket);
@@ -109,7 +114,6 @@ public class DesignedServerFlow {
                     ndcContex.writeAndFlush(registerServicePacket);
                     return;
                 }
-
 
 
                 boolean bindable = TCPUtils.portBindable(port);
@@ -372,6 +376,22 @@ public class DesignedServerFlow {
                 sessionMap.remove(tcpChannelId);
                 log.info("移除tcp channel会话{}", tcpChannelId);
                 channelHandlerContext.close();
+            } else if (NDCPacketHelper.isHeartBeatPacket(ndcPacket)) {
+                //todo 心跳包
+                HeartBeatPack heartBeatPack = ndcPacket.getObject(HeartBeatPack.class);
+                if (heartBeatPack.isForServer()) {
+                    log.debug("收到客户端响应心跳包:{}", ndcPacket);
+                    long timestamp = ndcPacket.getTimestamp();
+                    String ndcClientId = heartBeatPack.getNdcClientId();
+                    serverFlowSlot.clientHeartBeatSafe(ndcClientId, timestamp);
+                } else if (heartBeatPack.isForClient()) {
+                    //写回给客户端
+                    NDCPacket response = NDCPacketBuilder.heartBeatPacket(heartBeatPack);
+                    ndcContex.writeAndFlush(response);
+                } else {
+                    log.error("未知心跳包:{}", ndcPacket);
+                }
+
             } else {
                 log.info("未知数据包:{}", ndcPacket);
             }
@@ -387,6 +407,8 @@ public class DesignedServerFlow {
                 Map<String, ChannelOpen> ndcClientSessionMap = ndcServer1.getNdcClientSessionMap();
                 ChannelOpen channelOpen = ndcClientSessionMap.get(clientId);
                 if (channelOpen != null) {
+                    //停止心跳
+                    channelOpen.stopHeartBeat();
                     Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
                     tcpServerMap.forEach((serviceId, tcpServer) -> {
                         tcpServer.stop();

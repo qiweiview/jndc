@@ -126,4 +126,10 @@ public class JndcServerAcceptHistoryServiceImpl implements JndcServerAcceptHisto
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
         jndcServerAcceptHistoryDao.updateDisconnectTime(clientId, now);
     }
+
+    @Override
+    public void updateLatestHeartBeatTime(String clientId, LocalDateTime now) {
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+        jndcServerAcceptHistoryDao.updateLatestHeartBeatTime(clientId, now);
+    }
 }

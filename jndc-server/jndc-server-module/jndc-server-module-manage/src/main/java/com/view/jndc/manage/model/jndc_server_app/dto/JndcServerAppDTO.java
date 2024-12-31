@@ -28,6 +28,10 @@ public class JndcServerAppDTO implements Serializable {
      */
     private String bindStatus;
 
+    private String bindType;
+
+    private String metaData;
+
     /**
      * 创建时间
      */

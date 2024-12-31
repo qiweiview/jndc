@@ -72,6 +72,8 @@ public class NDCPacket {
 
     public static final byte OPEN_CHANNEL = 0X08;//通道打开数据包
 
+    public static final byte HEART_BEAT = 0X09;//通道打开数据包
+
 
     /*--------------------- static variable ---------------------*/
     public static final byte[] BLANK_DATA = new byte[0];

@@ -20,6 +20,8 @@ public interface JndcServerAcceptHistoryDao extends BaseMapper<JndcServerAcceptH
 
     void resetAllAcceptHistory(@Param("now") LocalDateTime now);
 
-    void updateDisconnectTime(@Param("clientId") String clientId, @Param("now") LocalDateTime date);
+    void updateDisconnectTime(@Param("clientId") String clientId, @Param("date") LocalDateTime date);
+
+    void updateLatestHeartBeatTime(@Param("clientId") String clientId, @Param("date") LocalDateTime date);
 
 }

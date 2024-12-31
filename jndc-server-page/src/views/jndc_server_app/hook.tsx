@@ -51,6 +51,10 @@ export function useHook() {
       prop: "bindPort"
     },
     {
+      label: "监听类型",
+      prop: "bind_type"
+    },
+    {
       label: "监听状态",
       prop: "bindStatus",
       cellRenderer: ({ row }) => (
@@ -58,16 +62,6 @@ export function useHook() {
           {getLabelByValue(row.bindStatus)}
         </el-tag>
       )
-    },
-    {
-      label: "创建时间",
-      prop: "createTime",
-      width: 220
-    },
-    {
-      label: "服务Id",
-      prop: "serverIdString",
-      width: 220
     },
     {
       label: "来源服务",
@@ -78,6 +72,11 @@ export function useHook() {
       label: "来源客户端",
       prop: "sourceClientId",
       width: 300
+    },
+    {
+      label: "创建时间",
+      prop: "createTime",
+      width: 220
     },
     {
       label: "操作",
@@ -152,9 +151,10 @@ export function useHook() {
       title: `${title}`,
       props: {
         formInline: {
-          bindHost: row?.bindHost ?? null,
-          bindPort: row?.bindPort ?? null,
-          bindStatus: row?.bindStatus ?? null,
+          bindHost: row?.bindHost ?? "0.0.0.0",
+          bindPort: row?.bindPort ?? 1234,
+          bindStatus: row?.bindStatus ?? "pause",
+          bindType: row?.bindType ?? "jndc-client",
           createTime: row?.createTime ?? null,
           id: row?.id ?? null,
           serverId: row?.serverId ?? null,

@@ -19,4 +19,6 @@ public interface JndcServerAppDao extends BaseMapper<JndcServerAppDO> {
 
   JndcServerAppDO getByServiceId(@Param("serviceId") String serviceId);
 
+  List<JndcServerAppDO> listByBindPort(@Param("bindPort") Integer bindPort);
+
 }

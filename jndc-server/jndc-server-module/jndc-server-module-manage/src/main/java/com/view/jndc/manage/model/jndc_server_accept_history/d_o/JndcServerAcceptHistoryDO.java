@@ -52,6 +52,9 @@ public class JndcServerAcceptHistoryDO {
   @TableField(value = "update_time")
   private java.time.LocalDateTime updateTime;
 
+  @TableField(value = "latest_heart_beat_time")
+  private java.time.LocalDateTime latestHeartBeatTime;
+
   public JndcServerAcceptHistoryDTO toDTO() {
     return JndcServerAcceptHistoryStructMapper.INSTANCE.toDTO(this);
   }

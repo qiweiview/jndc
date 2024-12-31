@@ -2,6 +2,10 @@
 import { ref } from "vue";
 import { formRules } from "./rule";
 import { FormProps } from "./types";
+import { serverAppStatus } from "./enums";
+import { serverAppType } from "./enums";
+import formJndcClient from "./form-jndc-client.vue";
+import formJndcMock from "./form-jndc-mock.vue";
 
 const props = withDefaults(defineProps<FormProps>(), {
   formInline: () => ({
@@ -37,44 +41,49 @@ defineExpose({ getRef });
       />
     </el-form-item>
     <el-form-item label="监听端口：" prop="bindPort">
-      <el-input
+      <el-input-number
         v-model="newFormInline.bindPort"
         autocomplete="off"
         clearable
         placeholder="请输入监听端口"
       />
     </el-form-item>
-    <el-form-item label="监听状态：" prop="bindStatus">
-      <el-input
+    <el-form-item label="绑定类型：" prop="bindType">
+      <el-select
+        v-model="newFormInline.bindType"
+        placeholder="请选择绑定类型"
+        clearable
+      >
+        <el-option
+          v-for="item in serverAppType"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <formJndcMock
+        v-show="newFormInline.bindType == 'mock-server'"
+        v-model="newFormInline.bindType"
+      />
+    </el-form-item>
+    <el-form-item label="应用状态：" prop="serverStatus">
+      <el-radio-group
         v-model="newFormInline.bindStatus"
-        autocomplete="off"
-        clearable
-        placeholder="请输入监听状态"
-      />
-    </el-form-item>
-    <el-form-item label="jndc服务id：" prop="serverId">
-      <el-input
-        v-model="newFormInline.serverId"
-        autocomplete="off"
-        clearable
-        placeholder="请输入jndc服务id"
-      />
-    </el-form-item>
-    <el-form-item label="来源客户端：" prop="sourceClientId">
-      <el-input
-        v-model="newFormInline.sourceClientId"
-        autocomplete="off"
-        clearable
-        placeholder="请输入来源客户端"
-      />
-    </el-form-item>
-    <el-form-item label="来源服务：" prop="sourceServiceId">
-      <el-input
-        v-model="newFormInline.sourceServiceId"
-        autocomplete="off"
-        clearable
-        placeholder="请输入来源服务"
-      />
+        :disabled="
+          newFormInline.bindStatus != 'listen' &&
+          newFormInline.bindStatus != 'pause'
+        "
+      >
+        <el-radio
+          v-for="item in serverAppStatus"
+          v-show="item.optional"
+          :key="item.value"
+          :value="item.value"
+          border
+        >
+          {{ item.label }}
+        </el-radio>
+      </el-radio-group>
     </el-form-item>
   </el-form>
 </template>

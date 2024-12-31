@@ -44,6 +44,8 @@ public abstract class ServerFlowSlot {
 
     public abstract void connectInActive(String clientId);
 
+    protected abstract void clientHeartBeat(String ndcClientId, long timestamp);
+
     public abstract void ndcServerStop();
 
 
@@ -149,6 +151,14 @@ public abstract class ServerFlowSlot {
             tcpChannelWrite(ndcClientId, serviceId, tcpChannelId, data);
         } catch (Exception e) {
             log.error("tcpChannelWriteSafe call back error", e);
+        }
+    }
+
+    public void clientHeartBeatSafe(String ndcClientId, long timestamp) {
+        try {
+            clientHeartBeat(ndcClientId, timestamp);
+        } catch (Exception e) {
+            log.error("clientHeartBeatSafe call back error", e);
         }
     }
 }

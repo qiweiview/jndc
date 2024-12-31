@@ -2,6 +2,7 @@ package com.view.core.protocol;
 
 import com.view.core.model.ChannelOpen;
 import com.view.core.model.TCPDataTransport;
+import com.view.core.model.heart_beat.HeartBeatPack;
 import com.view.core.model.local_service.LocalService;
 import com.view.core.utils.ObjectSerializableUtils;
 
@@ -98,6 +99,19 @@ public class NDCPacketBuilder {
                 NDCPacket.TCP_IN_ACTIVE,
                 System.currentTimeMillis());
         ndcPacket.setData(ObjectSerializableUtils.object2bytes(tcpDataTransport));
+        return ndcPacket;
+    }
+
+    public static NDCPacket heartBeatPacket(HeartBeatPack heartBeatPack) {
+        NDCPacket ndcPacket = NDCPacket.of(
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.BLANK_ADDRESS,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.UN_USED_PORT,
+                NDCPacket.HEART_BEAT,
+                System.currentTimeMillis());
+        ndcPacket.setData(ObjectSerializableUtils.object2bytes(heartBeatPack));
         return ndcPacket;
     }
 }

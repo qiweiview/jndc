@@ -26,4 +26,6 @@ public interface JndcServerAcceptHistoryServiceI {
 
     void updateDisconnectTime(String clientId, LocalDateTime now);
 
+    void updateLatestHeartBeatTime(String clientId, LocalDateTime now);
+
 }

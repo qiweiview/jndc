@@ -12,6 +12,10 @@ public class JndcServerAppVO {
   /** 监听端口 */
   private Integer bindPort;
 
+  private String bindType;
+
+  private String metaData;
+
   /** 监听状态 */
   private String bindStatus;
 

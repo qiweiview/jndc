@@ -4,7 +4,8 @@ interface FormItemProps {
   id?: number;
   idString?: string;
   bindHost?: string;
-  bindPort?: string;
+  bindPort?: number;
+  bindType?: string;
   bindStatus?: string;
   createTime?: string;
   serverId?: string;

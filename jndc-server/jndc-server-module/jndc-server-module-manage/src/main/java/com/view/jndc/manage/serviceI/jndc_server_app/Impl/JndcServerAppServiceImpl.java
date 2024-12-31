@@ -59,6 +59,13 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
     JndcServerAppDO copy = JndcServerAppStructMapper.INSTANCE.toDO(jndcServerAppDTO);
     copy.setId(snowflakeIdWorker.nextId());
     copy.setCreateTime(LocalDateTime.now());
+
+    Integer bindPort = copy.getBindPort();
+    List<JndcServerAppDO> jndcServerAppDOS = jndcServerAppDao.listByBindPort(bindPort);
+    if (!jndcServerAppDOS.isEmpty()){
+      throw new BizException("端口"+bindPort+"重复");
+    }
+
     DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
     jndcServerAppDao.insert(copy);
     return copy;

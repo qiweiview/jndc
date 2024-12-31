@@ -13,6 +13,9 @@
                 <result property="serverId" column="server_id" />
                 <result property="sourceClientId" column="source_client_id" />
                 <result property="sourceServiceId" column="source_service_id" />
+
+                <result property="bindType" column="bind_type" />
+                <result property="metaData" column="meta_data" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -20,6 +23,8 @@
             bind_host,
             bind_port,
             bind_status,
+            bind_type,
+            meta_data,
             create_time,
             id,
             server_id,
@@ -30,9 +35,9 @@
     <update id="updateStatusByServiceId">
         update jndc_server_app
         <set>
-            bind_status = #{bindStatus}
+            bind_status = #{status}
         </set>
-        where source_service_id = #{sourceServiceId}
+        where source_service_id = #{serviceId}
     </update>
 
 
@@ -56,12 +61,21 @@
         from
         jndc_server_app
     </select>
+
     <select id="getByServiceId" resultType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
         select
         <include refid="Base_Column_List"></include>
         from
         jndc_server_app
         where source_service_id = #{serviceId}
+    </select>
+
+    <select id="listByBindPort" resultType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">
+        select
+        <include refid="Base_Column_List"></include>
+        from
+        jndc_server_app
+        where bind_port = #{bindPort}
     </select>
 
 </mapper>

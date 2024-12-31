@@ -67,6 +67,11 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
+    protected void clientHeartBeat(String ndcClientId, long timestamp) {
+
+    }
+
+    @Override
     public void ndcServerStop() {
 
     }

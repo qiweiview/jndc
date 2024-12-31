@@ -87,6 +87,15 @@ if (props.id) {
         :columns="columns"
         @refresh="onSearch"
       >
+        <template #buttons>
+          <el-button
+            type="primary"
+            :icon="useRenderIcon(AddFill)"
+            @click="openDialog()"
+          >
+            新增
+          </el-button>
+        </template>
         <template v-slot="{ size, dynamicColumns }">
           <pure-table
             ref="tableRef"
@@ -110,7 +119,28 @@ if (props.id) {
             @page-size-change="handleSizeChange"
             @page-current-change="handleCurrentChange"
           >
-            <template #operation="{ row }" />
+            <template #operation="{ row }">
+              <el-button
+                class="reset-margin"
+                link
+                type="primary"
+                :size="size"
+                :icon="useRenderIcon(EditPen)"
+                @click="openDialog('修改', row)"
+              >
+                修改
+              </el-button>
+              <el-button
+                class="reset-margin"
+                link
+                type="danger"
+                :size="size"
+                :icon="useRenderIcon(Delete)"
+                @click="handleDelete(row)"
+              >
+                删除
+              </el-button>
+            </template>
           </pure-table>
         </template>
       </PureTableBar>

@@ -36,7 +36,7 @@ sa-token:
   # token风格
   token-style: uuid
   # 是否输出操作日志
-  is-log: true
+  is-log: false
   # 是否从cookie中读取token
   is-read-cookie: false
 

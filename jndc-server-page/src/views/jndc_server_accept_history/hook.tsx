@@ -67,6 +67,19 @@ export function useHook() {
       width: 160
     },
     {
+      label: "最后心跳时间",
+      prop: "latestHeartBeatTime",
+      formatter: (row, column, cellValue) => {
+        return (
+          formatDate(cellValue) +
+          "(距今" +
+          calculateDateBetween(cellValue, null) +
+          ")"
+        );
+      },
+      width: 320
+    },
+    {
       label: "连接时长",
       prop: "connectTime",
       formatter: (row, column, cellValue) => {

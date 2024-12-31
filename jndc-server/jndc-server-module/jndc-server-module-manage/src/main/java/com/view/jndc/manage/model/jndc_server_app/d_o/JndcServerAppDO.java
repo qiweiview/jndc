@@ -22,6 +22,12 @@ public class JndcServerAppDO {
   @TableField(value = "bind_status")
   private String bindStatus;
 
+  @TableField(value = "bind_type")
+  private String bindType;
+
+  @TableField(value = "meta_data")
+  private String metaData;
+
   /** 创建时间 */
   @TableField(value = "create_time")
   private java.time.LocalDateTime createTime;
