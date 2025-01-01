@@ -11,10 +11,16 @@ interface FormItemProps {
   serverId?: string;
   sourceClientId?: string;
   sourceServiceId?: string;
+  metaData?: string;
 }
 
 interface FormProps {
   formInline: FormItemProps;
 }
 
-export type { FormItemProps, FormProps };
+interface MockMetaData {
+  contentType: string;
+  mockData: string;
+}
+
+export type { FormItemProps, FormProps, MockMetaData };

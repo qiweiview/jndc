@@ -2,7 +2,7 @@ import editForm from "./form/form.vue";
 import { message as toast } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog/index";
 import { showDialog } from "@/components/HalcyonDialog";
-import type { FormItemProps } from "./form/types";
+import type { FormItemProps, MockMetaData } from "./form/types";
 import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
@@ -30,6 +30,11 @@ export function useHook() {
     current: pagination.currentPage
   });
 
+  const metaData = ref<MockMetaData>({
+    mockData: "",
+    contentType: ""
+  });
+
   const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
@@ -52,7 +57,7 @@ export function useHook() {
     },
     {
       label: "监听类型",
-      prop: "bind_type"
+      prop: "bindType"
     },
     {
       label: "监听状态",
@@ -154,13 +159,14 @@ export function useHook() {
           bindHost: row?.bindHost ?? "0.0.0.0",
           bindPort: row?.bindPort ?? 1234,
           bindStatus: row?.bindStatus ?? "pause",
-          bindType: row?.bindType ?? "jndc-client",
+          bindType: row?.bindType ?? "mock-server",
           createTime: row?.createTime ?? null,
           id: row?.id ?? null,
           serverId: row?.serverId ?? null,
           sourceClientId: row?.sourceClientId ?? null,
           sourceServiceId: row?.sourceServiceId ?? null,
-          idString: row?.idString ?? null
+          idString: row?.idString ?? null,
+          metaData: row?.metaData ?? null
         }
       },
       width: "40%",
@@ -183,7 +189,6 @@ export function useHook() {
 
         FormRef.validate(async valid => {
           if (valid) {
-            console.log("curData", curData);
             // 表单规则校验通过
             if (title === "新增") {
               // 实际开发先调用新增接口，再进行下面操作
@@ -214,6 +219,7 @@ export function useHook() {
 
   return {
     form,
+    metaData,
     isShow,
     curRow,
     loading,

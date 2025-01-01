@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { formRules } from "./rule";
-import { FormProps } from "./types";
+import { FormProps, MockMetaData } from "./types";
 import { serverAppStatus } from "./enums";
 import { serverAppType } from "./enums";
 import formJndcClient from "./form-jndc-client.vue";
@@ -17,9 +17,24 @@ const props = withDefaults(defineProps<FormProps>(), {
     serverId: null,
     sourceClientId: null,
     sourceServiceId: null,
-    idString: null
+    idString: null,
+    metaData: null
   })
 });
+
+let metaData;
+if (props.formInline.metaData) {
+  metaData = ref(JSON.parse(props.formInline.metaData) as MockMetaData);
+} else {
+  metaData = ref({
+    mockData: "",
+    mockType: ""
+  });
+}
+
+const mockChange = (data: MockMetaData) => {
+  newFormInline.value.metaData = JSON.stringify(data);
+};
 
 const ruleFormRef = ref();
 const newFormInline = ref(props.formInline);
@@ -61,11 +76,12 @@ defineExpose({ getRef });
           :value="item.value"
         />
       </el-select>
-      <formJndcMock
-        v-show="newFormInline.bindType == 'mock-server'"
-        v-model="newFormInline.bindType"
-      />
     </el-form-item>
+    <formJndcMock
+      v-if="newFormInline.bindType == 'mock-server'"
+      v-model="metaData"
+      @dataChange="mockChange"
+    />
     <el-form-item label="应用状态：" prop="serverStatus">
       <el-radio-group
         v-model="newFormInline.bindStatus"

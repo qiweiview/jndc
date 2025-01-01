@@ -30,6 +30,33 @@ const serverAppType: Array<any> = [
   }
 ];
 
+const contentTypes: Array<any> = [
+  {
+    label: "application/json",
+    value: "application/json"
+  },
+  {
+    label: "application/x-www-form-urlencoded",
+    value: "application/x-www-form-urlencoded"
+  },
+  {
+    label: "application/xml",
+    value: "application/xml"
+  },
+  {
+    label: "text/plain",
+    value: "text/plain"
+  },
+  {
+    label: "text/html",
+    value: "text/html"
+  },
+  {
+    label: "text/xml",
+    value: "text/xml"
+  }
+];
+
 function getLabelByValue(value: string): string {
   const item = serverAppStatus.find(item => item.value === value);
   const label = item ? item.label : "";
@@ -42,4 +69,10 @@ function getLabelTypeByValue(value: string): string {
   return labelType;
 }
 
-export { serverAppStatus, serverAppType, getLabelByValue, getLabelTypeByValue };
+export {
+  serverAppStatus,
+  serverAppType,
+  contentTypes,
+  getLabelByValue,
+  getLabelTypeByValue
+};
