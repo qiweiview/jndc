@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHook } from "./hook";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { deviceDetection } from "@pureadmin/utils";
@@ -44,6 +44,14 @@ const {
 if (sourceIdString) {
   form.clientIdString = sourceIdString;
 }
+const onServer = ref(false);
+onMounted(() => {
+  const fullLocation = window.location.href;
+  //判断以/server/jndc_client_service结尾
+  if (fullLocation.endsWith("/server/jndc_client_service")) {
+    onServer.value = true;
+  }
+});
 </script>
 
 <template>
@@ -61,6 +69,7 @@ if (sourceIdString) {
       >
         <template #buttons>
           <el-button
+            v-show="!onServer"
             type="primary"
             :icon="useRenderIcon(AddFill)"
             @click="openDialog()"
@@ -92,37 +101,39 @@ if (sourceIdString) {
             @page-current-change="handleCurrentChange"
           >
             <template #operation="{ row }">
-              <el-button
-                v-show="row.serviceStatus != 'register'"
-                class="reset-margin"
-                link
-                type="primary"
-                :size="size"
-                :icon="useRenderIcon(EditPen)"
-                @click="openDialog('修改', row)"
-              >
-                修改
-              </el-button>
-              <el-button
-                v-show="row.serviceStatus != 'register'"
-                class="reset-margin"
-                link
-                type="danger"
-                :size="size"
-                :icon="useRenderIcon(Delete)"
-                @click="handleDelete(row)"
-              >
-                删除
-              </el-button>
-              <el-button
-                v-show="row.serviceStatus == 'register'"
-                link
-                type="danger"
-                :icon="useRenderIcon(stopCircleLine)"
-                @click="unRegisterCheck(row)"
-              >
-                取消注册
-              </el-button>
+              <div v-show="!onServer">
+                <el-button
+                  v-show="row.serviceStatus != 'register'"
+                  class="reset-margin"
+                  link
+                  type="primary"
+                  :size="size"
+                  :icon="useRenderIcon(EditPen)"
+                  @click="openDialog('修改', row)"
+                >
+                  修改
+                </el-button>
+                <el-button
+                  v-show="row.serviceStatus != 'register'"
+                  class="reset-margin"
+                  link
+                  type="danger"
+                  :size="size"
+                  :icon="useRenderIcon(Delete)"
+                  @click="handleDelete(row)"
+                >
+                  删除
+                </el-button>
+                <el-button
+                  v-show="row.serviceStatus == 'register'"
+                  link
+                  type="danger"
+                  :icon="useRenderIcon(stopCircleLine)"
+                  @click="unRegisterCheck(row)"
+                >
+                  取消注册
+                </el-button>
+              </div>
             </template>
           </pure-table>
         </template>

@@ -114,6 +114,8 @@ public class JndcClientServiceDTO implements Serializable {
      */
     private String serviceUniqueId;
 
+    private String storeFor;
+
     /**
      * 修改时间
      */

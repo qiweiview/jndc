@@ -8,6 +8,7 @@ import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.free_lite.common.utils.UniqueId;
 import com.view.jndc.manage.component.client.JNDCClientHolder;
 import com.view.jndc.manage.dao.jndc_client_service.JndcClientServiceDao;
+import com.view.jndc.manage.enums.DataStoreFor;
 import com.view.jndc.manage.enums.client.JNDCClientServiceStatusEnum;
 import com.view.jndc.manage.model.jndc_client.dto.JndcClientDTO;
 import com.view.jndc.manage.model.jndc_client_service.JndcClientServiceStructMapper;
@@ -88,6 +89,7 @@ public class JndcClientServiceServiceImpl implements JndcClientServiceServiceI {
         String generate = UniqueId.generate();
         copy.setServiceUniqueId(generate);
         jndcClientServiceDTO.setServiceUniqueId(generate);
+        jndcClientServiceDTO.setStoreFor(DataStoreFor.CLIENT.value);
 
         // 入库
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);

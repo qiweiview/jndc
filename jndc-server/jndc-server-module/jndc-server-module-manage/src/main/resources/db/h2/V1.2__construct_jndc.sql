@@ -81,6 +81,7 @@ CREATE TABLE jndc_client_service
     service_protocol  VARCHAR(255) DEFAULT NULL, -- 同上
     service_mode      VARCHAR(255) DEFAULT NULL, -- 同上
     service_unique_id VARCHAR(255) DEFAULT NULL, -- 同上
+    store_for VARCHAR(255) DEFAULT NULL, -- 同上
     PRIMARY KEY (id)                             -- 直接指定主键，不需要 `USING BTREE`
 );
 

@@ -99,6 +99,8 @@ public class JndcClientServiceVO {
      */
     private String serviceUniqueId;
 
+    private String storeFor;
+
     /**
      * 修改时间
      */

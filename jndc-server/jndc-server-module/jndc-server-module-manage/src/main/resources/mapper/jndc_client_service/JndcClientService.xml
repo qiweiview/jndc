@@ -18,6 +18,7 @@
         <result property="serviceStatus" column="service_status"/>
         <result property="serviceUniqueId" column="service_unique_id"/>
         <result property="updateTime" column="update_time"/>
+        <result property="storeFor" column="store_for"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -35,6 +36,7 @@
             service_protocol,
             service_status,
             service_unique_id,
+            store_for,
             update_time
     </sql>
 
@@ -60,6 +62,8 @@
             <if test="do.clientId != null and do.clientId != ''">
                 and client_id = #{do.clientId}
             </if>
+            <if test="do.storeFor != null and do.storeFor != ''">
+            and store_for = #{do.storeFor}
         </where>
     </select>
 

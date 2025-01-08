@@ -84,6 +84,9 @@ public class JndcClientServiceDO {
     @TableField(value = "service_unique_id")
     private String serviceUniqueId;
 
+    @TableField(value = "store_for")
+    private String storeFor;
+
     /**
      * 修改时间
      */
