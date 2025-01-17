@@ -82,24 +82,24 @@ defineExpose({ getRef });
       v-model="metaData"
       @dataChange="mockChange"
     />
-    <el-form-item label="应用状态：" prop="serverStatus">
-      <el-radio-group
-        v-model="newFormInline.bindStatus"
-        :disabled="
-          newFormInline.bindStatus != 'listen' &&
-          newFormInline.bindStatus != 'pause'
-        "
-      >
-        <el-radio
-          v-for="item in serverAppStatus"
-          v-show="item.optional"
-          :key="item.value"
-          :value="item.value"
-          border
-        >
-          {{ item.label }}
-        </el-radio>
-      </el-radio-group>
-    </el-form-item>
+    <!--    <el-form-item label="应用状态：" prop="serverStatus">-->
+    <!--      <el-radio-group-->
+    <!--        v-model="newFormInline.bindStatus"-->
+    <!--        :disabled="-->
+    <!--          newFormInline.bindStatus != 'listen' &&-->
+    <!--          newFormInline.bindStatus != 'pause'-->
+    <!--        "-->
+    <!--      >-->
+    <!--        <el-radio-->
+    <!--          v-for="item in serverAppStatus"-->
+    <!--          v-show="item.optional"-->
+    <!--          :key="item.value"-->
+    <!--          :value="item.value"-->
+    <!--          border-->
+    <!--        >-->
+    <!--          {{ item.label }}-->
+    <!--        </el-radio>-->
+    <!--      </el-radio-group>-->
+    <!--    </el-form-item>-->
   </el-form>
 </template>

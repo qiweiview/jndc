@@ -49,7 +49,8 @@ export function useHook() {
   const columns: TableColumnList = [
     {
       label: "监听域名",
-      prop: "bindHost"
+      prop: "bindHost",
+      fixed: "left"
     },
     {
       label: "监听端口",
@@ -57,7 +58,8 @@ export function useHook() {
     },
     {
       label: "监听类型",
-      prop: "bindType"
+      prop: "bindType",
+      width: 200
     },
     {
       label: "监听状态",
@@ -67,16 +69,6 @@ export function useHook() {
           {getLabelByValue(row.bindStatus)}
         </el-tag>
       )
-    },
-    {
-      label: "来源服务",
-      prop: "sourceServiceId",
-      width: 300
-    },
-    {
-      label: "来源客户端",
-      prop: "sourceClientId",
-      width: 300
     },
     {
       label: "创建时间",

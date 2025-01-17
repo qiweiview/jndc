@@ -63,7 +63,8 @@
                 and client_id = #{do.clientId}
             </if>
             <if test="do.storeFor != null and do.storeFor != ''">
-            and store_for = #{do.storeFor}
+                and store_for = #{do.storeFor}
+            </if>
         </where>
     </select>
 

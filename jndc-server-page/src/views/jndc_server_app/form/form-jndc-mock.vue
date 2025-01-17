@@ -31,7 +31,7 @@ const updateValue = (key: string, value: any) => {
 </script>
 
 <template>
-  <el-form-item label="content-type：" prop="bindType">
+  <el-form-item label="Content-Type：" prop="bindType">
     <el-select
       v-model="proxyValue.bindType"
       @change="value => updateValue('bindType', value)"
@@ -44,7 +44,7 @@ const updateValue = (key: string, value: any) => {
       />
     </el-select>
   </el-form-item>
-  <el-form-item label="mock内容：" prop="mockData">
+  <el-form-item label="Mock内容：" prop="mockData">
     <el-input
       v-model="proxyValue.mockData"
       :rows="6"
