@@ -5,6 +5,7 @@ import com.view.jndc.manage.serviceI.jndc_client.JndcClientServiceI;
 import com.view.jndc.manage.serviceI.jndc_client_service.JndcClientServiceServiceI;
 import com.view.jndc.manage.serviceI.jndc_server.JndcServerServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
+import com.view.jndc.manage.serviceI.jndc_server_app.JndcServerAppServiceI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -25,6 +26,8 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
 
     private final JndcServerAcceptHistoryServiceI jndcServerAcceptHistoryServiceI;
 
+    private final JndcServerAppServiceI jndcServerAppServiceI;
+
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
@@ -36,6 +39,8 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
             jndcClientServiceServiceI.resetAllClientServiceStatus();
 
             jndcServerAcceptHistoryServiceI.resetAllAcceptHistory();
+
+            jndcServerAppServiceI.resetAllServer();
         }
     }
 }

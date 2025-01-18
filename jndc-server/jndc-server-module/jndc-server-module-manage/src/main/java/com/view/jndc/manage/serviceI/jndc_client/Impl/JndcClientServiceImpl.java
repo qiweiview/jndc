@@ -79,7 +79,8 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.insert(copy);
 
-        String clientStatus = copy.getClientStatus();
+        //统一由独立操作变更
+        /*String clientStatus = copy.getClientStatus();
         if (JNDCClientStatusEnum.CONNECT.value.equals(clientStatus)) {
             //查询所有服务
             List<JndcClientServiceDO> jndcClientServiceDOS = jndcClientServiceDao.listByClientId(copy.getId());
@@ -92,7 +93,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
             jndcClientDao.updateStatus(copy.getId(), JNDCClientStatusEnum.PROCESSING.value);
 
             jndcClientHolder.startClient(jndcClientDTO);
-        }
+        }*/
 
 
         return copy;
@@ -120,6 +121,7 @@ public class JndcClientServiceImpl implements JndcClientServiceI {
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcClientDao.updateById(copy);
+
 
         if (!clientStatusDB.equals(clientStatus)) {
             //todo 有状态变化才操作

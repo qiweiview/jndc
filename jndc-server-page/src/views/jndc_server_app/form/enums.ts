@@ -36,10 +36,6 @@ const contentTypes: Array<any> = [
     value: "application/json"
   },
   {
-    label: "application/x-www-form-urlencoded",
-    value: "application/x-www-form-urlencoded"
-  },
-  {
     label: "application/xml",
     value: "application/xml"
   },
@@ -50,10 +46,6 @@ const contentTypes: Array<any> = [
   {
     label: "text/html",
     value: "text/html"
-  },
-  {
-    label: "text/xml",
-    value: "text/xml"
   }
 ];
 

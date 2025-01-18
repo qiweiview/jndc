@@ -8,6 +8,9 @@ import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
 import Refresh from "@iconify-icons/ep/refresh";
 import AddFill from "@iconify-icons/ri/add-circle-line";
+import VedioPlay from "@iconify-icons/ep/video-play";
+import stopCircleLine from "@iconify-icons/ri/stop-circle-line";
+import epMagnet from "@iconify-icons/ep/magnet";
 
 defineOptions({
   name: "jndcServerApp"
@@ -23,6 +26,8 @@ const {
   columns,
   dataList,
   pagination,
+  listenCheck,
+  pauseCheck,
   onSearch,
   resetForm,
   openDialog,
@@ -42,6 +47,15 @@ const props = defineProps({
 if (props.id) {
   form.serverIdString = props.id;
 }
+
+const openAddress = row => {
+  let host = row.bindHost;
+  if ("0.0.0.0" === host) {
+    host = "localhost";
+  }
+  //指定标签页打开
+  window.open(`http://${host}:${row.bindPort}`, "_jndc_server_app");
+};
 </script>
 
 <template>
@@ -121,6 +135,34 @@ if (props.id) {
           >
             <template #operation="{ row }">
               <el-button
+                v-show="row.bindStatus == 'pause'"
+                link
+                type="success"
+                :icon="useRenderIcon(VedioPlay)"
+                @click="listenCheck(row)"
+              >
+                启动
+              </el-button>
+              <el-button
+                v-show="row.bindStatus == 'listen'"
+                link
+                type="danger"
+                :icon="useRenderIcon(stopCircleLine)"
+                @click="pauseCheck(row)"
+              >
+                停止
+              </el-button>
+              <el-button
+                v-show="row.bindStatus == 'listen'"
+                link
+                type="primary"
+                :icon="useRenderIcon(epMagnet)"
+                @click="openAddress(row)"
+              >
+                访问
+              </el-button>
+              <el-button
+                v-show="row.bindStatus == 'pause'"
                 class="reset-margin"
                 link
                 type="primary"
@@ -131,6 +173,7 @@ if (props.id) {
                 修改
               </el-button>
               <el-button
+                v-show="row.bindStatus == 'pause'"
                 class="reset-margin"
                 link
                 type="danger"

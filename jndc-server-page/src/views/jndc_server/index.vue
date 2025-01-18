@@ -184,17 +184,6 @@ const {
                         连接历史
                       </el-button>
                     </el-dropdown-item>
-                    <el-dropdown-item>
-                      <el-button
-                        class="reset-margin"
-                        link
-                        type="primary"
-                        :size="size"
-                        @click="openServerAppDialog(row)"
-                      >
-                        关联应用
-                      </el-button>
-                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>

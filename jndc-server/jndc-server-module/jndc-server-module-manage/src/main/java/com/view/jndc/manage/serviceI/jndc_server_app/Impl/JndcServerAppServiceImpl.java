@@ -1,7 +1,10 @@
 package com.view.jndc.manage.serviceI.jndc_server_app.Impl;
 
+import com.view.jndc.manage.component.server.ServerAppHolder;
 import com.view.jndc.manage.enums.server.JNDCServerAPPStatus;
 import com.view.jndc.manage.enums.server.JNDCServerBindType;
+import com.view.jndc.manage.enums.server.JNDCServerStatusEnum;
+import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.view.jndc.manage.model.jndc_server_app.JndcServerAppStructMapper;
 import com.view.jndc.manage.dao.jndc_server_app.JndcServerAppDao;
 import com.view.jndc.manage.model.jndc_server_app.vo.JndcServerAppVO;
@@ -11,6 +14,7 @@ import com.view.jndc.manage.model.jndc_server_app.dto.JndcServerAppDTO;
 import com.view.jndc.manage.serviceI.jndc_server_app.JndcServerAppServiceI;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 // import com.view.free.common.base.exception.BizException;
@@ -24,6 +28,7 @@ import java.io.Serializable;
 
 import com.view.free_lite.common.utils.SnowflakeIdWorker;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
@@ -31,6 +36,8 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
     private final JndcServerAppDao jndcServerAppDao;
 
     private final SnowflakeIdWorker snowflakeIdWorker;
+
+    private final ServerAppHolder serverAppHolder;
 
     /**
      * 分页查询
@@ -77,11 +84,6 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
             throw new BizException("端口" + bindPort + "重复");
         }
 
-        String bindType = jndcServerAppDTO.getBindType();
-        if (JNDCServerBindType.MOCK_SERVER.value.equals(bindType)) {
-            //mock 服务
-        }
-
 
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcServerAppDao.insert(copy);
@@ -94,11 +96,26 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
     @Override
     public void updateById(JndcServerAppDTO jndcServerAppDTO) {
         // 确认存在
-        getById(jndcServerAppDTO.getId());
+        JndcServerAppDTO dbData = getById(jndcServerAppDTO.getId());
+
 
         JndcServerAppDO copy = JndcServerAppStructMapper.INSTANCE.toDO(jndcServerAppDTO);
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcServerAppDao.updateById(copy);
+
+        String bindStatus = jndcServerAppDTO.getBindStatus();
+        String bindStatusDB = dbData.getBindStatus();
+
+        if (!bindStatusDB.equals(bindStatus)) {
+            //todo 有状态变化才操作
+            if (JNDCServerAPPStatus.LISTEN.value.equals(bindStatus)) {
+                jndcServerAppDao.updateStatus(copy.getId(), JNDCServerAPPStatus.PROCESSING.value);
+                serverAppHolder.startServer(dbData);
+            } else if (JNDCServerAPPStatus.PAUSE.value.equals(bindStatus)) {
+                // todo 停止服务
+                serverAppHolder.stopServer(dbData);
+            }
+        }
     }
 
     /**
@@ -140,5 +157,36 @@ public class JndcServerAppServiceImpl implements JndcServerAppServiceI {
             return null;
         }
         return JndcServerAppStructMapper.INSTANCE.toDTO(JndcServerAppDO);
+    }
+
+    @Override
+    public void pauseOperation(Long id) {
+        JndcServerAppDTO byId = getById(id);
+        if (!JNDCServerAPPStatus.LISTEN.value.equals(byId.getBindStatus())) {
+            throw new BizException("服务器状态必须为监听");
+        }
+        byId.setBindStatus(JNDCServerAPPStatus.PAUSE.value);
+        //复用链路，存在重复查询，频率较低，不做优化
+        updateById(byId);
+    }
+
+    @Override
+    public void listenOperation(Long id) {
+        JndcServerAppDTO byId = getById(id);
+
+        if (!JNDCServerAPPStatus.PAUSE.value.equals(byId.getBindStatus())) {
+            throw new BizException("服务器状态必须为暂停");
+        }
+        byId.setBindStatus(JNDCServerAPPStatus.LISTEN.value);
+        //复用链路，存在重复查询，频率较低，不做优化
+        updateById(byId);
+    }
+
+    @Override
+    public void resetAllServer() {
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        int i = jndcServerAppDao.resetAllServerStatus();
+
+        log.info("重置app服务状态数量:{}", i);
     }
 }

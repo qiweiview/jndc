@@ -55,25 +55,25 @@ defineExpose({ getRef });
         placeholder="请输入服务名称"
       />
     </el-form-item>
-    <el-form-item label="服务状态：" prop="serverStatus">
-      <el-radio-group
-        v-model="newFormInline.serverStatus"
-        :disabled="
-          newFormInline.serverStatus != 'listen' &&
-          newFormInline.serverStatus != 'pause'
-        "
-      >
-        <el-radio
-          v-for="item in jndcServerStatus"
-          v-show="item.optional"
-          :key="item.value"
-          :value="item.value"
-          border
-        >
-          {{ item.label }}
-        </el-radio>
-      </el-radio-group>
-    </el-form-item>
+    <!--    <el-form-item label="服务状态：" prop="serverStatus">-->
+    <!--      <el-radio-group-->
+    <!--        v-model="newFormInline.serverStatus"-->
+    <!--        :disabled="-->
+    <!--          newFormInline.serverStatus != 'listen' &&-->
+    <!--          newFormInline.serverStatus != 'pause'-->
+    <!--        "-->
+    <!--      >-->
+    <!--        <el-radio-->
+    <!--          v-for="item in jndcServerStatus"-->
+    <!--          v-show="item.optional"-->
+    <!--          :key="item.value"-->
+    <!--          :value="item.value"-->
+    <!--          border-->
+    <!--        >-->
+    <!--          {{ item.label }}-->
+    <!--        </el-radio>-->
+    <!--      </el-radio-group>-->
+    <!--    </el-form-item>-->
     <el-form-item label="服务备注：" prop="serverRemark">
       <el-input
         v-model="newFormInline.serverRemark"

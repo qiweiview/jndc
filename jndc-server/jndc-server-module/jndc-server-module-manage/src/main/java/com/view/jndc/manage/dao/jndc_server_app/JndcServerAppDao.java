@@ -21,4 +21,8 @@ public interface JndcServerAppDao extends BaseMapper<JndcServerAppDO> {
 
   List<JndcServerAppDO> listByBindPort(@Param("bindPort") Integer bindPort);
 
+    void updateStatus(@Param("id")Long id, @Param("bindStatus")String bindStatus);
+
+  int resetAllServerStatus();
+
 }

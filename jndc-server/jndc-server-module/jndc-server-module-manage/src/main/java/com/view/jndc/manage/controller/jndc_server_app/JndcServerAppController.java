@@ -1,5 +1,6 @@
 package com.view.jndc.manage.controller.jndc_server_app;
 
+import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
 import com.view.jndc.manage.model.jndc_server_app.JndcServerAppStructMapper;
 
 import java.util.List;
@@ -83,4 +84,17 @@ public class JndcServerAppController {
         JndcServerAppVO vo = JndcServerAppStructMapper.INSTANCE.toVO(rs);
         return EncryptedResponse.success(vo);
     }
+
+    @RequestMapping(value = "listenOperation", method = RequestMethod.POST)
+    public EncryptedResponse listenOperation(@RequestBody(required = false) JndcServerAppDTO jndcServerAppDTO) {
+        jndcServerAppService.listenOperation(jndcServerAppDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
+    @RequestMapping(value = "pauseOperation", method = RequestMethod.POST)
+    public EncryptedResponse pauseOperation(@RequestBody(required = false) JndcServerAppDTO jndcServerAppDTO) {
+        jndcServerAppService.pauseOperation(jndcServerAppDTO.getId());
+        return EncryptedResponse.success("操作成功");
+    }
+
 }

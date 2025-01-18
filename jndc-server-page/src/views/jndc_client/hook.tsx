@@ -118,7 +118,7 @@ export function useHook() {
     {
       label: "操作",
       fixed: "right",
-      minWidth: 220,
+      minWidth: 320,
       slot: "operation"
     }
   ];

@@ -22,13 +22,13 @@ const props = withDefaults(defineProps<FormProps>(), {
   })
 });
 
-let metaData;
+let metaData: MockMetaData;
 if (props.formInline.metaData) {
   metaData = ref(JSON.parse(props.formInline.metaData) as MockMetaData);
 } else {
   metaData = ref({
-    mockData: "",
-    mockType: ""
+    mockData: "{}",
+    contentType: "application/json"
   });
 }
 

@@ -11,6 +11,7 @@ public enum JNDCServerAPPStatus {
 
     PAUSE("停止", "pause"),
 
+    PROCESSING("处理中", "processing"),
     ;
 
 

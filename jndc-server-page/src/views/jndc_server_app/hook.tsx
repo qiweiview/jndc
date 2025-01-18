@@ -13,6 +13,7 @@ import {
   updateOperation
 } from "@/api/jndc_server_app/api";
 import { getLabelByValue, getLabelTypeByValue } from "./form/enums";
+import { listenOperation, pauseOperation } from "@/api/jndc_server_app/api";
 
 export function useHook() {
   //分页
@@ -48,9 +49,14 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
+      label: "id",
+      prop: "idString",
+      fixed: "left",
+      width: 200
+    },
+    {
       label: "监听域名",
-      prop: "bindHost",
-      fixed: "left"
+      prop: "bindHost"
     },
     {
       label: "监听端口",
@@ -201,6 +207,54 @@ export function useHook() {
     });
   }
 
+  const pauseCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要停止
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.bindType}
+          </strong>
+          监听吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await pauseOperation(row.idString);
+        if (res.code == 0) {
+          toast(`已停止"${row.bindType}监听`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
+
+  const listenCheck = (row: FormItemProps) => {
+    showDialog("警告", {
+      contentRenderer: () => (
+        <p style="text-align: center;margin-bottom:20px">
+          确认要开启
+          <strong style="color:var(--el-color-danger);margin:0 5px">
+            {row.bindType}
+          </strong>
+          监听吗?
+        </p>
+      ),
+      beforeSure: async done => {
+        const res = await listenOperation(row.idString);
+        if (res.code == 0) {
+          toast(`开始"${row.bindType}监听`, {
+            type: "success"
+          });
+        }
+        done(); // 关闭弹框
+        onSearch();
+      }
+    });
+  };
+
   function handleDrawerUpdate(newVal: boolean) {
     dictDataDrawer.value = newVal;
   }
@@ -220,6 +274,8 @@ export function useHook() {
     isLinkage,
     pagination,
     dictDataDrawer,
+    listenCheck,
+    pauseCheck,
     onSearch,
     resetForm,
     openDialog,

@@ -64,7 +64,7 @@ defineExpose({ getRef });
         placeholder="请输入服务端口"
       />
     </el-form-item>
-    <el-form-item label="客户端状态：" prop="serverStatus">
+    <!--    <el-form-item label="客户端状态：" prop="serverStatus">
       <el-radio-group v-model="newFormInline.clientStatus">
         <el-radio
           v-for="item in jndcClientStatusCondition(newFormInline.clientStatus)"
@@ -77,7 +77,7 @@ defineExpose({ getRef });
           {{ item.label }}
         </el-radio>
       </el-radio-group>
-    </el-form-item>
+    </el-form-item>-->
     <el-form-item label="自动重连：" prop="autoReconnect">
       <el-radio-group v-model="newFormInline.autoReconnect">
         <el-radio

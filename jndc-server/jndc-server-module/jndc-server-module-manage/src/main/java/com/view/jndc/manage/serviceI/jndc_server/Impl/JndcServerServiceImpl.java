@@ -67,11 +67,10 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
      */
     @Override
     public JndcServerDO save(JndcServerDTO jndcServerDTO) {
-        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
         List<JndcServerDO> jndcServerDOS = jndcServerDao.listByBindPort(jndcServerDTO.getBindPort());
         if (jndcServerDOS.size() > 0) {
-            log.warn("端口已被占用");
-            jndcServerDTO.setServerStatus(JNDCServerStatusEnum.PAUSE.value);
+            throw new BizException("端口已被占用");
         }
 
         //初始化唯一id
@@ -87,12 +86,14 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
 
 
         jndcServerDTO.setId(copy.getId());
-        String serverStatus = jndcServerDTO.getServerStatus();
+
+        //统一由独立操作
+        /*String serverStatus = jndcServerDTO.getServerStatus();
         if (JNDCServerStatusEnum.LISTEN.value.equals(serverStatus)) {
             jndcServerDao.updateStatus(copy.getId(), JNDCServerStatusEnum.PROCESSING.value);
             // todo 启动服务
             jndcServerHolder.startServer(jndcServerDTO);
-        }
+        }*/
 
 
         return copy;
@@ -111,19 +112,13 @@ public class JndcServerServiceImpl implements JndcServerServiceI {
         copy.setUpdateTime(LocalDateTime.now());
         copy.setUniqueId(null);
 
-        String serverStatus = jndcServerDTO.getServerStatus();
-        String serverStatusDB = dbData.getServerStatus();
-
-
-        if (JNDCServerStatusEnum.PROCESSING.value.equals(serverStatus)) {
-            // todo 停止服务
-            //不更新
-            copy.setServerStatus(null);
-        }
 
         //先更新数据库
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcServerDao.updateById(copy);
+
+        String serverStatus = jndcServerDTO.getServerStatus();
+        String serverStatusDB = dbData.getServerStatus();
 
 
         if (!serverStatusDB.equals(serverStatus)) {

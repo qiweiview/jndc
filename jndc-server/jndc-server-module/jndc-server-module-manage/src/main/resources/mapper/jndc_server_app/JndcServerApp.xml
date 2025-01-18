@@ -40,6 +40,21 @@
         where source_service_id = #{serviceId}
     </update>
 
+    <update id="updateStatus">
+        update jndc_server_app
+        <set>
+            bind_status = #{bindStatus}
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="resetAllServerStatus">
+        update jndc_server_app
+        <set>
+            bind_status = 'pause'
+        </set>
+    </update>
+
 
     <select id="listPage" resultMap="JndcServerAppMap"
             parameterType="com.view.jndc.manage.model.jndc_server_app.d_o.JndcServerAppDO">

@@ -29,3 +29,14 @@ export const deleteBatchOperation = (id: string[]) => {
     data: { idString: id }
   });
 };
+
+export const listenOperation = (id: string) => {
+  return http.request<any>("post", `${path}/listenOperation`, {
+    data: { idString: id }
+  });
+};
+export const pauseOperation = (id: string) => {
+  return http.request<any>("post", `${path}/pauseOperation`, {
+    data: { idString: id }
+  });
+};

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 public enum JNDCServerBindType {
 
 
-    MOCK_SERVER("模拟服务", "mock_server"),
+    MOCK_SERVER("模拟服务", "mock-server"),
 
 
     ;

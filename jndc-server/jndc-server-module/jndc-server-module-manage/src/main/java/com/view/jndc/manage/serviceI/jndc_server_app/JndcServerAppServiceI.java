@@ -24,4 +24,10 @@ public interface JndcServerAppServiceI {
 
   JndcServerAppDTO getByServiceId(String serviceId);
 
+    void pauseOperation(Long id);
+
+  void listenOperation(Long id);
+
+  void resetAllServer();
+
 }

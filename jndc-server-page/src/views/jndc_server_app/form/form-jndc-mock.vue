@@ -22,19 +22,36 @@ const updateValue = (key: string, value: any) => {
   emit("update:modelValue", { ...proxyValue.value, [key]: value });
 
   const currentData = {
-    bindType: proxyValue.value.bindType,
+    contentType: proxyValue.value.contentType,
     mockData: proxyValue.value.mockData
   };
+
+  let defaultMockData;
+  if ("contentType" === key) {
+    // 自动填充对应类型的 mock 数据
+    if ("application/json" === value) {
+      defaultMockData = '{"hello":"world"}';
+    } else if ("application/xml" === value) {
+      defaultMockData = "<xml><hello>world</hello></xml>";
+    } else if ("text/html" === value) {
+      defaultMockData = "<html><body>hello world</body></html>";
+    } else if ("text/plain" === value) {
+      defaultMockData = "hello world";
+    }
+    currentData.mockData = defaultMockData;
+    updateValue("mockData", defaultMockData);
+  }
+
   // 触发 dataChange 事件，传递字符串值
   emit("dataChange", currentData);
 };
 </script>
 
 <template>
-  <el-form-item label="Content-Type：" prop="bindType">
+  <el-form-item label="Content-Type：" prop="contentType">
     <el-select
-      v-model="proxyValue.bindType"
-      @change="value => updateValue('bindType', value)"
+      v-model="proxyValue.contentType"
+      @change="value => updateValue('contentType', value)"
     >
       <el-option
         v-for="item in contentTypes"
