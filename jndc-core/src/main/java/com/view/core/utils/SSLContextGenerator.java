@@ -26,15 +26,17 @@ import javax.net.ssl.SSLException;
 @Slf4j
 public class SSLContextGenerator {
 
+    public static final SslContext SSL_CONTEXT = generateSslContextAutoSimple();
+
+
     public static SslContext generateSslContextAutoSimple() {
         // 生成自签名证书
         try {
             SelfSignedCertificate ssc = new SelfSignedCertificate();
             return SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        } catch (SSLException e) {
-            throw new RuntimeException(e);
+        } catch ( Exception e) {
+            log.error("Failed to generate SSL context", e);
+            throw new RuntimeException("Failed to generate SSL context", e);
         }
     }
 

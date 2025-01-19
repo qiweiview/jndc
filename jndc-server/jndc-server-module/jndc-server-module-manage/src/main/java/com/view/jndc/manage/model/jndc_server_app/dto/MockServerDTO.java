@@ -10,4 +10,6 @@ public class MockServerDTO {
     private String contentType;
 
     private String mockData;
+
+    private Boolean useSSL;
 }

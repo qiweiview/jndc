@@ -21,6 +21,7 @@ interface FormProps {
 interface MockMetaData {
   contentType: string;
   mockData: string;
+  useSSL: boolean;
 }
 
 export type { FormItemProps, FormProps, MockMetaData };

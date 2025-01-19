@@ -53,8 +53,13 @@ const openAddress = row => {
   if ("0.0.0.0" === host) {
     host = "localhost";
   }
+  let protocol = "http://";
+
+  if (row.metaData && JSON.parse(row.metaData).useSSL) {
+    protocol = "https://";
+  }
   //指定标签页打开
-  window.open(`http://${host}:${row.bindPort}`, "_jndc_server_app");
+  window.open(`${protocol}${host}:${row.bindPort}`, "_jndc_server_app");
 };
 </script>
 

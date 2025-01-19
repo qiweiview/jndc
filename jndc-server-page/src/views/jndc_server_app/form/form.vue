@@ -2,9 +2,8 @@
 import { ref } from "vue";
 import { formRules } from "./rule";
 import { FormProps, MockMetaData } from "./types";
-import { serverAppStatus } from "./enums";
 import { serverAppType } from "./enums";
-import formJndcClient from "./form-jndc-client.vue";
+
 import formJndcMock from "./form-jndc-mock.vue";
 
 const props = withDefaults(defineProps<FormProps>(), {
@@ -22,19 +21,20 @@ const props = withDefaults(defineProps<FormProps>(), {
   })
 });
 
+const mockChange = (data: MockMetaData) => {
+  newFormInline.value.metaData = JSON.stringify(data);
+};
+
 let metaData: MockMetaData;
 if (props.formInline.metaData) {
   metaData = ref(JSON.parse(props.formInline.metaData) as MockMetaData);
 } else {
   metaData = ref({
     mockData: "{}",
-    contentType: "application/json"
+    contentType: "application/json",
+    useSSL: false
   });
 }
-
-const mockChange = (data: MockMetaData) => {
-  newFormInline.value.metaData = JSON.stringify(data);
-};
 
 const ruleFormRef = ref();
 const newFormInline = ref(props.formInline);

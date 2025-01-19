@@ -3,6 +3,7 @@ package com.view.jndc.manage.component.server;
 import com.view.core.server.http.HttpServer;
 import com.view.core.server.http.HttpServerConfiguration;
 import com.view.core.server.ndc.flow.DesignedServerFlow;
+import com.view.core.utils.SSLContextGenerator;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.Jackson;
 import com.view.jndc.manage.dao.jndc_server_app.JndcServerAppDao;
@@ -13,6 +14,7 @@ import com.view.jndc.manage.model.jndc_server_app.dto.MockServerDTO;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.ssl.SslContext;
 import io.netty.util.CharsetUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,13 +65,22 @@ public class ServerAppHolder {
         Long id = dbData.getId();
         HttpServer server = new HttpServer();
 
+        String metaData = dbData.getMetaData();
+
+        MockServerDTO object = Jackson.toObject(metaData, MockServerDTO.class);
+
         HttpServerConfiguration httpServerConfiguration = new HttpServerConfiguration();
+
+        Boolean useSSL = object.getUseSSL();
+        if (useSSL != null && useSSL) {
+            httpServerConfiguration.setSslContext(SSLContextGenerator.SSL_CONTEXT);
+        }
+
+
         //设置数据读取回调
         httpServerConfiguration.setDataReadCallback((context, fullHttpRequest) -> {
 
-            String metaData = dbData.getMetaData();
 
-            MockServerDTO object = Jackson.toObject(metaData, MockServerDTO.class);
 
 
             // 构造响应内容

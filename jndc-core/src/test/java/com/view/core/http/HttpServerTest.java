@@ -64,7 +64,7 @@ public class HttpServerTest {
     public void https() {
         HttpServerConfiguration httpServerConfiguration = new HttpServerConfiguration();
         httpServerConfiguration.setPort(8888);
-        httpServerConfiguration.setSslContext(SSLContextGenerator.generateSslContextAutoSimple());
+        httpServerConfiguration.setSslContext(SSLContextGenerator.SSL_CONTEXT);
         //设置数据读取回调
         httpServerConfiguration.setDataReadCallback((context, fullHttpRequest) -> {
             sendResponse(context);

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { contentTypes } from "./enums";
 import { defineProps, defineEmits, computed } from "vue";
+import { booleans } from "@/common/baseTypes";
 
 // 接收父组件绑定的对象
 const props = defineProps({
@@ -23,7 +24,8 @@ const updateValue = (key: string, value: any) => {
 
   const currentData = {
     contentType: proxyValue.value.contentType,
-    mockData: proxyValue.value.mockData
+    mockData: proxyValue.value.mockData,
+    useSSL: proxyValue.value.useSSL
   };
 
   let defaultMockData;
@@ -48,6 +50,21 @@ const updateValue = (key: string, value: any) => {
 </script>
 
 <template>
+  <el-form-item label="是否使用证书：" prop="useSSL">
+    <el-radio-group
+      v-model="proxyValue.useSSL"
+      @change="value => updateValue('useSSL', value)"
+    >
+      <el-radio
+        v-for="item in booleans"
+        :key="item.value"
+        :value="item.value"
+        border
+      >
+        {{ item.label }}
+      </el-radio>
+    </el-radio-group>
+  </el-form-item>
   <el-form-item label="Content-Type：" prop="contentType">
     <el-select
       v-model="proxyValue.contentType"
