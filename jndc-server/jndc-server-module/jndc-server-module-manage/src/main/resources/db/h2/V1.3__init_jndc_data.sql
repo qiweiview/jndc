@@ -8,7 +8,7 @@ VALUES (1867209707094114306, 'JNDCServer', '服务列表', 1867209453162561537, 
         NULL, 0, 1, 0, '', 'ep:brush-filled', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '');
 
 INSERT INTO `sys_menu`
-VALUES (1867209707094114311, 'RegisteredService', '在册服务', 1867209453162561537, 2, '/server/jndc_client_service', 'jndc_client_service/index',
+VALUES (1867209707094114311, 'RegisteredService', '在册服务', 1867209453162561537, 2, '/server/jndc_server_service', 'jndc_server_service/index',
         NULL, 0, 1, 0, '', 'ep:service', 1, '2024-12-12 22:07:40', 1, '2024-12-12 22:15:38', '', 0, '', 0, '');
 
 

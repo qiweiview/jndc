@@ -25,6 +25,7 @@ public class ChannelOpen implements Serializable {
 
     private String ndcClientId;
 
+    //key:serviceId
     private  Map<String, TCPServer> tcpServerMap = new ConcurrentHashMap<>();
 
     private transient ScheduledFuture<?> scheduledFuture;

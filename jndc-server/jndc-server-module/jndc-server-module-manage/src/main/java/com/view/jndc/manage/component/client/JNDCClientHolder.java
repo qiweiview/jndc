@@ -76,11 +76,12 @@ public class JNDCClientHolder {
         }
     }
 
-    public void unRegisterService(String uniqueId, JndcClientServiceDTO jndcClientServiceDTO) {
-        DesignedClientFlow designedClientFlow = clientMap.get(uniqueId);
+    public void unRegisterService(String uniqueIdClientId, JndcClientServiceDTO jndcClientServiceDTO) {
+        DesignedClientFlow designedClientFlow = clientMap.get(uniqueIdClientId);
         if (designedClientFlow != null) {
             LocalService localService = new LocalService();
             localService.setServiceId(jndcClientServiceDTO.getServiceUniqueId());
+            localService.setNdcClientId(uniqueIdClientId);
 
             designedClientFlow.getClientFlowSlot().unregisterServiceManual(localService, jndcClientServiceDTO.getAutoRegister() == 0);
         }

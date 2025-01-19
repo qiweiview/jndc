@@ -36,6 +36,10 @@ public abstract class ServerFlowSlot {
 
     public abstract void tcpChannelRead(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress remote, byte[] data);
 
+    public abstract void serviceRegister(String serverId,String ndcClientId, String serviceId);
+
+    public abstract void serviceUnRegister(String serverId,String ndcClientId,String serviceId);
+
     public abstract void tcpChannelWrite(String ndcClientId, String serviceId, String tcpChannelId, byte[] data);
 
     public abstract void tcpChannelInactive(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress remote);
@@ -111,6 +115,22 @@ public abstract class ServerFlowSlot {
             tcpChannelRead(ndcClientId, serviceId, tcpChannelId, remote, data);
         } catch (Exception e) {
             log.error("tcpChannelReadSafe call back error", e);
+        }
+    }
+
+    public final void serviceRegisterSafe(String serverId,String ndcClientId, String serviceId) {
+        try {
+            serviceRegister(serverId,ndcClientId, serviceId);
+        } catch (Exception e) {
+            log.error("serviceRegisterSafe call back error", e);
+        }
+    }
+
+    public final void serviceUnRegisterSafe(String serverId,String ndcClientId, String serviceId) {
+        try {
+            serviceUnRegister(serverId,ndcClientId, serviceId);
+        } catch (Exception e) {
+            log.error("serviceUnRegisterSafe call back error", e);
         }
     }
 

@@ -7,22 +7,11 @@ import type { PaginationProps } from "@pureadmin/table";
 import { deviceDetection } from "@pureadmin/utils";
 import { h, onMounted, reactive, ref, toRaw } from "vue";
 import {
-  addOperation,
   listOperation,
-  listenOperation,
-  pauseOperation,
+  addOperation,
   deleteOperation,
   updateOperation
-} from "@/api/jndc_server/api";
-
-import jndcLog from "@/views/jndc_log/index.vue";
-import jndcServerAcceptHistory from "@/views/jndc_server_accept_history/index.vue";
-import jndcServerApp from "@/views/jndc_server_app/index.vue";
-import { formatDate } from "@/utils/date_format";
-import {
-  getLabelByValue,
-  getLabelTypeByValue
-} from "@/views/jndc_server/form/enums";
+} from "@/api/jndc_server_service/api";
 
 export function useHook() {
   //分页
@@ -39,65 +28,73 @@ export function useHook() {
     current: pagination.currentPage
   });
 
+  const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
   const isShow = ref(false);
   const loading = ref(true);
   const isLinkage = ref(false);
 
-  // 日志弹窗
+  // 数据项弹窗
   const dictDataDrawer = ref(false);
 
   //表格
   const columns: TableColumnList = [
     {
-      label: "唯一id",
-      prop: "uniqueId",
+      label: "id",
+      prop: "idString",
       fixed: "left",
-      minWidth: 300
+      width: 200
+    },
+    {
+      label: "服务端Id",
+      prop: "serverId",
+      width: 100
+    },
+    {
+      label: "客户端Id",
+      prop: "clientId",
+      width: 100
     },
     {
       label: "服务名称",
-      prop: "serverName"
+      prop: "serviceName",
+      width: 160
     },
     {
-      label: "监听域名",
-      prop: "bindHost"
+      label: "服务主机",
+      prop: "serviceHost",
+      width: 160
     },
     {
-      label: "监听端口",
-      prop: "bindPort"
+      label: "服务端口",
+      prop: "servicePort",
+      width: 100
+    },
+    {
+      label: "期望端口",
+      prop: "expectPort",
+      width: 100
     },
     {
       label: "服务状态",
-      prop: "serverStatus",
-      cellRenderer: ({ row }) => (
-        <el-tag type={getLabelTypeByValue(row.serverStatus)} effect="plain">
-          {getLabelByValue(row.serverStatus)}
-        </el-tag>
-      )
-    },
-
-    {
-      label: "创建时间",
-      prop: "createTime",
-      minWidth: 160,
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
+      prop: "serviceStatus",
+      width: 160
     },
     {
-      label: "修改时间",
-      prop: "updateTime",
-      minWidth: 160,
-      formatter: (row, column, cellValue) => {
-        return formatDate(cellValue);
-      }
+      label: "服务协议",
+      prop: "serviceProtocol",
+      width: 160
+    },
+    {
+      label: "服务模式",
+      prop: "serviceMode",
+      width: 160
     },
     {
       label: "操作",
       fixed: "right",
-      minWidth: 320,
+      width: 220,
       slot: "operation"
     }
   ];
@@ -162,104 +159,24 @@ export function useHook() {
     onSearch();
   };
 
-  function openLogDialog(row) {
-    addDialog({
-      title: "运行日志",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcLog,
-      props: {
-        sourceIdString: row.idString
-      }
-    });
-  }
-
-  function openAcceptHistoryDialog(row) {
-    addDialog({
-      title: "连接历史",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcServerAcceptHistory,
-      props: {
-        id: row.idString
-      }
-    });
-  }
-  function openServerAppDialog(row) {
-    addDialog({
-      title: "关联应用",
-      fullscreen: true,
-      hideFooter: true,
-      contentRenderer: () => jndcServerApp,
-      props: {
-        id: row.idString
-      }
-    });
-  }
-
-  const pauseCheck = (row: FormItemProps) => {
-    showDialog("警告", {
-      contentRenderer: () => (
-        <p style="text-align: center;margin-bottom:20px">
-          确认要停止
-          <strong style="color:var(--el-color-danger);margin:0 5px">
-            {row.serverName}
-          </strong>
-          监听吗?
-        </p>
-      ),
-      beforeSure: async done => {
-        const res = await pauseOperation(row.idString);
-        if (res.code == 0) {
-          toast(`已停止"${row.serverName}监听`, {
-            type: "success"
-          });
-        }
-        done(); // 关闭弹框
-        onSearch();
-      }
-    });
-  };
-
-  const listenCheck = (row: FormItemProps) => {
-    showDialog("警告", {
-      contentRenderer: () => (
-        <p style="text-align: center;margin-bottom:20px">
-          确认要开启
-          <strong style="color:var(--el-color-danger);margin:0 5px">
-            {row.serverName}
-          </strong>
-          监听吗?
-        </p>
-      ),
-      beforeSure: async done => {
-        const res = await listenOperation(row.idString);
-        if (res.code == 0) {
-          toast(`开始"${row.serverName}监听`, {
-            type: "success"
-          });
-        }
-        done(); // 关闭弹框
-        onSearch();
-      }
-    });
-  };
-
   function openDialog(title = "新增", row?: FormItemProps) {
     addDialog({
       title: `${title}`,
       props: {
         formInline: {
-          bindPort: row?.bindPort ?? 9866,
-          bindHost: row?.bindHost ?? "0.0.0.0",
-          bindTactics: row?.bindTactics ?? null,
-          createTime: row?.createTime ?? null,
           id: row?.id ?? null,
-          serverName: row?.serverName ?? "test",
-          serverRemark: row?.serverRemark ?? null,
-          serverStatus: row?.serverStatus ?? "pause",
-          uniqueId: row?.uniqueId ?? null,
+          createTime: row?.createTime ?? null,
           updateTime: row?.updateTime ?? null,
+          clientId: row?.clientId ?? null,
+          serviceName: row?.serviceName ?? null,
+          serviceHost: row?.serviceHost ?? null,
+          servicePort: row?.servicePort ?? null,
+          expectPort: row?.expectPort ?? null,
+          serviceStatus: row?.serviceStatus ?? null,
+          serviceProtocol: row?.serviceProtocol ?? null,
+          serviceMode: row?.serviceMode ?? null,
+          serviceUniqueId: row?.serviceUniqueId ?? null,
+          serverId: row?.serverId ?? null,
           idString: row?.idString ?? null
         }
       },
@@ -315,20 +232,16 @@ export function useHook() {
   return {
     form,
     isShow,
+    curRow,
     loading,
     columns,
     dataList,
     isLinkage,
     pagination,
     dictDataDrawer,
-    listenCheck,
-    pauseCheck,
     onSearch,
     resetForm,
     openDialog,
-    openLogDialog,
-    openServerAppDialog,
-    openAcceptHistoryDialog,
     handleDelete,
     handleSizeChange,
     handleCurrentChange,

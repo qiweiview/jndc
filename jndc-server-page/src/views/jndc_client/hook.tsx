@@ -57,6 +57,11 @@ export function useHook() {
       fixed: "left"
     },
     {
+      label: "唯一id",
+      prop: "uniqueId",
+      minWidth: 320
+    },
+    {
       label: "服务主机",
       prop: "serverHost",
       minWidth: 120
@@ -94,11 +99,7 @@ export function useHook() {
       prop: "reconnectMaxTimes",
       minWidth: 120
     },
-    {
-      label: "唯一id",
-      prop: "uniqueId",
-      minWidth: 360
-    },
+
     {
       label: "创建时间",
       prop: "createTime",

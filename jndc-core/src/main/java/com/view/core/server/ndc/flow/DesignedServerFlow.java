@@ -90,8 +90,10 @@ public class DesignedServerFlow {
             } else if (NDCPacketHelper.isServiceRegisterPacket(ndcPacket)) {
                 //todo 注册
                 LocalService localService = ndcPacket.getObject(LocalService.class);
+
+
                 String serviceId = localService.getServiceId();
-                int port = localService.getPort();
+
 
                 //判断客户端是否存在
                 String ndcClientId = localService.getNdcClientId();
@@ -106,8 +108,8 @@ public class DesignedServerFlow {
 
                 //判断服务是否已经注册
                 Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
-                TCPServer tcpServerExist = tcpServerMap.get(serviceId);
-                if (tcpServerExist != null) {
+                TCPServer tcpServerExistCheck = tcpServerMap.get(serviceId);
+                if (tcpServerExistCheck != null) {
                     log.error("服务已经注册:{}", serviceId);
                     localService.setRegisterResponse(RegisterResponse.SERVICE_EXIST);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
@@ -115,18 +117,21 @@ public class DesignedServerFlow {
                     return;
                 }
 
+                //注册事件插槽
+                serverFlowSlot.serviceRegisterSafe(ndcServerConfiguration.getUniqueId(), ndcClientId, serviceId);
 
-                boolean bindable = TCPUtils.portBindable(port);
+                //独立绑定，不再在此处判断端口是否被占用
+                /*boolean bindable = TCPUtils.portBindable(port);
                 if (!bindable) {
                     log.error("端口{}已被占用", port);
                     localService.setRegisterResponse(RegisterResponse.PORT_HAS_BOUND);
                     NDCPacket registerServicePacket = NDCPacketBuilder.registerServicePacket(localService);
                     ndcContex.writeAndFlush(registerServicePacket);
-                }
+                }*/
 
-                tcpServerExist = new TCPServer();
-
-                Map<String, ChannelHandlerContext> sessionMap = tcpServerExist.getSessionMap();
+                //不在此处创建tcp服务
+                //tcpServerExist = new TCPServer();
+                /*Map<String, ChannelHandlerContext> sessionMap = tcpServerExist.getSessionMap();
 
 
                 TCPServerConfiguration tcpServerConfiguration = new TCPServerConfiguration();
@@ -208,7 +213,7 @@ public class DesignedServerFlow {
                 executorService.submit(() -> {
                     //启动服务
                     finalTcpServerExist.start(tcpServerConfiguration);
-                });
+                });*/
 
 
             } else if (NDCPacketHelper.isServiceUnRegisterPacket(ndcPacket)) {
@@ -236,7 +241,9 @@ public class DesignedServerFlow {
                 }
                 ndcClientSessionMap.remove(ndcClientId);
 
-                Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
+                //不再在此处关闭服务
+                /*Map<String, TCPServer> tcpServerMap = channelOpen.getTcpServerMap();
+
                 TCPServer tcpServerExist = tcpServerMap.get(serviceId);
                 if (tcpServerExist == null) {
                     log.error("服务不存在:{}", serviceId);
@@ -247,7 +254,10 @@ public class DesignedServerFlow {
                 }
 
                 //关闭服务
-                tcpServerExist.stop();
+                tcpServerExist.stop();*/
+
+                //注册事件插槽
+                serverFlowSlot.serviceUnRegisterSafe(ndcServerConfiguration.getUniqueId(), ndcClientId, serviceId);
 
 
             } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {

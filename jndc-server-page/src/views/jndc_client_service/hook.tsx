@@ -50,20 +50,30 @@ export function useHook(clientId: string) {
   //表格
   const columns: TableColumnList = [
     {
+      label: "唯一服务id",
+      prop: "serviceUniqueId",
+      fixed: "left",
+      width: 320
+    },
+    {
       label: "服务名称",
-      prop: "serviceName"
+      prop: "serviceName",
+      width: 160
     },
     {
       label: "服务主机",
-      prop: "serviceHost"
+      prop: "serviceHost",
+      width: 160
     },
     {
       label: "服务端口",
-      prop: "servicePort"
+      prop: "servicePort",
+      width: 100
     },
     {
-      label: "期望绑定端口",
-      prop: "expectPort"
+      label: "期望端口",
+      prop: "expectPort",
+      width: 100
     },
     {
       label: "服务状态",
@@ -72,19 +82,18 @@ export function useHook(clientId: string) {
         <el-tag type={getLabelTypeByValue(row.serviceStatus)} effect="plain">
           {getLabelByValue(row.serviceStatus)}
         </el-tag>
-      )
+      ),
+      minWidth: 100
     },
     {
-      label: "是否自动注册",
+      label: "自动注册",
       prop: "autoRegister",
       formatter: (row, column, cellValue) => {
         return cellValue === 1 ? "是" : "否";
-      }
+      },
+      minWidth: 100
     },
-    {
-      label: "唯一服务id",
-      prop: "serviceUniqueId"
-    },
+
     {
       label: "创建时间",
       prop: "createTime",

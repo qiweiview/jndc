@@ -47,6 +47,17 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
+    public void serviceRegister(String serverId, String ndcClientId, String serviceId) {
+
+    }
+
+    @Override
+    public void serviceUnRegister(String serverId, String ndcClientId, String serviceId) {
+
+    }
+
+
+    @Override
     public void tcpChannelWrite(String ndcClientId, String serviceId, String tcpChannelId, byte[] data) {
 
     }

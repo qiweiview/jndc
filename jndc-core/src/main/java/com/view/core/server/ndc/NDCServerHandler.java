@@ -42,6 +42,7 @@ public class NDCServerHandler extends SimpleChannelInboundHandler<NDCPacket> {
         serverCallbackContext.setNdcServer(ndcServer);
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         serverCallbackContext.setRemote(socketAddress);
+
         configuration.getDataReadCallback().accept(msg, serverCallbackContext);
     }
 

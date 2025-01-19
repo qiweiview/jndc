@@ -122,6 +122,17 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
+    public void serviceRegister(String serverId, String ndcClientId, String serviceId) {
+        log.info("服务注册:{} {} {}", serverId, ndcClientId, serviceId);
+    }
+
+    @Override
+    public void serviceUnRegister(String serverId, String ndcClientId, String serviceId) {
+        log.info("服务注销:{} {} {}", serverId, ndcClientId, serviceId);
+    }
+
+
+    @Override
     public void tcpChannelWrite(String ndcClientId, String serviceId, String tcpChannelId, byte[] data) {
 
     }
