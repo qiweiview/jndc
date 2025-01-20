@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<FormProps>(), {
         id: null,
     createTime: null,
     updateTime: null,
-    clientId: null,
+    clientUniqueId: null,
     serviceName: null,
     serviceHost: null,
     servicePort: null,
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<FormProps>(), {
     serviceProtocol: null,
     serviceMode: null,
     serviceUniqueId: null,
-    serverId: null,
+    serverUniqueId: null,
     idString:null
   })
 });
@@ -37,12 +37,12 @@ defineExpose({ getRef });
     :model="newFormInline"
     :rules="formRules"
   >
-    <el-form-item label="所属客户端id：" prop="clientId">
+    <el-form-item label="客户端唯一id：" prop="clientUniqueId">
       <el-input
-        v-model="newFormInline.clientId"
+        v-model="newFormInline.clientUniqueId"
         autocomplete="off"
         clearable
-        placeholder="请输入所属客户端id"
+        placeholder="请输入客户端唯一id"
       />
     </el-form-item>
     <el-form-item label="服务名称：" prop="serviceName">
@@ -109,12 +109,12 @@ defineExpose({ getRef });
         placeholder="请输入服务唯一id"
       />
     </el-form-item>
-    <el-form-item label="所属服务端id：" prop="serverId">
+    <el-form-item label="服务器唯一id：" prop="serverUniqueId">
       <el-input
-        v-model="newFormInline.serverId"
+        v-model="newFormInline.serverUniqueId"
         autocomplete="off"
         clearable
-        placeholder="请输入所属服务端id"
+        placeholder="请输入服务器唯一id"
       />
     </el-form-item>
   </el-form>

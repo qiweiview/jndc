@@ -51,6 +51,12 @@
         where service_unique_id = #{serviceUniqueId}
     </update>
 
+    <update id="resetStatusByClientId">
+        update jndc_client_service
+        set service_status = 'unregister'
+        where client_id = #{clientId}
+    </update>
+
 
     <select id="listPage" resultMap="JndcClientServiceMap"
             parameterType="com.view.jndc.manage.model.jndc_client_service.d_o.JndcClientServiceDO">

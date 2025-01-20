@@ -118,7 +118,7 @@ public class DesignedServerFlow {
                 }
 
                 //注册事件插槽
-                serverFlowSlot.serviceRegisterSafe(ndcServerConfiguration.getUniqueId(), ndcClientId, serviceId);
+                serverFlowSlot.serviceRegisterSafe(ndcServerConfiguration.getUniqueId(),localService);
 
                 //独立绑定，不再在此处判断端口是否被占用
                 /*boolean bindable = TCPUtils.portBindable(port);
@@ -257,7 +257,7 @@ public class DesignedServerFlow {
                 tcpServerExist.stop();*/
 
                 //注册事件插槽
-                serverFlowSlot.serviceUnRegisterSafe(ndcServerConfiguration.getUniqueId(), ndcClientId, serviceId);
+                serverFlowSlot.serviceUnRegisterSafe(ndcServerConfiguration.getUniqueId(), localService);
 
 
             } else if (NDCPacketHelper.isTCPActivePacket(ndcPacket)) {

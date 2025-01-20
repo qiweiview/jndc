@@ -19,6 +19,8 @@ public interface JndcClientServiceDao extends BaseMapper<JndcClientServiceDO> {
 
     List<JndcClientServiceDO> listByClientId(@Param("clientId") Serializable clientId);
 
+    void resetStatusByClientId(@Param("clientId") Serializable clientId);
+
     void resetAllClientServiceStatus();
 
     void updateStatus(@Param("serviceUniqueId") String serviceUniqueId, @Param("status") String status);

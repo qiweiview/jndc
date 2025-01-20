@@ -1,5 +1,6 @@
 package com.view.core.server.ndc.flow;
 
+import com.view.core.model.local_service.LocalService;
 import com.view.core.server.tcp.TCPServerConfiguration;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +37,9 @@ public abstract class ServerFlowSlot {
 
     public abstract void tcpChannelRead(String ndcClientId, String serviceId, String tcpChannelId, InetSocketAddress remote, byte[] data);
 
-    public abstract void serviceRegister(String serverId,String ndcClientId, String serviceId);
+    public abstract void serviceRegister(String serverId,  LocalService localService);
 
-    public abstract void serviceUnRegister(String serverId,String ndcClientId,String serviceId);
+    public abstract void serviceUnRegister(String serverId, LocalService localService);
 
     public abstract void tcpChannelWrite(String ndcClientId, String serviceId, String tcpChannelId, byte[] data);
 
@@ -118,17 +119,17 @@ public abstract class ServerFlowSlot {
         }
     }
 
-    public final void serviceRegisterSafe(String serverId,String ndcClientId, String serviceId) {
+    public final void serviceRegisterSafe(String serverId,  LocalService localService) {
         try {
-            serviceRegister(serverId,ndcClientId, serviceId);
+            serviceRegister(serverId,localService);
         } catch (Exception e) {
             log.error("serviceRegisterSafe call back error", e);
         }
     }
 
-    public final void serviceUnRegisterSafe(String serverId,String ndcClientId, String serviceId) {
+    public final void serviceUnRegisterSafe(String serverId, LocalService localService) {
         try {
-            serviceUnRegister(serverId,ndcClientId, serviceId);
+            serviceUnRegister(serverId,localService);
         } catch (Exception e) {
             log.error("serviceUnRegisterSafe call back error", e);
         }

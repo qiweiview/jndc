@@ -22,9 +22,9 @@ public class JndcServerServiceDO {
   @TableField(value = "update_time")
   private java.time.LocalDateTime updateTime;
 
-  /** 所属客户端id */
-  @TableField(value = "client_id")
-  private Long clientId;
+  /** 客户端唯一id */
+  @TableField(value = "client_unique_id")
+  private String clientUniqueId;
 
   /** 服务名称 */
   @TableField(value = "service_name")
@@ -58,9 +58,9 @@ public class JndcServerServiceDO {
   @TableField(value = "service_unique_id")
   private String serviceUniqueId;
 
-  /** 所属服务端id */
-  @TableField(value = "server_id")
-  private Long serverId;
+  /** 服务器唯一id */
+  @TableField(value = "server_unique_id")
+  private String serverUniqueId;
 
   public JndcServerServiceDTO toDTO() {
     return JndcServerServiceStructMapper.INSTANCE.toDTO(this);

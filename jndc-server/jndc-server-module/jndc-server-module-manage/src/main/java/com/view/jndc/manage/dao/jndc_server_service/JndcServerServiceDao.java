@@ -15,4 +15,11 @@ public interface JndcServerServiceDao extends BaseMapper<JndcServerServiceDO> {
       Page page, @Param("do") JndcServerServiceDO jndcServerServiceDO);
 
   List<JndcServerServiceDO> list(JndcServerServiceDO jndcServerServiceDO);
+
+  JndcServerServiceDO getByCondition(@Param("serverUniqueId")String serverUniqueId,
+                                     @Param("clientUniqueId")String clientUniqueId,
+                                     @Param("serviceUniqueId")String serviceUniqueId);
+
+  void resetStatusByClientId(@Param("clientId")String clientId);
+
 }

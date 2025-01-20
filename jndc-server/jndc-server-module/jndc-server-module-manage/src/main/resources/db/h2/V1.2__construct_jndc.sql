@@ -86,13 +86,15 @@ CREATE TABLE jndc_client_service
 );
 
 
+
+
 DROP TABLE IF EXISTS jndc_server_service;
 CREATE TABLE jndc_server_service
 (
     id                BIGINT NOT NULL,           -- 移除 COMMENT 部分
     create_time       TIMESTAMP    DEFAULT NULL, -- 将 datetime 改为 TIMESTAMP
     update_time       TIMESTAMP    DEFAULT NULL, -- 同上
-    client_id         BIGINT       DEFAULT NULL, -- 同上
+    client_unique_id VARCHAR(255) DEFAULT NULL, -- 同上
     service_name      VARCHAR(255) DEFAULT NULL, -- 移除 CHARACTER SET 和 COLLATE
     service_host      VARCHAR(255) DEFAULT NULL, -- 同上
     service_port      INT          DEFAULT NULL,
@@ -101,7 +103,7 @@ CREATE TABLE jndc_server_service
     service_protocol  VARCHAR(255) DEFAULT NULL, -- 同上
     service_mode      VARCHAR(255) DEFAULT NULL, -- 同上
     service_unique_id VARCHAR(255) DEFAULT NULL, -- 同上
-    server_id  BIGINT       DEFAULT NULL, -- 同上
+    server_unique_id  VARCHAR(255) DEFAULT NULL, -- 同上
     PRIMARY KEY (id)                             -- 直接指定主键，不需要 `USING BTREE`
 );
 

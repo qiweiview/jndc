@@ -1,19 +1,25 @@
 package com.view.jndc.manage.component.server;
 
+import com.view.core.model.local_service.LocalService;
 import com.view.core.server.ndc.flow.ServerFlowSlot;
 import com.view.core.server.tcp.TCPServerConfiguration;
 import com.view.free_lite.common.config.dynamic_datasource.DynamicDataSource;
+import com.view.free_lite.common.utils.SnowflakeIdWorker;
 import com.view.jndc.manage.dao.jndc_server.JndcServerDao;
+import com.view.jndc.manage.dao.jndc_server_service.JndcServerServiceDao;
 import com.view.jndc.manage.enums.server.JNDCServerAPPStatus;
+import com.view.jndc.manage.enums.server.JNDCServerServiceStatusEnum;
 import com.view.jndc.manage.enums.server.JNDCServerStatusEnum;
 import com.view.jndc.manage.model.jndc_access_history.dto.JndcAccessHistoryDTO;
 import com.view.jndc.manage.model.jndc_log.dto.JndcLogDTO;
 import com.view.jndc.manage.model.jndc_server_accept_history.dto.JndcServerAcceptHistoryDTO;
 import com.view.jndc.manage.model.jndc_server_app.dto.JndcServerAppDTO;
+import com.view.jndc.manage.model.jndc_server_service.d_o.JndcServerServiceDO;
 import com.view.jndc.manage.serviceI.jndc_access_history.JndcAccessHistoryServiceI;
 import com.view.jndc.manage.serviceI.jndc_log.JndcLogServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_accept_history.JndcServerAcceptHistoryServiceI;
 import com.view.jndc.manage.serviceI.jndc_server_app.JndcServerAppServiceI;
+import com.view.jndc.manage.serviceI.jndc_server_service.JndcServerServiceServiceI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -37,6 +43,10 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     private final JndcAccessHistoryServiceI jndcAccessHistoryService;
 
     private final JndcServerAppServiceI jndcServerAppServiceI;
+
+    private final JndcServerServiceDao jndcServerServiceDao;
+
+    private final SnowflakeIdWorker snowflakeIdWorker;
 
     @Override
     public void ndcServerStart() {
@@ -80,7 +90,7 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void tcpServerStartSuccess(TCPServerConfiguration   tcpServerConfiguration) {
+    public void tcpServerStartSuccess(TCPServerConfiguration tcpServerConfiguration) {
         String serviceId = tcpServerConfiguration.getServiceId();
         String ndcClientId = tcpServerConfiguration.getNdcClientId();
         Long serverId = getLongIdGetter().get();
@@ -95,7 +105,7 @@ public class WebServerFlowSlot extends ServerFlowSlot {
             jndcServerAppDTO.setBindPort(tcpServerConfiguration.getPort());
             jndcServerAppDTO.setBindStatus(JNDCServerAPPStatus.LISTEN.value);
             jndcServerAppServiceI.save(jndcServerAppDTO);
-        }else {
+        } else {
             jndcServerAppDTO.setBindStatus(JNDCServerAPPStatus.LISTEN.value);
             jndcServerAppServiceI.updateById(jndcServerAppDTO);
         }
@@ -122,13 +132,51 @@ public class WebServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void serviceRegister(String serverId, String ndcClientId, String serviceId) {
-        log.info("服务注册:{} {} {}", serverId, ndcClientId, serviceId);
+    public void serviceRegister(String serverId, LocalService localService) {
+        String ndcClientId = localService.getNdcClientId();
+        String serviceId = localService.getServiceId();
+
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+        JndcServerServiceDO jndcServerServiceDO = jndcServerServiceDao.getByCondition(serverId, ndcClientId, serviceId);
+        if (jndcServerServiceDO == null) {
+            jndcServerServiceDO = new JndcServerServiceDO();
+            jndcServerServiceDO.setCreateTime(LocalDateTime.now());
+            jndcServerServiceDO.setUpdateTime(LocalDateTime.now());
+            jndcServerServiceDO.setId(snowflakeIdWorker.nextId());
+            jndcServerServiceDO.setServerUniqueId(serverId);
+            jndcServerServiceDO.setClientUniqueId(ndcClientId);
+            jndcServerServiceDO.setServiceUniqueId(serviceId);
+
+            jndcServerServiceDO.setServiceName(localService.getName());
+            jndcServerServiceDO.setServiceHost(localService.getHost());
+            jndcServerServiceDO.setServicePort(localService.getPort());
+            jndcServerServiceDO.setExpectPort(localService.getExpectBindPort());
+            jndcServerServiceDO.setServiceStatus(JNDCServerServiceStatusEnum.REGISTER.value);
+
+            DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+            jndcServerServiceDao.insert(jndcServerServiceDO);
+        } else {
+            jndcServerServiceDO.setServiceStatus(JNDCServerServiceStatusEnum.REGISTER.value);
+            jndcServerServiceDO.setUpdateTime(LocalDateTime.now());
+            DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+            jndcServerServiceDao.updateById(jndcServerServiceDO);
+        }
     }
 
     @Override
-    public void serviceUnRegister(String serverId, String ndcClientId, String serviceId) {
-        log.info("服务注销:{} {} {}", serverId, ndcClientId, serviceId);
+    public void serviceUnRegister(String serverId, LocalService localService) {
+        String ndcClientId = localService.getNdcClientId();
+        String serviceId = localService.getServiceId();
+        DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_READ);
+        JndcServerServiceDO jndcServerServiceDO = jndcServerServiceDao.getByCondition(serverId, ndcClientId, serviceId);
+        if (jndcServerServiceDO == null) {
+            log.warn("服务不存在");
+        }else {
+            jndcServerServiceDO.setServiceStatus(JNDCServerServiceStatusEnum.UN_REGISTER.value);
+            jndcServerServiceDO.setUpdateTime(LocalDateTime.now());
+            DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
+            jndcServerServiceDao.updateById(jndcServerServiceDO);
+        }
     }
 
 
@@ -149,6 +197,7 @@ public class WebServerFlowSlot extends ServerFlowSlot {
 
     @Override
     public void connectInActive(String clientId) {
+        jndcServerServiceDao.resetStatusByClientId(clientId);
         jndcServerAcceptHistoryServiceI.updateDisconnectTime(clientId, LocalDateTime.now());
     }
 

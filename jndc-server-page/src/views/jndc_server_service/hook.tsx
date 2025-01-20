@@ -41,25 +41,30 @@ export function useHook() {
   //表格
   const columns: TableColumnList = [
     {
-      label: "id",
+      label: "Id",
       prop: "idString",
       fixed: "left",
       width: 200
     },
     {
-      label: "服务端Id",
-      prop: "serverId",
-      width: 100
-    },
-    {
-      label: "客户端Id",
-      prop: "clientId",
-      width: 100
-    },
-    {
       label: "服务名称",
       prop: "serviceName",
       width: 160
+    },
+    {
+      label: "服务状态",
+      prop: "serviceStatus",
+      width: 160
+    },
+    {
+      label: "服务端Id",
+      prop: "serverUniqueId",
+      width: 300
+    },
+    {
+      label: "客户端Id",
+      prop: "clientUniqueId",
+      width: 300
     },
     {
       label: "服务主机",
@@ -76,11 +81,7 @@ export function useHook() {
       prop: "expectPort",
       width: 100
     },
-    {
-      label: "服务状态",
-      prop: "serviceStatus",
-      width: 160
-    },
+
     {
       label: "服务协议",
       prop: "serviceProtocol",
@@ -94,7 +95,7 @@ export function useHook() {
     {
       label: "操作",
       fixed: "right",
-      width: 220,
+      width: 100,
       slot: "operation"
     }
   ];
@@ -167,7 +168,7 @@ export function useHook() {
           id: row?.id ?? null,
           createTime: row?.createTime ?? null,
           updateTime: row?.updateTime ?? null,
-          clientId: row?.clientId ?? null,
+          clientUniqueId: row?.clientUniqueId ?? null,
           serviceName: row?.serviceName ?? null,
           serviceHost: row?.serviceHost ?? null,
           servicePort: row?.servicePort ?? null,
@@ -176,7 +177,7 @@ export function useHook() {
           serviceProtocol: row?.serviceProtocol ?? null,
           serviceMode: row?.serviceMode ?? null,
           serviceUniqueId: row?.serviceUniqueId ?? null,
-          serverId: row?.serverId ?? null,
+          serverUniqueId: row?.serverUniqueId ?? null,
           idString: row?.idString ?? null
         }
       },

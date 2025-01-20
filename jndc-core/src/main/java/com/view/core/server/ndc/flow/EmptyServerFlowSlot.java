@@ -1,5 +1,6 @@
 package com.view.core.server.ndc.flow;
 
+import com.view.core.model.local_service.LocalService;
 import com.view.core.server.tcp.TCPServerConfiguration;
 
 import java.net.InetSocketAddress;
@@ -47,12 +48,12 @@ public class EmptyServerFlowSlot extends ServerFlowSlot {
     }
 
     @Override
-    public void serviceRegister(String serverId, String ndcClientId, String serviceId) {
+    public void serviceRegister(String serverId,  LocalService localService) {
 
     }
 
     @Override
-    public void serviceUnRegister(String serverId, String ndcClientId, String serviceId) {
+    public void serviceUnRegister(String serverId, LocalService localService) {
 
     }
 

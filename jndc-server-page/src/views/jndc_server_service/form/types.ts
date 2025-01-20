@@ -5,7 +5,7 @@ interface FormItemProps {
   idString?: string;
   createTime?: string;
   updateTime?: string;
-  clientId?: string;
+  clientUniqueId?: string;
   serviceName?: string;
   serviceHost?: string;
   servicePort?: string;
@@ -14,7 +14,7 @@ interface FormItemProps {
   serviceProtocol?: string;
   serviceMode?: string;
   serviceUniqueId?: string;
-  serverId?: string;
+  serverUniqueId?: string;
 }
 
 interface FormProps {

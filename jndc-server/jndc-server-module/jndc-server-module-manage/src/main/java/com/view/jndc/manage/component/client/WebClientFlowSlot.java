@@ -91,9 +91,11 @@ public class WebClientFlowSlot extends ClientFlowSlot {
         jndcClientServiceDOS.parallelStream()
                 .filter(x -> x.checkAutoRegister())
                 .forEach(x -> {
+                    log.info("自动注册服务:{}", x);
                     LocalService localService = jndcClientHolder.serviceDTOToLocalService(JndcClientServiceStructMapper.INSTANCE.toDTO(x));
                     localService.setNdcClientId(clientId);
                     registerServiceManual(localService, true);
+                    jndcClientServiceDao.updateStatus(x.getServiceUniqueId(), JNDCClientServiceStatusEnum.REGISTER.value);
                 });
 
 
@@ -161,6 +163,9 @@ public class WebClientFlowSlot extends ClientFlowSlot {
         jndcLogDTO.setSourceId(id);
         DynamicDataSource.setDataSourceKey(DynamicDataSource.DB_WRITE);
         jndcLogServiceI.save(jndcLogDTO);
+
+        jndcClientServiceDao.resetStatusByClientId(id);
+
     }
 
     @Override

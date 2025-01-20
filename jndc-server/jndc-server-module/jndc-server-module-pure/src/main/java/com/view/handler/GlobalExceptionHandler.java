@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NotLoginException.class)
     public ResponseResult<Void> handlerNotLoginException(NotLoginException nle) {
-        log.warn("登录错误信息：" + nle.getMessage() + nle.getType(), nle);
+        //log.warn("登录错误信息：" + nle.getMessage() + nle.getType(), nle);
         // 判断场景值，定制化异常信息
         String message = "";
         if (nle.getType().equals(NotLoginException.NOT_TOKEN)) {
