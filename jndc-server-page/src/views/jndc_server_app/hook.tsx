@@ -31,11 +31,6 @@ export function useHook() {
     current: pagination.currentPage
   });
 
-  const metaData = ref<MockMetaData>({
-    mockData: "",
-    contentType: ""
-  });
-
   const curRow = ref({ dictName: "" });
   const formRef = ref();
   const dataList = ref([]);
@@ -189,6 +184,9 @@ export function useHook() {
           if (valid) {
             // 表单规则校验通过
             if (title === "新增") {
+              if (!curData.metaData) {
+              }
+
               // 实际开发先调用新增接口，再进行下面操作
               const res = await addOperation(curData);
               if (res.code == 0) {
@@ -265,7 +263,6 @@ export function useHook() {
 
   return {
     form,
-    metaData,
     isShow,
     curRow,
     loading,

@@ -41,7 +41,11 @@ public class ServerAppHolder {
         if (bindType.equals(JNDCServerBindType.MOCK_SERVER.value)) {
             //todo mock server
             executorService.submit(() -> {
-                startMockServer(dbData);
+                try {
+                    startMockServer(dbData);
+                } catch (Exception e) {
+                    log.error("mockServer启动失败", e);
+                }
             });
         } else {
             throw new BizException("未知的服务类型");
