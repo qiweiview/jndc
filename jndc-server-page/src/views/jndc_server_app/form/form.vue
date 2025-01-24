@@ -21,6 +21,9 @@ const props = withDefaults(defineProps<FormProps>(), {
   })
 });
 
+const ruleFormRef = ref();
+const newFormInline = ref(props.formInline);
+
 const mockChange = (data: MockMetaData) => {
   newFormInline.value.metaData = JSON.stringify(data);
 };
@@ -34,10 +37,8 @@ if (props.formInline.metaData) {
     contentType: "application/json",
     useSSL: false
   });
+  newFormInline.value.metaData = JSON.stringify(metaData.value);
 }
-
-const ruleFormRef = ref();
-const newFormInline = ref(props.formInline);
 
 function getRef() {
   return ruleFormRef.value;
