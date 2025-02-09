@@ -77,7 +77,6 @@ export function useHook() {
         </el-tag>
       )
     },
-
     {
       label: "创建时间",
       prop: "createTime",

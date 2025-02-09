@@ -12,6 +12,7 @@ import {
   deleteOperation,
   updateOperation
 } from "@/api/jndc_server_service/api";
+import { getLabelByValue, getLabelTypeByValue } from "./form/enums";
 
 export function useHook() {
   //分页
@@ -54,6 +55,11 @@ export function useHook() {
     {
       label: "服务状态",
       prop: "serviceStatus",
+      cellRenderer: ({ row }) => (
+        <el-tag type={getLabelTypeByValue(row.serviceStatus)} effect="plain">
+          {getLabelByValue(row.serviceStatus)}
+        </el-tag>
+      ),
       width: 160
     },
     {
