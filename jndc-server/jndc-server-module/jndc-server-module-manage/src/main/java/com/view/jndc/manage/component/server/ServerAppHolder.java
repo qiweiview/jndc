@@ -2,7 +2,6 @@ package com.view.jndc.manage.component.server;
 
 import com.view.core.server.http.HttpServer;
 import com.view.core.server.http.HttpServerConfiguration;
-import com.view.core.server.ndc.flow.DesignedServerFlow;
 import com.view.core.utils.SSLContextGenerator;
 import com.view.free_lite.common.config.exception.BizException;
 import com.view.free_lite.common.utils.Jackson;
@@ -14,7 +13,6 @@ import com.view.jndc.manage.model.jndc_server_app.dto.MockServerDTO;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslContext;
 import io.netty.util.CharsetUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +45,11 @@ public class ServerAppHolder {
                     log.error("mockServer启动失败", e);
                 }
             });
+        } else if (bindType.equals(JNDCServerBindType.CLIENT_MAPPING.value)) {
+            //todo jndc客户端
+
         } else {
-            throw new BizException("未知的服务类型");
+            throw new BizException("未知的服务类型:" + bindType);
         }
 
     }
@@ -83,8 +84,6 @@ public class ServerAppHolder {
 
         //设置数据读取回调
         httpServerConfiguration.setDataReadCallback((context, fullHttpRequest) -> {
-
-
 
 
             // 构造响应内容

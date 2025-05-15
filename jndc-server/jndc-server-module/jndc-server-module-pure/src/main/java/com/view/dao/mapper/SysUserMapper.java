@@ -1,5 +1,6 @@
 package com.view.dao.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.view.dao.entity.SysUser;
@@ -28,6 +29,8 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     IPage<SysUserVO> selectUserVOPage(IPage<SysUserVO> page, @Param("query") UserQueryDTO query);
 
     List<SysUser> selectByPhone(String userPhoneNumber);
+
+    SysUser selectByUserName(@Param("username")String username);
 
 }
 

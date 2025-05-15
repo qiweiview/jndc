@@ -1,6 +1,6 @@
 spring:
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/mysql
   datasource:
     druid:
@@ -19,8 +19,8 @@ spring:
         filters: "stat,wall"
         max-active: 50
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: "jdbc:mysql://192.168.0.114:3306/fll-server?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai&connectTimeout=300000&socketTimeout=300000"
+        url: "jdbc:mysql://124.223.110.151:6067/fll-server?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai&connectTimeout=300000&socketTimeout=300000"
         type: com.alibaba.druid.pool.DruidDataSource
         username: "root"
-        password: "wdwdwd"
+        password: "Ul@qJF3tt5hXzu3egsQ"
         initial-size: 1

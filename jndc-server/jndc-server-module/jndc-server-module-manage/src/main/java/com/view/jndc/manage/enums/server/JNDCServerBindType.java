@@ -8,6 +8,7 @@ public enum JNDCServerBindType {
 
 
     MOCK_SERVER("模拟服务", "mock-server"),
+    CLIENT_MAPPING("客户端映射", "jndc-client"),
 
 
     ;

@@ -75,7 +75,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UserLoginVO login(UserLoginDTO userLoginDTO, boolean skipPasswordCheck) {
-        SysUser sysUser = userMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, userLoginDTO.getUsername()).or().eq(SysUser::getEmail, userLoginDTO.getUsername()));
+        SysUser sysUser = userMapper.selectByUserName(userLoginDTO.getUsername());
 
         // 判断用户是否存在
         if (Objects.isNull(sysUser)) {
