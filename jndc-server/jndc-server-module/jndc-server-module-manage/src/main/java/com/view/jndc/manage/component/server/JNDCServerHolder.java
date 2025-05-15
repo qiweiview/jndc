@@ -1,6 +1,5 @@
 package com.view.jndc.manage.component.server;
 
-import com.view.core.model.local_service.LocalService;
 import com.view.core.server.ndc.NDCServerConfiguration;
 import com.view.core.server.ndc.flow.DesignedServerFlow;
 import com.view.jndc.manage.model.jndc_server.dto.JndcServerDTO;
@@ -38,7 +37,7 @@ public class JNDCServerHolder {
             designedServerFlow.setLongId(jndcServerDTO.getId());
 
             serverMap.put(jndcServerDTO.getUniqueId(), designedServerFlow);
-            designedServerFlow.run();
+            designedServerFlow.start();
         });
     }
 

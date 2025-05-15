@@ -22,6 +22,6 @@ public class NDCServerTest {
         ServerFlowSlot serverFlowSlot = new EmptyServerFlowSlot();
         //流程
         DesignedServerFlow designedServerFlow = new DesignedServerFlow(ndcServerConfiguration, serverFlowSlot);
-        designedServerFlow.run();
+        designedServerFlow.start();
     }
 }
