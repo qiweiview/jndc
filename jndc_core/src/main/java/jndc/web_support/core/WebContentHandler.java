@@ -3,10 +3,7 @@ package jndc.web_support.core;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
 import jndc.core.UniqueBeanManage;
 import jndc.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -51,12 +48,28 @@ public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpReque
 
             //查找静态资源
             FrontProjectLoader.InnerFileDescription file = jndcStaticProject.findFile(s);
-            FullHttpResponse fullHttpResponse;
             if (file == null) {
-                fullHttpResponse = HttpResponseBuilder.notFoundResponse();
-            } else {
-                fullHttpResponse = HttpResponseBuilder.fileResponse(file.getData(), file.getFileType());
+                channelHandlerContext.writeAndFlush(HttpResponseBuilder.notFoundResponse());
+                return;
             }
+
+            byte[] fileData = file.getData();
+            
+            // Handle conditional requests
+            String ifNoneMatch = jndcHttpRequest.getStringHeader(HttpHeaderNames.IF_NONE_MATCH);
+            if (ifNoneMatch != null) {
+                String etag = "\"" + Integer.toHexString(fileData.hashCode()) + "\"";
+                if (etag.equals(ifNoneMatch)) {
+                    // Resource hasn't changed, send 304 Not Modified
+                    FullHttpResponse notModifiedResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_MODIFIED);
+                    notModifiedResponse.headers().set(HttpHeaderNames.ETAG, etag);
+                    channelHandlerContext.writeAndFlush(notModifiedResponse);
+                    return;
+                }
+            }
+
+            // Send the full response
+            FullHttpResponse fullHttpResponse = HttpResponseBuilder.fileResponse(fileData, file.getFileType());
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }

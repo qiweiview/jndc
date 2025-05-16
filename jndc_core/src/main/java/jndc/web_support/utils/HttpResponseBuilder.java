@@ -20,22 +20,42 @@ public class HttpResponseBuilder {
 
     public static FullHttpResponse fileResponse(byte[] bytes, String fileType) {
         String contentType;
+        String cacheControl;
+        
+        // Set content type and cache control based on file type
         if ("html".equalsIgnoreCase(fileType)) {
             contentType = HTML;
+            cacheControl = "no-cache"; // HTML files should not be cached
         } else if ("js".equalsIgnoreCase(fileType)) {
             contentType = JS;
+            cacheControl = "public, max-age=31536000"; // Cache JS files for 1 year
         } else if ("css".equalsIgnoreCase(fileType)) {
             contentType = CSS;
+            cacheControl = "public, max-age=31536000"; // Cache CSS files for 1 year
+        } else if ("png".equalsIgnoreCase(fileType) || "jpg".equalsIgnoreCase(fileType) || 
+                  "jpeg".equalsIgnoreCase(fileType) || "gif".equalsIgnoreCase(fileType) ||
+                  "ico".equalsIgnoreCase(fileType) || "svg".equalsIgnoreCase(fileType)) {
+            contentType = "image/" + fileType.toLowerCase();
+            cacheControl = "public, max-age=31536000"; // Cache images for 1 year
         } else {
             contentType = TEXT_PLAIN;
+            cacheControl = "public, max-age=7200"; // Default cache for 2 hours
         }
+
         FullHttpResponse defaultHttpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
         ByteBuf content = defaultHttpResponse.content();
         content.writeBytes(bytes);
         HttpHeaders headers = defaultHttpResponse.headers();
         headers.set(HttpHeaderNames.CONTENT_TYPE, contentType);
         headers.set(HttpHeaderNames.CONTENT_LENGTH, content.readableBytes());
-        headers.set(HttpHeaderNames.CACHE_CONTROL, "public, max-age=7200");
+        headers.set(HttpHeaderNames.CACHE_CONTROL, cacheControl);
+        
+        // Add ETag
+        String etag = "\"" + Integer.toHexString(bytes.hashCode()) + "\"";
+        headers.set(HttpHeaderNames.ETAG, etag);
+        
+        // Add Vary header to ensure proper caching behavior
+        headers.set(HttpHeaderNames.VARY, "Accept-Encoding");
 
         return defaultHttpResponse;
     }
