@@ -36,11 +36,21 @@ public class ServerStart {
         log.info(tag);
 
 
+
         String runTimePath = PathUtils.getRunTimePath();
         log.info("读取运行目录： " + runTimePath);
+        String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
 
-//        String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
-        String configPath = "F:\\java_workspace\\jndc\\jndc_server\\jndc-server-backend\\src\\main\\resources\\conf\\config.yml";
+        //读取启动指令配置文件地址
+        if (args.length>0){
+            String typeConfigPath = args[0];
+            if (typeConfigPath.endsWith(".yml")){
+                configPath= typeConfigPath;
+            }
+        }
+
+
+//        String configPath = "F:\\java_workspace\\jndc\\jndc_server\\jndc-server-backend\\src\\main\\resources\\conf\\config.yml";
         File file = new File(configPath);
         if (!file.exists()) {
             log.error("读取配置文件失败,请检查 " + configPath + " 目录下是否存在");
