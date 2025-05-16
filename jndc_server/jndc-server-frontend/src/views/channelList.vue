@@ -127,7 +127,7 @@
                         data: {}
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message);
                             _this.getChannelRecord()
@@ -174,7 +174,7 @@
                     data: {id: id}
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.$message.success(response.message);
                     } else {
@@ -199,7 +199,7 @@
                         data: {id: channelId}
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message);
                             _this.getServerChannelTable()

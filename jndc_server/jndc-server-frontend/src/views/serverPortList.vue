@@ -122,7 +122,7 @@
             <el-dialog title="添加端口监听" :visible.sync="addPortDialog" width="30%" :close-on-click-modal="false">
                 <el-form label-position="top" :model="portMonitoring">
                     <el-form-item label="端口">
-                        <el-input-number v-model="portMonitoring.port" :min="0" :max="20000"
+                        <el-input-number v-model="portMonitoring.port" :min="0" :max="65535"
                                          label=""></el-input-number>
                     </el-form-item>
 
@@ -229,7 +229,7 @@
                     data: body
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         this.$message.success(response.message);
                     } else {
                         this.$message.error(response.message);
@@ -287,7 +287,7 @@
                         data: data
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message)
                             _this.getServerPortList()
@@ -319,7 +319,7 @@
                         data: data
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message);
                             _this.getServerPortList()
@@ -351,7 +351,7 @@
                         data: data
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message);
                             _this.getServerPortList()
@@ -376,7 +376,7 @@
                     data: data
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.$message.success(response.message);
                         this.getServerPortList()
@@ -397,7 +397,7 @@
                     data: this.portMonitoring
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.storeArray = []
                         this.getServerPortList()
@@ -420,6 +420,8 @@
             },
             openAddPortDialog() {
                 this.addPortDialog = true
+                // Generate random port between 1024 and 65535
+                this.portMonitoring.port = Math.floor(Math.random() * (65535 - 1024 + 1)) + 1024
             },
             openPortBindDialog(id) {
                 this.currentId = id

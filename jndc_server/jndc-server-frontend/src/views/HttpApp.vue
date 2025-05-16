@@ -354,10 +354,27 @@
 
 
             },
+            /**
+             * 打开路由地址
+             * 根据当前访问地址和二级域名前缀构建完整的URL
+             * @param {Object} x - 路由配置对象
+             * @param {string} x.hostKeyWord - 二级域名前缀
+             */
             openRouteAddress(x) {
+                // 获取当前主机地址（包含域名和端口）
                 let host = window.location.host
+                let port = ''
+                // 查找端口分隔符的位置
                 let end = host.indexOf(":")
-                let nHost = window.location.protocol + '//' + x.hostKeyWord + "." + host.substring(0, end)
+                // 如果存在端口，则提取端口号
+                if (end !== -1) {
+                    port = ':' + host.substring(end + 1)
+                }
+                // 获取当前协议（http/https）
+                let protocol = window.location.protocol
+                // 构建完整的URL：协议 + 二级域名前缀 + 主域名 + 端口
+                let nHost = protocol + '//' + x.hostKeyWord + "." + host.substring(0, end) + port
+                // 在新窗口打开URL
                 window.open(nHost)
             },
             routeTypeCN(code) {
@@ -417,7 +434,7 @@
                         data: {id: row.id}
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             _this.$message.success(response.message)
                             _this.getHostList()
@@ -466,7 +483,7 @@
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
                     loading.close()
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.$message.success(response.message)
                         this.getHostList()
@@ -516,7 +533,7 @@
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
                     loading.close()
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.$message.success(response.message)
                         this.getHostList()

@@ -443,7 +443,7 @@
                         data: {ip: ip}
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             this.$message.success(response.message)
                             this.getIpBlackList()
@@ -466,7 +466,7 @@
                         data: {ip: ip}
                         // eslint-disable-next-line no-unused-vars
                     }).then(response => {
-                        if (response.code == 200) {
+                        if (response.code == 0) {
                             //refresh force
                             this.closeAddWhitePage()
                             this.$message.success(response.message);
@@ -614,7 +614,7 @@
                     data: {id: id}
                     // eslint-disable-next-line no-unused-vars
                 }).then(response => {
-                    if (response.code == 200) {
+                    if (response.code == 0) {
                         //refresh force
                         this.$message.success(response.message)
                         if (tag == 0) {

@@ -1,8 +1,8 @@
 <template>
     <div class="login-container"
-         style="background-image: url('https://s1.ax1x.com/2020/11/09/BHG0gg.jpg');width: 100vw;height: 100vh">
-        <el-row style="height: 100vh;">
-            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="parent" style="height: 100%;">
+         style="background-image: url('https://s1.ax1x.com/2020/11/09/BHG0gg.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <el-row style="width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="parent" style="height: auto; display: flex; align-items: center; justify-content: center;">
                 <el-form ref="form" :model="form" label-width="80px" class="login-form" style="width:30vw">
                     <el-form-item>
                         <h2 style="text-align: center;font-size: 55px;color: white;">J N D C - Admin</h2>
@@ -71,15 +71,40 @@
 
 
 <style scoped>
-
-
     .login-form {
         position: relative;
-        width: 520px;
-        max-width: 100%;
-        padding: 160px 35px 0;
+        width: 400px;
+        max-width: 90vw;
+        padding: 35px 35px 30px;
         margin: 0 auto;
         overflow: hidden;
+        background-color: rgba(44, 62, 80, 0.85);
+        border-radius: 12px;
+        box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    .login-form :deep(.el-form-item__label) {
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .login-form :deep(.el-input__inner) {
+        background-color: rgba(255, 255, 255, 0.95);
+        color: #222;
+    }
+
+    .login-form :deep(.el-input__inner::placeholder) {
+        color: #888;
+    }
+
+    .login-form h2 {
+        text-align: center;
+        font-size: 38px;
+        color: #fff;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+        font-weight: bold;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.18);
     }
 
     .tips {
