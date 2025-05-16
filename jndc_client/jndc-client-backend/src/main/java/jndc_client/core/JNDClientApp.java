@@ -18,24 +18,24 @@ public class JNDClientApp {
 
     public void createClient() {
 
-        JNDCClientConfig jndcClientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
-
-
-        ServeManageConfig manageConfig = jndcClientConfig.getManageConfig();
-
-        if (manageConfig.isAdminEnable()) {
-            //todo 处理静态项目地址
-            String runTimePath = PathUtils.getRunTimePath();
-            String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
-            String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_client" + File.separator + "compare_dist";
-            String runtimeDir = PathUtils.findExistPath(p1, p2);
-            manageConfig.setAdminProjectPath(runtimeDir);
-        }
-
-
-        //http管理端
-        ManagementServer managementServer = new ManagementServer();
-        managementServer.start(manageConfig);//start
+//        JNDCClientConfig jndcClientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+//
+//
+//        ServeManageConfig manageConfig = jndcClientConfig.getManageConfig();
+//
+//        if (manageConfig.isAdminEnable()) {
+//            //todo 处理静态项目地址
+//            String runTimePath = PathUtils.getRunTimePath();
+//            String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+//            String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_client" + File.separator + "compare_dist";
+//            String runtimeDir = PathUtils.findExistPath(p1, p2);
+//            manageConfig.setAdminProjectPath(runtimeDir);
+//        }
+//
+//
+//        //http管理端
+//        ManagementServer managementServer = new ManagementServer();
+//        managementServer.start(manageConfig);//start
 
         //核心服务
         JNDCClient jndcClient = new JNDCClient();

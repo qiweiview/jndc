@@ -31,6 +31,16 @@ public class ClientStart {
         log.info("读取运行目录： " + runTimePath);
 
         String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
+
+
+        //读取启动指令配置文件地址
+        if (args.length>0){
+            String typeConfigPath = args[0];
+            if (typeConfigPath.endsWith(".yml")){
+                configPath= typeConfigPath;
+            }
+        }
+
         File file = new File(configPath);
         if (!file.exists()) {
             log.error("读取配置文件失败,请检查 " + configPath + " 目录下是否存在");
@@ -57,14 +67,6 @@ public class ClientStart {
 
         JNDClientApp jndClientApp = new JNDClientApp();
         jndClientApp.createClient();
-
-//        //http管理端
-//        ManagementServer managementServer = new ManagementServer();
-//        managementServer.start();//start
-//
-//        //核心服务
-//        JNDCClient jndcClient = new JNDCClient();
-//        jndcClient.start();
 
     }
 }
