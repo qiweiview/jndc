@@ -1,22 +1,65 @@
+# ============================================================
+#  JNDC Server — systemd 服务单元
+#
+#  部署步骤:
+#    1. 将 jndc-server 目录拷贝到 /data/app/
+#    2. 编辑 jndc.env 配置 JAVA_HOME 等
+#    3. sudo cp jndc-server.service /etc/systemd/system/
+#    4. sudo systemctl daemon-reload
+#    5. sudo systemctl enable jndc-server
+#    6. sudo systemctl start jndc-server
+#
+#  常用命令:
+#    systemctl start   jndc-server   启动
+#    systemctl stop    jndc-server   停止
+#    systemctl restart jndc-server   重启
+#    systemctl status  jndc-server   状态
+#    journalctl -u jndc-server -f    查看日志
+# ============================================================
+
 [Unit]
-Description=jndc-server
-After=network.target
-StartLimitIntervalSec=0
+Description=JNDC Server - Java No Distance Connection
+Documentation=https://github.com/user/jndc
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
+Type=forking
 User=app
 Group=app
-Type=forking
-Restart=always
-RestartSec=1
-Environment=JAVA_HOME=/data/jdk8
+
+# 环境配置 (可选，- 表示文件不存在不报错)
+EnvironmentFile=-/data/app/jndc-server/bin/jndc.env
+
+# 工作目录
 WorkingDirectory=/data/app/jndc-server/bin
+
+# PID 文件 — 与 startup.sh 保持一致
+PIDFile=/data/app/jndc-server/bin/.app.pid
+
+# 启动/停止/重启/重载
 ExecStart=/data/app/jndc-server/bin/startup.sh
-ExecReload=/data/app/jndc-server/bin/shutdown.sh
 ExecStop=/data/app/jndc-server/bin/shutdown.sh
+ExecReload=/bin/kill -HUP $MAINPID
+
+# 重启策略: 非正常退出时自动重启
+Restart=on-failure
+RestartSec=5
+
+# 优雅停机: 先 SIGTERM，超时后 SIGKILL
+TimeoutStopSec=35
+SuccessExitStatus=0 143 137
+
+# 资源限制
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# 安全加固
 PrivateTmp=true
-SuccessExitStatus=143
+ProtectSystem=strict
+ReadWritePaths=/data/app/jndc-server
 
 [Install]
-
 WantedBy=multi-user.target
