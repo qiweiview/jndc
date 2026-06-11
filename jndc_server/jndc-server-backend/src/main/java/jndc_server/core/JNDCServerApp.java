@@ -45,12 +45,10 @@ public class JNDCServerApp {
 
         //处理静态项目地址
         if (manageConfig.isAdminEnable()) {
-            //todo 确认静态项目地址
-            String runTimePath = PathUtils.getRunTimePath();
-            String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+            String runTimePath = PathUtils.getServerWorkspace();
+            String p1 = runTimePath + File.separator + "compare_dist";
             String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_server" + File.separator + "compare_dist";
-            String p3 = "F:\\java_workspace\\jndc\\jndc_server\\jndc-server-frontend\\compare_dist";
-            String runtimeDir = PathUtils.findExistPath(p1, p2,p3);
+            String runtimeDir = PathUtils.findExistPath(p1, p2);
             manageConfig.setAdminProjectPath(runtimeDir);
         }
 

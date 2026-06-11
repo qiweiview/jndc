@@ -2,6 +2,7 @@ package jndc_client;
 
 
 import jndc.utils.ApplicationExit;
+import jndc.utils.PathUtils;
 import jndc.utils.YmlParser;
 import jndc_client.core.ClientDirectManager;
 import jndc_client.core.JNDCClientConfig;
@@ -18,9 +19,8 @@ public class ClientTest {
     @Test
     public void run() {
 
-        ClientDirectManager.idPath = "C:\\Users\\liuqiwei\\Desktop\\client_id";
-
-        String devPath = System.getProperty("user.dir") + File.separator + "src\\main\\resources\\conf\\config.yml";
+        String devPath = PathUtils.getClientWorkspace() + File.separator + "conf" + File.separator + "config.yml";
+        ClientDirectManager.idPath = PathUtils.getClientWorkspace() + File.separator + "conf" + File.separator + "client_id";
         ClientDirectManager.ymlConfig = devPath;
 
 

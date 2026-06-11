@@ -8,6 +8,45 @@ public class PathUtils {
 
     private static volatile String RUN_TIME_PATH;
 
+    private static final String JNDC_HOME_DIR = ".jndc";
+    private static final String SERVER_DIR = "server";
+    private static final String CLIENT_DIR = "client";
+
+    /**
+     * 获取 ~/.jndc 根目录
+     */
+    public static String getJndcHome() {
+        String userHome = System.getProperty("user.home");
+        String jndcHome = userHome + File.separator + JNDC_HOME_DIR;
+        mkdirIfNotExist(jndcHome);
+        return jndcHome;
+    }
+
+    /**
+     * 获取 server 工作空间 ~/.jndc/server
+     */
+    public static String getServerWorkspace() {
+        String workspace = getJndcHome() + File.separator + SERVER_DIR;
+        mkdirIfNotExist(workspace);
+        return workspace;
+    }
+
+    /**
+     * 获取 client 工作空间 ~/.jndc/client
+     */
+    public static String getClientWorkspace() {
+        String workspace = getJndcHome() + File.separator + CLIENT_DIR;
+        mkdirIfNotExist(workspace);
+        return workspace;
+    }
+
+    private static void mkdirIfNotExist(String path) {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
+
     public static String getDesktopPath() {
         return getDesktopPath(File.separator);
     }

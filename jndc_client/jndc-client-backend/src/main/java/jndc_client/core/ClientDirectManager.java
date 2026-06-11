@@ -1,5 +1,6 @@
 package jndc_client.core;
 
+import jndc.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -14,11 +15,11 @@ public class ClientDirectManager {
 
 
     static {
-        basePath = System.getProperty("user.dir");
+        basePath = PathUtils.getClientWorkspace();
 
-        ymlConfig = basePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
+        ymlConfig = basePath + File.separator + "conf" + File.separator + "config.yml";
 
-        idPath = basePath + File.separator + ".." + File.separator + "conf" + File.separator + "client_id";
+        idPath = basePath + File.separator + "conf" + File.separator + "client_id";
 
 
         log.info("=======================使用以下路径启动=======================");

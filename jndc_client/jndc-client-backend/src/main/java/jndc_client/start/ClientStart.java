@@ -27,10 +27,10 @@ public class ClientStart {
         }));
 
 
-        String runTimePath = PathUtils.getRunTimePath();
+        String runTimePath = PathUtils.getClientWorkspace();
         log.info("读取运行目录： " + runTimePath);
 
-        String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
+        String configPath = runTimePath + File.separator + "conf" + File.separator + "config.yml";
 
 
         //读取启动指令配置文件地址

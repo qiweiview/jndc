@@ -25,8 +25,8 @@ public class JNDClientApp {
 //
 //        if (manageConfig.isAdminEnable()) {
 //            //todo 处理静态项目地址
-//            String runTimePath = PathUtils.getRunTimePath();
-//            String p1 = runTimePath + File.separator + ".." + File.separator + "compare_dist";
+//            String runTimePath = PathUtils.getClientWorkspace();
+//            String p1 = runTimePath + File.separator + "compare_dist";
 //            String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_client" + File.separator + "compare_dist";
 //            String runtimeDir = PathUtils.findExistPath(p1, p2);
 //            manageConfig.setAdminProjectPath(runtimeDir);

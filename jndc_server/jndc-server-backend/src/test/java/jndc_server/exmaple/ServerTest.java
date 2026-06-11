@@ -20,10 +20,10 @@ public class ServerTest {
 
         ServerRuntimeConfig.DEBUG_MODEL = true;
 
-        String runTimePath = PathUtils.getRunTimePath();
+        String runTimePath = PathUtils.getServerWorkspace();
         log.info("读取运行目录： " + runTimePath);
 
-        String devPath = System.getProperty("user.dir") + File.separator + "src\\main\\resources\\conf\\config.yml";
+        String devPath = runTimePath + File.separator + "conf" + File.separator + "config.yml";
         File file = new File(devPath);
 
 

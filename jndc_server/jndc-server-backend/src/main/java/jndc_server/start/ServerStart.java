@@ -37,9 +37,9 @@ public class ServerStart {
 
 
 
-        String runTimePath = PathUtils.getRunTimePath();
+        String runTimePath = PathUtils.getServerWorkspace();
         log.info("读取运行目录： " + runTimePath);
-        String configPath = runTimePath + File.separator + ".." + File.separator + "conf" + File.separator + "config.yml";
+        String configPath = runTimePath + File.separator + "conf" + File.separator + "config.yml";
 
         //读取启动指令配置文件地址
         if (args.length>0){
