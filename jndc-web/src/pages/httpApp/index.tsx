@@ -143,11 +143,13 @@ const HttpApp: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      ellipsis: true,
     },
     {
       title: '域名关键词',
       dataIndex: 'hostKeyword',
       key: 'hostKeyword',
+      ellipsis: true,
     },
     {
       title: '路由类型',
@@ -163,6 +165,7 @@ const HttpApp: React.FC = () => {
       title: '路由目标',
       dataIndex: 'routeTarget',
       key: 'routeTarget',
+      ellipsis: true,
       render: (text: string) => text || '-',
     },
     {
@@ -175,11 +178,15 @@ const HttpApp: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '操作',
       key: 'action',
+      width: 150,
+      fixed: 'right' as const,
       render: (_, record) => (
         <Space>
           <Button
@@ -236,6 +243,7 @@ const HttpApp: React.FC = () => {
             dataSource={filteredRules}
             rowKey="id"
             loading={loading}
+            scroll={{ x: 800 }}
             pagination={{
               current: currentPage,
               total,

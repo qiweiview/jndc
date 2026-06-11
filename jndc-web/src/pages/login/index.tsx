@@ -57,14 +57,16 @@ const Login: React.FC = () => {
               <Input.Password prefix={<LockOutlined />} placeholder="密码" />
             </Form.Item>
 
-            <Form.Item>
+            <Form.Item style={{ marginBottom: 0 }}>
               <Button type="primary" htmlType="submit" loading={loading} block>
-                登录
+                登 录
               </Button>
             </Form.Item>
           </Form>
         </Card>
       </motion.div>
+
+      <div className="login-brand">NO DISTANCE CONNECTION</div>
     </motion.div>
   );
 };

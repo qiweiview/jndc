@@ -148,6 +148,8 @@ const ChannelList: React.FC = () => {
       title: '最后心跳',
       dataIndex: 'lastHeartbeat',
       key: 'lastHeartbeat',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
@@ -163,6 +165,8 @@ const ChannelList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
+      width: 180,
+      fixed: 'right' as const,
       render: (_, record) => (
         <Space>
           <Button
@@ -207,6 +211,8 @@ const ChannelList: React.FC = () => {
       title: '断开时间',
       dataIndex: 'disconnectTime',
       key: 'disconnectTime',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
@@ -251,6 +257,7 @@ const ChannelList: React.FC = () => {
                     rowKey="channelId"
                     loading={loading}
                     pagination={false}
+                    scroll={{ x: 900 }}
                   />
                 </Card>
               ),
@@ -274,6 +281,7 @@ const ChannelList: React.FC = () => {
                     columns={recordColumns}
                     dataSource={records}
                     rowKey="id"
+                    scroll={{ x: 600 }}
                     pagination={{
                       current: recordPage,
                       total: recordsTotal,

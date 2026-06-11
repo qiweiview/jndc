@@ -164,6 +164,7 @@ const PortList: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      ellipsis: true,
     },
     {
       title: '监听端口',
@@ -174,6 +175,7 @@ const PortList: React.FC = () => {
       title: '转发目标',
       dataIndex: 'routeTo',
       key: 'routeTo',
+      ellipsis: true,
       render: (text: string) => text || '-',
     },
     {
@@ -200,12 +202,15 @@ const PortList: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '操作',
       key: 'action',
-      width: 300,
+      width: 220,
+      fixed: 'right' as const,
       render: (_, record) => (
         <Space>
           {record.status === 0 ? (
@@ -296,6 +301,7 @@ const PortList: React.FC = () => {
             rowKey="id"
             loading={loading}
             pagination={false}
+            scroll={{ x: 900 }}
           />
         </Card>
       </motion.div>

@@ -199,6 +199,7 @@ const IpFilter: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      ellipsis: true,
     },
     {
       title: 'IP地址',
@@ -209,6 +210,8 @@ const IpFilter: React.FC = () => {
       title: '创建时间',
       dataIndex: 'createTime',
       key: 'createTime',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
@@ -233,6 +236,7 @@ const IpFilter: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      ellipsis: true,
     },
     {
       title: 'IP地址',
@@ -248,6 +252,8 @@ const IpFilter: React.FC = () => {
       title: '最后访问时间',
       dataIndex: 'lastAccessTime',
       key: 'lastAccessTime',
+      width: 180,
+      ellipsis: true,
       render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
   ];
