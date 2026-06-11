@@ -80,11 +80,7 @@ servicePort: 81 # jndc服务端运行监听端口
 bindIp: "127.0.0.1" # jndc服务端运行ip
 
 dbConfig:
-  type: "mysql" # 可选值：mysql和sqlite
-  #  type: "sqlite" # 可选值：mysql和sqlite
-  url: "jdbc:mysql://127.0.0.1:3306/jndc?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
-  name: "root"
-  password: "xxx"
+  flywayEnable: true # 是否启用数据库版本控制
 
 manageConfig: # 管理端api服务
   managementApiPort: 777 #管理api端口

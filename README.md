@@ -78,11 +78,7 @@ servicePort: 81 # jndc server running listening port
 bindIp: "127.0.0.1" # jndc server running ip
 
 dbConfig:
-  type: "mysql" # optional values: mysql and sqlite
-  # type: "sqlite" # optional values: mysql and sqlite
-  url: "jdbc:mysql://127.0.0.1:3306/jndc?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
-  name: "root"
-  password: "xxx"
+  flywayEnable: true # Whether to enable database version control
 
 manageConfig: # management-side api service
   managementApiPort: 777 #Management api port

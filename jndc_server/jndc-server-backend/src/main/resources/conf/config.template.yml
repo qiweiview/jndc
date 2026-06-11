@@ -16,11 +16,6 @@ bindIp: "127.0.0.1" # JNDC服务端绑定IP地址
 
 # 数据库配置
 dbConfig:
-  type: "mysql" # 数据库类型：mysql 或 sqlite
-  #type: "sqlite" # 使用sqlite数据库
-  url: "jdbc:mysql://localhost:3306/your_database?serverTimezone=Asia/Shanghai&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true"
-  name: "your_username" # 数据库用户名
-  password: "your_password" # 数据库密码
   flywayEnable: true # 是否启用数据库版本控制
 
 # 管理后台配置

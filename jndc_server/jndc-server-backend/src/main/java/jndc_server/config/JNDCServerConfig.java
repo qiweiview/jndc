@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.DataStoreAbstract;
-import jndc.core.data_store_support.MysqlDataStore;
 import jndc.core.data_store_support.SQLiteDataStore;
 import jndc.utils.*;
 import jndc.web_support.config.ServeHTTPConfig;
@@ -123,19 +122,10 @@ public class JNDCServerConfig {
         UniqueBeanManage.registerBean(mappingRegisterCenter);
 
         //数据存储组件
-        if (dbConfig.useMysql()) {
-            //todo 使用mysql存储
-            DataStoreAbstract mysqlDataStore = new MysqlDataStore(dbConfig.getUrl(), dbConfig.getName(), dbConfig.getPassword());
-            mysqlDataStore.init(dbConfig.isFlywayEnable());
-            UniqueBeanManage.registerBean(DataStoreAbstract.class, mysqlDataStore);
-            log.info("使用mysql数据库存储：" + dbConfig.getUrl());
-        } else {
-            //todo 使用sqlite存储
-            DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
-            sqLiteDataStore.init(dbConfig.isFlywayEnable());
-            UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
-            log.info("使用sqlite数据库存储");
-        }
+        DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
+        sqLiteDataStore.init(dbConfig.isFlywayEnable());
+        UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
+        log.info("使用sqlite数据库存储");
 
 
         //异步执行中心
