@@ -17,13 +17,11 @@ public abstract class DataStoreAbstract {
     private volatile boolean initialized = false;
 
 
-    public void init(boolean flyway) {
+    public void init() {
         if (!initialized) {
             synchronized (DataStoreAbstract.class) {
-                if (flyway) {
-                    flywayInit();
-                }
-
+                initTables();
+                initialized = true;
             }
         }
 
@@ -38,11 +36,9 @@ public abstract class DataStoreAbstract {
     public abstract Connection getConnection();
 
     /**
-     * 初始化flyway
-     *
-     * @return
+     * 初始化表
      */
-    public abstract void flywayInit();
+    public abstract void initTables();
 
     /**
      * 解析结果

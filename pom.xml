@@ -74,13 +74,6 @@
                 <version>8.0.10</version>
             </dependency>
 
-            <!--flyway-->
-            <dependency>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-core</artifactId>
-                <version>8.5.5</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>

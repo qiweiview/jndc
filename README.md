@@ -77,9 +77,6 @@ whiteList: # whitelist
 servicePort: 81 # jndc server running listening port
 bindIp: "127.0.0.1" # jndc server running ip
 
-dbConfig:
-  flywayEnable: true # Whether to enable database version control
-
 manageConfig: # management-side api service
   managementApiPort: 777 #Management api port
   useSsl: false # Whether to use ssl

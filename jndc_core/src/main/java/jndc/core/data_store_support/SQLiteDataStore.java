@@ -1,14 +1,13 @@
 package jndc.core.data_store_support;
 
 
-import jndc.utils.PathUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.Flyway;
 
-import java.io.File;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * for sqlite only
@@ -66,16 +65,28 @@ public class SQLiteDataStore extends DataStoreAbstract {
     }
 
     @Override
-    public void flywayInit() {
-        String p1 = System.getProperty("user.dir") + File.separator + ".." + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
-        String p2 = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "resources" + File.separator + "conf" + File.separator + "db" + File.separator + "migration_sqlite";
-        String devPath = "filesystem:" + PathUtils.findExistPath(p1, p2);
-        log.info("flyway 读取路径：" + devPath);
-        Flyway flyway = Flyway.configure()
-                .locations("classpath:db/migration_sqlite", devPath)
-                .baselineOnMigrate(true)
-                .dataSource(url, "", "")
-                .load();
-        flyway.migrate();
+    public void initTables() {
+        String resourcePath = "/db/init.sql";
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                log.error("未找到初始化脚本：" + resourcePath);
+                return;
+            }
+            String sql;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                sql = sb.toString();
+            }
+            try (Statement stmt = getConnection().createStatement()) {
+                stmt.execute(sql);
+            }
+            log.info("数据库表初始化完成");
+        } catch (Exception e) {
+            log.error("数据库表初始化失败：" + e.getMessage(), e);
+        }
     }
 }

@@ -66,9 +66,6 @@ public class JNDCServerConfig {
     //管理api配置
     private ServeManageConfig manageConfig;
 
-    //数据库配置
-    private DBConfig dbConfig;
-
     /* ------------非配置属性------------ */
 
 
@@ -123,7 +120,7 @@ public class JNDCServerConfig {
 
         //数据存储组件
         DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
-        sqLiteDataStore.init(dbConfig.isFlywayEnable());
+        sqLiteDataStore.init();
         UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
         log.info("使用sqlite数据库存储");
 

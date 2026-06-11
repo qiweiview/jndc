@@ -14,10 +14,6 @@ whiteList: # 允许访问的IP地址列表
 servicePort: 81 # JNDC服务端监听端口
 bindIp: "127.0.0.1" # JNDC服务端绑定IP地址
 
-# 数据库配置
-dbConfig:
-  flywayEnable: true # 是否启用数据库版本控制
-
 # 管理后台配置
 manageConfig:
   managementApiPort: 777 # 管理后台API服务端口

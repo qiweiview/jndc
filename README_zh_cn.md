@@ -79,9 +79,6 @@ whiteList: # 白名单
 servicePort: 81 # jndc服务端运行监听端口
 bindIp: "127.0.0.1" # jndc服务端运行ip
 
-dbConfig:
-  flywayEnable: true # 是否启用数据库版本控制
-
 manageConfig: # 管理端api服务
   managementApiPort: 777 #管理api端口
   useSsl: false # 是否使用ssl
