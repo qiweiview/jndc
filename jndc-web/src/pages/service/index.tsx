@@ -2,9 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Table, Card, Button, Space, Input, Tag } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
+import { motion } from 'framer-motion';
 import { serviceApi } from '../../api/service';
 import { ServiceDescription } from '../../types';
 import { wsClient } from '../../utils/websocket';
+import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 
 const ServiceList: React.FC = () => {
   const [services, setServices] = useState<ServiceDescription[]>([]);
@@ -74,31 +76,35 @@ const ServiceList: React.FC = () => {
   ];
 
   return (
-    <Card
-      title="服务注册信息"
-      extra={
-        <Space>
-          <Input
-            placeholder="搜索服务名、IP或客户端"
-            prefix={<SearchOutlined />}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 300 }}
+    <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
+      <motion.div variants={staggerItemVariants}>
+        <Card
+          title="服务注册信息"
+          extra={
+            <Space>
+              <Input
+                placeholder="搜索服务名、IP或客户端"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+              />
+              <Button icon={<ReloadOutlined />} onClick={fetchServices}>
+                刷新
+              </Button>
+            </Space>
+          }
+        >
+          <Table
+            columns={columns}
+            dataSource={filteredServices}
+            rowKey={(record) => `${record.clientId}-${record.serviceIp}-${record.servicePort}`}
+            loading={loading}
+            pagination={false}
           />
-          <Button icon={<ReloadOutlined />} onClick={fetchServices}>
-            刷新
-          </Button>
-        </Space>
-      }
-    >
-      <Table
-        columns={columns}
-        dataSource={filteredServices}
-        rowKey={(record) => `${record.clientId}-${record.serviceIp}-${record.servicePort}`}
-        loading={loading}
-        pagination={false}
-      />
-    </Card>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 

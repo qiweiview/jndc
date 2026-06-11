@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { authApi } from '../../api/auth';
 import { useAuthStore } from '../../stores/auth';
 import { LoginParams } from '../../types';
+import { slideUpVariants, fadeVariants } from '../../utils/motion';
 import './index.css';
 
 const Login: React.FC = () => {
@@ -27,36 +29,43 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <Card title="JNDC 管理系统" className="login-card">
-        <Form
-          name="login"
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          size="large"
-        >
-          <Form.Item
-            name="name"
-            rules={[{ required: true, message: '请输入用户名' }]}
+    <motion.div
+      className="login-container"
+      variants={fadeVariants}
+      initial="initial"
+      animate="animate"
+    >
+      <motion.div variants={slideUpVariants} initial="initial" animate="animate">
+        <Card title="JNDC 内网穿透管理系统" className="login-card">
+          <Form
+            name="login"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            size="large"
           >
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
-          </Form.Item>
+            <Form.Item
+              name="name"
+              rules={[{ required: true, message: '请输入用户名' }]}
+            >
+              <Input prefix={<UserOutlined />} placeholder="用户名" />
+            </Form.Item>
 
-          <Form.Item
-            name="passWord"
-            rules={[{ required: true, message: '请输入密码' }]}
-          >
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-          </Form.Item>
+            <Form.Item
+              name="passWord"
+              rules={[{ required: true, message: '请输入密码' }]}
+            >
+              <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              登录
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
-    </div>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading} block>
+                登录
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };
 

@@ -27,11 +27,19 @@ request.interceptors.request.use(
 request.interceptors.response.use(
   (response) => {
     const { data } = response;
-    if (data.code === 200 || data.code === 0) {
-      return data;
+    // 后端有两种返回格式：
+    // 1. 动作类接口返回 ResponseMessage: { code: 0, message: "操作成功", data: ... }
+    // 2. 列表类接口直接返回 PageListVO 或其他对象
+    if (data && typeof data === 'object' && 'code' in data) {
+      // ResponseMessage 格式
+      if (data.code === 0) {
+        return data.data;
+      }
+      message.error(data.message || '请求失败');
+      return Promise.reject(new Error(data.message || '请求失败'));
     }
-    message.error(data.message || '请求失败');
-    return Promise.reject(new Error(data.message || '请求失败'));
+    // 非 ResponseMessage 格式，直接返回数据
+    return data;
   },
   (error) => {
     if (error.response?.status === 401) {

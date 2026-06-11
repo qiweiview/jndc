@@ -5,18 +5,26 @@ export interface ApiResponse<T = unknown> {
   data: T;
 }
 
-// 分页请求
+// 分页请求（对应后端 PageDTO：page + rows）
 export interface PaginationParams {
   page: number;
-  pageSize: number;
+  rows: number;
 }
 
-// 分页响应
+// 分页响应（对应后端 PageListVO：{ page, rows, total, data }）
 export interface PaginationResult<T> {
   list: T[];
   total: number;
   page: number;
   pageSize: number;
+}
+
+// 后端 PageListVO 实际返回结构
+export interface PageListVO<T> {
+  page: number;
+  rows: number;
+  total: number;
+  data: T[];
 }
 
 // 登录相关

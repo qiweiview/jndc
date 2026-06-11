@@ -1,47 +1,80 @@
 .main-layout {
   min-height: 100vh;
+  background: var(--color-bg-layout);
 }
 
 .main-sider {
-  background: #001529;
+  background: var(--color-bg-container);
+  border-right: 1px solid var(--color-split);
+  box-shadow: none;
+  overflow-y: auto;
 }
 
 .logo {
-  height: 64px;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 24px;
-  font-weight: bold;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-primary);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border-bottom: 1px solid var(--color-split);
+  user-select: none;
 }
 
 .main-menu {
   border-right: none;
+  padding-top: 8px;
+}
+
+.main-menu .ant-menu-item {
+  margin: 4px 8px;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease-in-out;
+}
+
+.main-menu .ant-menu-item:hover {
+  background: #F5F8FF;
 }
 
 .main-header {
-  background: #fff;
+  background: var(--color-bg-container);
   padding: 0 24px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  height: var(--header-height);
+  line-height: var(--header-height);
+  border-bottom: 1px solid var(--color-split);
+  box-shadow: none;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
 }
 
 .header-content h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .main-content {
-  margin: 24px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 8px;
+  margin: var(--content-padding);
   min-height: 280px;
+}
+
+/* 内容区卡片样式 */
+.main-content .ant-card {
+  border-radius: var(--card-radius);
+  border: 1px solid var(--color-split);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .main-content {
+    margin: 16px;
+  }
 }

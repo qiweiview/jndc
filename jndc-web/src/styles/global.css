@@ -1,3 +1,35 @@
+:root {
+  /* Primary */
+  --color-primary: #3370FF;
+  --color-primary-hover: #4E83FD;
+  --color-primary-active: #245BDB;
+
+  /* Background */
+  --color-bg-layout: #F7F9FC;
+  --color-bg-container: #FFFFFF;
+
+  /* Text */
+  --color-text: #1F2329;
+  --color-text-secondary: #646A73;
+  --color-text-tertiary: #8F959E;
+
+  /* Border */
+  --color-border: #DEE0E3;
+  --color-split: #EFF0F1;
+
+  /* Status */
+  --color-success: #00B578;
+  --color-warning: #FFB020;
+  --color-error: #F54A45;
+
+  /* Layout */
+  --header-height: 56px;
+  --sider-width: 224px;
+  --content-padding: 24px;
+  --card-radius: 12px;
+  --border-radius: 8px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,8 +42,77 @@ body {
     'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text);
+  background: var(--color-bg-layout);
+  font-size: 14px;
+  line-height: 22px;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* 页面标题 */
+h1, .ant-card-head-title {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* 区块标题 */
+h2, h3 {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* 辅助说明文字 */
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--color-text-tertiary);
+}
+
+/* 全局 antd 覆盖 */
+.ant-btn {
+  border-radius: var(--border-radius);
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-picker {
+  border-radius: var(--border-radius) !important;
+}
+
+.ant-card {
+  border-radius: var(--card-radius);
+  border: 1px solid var(--color-split);
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600;
+}
+
+.ant-tag {
+  border-radius: 4px;
+}
+
+/* 动画辅助类 */
+.motion-fade-in {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

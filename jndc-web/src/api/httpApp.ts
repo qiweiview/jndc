@@ -4,13 +4,13 @@ import {
   SaveHostRouteParams,
   UpdateHostRouteParams,
   PaginationParams,
-  PaginationResult,
+  PageListVO,
 } from '../types';
 
 export const httpAppApi = {
   // 获取路由规则列表
   listHostRouteRule: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<HostRouteRule>>('/listHostRouteRule', params);
+    return request.post<any, PageListVO<HostRouteRule>>('/listHostRouteRule', params);
   },
 
   // 保存路由规则

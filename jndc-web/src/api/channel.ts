@@ -1,5 +1,5 @@
 import request from '../utils/request';
-import { ChannelContext, ChannelRecord, PaginationParams, PaginationResult } from '../types';
+import { ChannelContext, ChannelRecord, PaginationParams, PageListVO } from '../types';
 
 export const channelApi = {
   // 获取活跃隧道列表
@@ -9,7 +9,7 @@ export const channelApi = {
 
   // 获取隧道断开记录
   getChannelRecord: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<ChannelRecord>>('/getChannelRecord', params);
+    return request.post<any, PageListVO<ChannelRecord>>('/getChannelRecord', params);
   },
 
   // 清空隧道断开记录

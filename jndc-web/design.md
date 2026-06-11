@@ -2,7 +2,11 @@
 
 整体风格：蓝白色、清爽、克制、偏飞书/Lark 工作台风格。界面要轻、留白充足、信息层级清晰，避免厚重阴影、花哨渐变和高饱和装饰。
 
-技术基础：已引入 Ant Design，优先使用 antd 组件，不要重复造轮子。通过 ConfigProvider theme token 统一风格。Ant Design 支持通过 token 自定义主色、圆角、边框等主题变量。参考 antd 的 8px 栅格体系和 24 栅格布局。:contentReference[oaicite:0]{index=0}
+技术基础：
+- 已引入 Ant Design，优先使用 antd 组件，不要重复造轮子。
+- 已引入 motion 库（如 Framer Motion），用于轻量交互动画和过渡。
+- 通过 Ant Design ConfigProvider 统一主题 token，支持主题色、圆角、字体等。
+- 栅格与布局遵循 antd 8px/24格体系。
 
 主题色：
 - Primary：#3370FF
@@ -37,7 +41,7 @@
 - 不使用大面积渐变、不使用玻璃拟态、不使用霓虹色。
 
 字体：
-- 默认使用系统字体：-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial。
+- 默认系统字体：-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial。
 - 页面标题：20px / 28px，font-weight 600。
 - 区块标题：16px / 24px，font-weight 600。
 - 正文：14px / 22px。
@@ -54,13 +58,20 @@
 - Tag：低饱和浅底色，不要使用过多颜色。
 - Empty/Loading/Error：必须有友好状态，不留空白页。
 
-交互规范：
-- 所有可点击元素 hover 有轻微反馈。
+交互与动画规范：
+- 所有可点击元素 hover 有轻微反馈（颜色、阴影或缩放）。
 - 保存、删除、提交必须有 loading 状态。
 - 危险操作必须 Confirm。
 - 表单提交成功用 message.success，失败用 message.error。
 - 长流程优先使用 Drawer 或步骤条。
 - 数据为空时显示 Empty，并提供下一步操作。
+- Motion 动画原则：
+    - 出场、消失、状态切换使用轻量过渡（fade、slide、scale）。
+    - 动画持续时间短：0.2~0.4s。
+    - 动画 easing 使用缓入缓出曲线（ease-in-out）。
+    - 不要过度动画化页面内容，保持办公专业感。
+    - 列表、卡片、Drawer 弹出可加 stagger 过渡，但避免长延迟。
+    - 鼠标悬浮可用轻微缩放（scale 1.03~1.05）或渐变阴影。
 
 页面气质：
 - 像飞书一样“轻办公、可信赖、高效率”。
@@ -68,7 +79,7 @@
 - 优先清晰、安静、专业，而不是炫酷。
 - 蓝色只用于引导和关键状态，不要满屏蓝。
 
-Ant Design 主题示例：
+Ant Design + Motion 主题示例：
 
 const theme = {
 token: {
@@ -89,37 +100,26 @@ fontSize: 14,
 wireframe: false
 },
 components: {
-Button: {
-borderRadius: 8,
-controlHeight: 36
+Button: { borderRadius: 8, controlHeight: 36 },
+Input: { borderRadius: 8, controlHeight: 36 },
+Select: { borderRadius: 8, controlHeight: 36 },
+Card: { borderRadiusLG: 12, paddingLG: 24 },
+Table: { headerBg: '#F7F9FC', headerColor: '#1F2329', rowHoverBg: '#F5F8FF' },
+Menu: { itemSelectedBg: '#EAF1FF', itemSelectedColor: '#3370FF' }
 },
-Input: {
-borderRadius: 8,
-controlHeight: 36
-},
-Select: {
-borderRadius: 8,
-controlHeight: 36
-},
-Card: {
-borderRadiusLG: 12,
-paddingLG: 24
-},
-Table: {
-headerBg: '#F7F9FC',
-headerColor: '#1F2329',
-rowHoverBg: '#F5F8FF'
-},
-Menu: {
-itemSelectedBg: '#EAF1FF',
-itemSelectedColor: '#3370FF'
-}
+motion: {
+duration: 0.25,
+easing: 'easeInOut',
+fade: { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } },
+slideUp: { initial: { y: 20, opacity: 0 }, animate: { y: 0, opacity: 1 }, exit: { y: 20, opacity: 0 } },
+scaleHover: { hover: { scale: 1.03 } }
 }
 };
 
 输出要求：
 - 生成页面时必须遵守以上规范。
 - 优先复用 antd Layout、Menu、Card、Table、Form、Button、Drawer、Modal、Tag、Empty、Spin、Message。
+- 动画使用 motion 库，轻量、短时、易于用户理解。
 - 不要引入新的 UI 库。
 - CSS 要模块化，避免全局污染。
 - 设计结果应看起来像现代 SaaS/协作办公系统。

@@ -9,8 +9,10 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../stores/auth';
 import { wsClient } from '../../utils/websocket';
+import { fadeVariants, pageTransitionVariants } from '../../utils/motion';
 import './index.css';
 
 const { Header, Sider, Content } = Layout;
@@ -77,31 +79,55 @@ const MainLayout: React.FC = () => {
 
   return (
     <Layout className="main-layout">
-      <Sider width={200} className="main-sider">
-        <div className="logo">JNDC</div>
-        <Menu
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={handleMenuClick}
-          className="main-menu"
-        />
-      </Sider>
+      <motion.div
+        initial={{ x: -224, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        style={{ display: 'contents' }}
+      >
+        <Sider width={224} className="main-sider">
+          <div className="logo">JNDC</div>
+          <Menu
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={handleMenuClick}
+            className="main-menu"
+          />
+        </Sider>
+      </motion.div>
       <Layout>
-        <Header className="main-header">
-          <div className="header-content">
-            <h2>JNDC 内网穿透管理系统</h2>
-            <Button
-              type="text"
-              icon={<LogoutOutlined />}
-              onClick={handleLogout}
-            >
-              安全退出
-            </Button>
-          </div>
-        </Header>
+        <motion.div
+          variants={fadeVariants}
+          initial="initial"
+          animate="animate"
+          style={{ display: 'contents' }}
+        >
+          <Header className="main-header">
+            <div className="header-content">
+              <h2>JNDC 内网穿透管理系统</h2>
+              <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+              >
+                安全退出
+              </Button>
+            </div>
+          </Header>
+        </motion.div>
         <Content className="main-content">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              variants={pageTransitionVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </Content>
       </Layout>
     </Layout>

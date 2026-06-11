@@ -21,10 +21,12 @@ import {
   SearchOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
+import { motion } from 'framer-motion';
 import { httpAppApi } from '../../api/httpApp';
 import { portApi } from '../../api/port';
 import { HostRouteRule, ServerPortBind } from '../../types';
 import { wsClient } from '../../utils/websocket';
+import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
 
 const { TextArea } = Input;
@@ -50,9 +52,9 @@ const HttpApp: React.FC = () => {
   const fetchRules = useCallback(async (page: number = 1) => {
     setLoading(true);
     try {
-      const data = await httpAppApi.listHostRouteRule({ page, pageSize: 10 });
-      setRules(data.list);
-      setTotal(data.total);
+      const data = await httpAppApi.listHostRouteRule({ page, rows: 10 });
+      setRules(data?.data ?? []);
+      setTotal(data?.total ?? 0);
       setCurrentPage(page);
     } catch (error) {
       // Error handled by interceptor
@@ -203,44 +205,46 @@ const HttpApp: React.FC = () => {
   const routeType = Form.useWatch('routeType', form);
 
   return (
-    <>
-      <Card
-        title="HTTP应用 - 域名路由"
-        extra={
-          <Space>
-            <Input
-              placeholder="搜索域名或目标"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250 }}
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAdd}
-            >
-              添加路由
-            </Button>
-            <Button icon={<ReloadOutlined />} onClick={() => fetchRules(currentPage)}>
-              刷新
-            </Button>
-          </Space>
-        }
-      >
-        <Table
-          columns={columns}
-          dataSource={filteredRules}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: currentPage,
-            total,
-            pageSize: 10,
-            onChange: fetchRules,
-          }}
-        />
-      </Card>
+    <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
+      <motion.div variants={staggerItemVariants}>
+        <Card
+          title="HTTP应用 - 域名路由"
+          extra={
+            <Space>
+              <Input
+                placeholder="搜索域名或目标"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 250 }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAdd}
+              >
+                添加路由
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={() => fetchRules(currentPage)}>
+                刷新
+              </Button>
+            </Space>
+          }
+        >
+          <Table
+            columns={columns}
+            dataSource={filteredRules}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              current: currentPage,
+              total,
+              pageSize: 10,
+              onChange: fetchRules,
+            }}
+          />
+        </Card>
+      </motion.div>
 
       <Modal
         title={editingRule ? '编辑路由规则' : '添加路由规则'}
@@ -315,7 +319,7 @@ const HttpApp: React.FC = () => {
           )}
         </Form>
       </Modal>
-    </>
+    </motion.div>
   );
 };
 

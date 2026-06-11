@@ -18,9 +18,11 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
+import { motion } from 'framer-motion';
 import { channelApi } from '../../api/channel';
 import { ChannelContext, ChannelRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
+import { slideUpVariants, staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
 
 const ChannelList: React.FC = () => {
@@ -45,9 +47,9 @@ const ChannelList: React.FC = () => {
 
   const fetchRecords = useCallback(async (page: number = 1) => {
     try {
-      const data = await channelApi.getChannelRecord({ page, pageSize: 10 });
-      setRecords(data.list);
-      setRecordsTotal(data.total);
+      const data = await channelApi.getChannelRecord({ page, rows: 10 });
+      setRecords(data?.data ?? []);
+      setRecordsTotal(data?.total ?? 0);
       setRecordPage(page);
     } catch (error) {
       // Error handled by interceptor
@@ -215,75 +217,77 @@ const ChannelList: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Tabs
-        defaultActiveKey="active"
-        items={[
-          {
-            key: 'active',
-            label: '活跃隧道',
-            children: (
-              <Card
-                extra={
-                  <Space>
-                    <Input
-                      placeholder="搜索隧道ID或IP"
-                      prefix={<SearchOutlined />}
-                      value={searchText}
-                      onChange={(e) => setSearchText(e.target.value)}
-                      style={{ width: 250 }}
-                    />
+    <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
+      <motion.div variants={staggerItemVariants}>
+        <Tabs
+          defaultActiveKey="active"
+          items={[
+            {
+              key: 'active',
+              label: '活跃隧道',
+              children: (
+                <Card
+                  extra={
+                    <Space>
+                      <Input
+                        placeholder="搜索隧道ID或IP"
+                        prefix={<SearchOutlined />}
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{ width: 250 }}
+                      />
+                      <Button
+                        icon={<ReloadOutlined />}
+                        onClick={fetchChannels}
+                      >
+                        刷新
+                      </Button>
+                    </Space>
+                  }
+                >
+                  <Table
+                    columns={channelColumns}
+                    dataSource={filteredChannels}
+                    rowKey="channelId"
+                    loading={loading}
+                    pagination={false}
+                  />
+                </Card>
+              ),
+            },
+            {
+              key: 'history',
+              label: '断开记录',
+              children: (
+                <Card
+                  extra={
                     <Button
-                      icon={<ReloadOutlined />}
-                      onClick={fetchChannels}
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={handleClearRecords}
                     >
-                      刷新
+                      清空记录
                     </Button>
-                  </Space>
-                }
-              >
-                <Table
-                  columns={channelColumns}
-                  dataSource={filteredChannels}
-                  rowKey="channelId"
-                  loading={loading}
-                  pagination={false}
-                />
-              </Card>
-            ),
-          },
-          {
-            key: 'history',
-            label: '断开记录',
-            children: (
-              <Card
-                extra={
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={handleClearRecords}
-                  >
-                    清空记录
-                  </Button>
-                }
-              >
-                <Table
-                  columns={recordColumns}
-                  dataSource={records}
-                  rowKey="id"
-                  pagination={{
-                    current: recordPage,
-                    total: recordsTotal,
-                    pageSize: 10,
-                    onChange: fetchRecords,
-                  }}
-                />
-              </Card>
-            ),
-          },
-        ]}
-      />
-    </div>
+                  }
+                >
+                  <Table
+                    columns={recordColumns}
+                    dataSource={records}
+                    rowKey="id"
+                    pagination={{
+                      current: recordPage,
+                      total: recordsTotal,
+                      pageSize: 10,
+                      onChange: fetchRecords,
+                    }}
+                  />
+                </Card>
+              ),
+            },
+          ]}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

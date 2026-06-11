@@ -3,16 +3,42 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-bg-layout);
 }
 
 .login-card {
   width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--color-split);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.login-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .login-card .ant-card-head-title {
   text-align: center;
-  font-size: 24px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.login-card .ant-input-affix-wrapper {
+  border-radius: var(--border-radius);
+}
+
+.login-card .ant-btn-primary {
+  height: 40px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .login-card {
+    width: 90vw;
+    max-width: 400px;
+  }
 }

@@ -20,9 +20,11 @@ import {
   GlobalOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
+import { motion } from 'framer-motion';
 import { ipFilterApi } from '../../api/ipFilter';
 import { IpRule, IpRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
+import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
 
 const IpFilter: React.FC = () => {
@@ -45,9 +47,9 @@ const IpFilter: React.FC = () => {
   const fetchBlacklist = useCallback(async (page: number = 1) => {
     setLoading(true);
     try {
-      const data = await ipFilterApi.getBlackList({ page, pageSize: 10 });
-      setBlacklist(data.list);
-      setBlacklistTotal(data.total);
+      const data = await ipFilterApi.getBlackList({ page, rows: 10 });
+      setBlacklist(data?.data ?? []);
+      setBlacklistTotal(data?.total ?? 0);
     } catch (error) {
       // Error handled by interceptor
     } finally {
@@ -58,9 +60,9 @@ const IpFilter: React.FC = () => {
   const fetchWhitelist = useCallback(async (page: number = 1) => {
     setLoading(true);
     try {
-      const data = await ipFilterApi.getWhiteList({ page, pageSize: 10 });
-      setWhitelist(data.list);
-      setWhitelistTotal(data.total);
+      const data = await ipFilterApi.getWhiteList({ page, rows: 10 });
+      setWhitelist(data?.data ?? []);
+      setWhitelistTotal(data?.total ?? 0);
     } catch (error) {
       // Error handled by interceptor
     } finally {
@@ -70,9 +72,9 @@ const IpFilter: React.FC = () => {
 
   const fetchBlockRecords = useCallback(async (page: number = 1) => {
     try {
-      const data = await ipFilterApi.getBlockRecord({ page, pageSize: 10 });
-      setBlockRecords(data.list);
-      setBlockRecordsTotal(data.total);
+      const data = await ipFilterApi.getBlockRecord({ page, rows: 10 });
+      setBlockRecords(data?.data ?? []);
+      setBlockRecordsTotal(data?.total ?? 0);
     } catch (error) {
       // Error handled by interceptor
     }
@@ -80,9 +82,9 @@ const IpFilter: React.FC = () => {
 
   const fetchReleaseRecords = useCallback(async (page: number = 1) => {
     try {
-      const data = await ipFilterApi.getReleaseRecord({ page, pageSize: 10 });
-      setReleaseRecords(data.list);
-      setReleaseRecordsTotal(data.total);
+      const data = await ipFilterApi.getReleaseRecord({ page, rows: 10 });
+      setReleaseRecords(data?.data ?? []);
+      setReleaseRecordsTotal(data?.total ?? 0);
     } catch (error) {
       // Error handled by interceptor
     }
@@ -90,8 +92,8 @@ const IpFilter: React.FC = () => {
 
   const fetchCurrentIp = useCallback(async () => {
     try {
-      const ip = await ipFilterApi.getCurrentDeviceIp();
-      setCurrentDeviceIp(ip);
+      const res = await ipFilterApi.getCurrentDeviceIp();
+      if (res) setCurrentDeviceIp(typeof res === 'string' ? res : (res as any).ip ?? '');
     } catch (error) {
       // Error handled by interceptor
     }
@@ -149,7 +151,7 @@ const IpFilter: React.FC = () => {
     }
   };
 
-  const handleClearRecords = async (type: 'block' | 'release') => {
+  const handleClearRecords = () => {
     Modal.confirm({
       title: '清空记录',
       content: '选择清空方式',
@@ -165,15 +167,17 @@ const IpFilter: React.FC = () => {
           // Error handled by interceptor
         }
       },
-      onCancel: async () => {
-        try {
-          await ipFilterApi.clearIpRecord({});
-          message.success('已清空所有记录');
-          fetchBlockRecords();
-          fetchReleaseRecords();
-        } catch (error) {
-          // Error handled by interceptor
-        }
+      onCancel: () => {
+        ipFilterApi
+          .clearIpRecord({})
+          .then(() => {
+            message.success('已清空所有记录');
+            fetchBlockRecords();
+            fetchReleaseRecords();
+          })
+          .catch(() => {
+            // Error handled by interceptor
+          });
       },
     });
   };
@@ -249,140 +253,142 @@ const IpFilter: React.FC = () => {
   ];
 
   return (
-    <>
-      <Card
-        title="IP访问管控"
-        extra={
-          currentDeviceIp && (
-            <Space>
-              <span>当前设备IP: <Tag color="blue">{currentDeviceIp}</Tag></span>
-              <Button
-                icon={<GlobalOutlined />}
-                onClick={handleAddCurrentIpToWhitelist}
-              >
-                添加到白名单
-              </Button>
-            </Space>
-          )
-        }
-      >
-        <Tabs
-          defaultActiveKey="blacklist"
-          items={[
-            {
-              key: 'blacklist',
-              label: `黑名单 (${blacklistTotal})`,
-              children: (
-                <>
-                  <div style={{ marginBottom: 16 }}>
-                    <Button
-                      type="primary"
-                      danger
-                      icon={<PlusOutlined />}
-                      onClick={() => setAddBlackModalVisible(true)}
-                    >
-                      添加黑名单
-                    </Button>
-                  </div>
-                  <Table
-                    columns={ruleColumns}
-                    dataSource={blacklist}
-                    rowKey="id"
-                    loading={loading}
-                    pagination={{
-                      total: blacklistTotal,
-                      pageSize: 10,
-                      onChange: fetchBlacklist,
-                    }}
-                  />
-                </>
-              ),
-            },
-            {
-              key: 'whitelist',
-              label: `白名单 (${whitelistTotal})`,
-              children: (
-                <>
-                  <div style={{ marginBottom: 16 }}>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => setAddWhiteModalVisible(true)}
-                    >
-                      添加白名单
-                    </Button>
-                  </div>
-                  <Table
-                    columns={ruleColumns}
-                    dataSource={whitelist}
-                    rowKey="id"
-                    loading={loading}
-                    pagination={{
-                      total: whitelistTotal,
-                      pageSize: 10,
-                      onChange: fetchWhitelist,
-                    }}
-                  />
-                </>
-              ),
-            },
-            {
-              key: 'blocked',
-              label: `阻止记录 (${blockRecordsTotal})`,
-              children: (
-                <>
-                  <div style={{ marginBottom: 16 }}>
-                    <Button
-                      danger
-                      icon={<ClearOutlined />}
-                      onClick={() => handleClearRecords('block')}
-                    >
-                      清空记录
-                    </Button>
-                  </div>
-                  <Table
-                    columns={recordColumns}
-                    dataSource={blockRecords}
-                    rowKey="id"
-                    pagination={{
-                      total: blockRecordsTotal,
-                      pageSize: 10,
-                      onChange: fetchBlockRecords,
-                    }}
-                  />
-                </>
-              ),
-            },
-            {
-              key: 'released',
-              label: `允许记录 (${releaseRecordsTotal})`,
-              children: (
-                <>
-                  <div style={{ marginBottom: 16 }}>
-                    <Button
-                      danger
-                      icon={<ClearOutlined />}
-                      onClick={() => handleClearRecords('release')}
-                    >
-                      清空记录
-                    </Button>
-                  </div>
-                  <Table
-                    columns={recordColumns}
-                    dataSource={releaseRecords}
-                    rowKey="id"
-                    pagination={{
-                      total: releaseRecordsTotal,
-                      pageSize: 10,
-                      onChange: fetchReleaseRecords,
-                    }}
-                  />
-                </>
-              ),
-            },
-          ]}
-        />
-      </Card>
+    <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
+      <motion.div variants={staggerItemVariants}>
+        <Card
+          title="IP访问管控"
+          extra={
+            currentDeviceIp && (
+              <Space>
+                <span>当前设备IP: <Tag color="blue">{currentDeviceIp}</Tag></span>
+                <Button
+                  icon={<GlobalOutlined />}
+                  onClick={handleAddCurrentIpToWhitelist}
+                >
+                  添加到白名单
+                </Button>
+              </Space>
+            )
+          }
+        >
+          <Tabs
+            defaultActiveKey="blacklist"
+            items={[
+              {
+                key: 'blacklist',
+                label: `黑名单 (${blacklistTotal})`,
+                children: (
+                  <>
+                    <div style={{ marginBottom: 16 }}>
+                      <Button
+                        type="primary"
+                        danger
+                        icon={<PlusOutlined />}
+                        onClick={() => setAddBlackModalVisible(true)}
+                      >
+                        添加黑名单
+                      </Button>
+                    </div>
+                    <Table
+                      columns={ruleColumns}
+                      dataSource={blacklist}
+                      rowKey="id"
+                      loading={loading}
+                      pagination={{
+                        total: blacklistTotal,
+                        pageSize: 10,
+                        onChange: fetchBlacklist,
+                      }}
+                    />
+                  </>
+                ),
+              },
+              {
+                key: 'whitelist',
+                label: `白名单 (${whitelistTotal})`,
+                children: (
+                  <>
+                    <div style={{ marginBottom: 16 }}>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => setAddWhiteModalVisible(true)}
+                      >
+                        添加白名单
+                      </Button>
+                    </div>
+                    <Table
+                      columns={ruleColumns}
+                      dataSource={whitelist}
+                      rowKey="id"
+                      loading={loading}
+                      pagination={{
+                        total: whitelistTotal,
+                        pageSize: 10,
+                        onChange: fetchWhitelist,
+                      }}
+                    />
+                  </>
+                ),
+              },
+              {
+                key: 'blocked',
+                label: `阻止记录 (${blockRecordsTotal})`,
+                children: (
+                  <>
+                    <div style={{ marginBottom: 16 }}>
+                      <Button
+                        danger
+                        icon={<ClearOutlined />}
+                        onClick={() => handleClearRecords()}
+                      >
+                        清空记录
+                      </Button>
+                    </div>
+                    <Table
+                      columns={recordColumns}
+                      dataSource={blockRecords}
+                      rowKey="id"
+                      pagination={{
+                        total: blockRecordsTotal,
+                        pageSize: 10,
+                        onChange: fetchBlockRecords,
+                      }}
+                    />
+                  </>
+                ),
+              },
+              {
+                key: 'released',
+                label: `允许记录 (${releaseRecordsTotal})`,
+                children: (
+                  <>
+                    <div style={{ marginBottom: 16 }}>
+                      <Button
+                        danger
+                        icon={<ClearOutlined />}
+                        onClick={() => handleClearRecords()}
+                      >
+                        清空记录
+                      </Button>
+                    </div>
+                    <Table
+                      columns={recordColumns}
+                      dataSource={releaseRecords}
+                      rowKey="id"
+                      pagination={{
+                        total: releaseRecordsTotal,
+                        pageSize: 10,
+                        onChange: fetchReleaseRecords,
+                      }}
+                    />
+                  </>
+                ),
+              },
+            ]}
+          />
+        </Card>
+      </motion.div>
 
       {/* Add Blacklist Modal */}
       <Modal
@@ -425,7 +431,7 @@ const IpFilter: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </motion.div>
   );
 };
 

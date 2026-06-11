@@ -1,15 +1,15 @@
 import request from '../utils/request';
-import { IpRule, IpRecord, PaginationParams, PaginationResult, ClearIpRecordParams } from '../types';
+import { IpRule, IpRecord, PaginationParams, PageListVO, ClearIpRecordParams } from '../types';
 
 export const ipFilterApi = {
   // 获取黑名单
   getBlackList: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<IpRule>>('/blackList', params);
+    return request.post<any, PageListVO<IpRule>>('/blackList', params);
   },
 
   // 获取白名单
   getWhiteList: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<IpRule>>('/whiteList', params);
+    return request.post<any, PageListVO<IpRule>>('/whiteList', params);
   },
 
   // 添加到黑名单
@@ -29,12 +29,12 @@ export const ipFilterApi = {
 
   // 获取被阻止记录
   getBlockRecord: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<IpRecord>>('/blockRecord', params);
+    return request.post<any, PageListVO<IpRecord>>('/blockRecord', params);
   },
 
   // 获取被允许记录
   getReleaseRecord: (params: PaginationParams) => {
-    return request.post<any, PaginationResult<IpRecord>>('/releaseRecord', params);
+    return request.post<any, PageListVO<IpRecord>>('/releaseRecord', params);
   },
 
   // 清空 IP 记录

@@ -17,17 +17,17 @@ import {
   ReloadOutlined,
   PlusOutlined,
   SearchOutlined,
-  PlayCircleOutlined,
   PauseCircleOutlined,
   DeleteOutlined,
   LinkOutlined,
-  DisconnectOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
+import { motion } from 'framer-motion';
 import { portApi } from '../../api/port';
 import { serviceApi } from '../../api/service';
 import { ServerPortBind, ServiceDescription } from '../../types';
 import { wsClient } from '../../utils/websocket';
+import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
 
 const PortList: React.FC = () => {
@@ -264,39 +264,41 @@ const PortList: React.FC = () => {
   ];
 
   return (
-    <>
-      <Card
-        title="端口监听"
-        extra={
-          <Space>
-            <Input
-              placeholder="搜索端口或转发目标"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 250 }}
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateModalVisible(true)}
-            >
-              添加端口
-            </Button>
-            <Button icon={<ReloadOutlined />} onClick={fetchPorts}>
-              刷新
-            </Button>
-          </Space>
-        }
-      >
-        <Table
-          columns={columns}
-          dataSource={filteredPorts}
-          rowKey="id"
-          loading={loading}
-          pagination={false}
-        />
-      </Card>
+    <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
+      <motion.div variants={staggerItemVariants}>
+        <Card
+          title="端口监听"
+          extra={
+            <Space>
+              <Input
+                placeholder="搜索端口或转发目标"
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 250 }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setCreateModalVisible(true)}
+              >
+                添加端口
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={fetchPorts}>
+                刷新
+              </Button>
+            </Space>
+          }
+        >
+          <Table
+            columns={columns}
+            dataSource={filteredPorts}
+            rowKey="id"
+            loading={loading}
+            pagination={false}
+          />
+        </Card>
+      </motion.div>
 
       {/* Create Modal */}
       <Modal
@@ -372,7 +374,7 @@ const PortList: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </motion.div>
   );
 };
 
