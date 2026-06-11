@@ -2,12 +2,10 @@
 
 ### 常用指令
 ```bash
+
+# jdk8
+/Users/liuqiwei/data/jdk1.8.0/Contents/Home/bin/java
+
 # maven
 /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn
-
-# mysql
-/opt/homebrew/opt/mysql-client/bin/mysql -uroot -pwdwdwd -h 127.0.0.1 -P 3306
-
-# redis
-/opt/homebrew/bin/redis-cli -h 127.0.0.1 -p 16380 -a qAkctTgqsQVRwkKmy0
 ```
