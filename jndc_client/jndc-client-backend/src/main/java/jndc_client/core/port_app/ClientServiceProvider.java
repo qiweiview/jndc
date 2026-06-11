@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,36 +54,39 @@ public class ClientServiceProvider implements Serializable {
         InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
 
-        //哈希表路由
-        String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
-        ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
-        if (clientTCPDataHandle == null) {
-
-            log.debug("start local netty client for:" + client);
-            //block create
-            clientTCPDataHandle = startInnerBootstrap(ndcMessageProtocol);
-            faceTCPMap.put(client, clientTCPDataHandle);
-        }
-
         //can replace with Arrays.compare in jdk 9
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
-            //todo ignore active message
-
             log.debug("get active message");
             return;
         }
 
-        clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
+        //哈希表路由
+        String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
+        ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
+        if (clientTCPDataHandle == null) {
+            log.debug("start local netty client for:" + client);
+            // 异步创建本地连接，数据在连接建立后自动发送
+            startInnerBootstrap(ndcMessageProtocol, client);
+            return;
+        }
 
+        // 连接已就绪，直接发送数据
+        if (clientTCPDataHandle.getChannelHandlerContext() != null) {
+            clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
+        } else {
+            // 连接尚未建立完成，数据丢弃（极端竞态场景）
+            log.warn("本地连接尚未就绪，丢弃数据: " + client);
+        }
     }
 
 
     /**
-     * start a netty client to localApp
+     * 异步启动本地连接，连接成功后自动发送首条数据
      *
-     * @return
+     * @param ndcMessageProtocol 首条待发送的消息
+     * @param clientTag          连接标识
      */
-    private ClientTCPDataHandle startInnerBootstrap(NDCMessageProtocol ndcMessageProtocol) {
+    private void startInnerBootstrap(NDCMessageProtocol ndcMessageProtocol, String clientTag) {
         ClientTCPDataHandle clientTCPDataHandle = new ClientTCPDataHandle(ndcMessageProtocol);
 
         Bootstrap b = new Bootstrap();
@@ -93,22 +98,31 @@ public class ClientServiceProvider implements Serializable {
             }
         };
 
-        b.group(eventLoopGroup)//much client use the same EventLoopGroup
-                .channel(NioSocketChannel.class)//
+        b.group(eventLoopGroup)
+                .channel(NioSocketChannel.class)
                 .handler(channelInitializer);
 
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(serviceIp);
         InetSocketAddress inetSocketAddress = new InetSocketAddress(byStringIpAddress, port);
         ChannelFuture connect = b.connect(inetSocketAddress);
 
-        try {
-            connect.sync();
-            log.debug("local app connect success " + byStringIpAddress + ":" + port);
-        } catch (InterruptedException e) {
-            log.error("connect to " + inetSocketAddress + "fail cause" + e);
-        }
+        // 预注册到 map，避免重复创建
+        faceTCPMap.put(clientTag, clientTCPDataHandle);
 
-        return clientTCPDataHandle;
+        connect.addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                log.debug("local app connect success " + byStringIpAddress + ":" + port);
+                // 连接成功，发送首条数据
+                if (!Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
+                    clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
+                }
+            } else {
+                log.error("connect to " + inetSocketAddress + " fail: " + future.cause());
+                // 连接失败，清理 handle
+                faceTCPMap.remove(clientTag);
+                clientTCPDataHandle.releaseRelatedResources();
+            }
+        });
     }
 
 
@@ -116,7 +130,7 @@ public class ClientServiceProvider implements Serializable {
      * 中断所有本地连接
      */
     public void releaseAllRelatedResources() {
-        synchronized (ClientServiceProvider.class) {
+        synchronized (this) {
             faceTCPMap.forEach((k, v) -> {
                 v.releaseRelatedResources();
             });

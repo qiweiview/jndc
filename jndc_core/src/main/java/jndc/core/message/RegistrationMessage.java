@@ -29,6 +29,9 @@ public class RegistrationMessage implements Serializable {
     //客户端唯一编号
     private String channelId;
 
+    public RegistrationMessage() {
+    }
+
     public RegistrationMessage(byte type) {
         this.type = type;
     }

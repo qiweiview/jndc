@@ -31,10 +31,14 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
     private ChannelHandlerContext channelHandlerContext;//A client  holds only one tunnel
 
 
-    private volatile AtomicBoolean connectionToServerState = new AtomicBoolean(false);
+    private AtomicBoolean connectionToServerState = new AtomicBoolean(false);
 
     @Override
     public void addMessageToSendQueue(NDCMessageProtocol ndcMessageProtocol) {
+        if (channelHandlerContext == null) {
+            log.warn("隧道未建立，丢弃待发送消息 type=0x" + Integer.toHexString(ndcMessageProtocol.getType() & 0xFF));
+            return;
+        }
         channelHandlerContext.writeAndFlush(ndcMessageProtocol);
     }
 

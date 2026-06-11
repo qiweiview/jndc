@@ -214,16 +214,14 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         InetAddress unused = InetAddress.getLocalHost();
 
         //use the message with id
-        final NDCMessageProtocol tqs = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
-        byte[] bytes = ObjectSerializableUtils.object2bytes(object);
+        final byte[] bytes = ObjectSerializableUtils.object2bytes(object);
 
-
-        //use the message from server as  heartbeat request message
+        //use the message from server as heartbeat request message（每次创建新消息，避免复用同一对象）
         EventLoop eventExecutors = channelHandlerContext.channel().eventLoop();
         eventExecutors.scheduleWithFixedDelay(() -> {
-            //todo 心跳
-            tqs.setData(bytes);//necessary
-            jndcClientConfigCenter.addMessageToSendQueue(tqs);
+            NDCMessageProtocol heartBeat = NDCMessageProtocol.of(unused, unused, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.UN_USED_PORT, NDCMessageProtocol.CHANNEL_HEART_BEAT);
+            heartBeat.setData(bytes);
+            jndcClientConfigCenter.addMessageToSendQueue(heartBeat);
         }, 0, 60, TimeUnit.SECONDS);
 
         log.info("准备启动服务注册...");
@@ -236,85 +234,63 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         byte type = ndcMessageProtocol.getType();
 
         try {
+            switch (type) {
+                case NDCMessageProtocol.CHANNEL_HEART_BEAT:
+                    log.debug("get heart beat from server");
+                    break;
 
+                case NDCMessageProtocol.TCP_DATA:
+                    log.debug("get tcp data from server: " + ndcMessageProtocol);
+                    UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToReceiveQueue(ndcMessageProtocol);
+                    break;
 
-            if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
-                //todo CHANNEL_HEART_BEAT
-                //just accept
-                log.info("get heart beat from server");
+                case NDCMessageProtocol.TCP_ACTIVE:
+                    log.debug("get active from server: " + ndcMessageProtocol);
+                    UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToReceiveQueue(ndcMessageProtocol);
+                    break;
 
+                case NDCMessageProtocol.OPEN_CHANNEL:
+                    handleOpenChannelResponse(channelHandlerContext, ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.SERVICE_REGISTER:
+                    log.warn("unexpected register message from server");
+                    break;
+
+                case NDCMessageProtocol.SERVICE_UNREGISTER:
+                    log.info("unregister success");
+                    break;
+
+                case NDCMessageProtocol.CONNECTION_INTERRUPTED:
+                    log.debug("interrupt connection " + ndcMessageProtocol);
+                    UniqueBeanManage.getBean(JNDCClientConfigCenter.class).shutDownClientServiceProvider(ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.NO_ACCESS:
+                    reConnectTag = false;
+                    channelHandlerContext.close();
+                    log.error("连接密码错误，关闭连接");
+                    break;
+
+                case NDCMessageProtocol.USER_ERROR:
+                    UserError userError = ndcMessageProtocol.getObject(UserError.class);
+                    if (userError.getDescription() != null && userError.getDescription().startsWith("Ip Address Rule")) {
+                        log.error(userError.getDescription());
+                        reConnectTag = false;
+                        channelHandlerContext.close();
+                        break;
+                    }
+                    log.error(userError.toString());
+                    break;
+
+                case NDCMessageProtocol.UN_CATCHABLE_ERROR:
+                    log.error(new String(ndcMessageProtocol.getData()));
+                    break;
+
+                default:
+                    log.warn("收到未知消息类型: 0x" + Integer.toHexString(type & 0xFF) + "，拒绝处理");
+                    break;
             }
-
-            if (type == NDCMessageProtocol.TCP_DATA) {
-                //todo TCP_DATA
-                log.debug("get tcp data from server: " + ndcMessageProtocol);
-                JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                bean.addMessageToReceiveQueue(ndcMessageProtocol);
-                return;
-            }
-
-
-            if (type == NDCMessageProtocol.TCP_ACTIVE) {
-                //todo TCP_ACTIVE
-                log.debug("get active from server: " + ndcMessageProtocol);
-                JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                bean.addMessageToReceiveQueue(ndcMessageProtocol);
-                return;
-            }
-
-
-            if (type == NDCMessageProtocol.OPEN_CHANNEL) {
-                //todo OPEN_CHANNEL
-                handleOpenChannelResponse(channelHandlerContext, ndcMessageProtocol);
-            }
-
-
-            if (type == NDCMessageProtocol.SERVICE_REGISTER) {
-                //todo SERVICE_REGISTER
-
-                log.info("not expect get  a register message from server");
-
-            }
-
-            if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
-                //todo SERVICE_UNREGISTER
-                log.info("unregister success");
-            }
-
-            /* ================================== CONNECTION_INTERRUPTED ================================== */
-            if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
-                //todo CONNECTION_INTERRUPTED 连接由服务端中断
-                log.debug("interrupt  connection " + ndcMessageProtocol);
-                JNDCClientConfigCenter bean = UniqueBeanManage.getBean(JNDCClientConfigCenter.class);
-                bean.shutDownClientServiceProvider(ndcMessageProtocol);
-                return;
-            }
-
-            if (type == NDCMessageProtocol.NO_ACCESS) {
-                //todo NO_ACCESS
-                reConnectTag = false;//not restart
-                channelHandlerContext.close();
-                log.error("连接密码错误...");
-                System.exit(1);
-            }
-
-            if (type == NDCMessageProtocol.USER_ERROR) {
-                //todo USER_ERROR
-                UserError userError = ndcMessageProtocol.getObject(UserError.class);
-                if (userError.getDescription() != null && userError.getDescription().startsWith("Ip Address Rule")) {
-                    log.error(userError.getDescription());
-                    System.exit(1);
-                }
-                log.error(userError.toString());
-                return;
-            }
-
-            if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
-                //todo UN_CATCHABLE_ERROR
-                log.error(new String(ndcMessageProtocol.getData()));
-                return;
-            }
-
         } catch (Exception e) {
             NDCMessageProtocol copy = ndcMessageProtocol.copy();
             copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
@@ -323,8 +299,6 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             e.printStackTrace();
             log.error(type + ": client get a unCatchable Error:" + e);
         }
-
-
     }
 
 
@@ -341,17 +315,17 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable cause) throws Exception {
-        if (cause instanceof DecoderException) {
-            if (cause.getCause() instanceof SecreteDecodeFailException) {
-                //todo auth fail
-                JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
-                log.error("密钥\"" + clientConfig.getSecrete() + "\"错误，请与密钥提供者确认,程序即将退出...");
-                ApplicationExit.exit();
-
-            }
-            channelHandlerContext.close();
-            log.error("unCatchable client error：" + cause.getMessage());
+        if (cause instanceof DecoderException && cause.getCause() instanceof SecreteDecodeFailException) {
+            // 密钥错误，不可恢复
+            JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+            log.error("密钥\"" + clientConfig.getSecrete() + "\"错误，请与密钥提供者确认,程序即将退出...");
+            ApplicationExit.exit();
+            return;
         }
+
+        // 其他异常：关闭连接，触发重连
+        channelHandlerContext.close();
+        log.error("unCatchable client error：" + cause.getMessage());
     }
 
 }

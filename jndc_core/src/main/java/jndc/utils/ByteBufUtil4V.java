@@ -6,9 +6,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
 public class ByteBufUtil4V {
-    public static  byte[] readWithRelease( ByteBuf byteBuf){
+    public static byte[] readWithRelease(ByteBuf byteBuf) {
         byte[] bytes = ByteBufUtil.getBytes(byteBuf);
-        byteBuf.discardReadBytes();
         byteBuf.release();
         return bytes;
     }

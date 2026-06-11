@@ -203,6 +203,11 @@ public class NDCMessageProtocol {
 
         int dataSize = HexUtils.byteArray2Int(Arrays.copyOfRange(bytes, 25, FIX_LENGTH));
 
+        // 防御：拒绝负数或超过最大单包长度的 dataSize
+        if (dataSize < 0 || dataSize > AUTO_UNPACK_LENGTH) {
+            throw new RuntimeException("invalid dataSize: " + dataSize);
+        }
+
         NDCMessageProtocol NDCMessageProtocol = new NDCMessageProtocol();
         NDCMessageProtocol.setVersion(version);
         NDCMessageProtocol.setType(type);

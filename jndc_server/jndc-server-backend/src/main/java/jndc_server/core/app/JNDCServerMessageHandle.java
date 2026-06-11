@@ -100,9 +100,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
      *
      * @param message
      * @param tokenFromRequest
+     * @param ctx 连接上下文，认证失败时用于关闭连接
      * @return
      */
-    private NDCMessageProtocol authCheck(NDCMessageProtocol message, String tokenFromRequest) {
+    private NDCMessageProtocol authCheck(NDCMessageProtocol message, String tokenFromRequest, ChannelHandlerContext ctx) {
         JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         String secrete = jndcServerConfig.getSecrete();
 
@@ -113,6 +114,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             byte[] bytes = ObjectSerializableUtils.object2bytes(userError);
             message.setData(bytes);
             log.error("auth fail with:" + tokenFromRequest);
+            ctx.writeAndFlush(message);
+            ctx.close();
             return message;
         }
         return null;
@@ -132,9 +135,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         /* ------------------鉴权验证----------------------- */
         RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
         String auth = registrationMessage.getAuth();
-        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        NDCMessageProtocol checkResult = authCheck(copy, auth, channelHandlerContext);
         if (checkResult != null) {
-            channelHandlerContext.writeAndFlush(copy);
             return;
         }
         /* ------------------鉴权验证----------------------- */
@@ -167,9 +169,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         /*-------------- 安全验证 -------------- */
         RegistrationMessage registrationMessage = ndcMessageProtocol.getObject(RegistrationMessage.class);
         String auth = registrationMessage.getAuth();
-        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        NDCMessageProtocol checkResult = authCheck(copy, auth, channelHandlerContext);
         if (checkResult != null) {
-            channelHandlerContext.writeAndFlush(copy);
             return;
         }
         /*-------------- 安全验证 -------------- */
@@ -223,10 +224,9 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         /* -------------------- 鉴权 -------------------- */
         OpenChannelMessage openChannelMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
         String auth = openChannelMessage.getAuth();
-        NDCMessageProtocol checkResult = authCheck(copy, auth);
+        NDCMessageProtocol checkResult = authCheck(copy, auth, channelHandlerContext);
         if (checkResult != null) {
             //todo auth check fail
-            channelHandlerContext.writeAndFlush(copy);
             return;
         }
         /* -------------------- 鉴权 -------------------- */
@@ -273,79 +273,61 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol) throws Exception {
         byte type = ndcMessageProtocol.getType();
 
-
         try {
-            /*==================================== CHANNEL_HEART_BEAT ====================================*/
-            if (type == NDCMessageProtocol.CHANNEL_HEART_BEAT) {
-                //todo CHANNEL_HEART_BEAT
-                //just accept
-                log.debug("get heart beat");
+            switch (type) {
+                case NDCMessageProtocol.CHANNEL_HEART_BEAT:
+                    log.debug("get heart beat");
+                    OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
+                    handleHeartBeatFromClient(registrationMessage);
+                    break;
 
-                OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
-                handleHeartBeatFromClient(registrationMessage);
+                case NDCMessageProtocol.TCP_DATA:
+                    NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+                    ndcServerConfigCenter.addMessageToReceiveQueue(ndcMessageProtocol);
+                    break;
 
+                case NDCMessageProtocol.OPEN_CHANNEL:
+                    log.debug("注册隧道...");
+                    handleOpenChannel(channelHandlerContext, ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.SERVICE_REGISTER:
+                    handleRegisterService(channelHandlerContext, ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.SERVICE_UNREGISTER:
+                    handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.CONNECTION_INTERRUPTED:
+                    NDCServerConfigCenter configCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+                    configCenter.connectionInterrupt(ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.NO_ACCESS:
+                    log.debug(new String(ndcMessageProtocol.getData()));
+                    break;
+
+                case NDCMessageProtocol.USER_ERROR:
+                    log.error(new String(ndcMessageProtocol.getData()));
+                    break;
+
+                case NDCMessageProtocol.UN_CATCHABLE_ERROR:
+                    log.error(new String(ndcMessageProtocol.getData()));
+                    break;
+
+                default:
+                    // 拒绝未知消息类型
+                    log.warn("收到未知消息类型: 0x" + Integer.toHexString(type & 0xFF) + "，拒绝处理");
+                    UserError unknownTypeError = new UserError();
+                    unknownTypeError.setCode(UserError.SERVER_ERROR);
+                    unknownTypeError.setDescription("Unknown message type: 0x" + Integer.toHexString(type & 0xFF));
+                    NDCMessageProtocol errResponse = ndcMessageProtocol.copy();
+                    errResponse.setType(NDCMessageProtocol.USER_ERROR);
+                    errResponse.setData(ObjectSerializableUtils.object2bytes(unknownTypeError));
+                    channelHandlerContext.writeAndFlush(errResponse);
+                    break;
             }
-
-            /*==================================== TCP_DATA ====================================*/
-            if (type == NDCMessageProtocol.TCP_DATA) {
-                //todo TCP_DATA
-                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-                ndcServerConfigCenter.addMessageToReceiveQueue(ndcMessageProtocol);
-            }
-
-            /*==================================== 打开通道 ====================================*/
-            if (type == NDCMessageProtocol.OPEN_CHANNEL) {
-                //todo  打开通道
-                log.debug("注册隧道...");
-                handleOpenChannel(channelHandlerContext, ndcMessageProtocol);
-            }
-
-            /*==================================== SERVICE_REGISTER ====================================*/
-            if (type == NDCMessageProtocol.SERVICE_REGISTER) {
-                //todo SERVICE_REGISTER 处理服务注册消息
-                handleRegisterService(channelHandlerContext, ndcMessageProtocol);
-            }
-
-
-            /*==================================== SERVICE_UNREGISTER ====================================*/
-            if (type == NDCMessageProtocol.SERVICE_UNREGISTER) {
-                //todo SERVICE_UNREGISTER 服务取消注册消息
-                handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
-
-//                //消息通知中心
-//                MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-//                log.debug("推送关闭刷新");
-//                messageNotificationCenter.dateRefreshMessage("serviceList");//notice the service list refresh
-            }
-
-            /*==================================== CONNECTION_INTERRUPTED ====================================*/
-            if (type == NDCMessageProtocol.CONNECTION_INTERRUPTED) {
-                //todo CONNECTION_INTERRUPTED
-                NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
-                ndcServerConfigCenter.connectionInterrupt(ndcMessageProtocol);
-
-
-            }
-
-            /*==================================== NO_ACCESS ====================================*/
-            if (type == NDCMessageProtocol.NO_ACCESS) {
-                //todo NO_ACCESS
-                log.debug(new String(ndcMessageProtocol.getData()));
-            }
-
-            /*==================================== USER_ERROR ====================================*/
-            if (type == NDCMessageProtocol.USER_ERROR) {
-                //todo USER_ERROR
-                log.error(new String(ndcMessageProtocol.getData()));
-
-            }
-
-            /*==================================== UN_CATCHABLE_ERROR ====================================*/
-            if (type == NDCMessageProtocol.UN_CATCHABLE_ERROR) {
-                //todo UN_CATCHABLE_ERROR
-                log.error(new String(ndcMessageProtocol.getData()));
-            }
-
         } catch (Exception e) {
             log.error("unCatchableError--> " + e);
             ndcMessageProtocol.setType(NDCMessageProtocol.USER_ERROR);
@@ -355,8 +337,6 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             ndcMessageProtocol.setData(bytes);
             channelHandlerContext.writeAndFlush(ndcMessageProtocol);
         }
-
-
     }
 
 

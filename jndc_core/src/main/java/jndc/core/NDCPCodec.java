@@ -4,12 +4,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.util.ResourceLeakDetector;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * 接编码器
  */
+@Slf4j
 public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
 
     public static final String NAME="NDC";
@@ -41,12 +43,16 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
                 //todo 固定长度获取完成
                 byte[] bytes = new byte[NDCMessageProtocol.FIX_LENGTH];
                 byteBuf.readBytes(bytes);
-                ndcMessageProtocol = NDCMessageProtocol.parseFixInfo(bytes);//解析定长信息
+                try {
+                    ndcMessageProtocol = NDCMessageProtocol.parseFixInfo(bytes);//解析定长信息
+                } catch (RuntimeException e) {
+                    log.error("协议头解析失败: " + e.getMessage());
+                    channelHandlerContext.close();
+                    return;
+                }
                 if (ndcMessageProtocol.getDataSize() == 0) {
                     list.add(ndcMessageProtocol);
                     ndcMessageProtocol=null;
-                    //丢弃已读字节
-                    byteBuf.discardReadBytes();
                 }
             }else {
                 //todo 固定长度未获取完成
@@ -54,6 +60,15 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
         }else {
             //todo 获取到固定长度
             int dataSize = ndcMessageProtocol.getDataSize();//获取变长报文长度
+
+            // 防御：dataSize 为负数或超过最大单包长度时，视为协议异常，关闭连接
+            if (dataSize < 0 || dataSize > NDCMessageProtocol.AUTO_UNPACK_LENGTH) {
+                log.error("协议异常：dataSize 超限 dataSize=" + dataSize);
+                ndcMessageProtocol = null;
+                channelHandlerContext.close();
+                return;
+            }
+
             if (i >= dataSize) {
                 //todo 获取到足够动态长度
                 byte[] bytes = new byte[dataSize];
@@ -61,9 +76,6 @@ public class NDCPCodec extends ByteToMessageCodec<NDCMessageProtocol> {
                 ndcMessageProtocol.setDataWithVerification(bytes);
                 list.add(ndcMessageProtocol);
                 ndcMessageProtocol = null;
-
-                //丢弃已读字节
-                byteBuf.discardReadBytes();
             }else {
                 //todo 未获取到足够动态长度
             }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -41,8 +42,8 @@ public class ChannelHandlerContextHolder {
     //隧道上下文
     private ChannelHandlerContext channelHandlerContext;
 
-    //上下文中，注册的服务集合
-    private List<ServerServiceDescription> tcpServiceDescriptions = new ArrayList<>();
+    //上下文中，注册的服务集合（线程安全）
+    private List<ServerServiceDescription> tcpServiceDescriptions = new CopyOnWriteArrayList<>();
 
     /**
      * 构造 隧道上下文描述对象
@@ -61,28 +62,30 @@ public class ChannelHandlerContextHolder {
             return;
         }
 
+        released = true;
 
         //获取断开隧道标识
         String fingerprintFromContext = NettyContextUtils.getFingerprintFromContext(channelHandlerContext);
 
+        // 先复制引用再清空，防止并发访问
+        List<ServerServiceDescription> services = this.tcpServiceDescriptions;
+        ChannelHandlerContext ctx = this.channelHandlerContext;
 
-        if (tcpServiceDescriptions != null) {
-            tcpServiceDescriptions.forEach(x -> {
+        if (services != null) {
+            services.forEach(x -> {
                 //检测释放服务
                 x.releaseRelatedResourcesWithCheck(fingerprintFromContext);
             });
         }
 
         //关闭上下文
-        channelHandlerContext.close();
+        if (ctx != null) {
+            ctx.close();
+        }
 
-        //释放对象
-        channelHandlerContext = null;
-        tcpServiceDescriptions = null;
-
-
-        released = true;
-
+        //释放引用
+        this.channelHandlerContext = null;
+        this.tcpServiceDescriptions = null;
     }
 
     public String getFingerprint() {
@@ -136,21 +139,21 @@ public class ChannelHandlerContextHolder {
     public void removeTcpServiceDescriptions(List<ServerServiceDescription> serverServiceDescriptions) {
         Set<String> strings = serverServiceDescriptions.stream().map(x -> x.getRouteTo()).collect(Collectors.toSet());
 
-        //加索
-        synchronized (ChannelHandlerContextHolder.class) {
-            Iterator<ServerServiceDescription> iterator = tcpServiceDescriptions.iterator();
-            while (iterator.hasNext()) {
-                ServerServiceDescription serverServiceDescription = iterator.next();
-                if (strings.contains(serverServiceDescription.getRouteTo())) {
-                    //todo 命中
-                    iterator.remove();
-
-                    //释放服务
-                    serverServiceDescription.releaseRelatedResources();
-                }
+        // CopyOnWriteArrayList: 先收集待移除项并释放资源，再批量移除
+        List<ServerServiceDescription> toRemove = new ArrayList<>();
+        for (ServerServiceDescription desc : tcpServiceDescriptions) {
+            if (strings.contains(desc.getRouteTo())) {
+                toRemove.add(desc);
             }
         }
 
+        // 释放资源
+        for (ServerServiceDescription desc : toRemove) {
+            desc.releaseRelatedResources();
+        }
+
+        // 批量移除（CopyOnWriteArrayList 的 removeIf 是线程安全的）
+        tcpServiceDescriptions.removeIf(x -> strings.contains(x.getRouteTo()));
     }
 
     /**

@@ -49,8 +49,9 @@ public class SecreteCodec extends MessageToMessageCodec<NDCMessageProtocol, NDCM
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, NDCMessageProtocol ndcMessageProtocol, List<Object> list) throws Exception {
         if (ndcMessageProtocol.NO_ACCESS == ndcMessageProtocol.getType()) {
-            log.error("连接密码错误...");
-            System.exit(1);
+            log.error("连接密码错误，关闭连接...");
+            channelHandlerContext.close();
+            return;
         }
 
         //仅针对数据部分做处理
