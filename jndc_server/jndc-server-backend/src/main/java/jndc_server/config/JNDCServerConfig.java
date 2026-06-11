@@ -26,11 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 @Slf4j
 @Data
@@ -53,12 +51,6 @@ public class JNDCServerConfig {
 
     //运行绑定网卡
     private String bindIp;
-
-    //黑名单
-    private String[] blackList;
-
-    //白名单
-    private String[] whiteList;
 
     //http配置
     private ServeHTTPConfig webConfig;
@@ -196,46 +188,7 @@ public class JNDCServerConfig {
             }
         });
 
-
         IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
-        if (blackList == null) {
-            blackList = new String[0];
-        }
-
-        if (whiteList == null) {
-            whiteList = new String[0];
-        }
-
-        List<IpFilterRule4V> storeList = new ArrayList<>();
-
-        Stream.of(blackList).forEach(x -> {
-            if (!blackMap.containsKey(x)) {
-
-                IpFilterRule4V ipFilterRule4V = new IpFilterRule4V();
-                ipFilterRule4V.black();
-                ipFilterRule4V.setId(UUIDSimple.id());
-                ipFilterRule4V.setIp(x);
-                blackMap.put(x, ipFilterRule4V);
-                storeList.add(ipFilterRule4V);
-            }
-        });
-
-        Stream.of(whiteList).forEach(x -> {
-            if (!whiteMap.containsKey(x)) {
-                IpFilterRule4V ipFilterRule4V = new IpFilterRule4V();
-                ipFilterRule4V.white();
-                ipFilterRule4V.setId(UUIDSimple.id());
-                ipFilterRule4V.setIp(x);
-                whiteMap.put(x, ipFilterRule4V);
-                storeList.add(ipFilterRule4V);
-            }
-        });
-
-        if (storeList.size() > 0) {
-            dbWrapper.insertBatch(storeList);
-            log.info("add new ip filter rule:" + storeList);
-        }
-
         ipChecker.loadRule(blackMap, whiteMap);
     }
 

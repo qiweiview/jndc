@@ -4,12 +4,6 @@ secrete: "your-secret-key-here"
 # 日志级别: debug, info, warn, error
 loglevel: "info"
 
-# IP访问控制
-blackList: # 禁止访问的IP地址列表
-#- "192.168.1.1"
-whiteList: # 允许访问的IP地址列表
-#- "192.168.1.2"
-
 # 服务端基础配置
 servicePort: 81 # JNDC服务端监听端口
 bindIp: "127.0.0.1" # JNDC服务端绑定IP地址
