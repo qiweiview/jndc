@@ -100,13 +100,8 @@ public class ManagementServer implements NDCApp<ServeManageConfig> {
 
         });
 
-        //判断是否扫扫描前端项目目录
-        if (serverConfig.isAdminEnable()) {
-            //todo 启动管理页面
-            scanFrontProject(serverConfig.getAdminProjectPath());
-        } else {
-            log.info("忽略静态页面部署");
-        }
+        //扫描前端项目目录
+        scanFrontProject(serverConfig.getAdminProjectPath());
 
 
     }

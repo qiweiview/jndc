@@ -16,7 +16,6 @@ manageConfig:
   jksPass: "your_jks_password" # SSL证书密码
   loginName: "your_admin_username" # 管理后台登录用户名
   loginPassWord: "your_admin_password" # 管理后台登录密码
-  adminEnable: true # 是否启用管理后台
 
 # Web服务配置
 webConfig:

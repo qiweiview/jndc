@@ -35,6 +35,10 @@ const Login: React.FC = () => {
       initial="initial"
       animate="animate"
     >
+      <motion.div className="login-cloud">
+        <img src="/cloud.jpg" alt="" />
+      </motion.div>
+
       <motion.div variants={slideUpVariants} initial="initial" animate="animate">
         <Card title="JNDC 内网穿透管理系统" className="login-card">
           <Form

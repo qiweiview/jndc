@@ -84,7 +84,6 @@ manageConfig: # management-side api service
   jksPass: "xxx" # jks certificate password
   loginName: "xxx" # login user name
   loginPassWord: "xxx" # login password
-  adminEnable: true # Whether to start a static page
 
 webConfig: # http web service
   notFoundPage: "/404.html"

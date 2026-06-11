@@ -17,4 +17,3 @@ manageConfig: # 管理控制台配置
   jksPass: "your-jks-password" # SSL证书密码
   loginName: "admin" # 管理控制台登录用户名
   loginPassWord: "your-password" # 管理控制台登录密码
-  adminEnable: false # 是否启用管理控制台

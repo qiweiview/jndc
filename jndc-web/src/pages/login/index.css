@@ -7,29 +7,25 @@
   position: relative;
 }
 
-/* 微弱的装饰圆形，仅做点缀 */
-.login-container::before {
-  content: '';
+/* 云朵图片区域 */
+.login-cloud {
   position: absolute;
-  width: 520px;
-  height: 520px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(51, 112, 255, 0.06) 0%, transparent 70%);
-  top: -120px;
-  right: -100px;
+  right: 8%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 420px;
+  height: 320px;
   pointer-events: none;
 }
 
-.login-container::after {
-  content: '';
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(51, 112, 255, 0.04) 0%, transparent 70%);
-  bottom: -80px;
-  left: -60px;
-  pointer-events: none;
+.login-cloud img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  opacity: 0.55;
+  mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 50%, black 40%, transparent 100%);
 }
 
 /* 卡片 */
@@ -39,10 +35,12 @@
   border: 1px solid #DEE0E3;
   box-shadow: none;
   transition: box-shadow 0.25s ease-in-out;
+  position: relative;
+  z-index: 1;
 }
 
 .login-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* 标题 */
@@ -67,18 +65,7 @@
 /* 输入框 */
 .login-card .ant-input-affix-wrapper {
   border-radius: 8px;
-  border: 1px solid #DEE0E3;
   transition: all 0.25s ease-in-out;
-}
-
-.login-card .ant-input-affix-wrapper:hover {
-  border-color: #3370FF;
-}
-
-.login-card .ant-input-affix-wrapper:focus,
-.login-card .ant-input-affix-wrapper-focused {
-  border-color: #3370FF;
-  box-shadow: 0 0 0 2px rgba(51, 112, 255, 0.1);
 }
 
 .login-card .ant-input-prefix {
@@ -97,7 +84,7 @@
 
 .login-card .ant-btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(51, 112, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(51, 112, 255, 0.2);
 }
 
 .login-card .ant-btn-primary:active {
@@ -108,6 +95,8 @@
 .login-brand {
   position: absolute;
   bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
   color: #8F959E;
   font-size: 12px;
@@ -115,7 +104,13 @@
   letter-spacing: 2px;
 }
 
-/* 响应式 */
+/* 响应式：移动端隐藏云朵 */
+@media (max-width: 960px) {
+  .login-cloud {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .login-card {
     width: 90vw;

@@ -37,10 +37,7 @@ public class ServeManageConfig {
     //证书上下文
     private SSLContext serverSSLContext;
 
-    //是否扫描目录
-    private boolean adminEnable = false;
-
-
+    //管理页面静态资源路径
     private String adminProjectPath;
 
 

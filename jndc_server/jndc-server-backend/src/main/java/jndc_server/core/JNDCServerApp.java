@@ -43,14 +43,9 @@ public class JNDCServerApp {
         JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         ServeManageConfig manageConfig = jndcServerConfig.getManageConfig();
 
-        //处理静态项目地址
-        if (manageConfig.isAdminEnable()) {
-            String runTimePath = PathUtils.getServerWorkspace();
-            String p1 = runTimePath + File.separator + "compare_dist";
-            String p2 = System.getProperty("user.dir") + File.separator + "target" + File.separator + "jndc_server" + File.separator + "compare_dist";
-            String runtimeDir = PathUtils.findExistPath(p1, p2);
-            manageConfig.setAdminProjectPath(runtimeDir);
-        }
+        //处理静态项目地址（前端产物随项目构建，放在运行目录下）
+        String runtimeDir = System.getProperty("user.dir") + File.separator + "compare_dist";
+        manageConfig.setAdminProjectPath(runtimeDir);
 
 
         //admin管理页面

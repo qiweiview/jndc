@@ -86,7 +86,6 @@ manageConfig: # 管理端api服务
   jksPass: "xxx" # jks 证书密码
   loginName: "xxx" # 登录用户名
   loginPassWord: "xxx" # 登录密码
-  adminEnable: true # 是否启动静态页面
 
 webConfig: # http web服务
   notFoundPage: "/404.html"
