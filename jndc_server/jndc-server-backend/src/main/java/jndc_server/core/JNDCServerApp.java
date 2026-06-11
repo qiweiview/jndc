@@ -2,7 +2,6 @@ package jndc_server.core;
 
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
-import jndc.utils.PathUtils;
 import jndc.web_support.config.ServeManageConfig;
 import jndc.web_support.http_module.ManagementServer;
 import jndc_server.config.JNDCServerConfig;
@@ -43,8 +42,9 @@ public class JNDCServerApp {
         JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         ServeManageConfig manageConfig = jndcServerConfig.getManageConfig();
 
-        //处理静态项目地址（前端产物随项目构建，放在运行目录下）
-        String runtimeDir = System.getProperty("user.dir") + File.separator + "compare_dist";
+        //处理静态项目地址（前端产物随项目构建，放在分发根目录下）
+        String appDir = new File(System.getProperty("user.dir")).getParent();
+        String runtimeDir = appDir + File.separator + "compare_dist";
         manageConfig.setAdminProjectPath(runtimeDir);
 
 
