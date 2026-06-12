@@ -77,8 +77,6 @@ pnpm build
 
 ## 5. 前端静态资源
 
-当前仓库的 Maven `copy-frontend` 配置仍引用历史路径 `../../jndc-web/dist`，不要依赖它。
-
 当前可工作的事实流程：
 
 ```bash
@@ -86,13 +84,14 @@ cd /Users/liuqiwei/IdeaProjects/jndc/jndc_server/jndc-server-frontend
 pnpm build
 
 cd /Users/liuqiwei/IdeaProjects/jndc
-rm -rf jndc_server/jndc-server-backend/target/compare_dist
-cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/compare_dist
+rm -rf jndc_server/jndc-server-backend/target/jndc_server/page
+cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/jndc_server/page
 ```
 
 Server 启动时需要的静态资源目录是：
 
-- `jndc_server/jndc-server-backend/target/compare_dist`
+- 发布目录下的 `page`
+- 开发态兼容旧目录名 `html` / `compare_dist`
 
 ## 6. 日志、脚本与部署
 
@@ -133,7 +132,7 @@ cd jndc_server/jndc-server-backend/target/jndc_server/bin
 
 - 跑 `pnpm build`
 - 核对 `src/api/*` 与后端路径常量是否对应
-- 如果依赖 server 承载静态页，手动拷贝 `dist` 到 `target/compare_dist`
+- 如果依赖 server 承载静态页，确认 `dist` 已同步到发布目录的 `page`
 
 ### 全链路联调改动
 

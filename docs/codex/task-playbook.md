@@ -112,7 +112,7 @@
 
 - `pnpm build`
 - 若后端同步改动，再跑 `mvn test`
-- 如需 server 承载页面，手动同步 `dist` 到 `target/compare_dist`
+- 如需 server 承载页面，手动同步 `dist` 到发布目录的 `page`
 
 ## 5. 启停脚本 / 部署改动
 

@@ -93,11 +93,11 @@ pnpm dev
 pnpm build
 ```
 
-Server 启动依赖前端静态资源时，当前事实是手动拷贝 `dist`：
+Server 启动依赖前端静态资源时，当前事实是把前端产物放到发布目录的 `page`：
 
 ```bash
-rm -rf jndc_server/jndc-server-backend/target/compare_dist
-cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/compare_dist
+rm -rf jndc_server/jndc-server-backend/target/jndc_server/page
+cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/jndc_server/page
 ```
 
 部署脚本位于：
@@ -112,7 +112,7 @@ cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/targ
 
 - 以代码为准，不以旧 README 或历史说明为准。
 - `PathUtils` 决定运行时配置目录是 `~/.jndc/...`，不是仓库内 `src/main/resources/conf/config.yml`。
-- `jndc_server/jndc-server-backend/pom.xml` 里的 `copy-frontend` 仍指向历史路径 `../../jndc-web/dist`，不能作为前端产物位置的事实来源。
+- 管理端静态页面优先从发布目录读取，默认查找 `page`，兼容旧目录名 `html` / `compare_dist`。
 - 仓库里有旧说明把前端开发端口写成 `778`，但当前 `vite.config.ts` 实际端口是 `5173`。
 - `config.template.yml` 与当前联调常用端口不完全一致，联调时优先核对 `~/.jndc` 下实际配置。
 
@@ -126,7 +126,7 @@ cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/targ
   - 若改了 API 交互，确认代理路径仍是 `/api` 和 `/ws`
 - 联调改动：
   - 确认 `~/.jndc/server/conf/config.yml` 与 `~/.jndc/client/conf/config.yml` 可被当前代码读取
-  - 如需页面随 server 一起提供，确认 `dist` 已手动拷贝到 `target/compare_dist`
+  - 如需页面随 server 一起提供，确认 `dist` 已放到发布目录的 `page`
 - 脚本 / 部署改动：
   - 检查 `jndc.sh`、包装脚本、`jndc.env`、`jndc-server.service` 的路径和变量是否一致
 
