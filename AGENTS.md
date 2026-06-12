@@ -17,7 +17,7 @@
 | 模块 | 职责 |
 |---|---|
 | `jndc_core` | 协议编解码、公共模型、Web 支撑、公共工具 |
-| `jndc_server` | 服务端隧道、管理 API、HTTP 代理、静态前端承载 |
+| `jndc_server` | 服务端隧道、管理 API、HTTP 代理 |
 | `jndc_client` | 客户端连接、服务注册、本地流量转发 |
 
 ## 2. 先看哪里
@@ -67,7 +67,7 @@
 
 - 管理 API：`1777`
 - TCP 隧道：`1081`
-- HTTP 代理 / 静态站点：`1080`
+- HTTP 代理：`1080`
 - Frontend `pnpm dev`：`5173`
 
 ## 4. 启动和联调
@@ -93,13 +93,6 @@ pnpm dev
 pnpm build
 ```
 
-Server 启动依赖前端静态资源时，当前事实是把前端产物放到发布目录的 `page`：
-
-```bash
-rm -rf jndc_server/jndc-server-backend/target/jndc_server/page
-cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/jndc_server/page
-```
-
 部署脚本位于：
 
 - `jndc_server/jndc-server-backend/src/main/resources/bin/jndc.sh`
@@ -112,9 +105,9 @@ cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/targ
 
 - 以代码为准，不以旧 README 或历史说明为准。
 - `PathUtils` 决定运行时配置目录是 `~/.jndc/...`，不是仓库内 `src/main/resources/conf/config.yml`。
-- 管理端静态页面优先从发布目录读取，默认查找 `page`，兼容旧目录名 `html` / `compare_dist`。
 - 仓库里有旧说明把前端开发端口写成 `778`，但当前 `vite.config.ts` 实际端口是 `5173`。
 - 联调时优先核对 `~/.jndc` 下实际配置，不要只看仓库内模板。
+- 管理端前端默认按独立部署处理；若走 nginx，代理 `/api` 到 `1777`，代理 `/ws` 到 `ws://<server>:1777/ws`。
 
 ## 6. 任务完成前最少验证清单
 
@@ -126,7 +119,7 @@ cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/targ
   - 若改了 API 交互，确认代理路径仍是 `/api` 和 `/ws`
 - 联调改动：
   - 确认 `~/.jndc/server/conf/config.yml` 与 `~/.jndc/client/conf/config.yml` 可被当前代码读取
-  - 如需页面随 server 一起提供，确认 `dist` 已放到发布目录的 `page`
+  - 若联调管理前端，确认 nginx 或开发代理把 `/api` 和 `/ws` 转到 `1777`
 - 脚本 / 部署改动：
   - 检查 `jndc.sh`、包装脚本、`jndc.env`、`jndc-server.service` 的路径和变量是否一致
 

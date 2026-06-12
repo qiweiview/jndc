@@ -178,6 +178,7 @@ const ServiceControl: React.FC = () => {
     {
       title: '操作',
       width: 80,
+      fixed: 'right' as const,
       render: (_, __, index) => (
         <Button
           danger
@@ -270,6 +271,7 @@ const ServiceControl: React.FC = () => {
                   dataSource={targetServices}
                   loading={loading}
                   pagination={false}
+                  scroll={{ x: 800 }}
                   locale={{ emptyText: <Empty description="暂无目标服务" /> }}
                 />
               </Card>

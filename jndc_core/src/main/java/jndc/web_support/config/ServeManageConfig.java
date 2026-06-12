@@ -39,7 +39,7 @@ public class ServeManageConfig {
     //证书上下文
     private SSLContext serverSSLContext;
 
-    //管理页面静态资源路径
+    //已废弃，仅为兼容旧配置保留
     private String adminProjectPath;
 
 

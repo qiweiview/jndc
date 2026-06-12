@@ -77,4 +77,7 @@ src/
 
 ## 与后端集成
 
-构建产物 `dist/` 目录可以部署到 JNDC Server 的静态资源目录，或通过 Nginx 等反向代理提供服务。
+构建产物 `dist/` 目录按独立前端部署处理，推荐交给 Nginx 承载，并把：
+
+- `/api/*` 反向代理到 `http://<jndc-server>:1777/*`
+- `/ws` 反向代理到 `ws://<jndc-server>:1777/ws`

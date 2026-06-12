@@ -2,6 +2,8 @@ package jndc.web_support.utils;
 
 import jndc.utils.StringUtils4V;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class UriUtils {
                 }
                 value = stringBuilder.toString();
                 stringBuilder.setLength(0);
-                parseResult.put(key, value);
+                parseResult.put(decodeQueryPart(key), decodeQueryPart(value));
             } else {
                 stringBuilder.append(chars[i]);
             }
@@ -47,9 +49,20 @@ public class UriUtils {
 
         if (stringBuilder.length() > 0) {
             value = stringBuilder.toString();
-            parseResult.put(key, value);
+            parseResult.put(decodeQueryPart(key), decodeQueryPart(value));
         }
         return parseResult;
+    }
+
+    private static String decodeQueryPart(String value) {
+        if (StringUtils4V.isBlank(value)) {
+            return value;
+        }
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("decode query failed", e);
+        }
     }
 
     public static String normalizeRequestPath(String path) {

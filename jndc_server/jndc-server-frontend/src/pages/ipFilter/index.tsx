@@ -220,6 +220,7 @@ const IpFilter: React.FC = () => {
       title: '操作',
       key: 'action',
       width: 120,
+      fixed: 'right' as const,
       render: (_, record) => (
         <Popconfirm
           title="确定删除此规则？"
@@ -344,6 +345,7 @@ const IpFilter: React.FC = () => {
                     dataSource={blacklist}
                     rowKey="id"
                     loading={loading}
+                    scroll={{ x: 800 }}
                     locale={{ emptyText: <Empty description="暂无黑名单规则" /> }}
                     pagination={{
                       total: blacklistTotal,
@@ -363,6 +365,7 @@ const IpFilter: React.FC = () => {
                     dataSource={whitelist}
                     rowKey="id"
                     loading={loading}
+                    scroll={{ x: 800 }}
                     locale={{ emptyText: <Empty description="暂无白名单规则" /> }}
                     pagination={{
                       total: whitelistTotal,

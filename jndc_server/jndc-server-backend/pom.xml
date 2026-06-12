@@ -116,22 +116,6 @@
                             <outputDirectory>${project.build.directory}/jndc_server</outputDirectory>
                         </configuration>
                     </execution>
-                    <!-- 拷贝前端静态资源到发布目录下的 page 目录 -->
-                    <execution>
-                        <id>copy-frontend</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/jndc_server/page</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.basedir}/../jndc-server-frontend/dist</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>

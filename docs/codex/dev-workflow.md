@@ -75,23 +75,19 @@ pnpm build
 - HTTP 服务：`1080`
 - Vite Dev Server：`5173`
 
-## 5. 前端静态资源
+## 5. 前端部署
 
-当前可工作的事实流程：
+当前默认事实是前端独立部署，backend 只提供管理 API 和 `/ws`。
 
-```bash
-cd /Users/liuqiwei/IdeaProjects/jndc/jndc_server/jndc-server-frontend
-pnpm build
+本地开发推荐两种方式：
 
-cd /Users/liuqiwei/IdeaProjects/jndc
-rm -rf jndc_server/jndc-server-backend/target/jndc_server/page
-cp -r jndc_server/jndc-server-frontend/dist jndc_server/jndc-server-backend/target/jndc_server/page
-```
+- 直接使用 `pnpm dev`，由 Vite 代理 `/api` 和 `/ws`
+- 构建 `dist/` 后交给 nginx 承载，并反向代理到 `1777`
 
-Server 启动时需要的静态资源目录是：
+nginx 反向代理最少需要保证：
 
-- 发布目录下的 `page`
-- 开发态兼容旧目录名 `html` / `compare_dist`
+- `/api/*` -> `http://127.0.0.1:1777/*`
+- `/ws` -> `ws://127.0.0.1:1777/ws`
 
 ## 6. 日志、脚本与部署
 
@@ -132,14 +128,14 @@ cd jndc_server/jndc-server-backend/target/jndc_server/bin
 
 - 跑 `pnpm build`
 - 核对 `src/api/*` 与后端路径常量是否对应
-- 如果依赖 server 承载静态页，确认 `dist` 已同步到发布目录的 `page`
+- 如果走 nginx，确认 `/api` 和 `/ws` 代理目标仍是 `1777`
 
 ### 全链路联调改动
 
 - 确认 `~/.jndc/server/conf/config.yml` 和 `~/.jndc/client/conf/config.yml` 已就绪
 - 启动 server
 - 启动 client
-- 启动前端或访问 server 承载的静态页
+- 启动前端或 nginx
 - 至少验证一条管理端操作能成功触发后端行为
 
 ### 启停脚本 / 部署改动

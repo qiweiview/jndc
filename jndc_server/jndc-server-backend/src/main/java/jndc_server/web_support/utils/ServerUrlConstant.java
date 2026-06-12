@@ -2,8 +2,6 @@ package jndc_server.web_support.utils;
 
 public class ServerUrlConstant {
     public interface DevelopDebug {
-        public static final String reloadFront = "/reloadFront";//reload front project
-
         public static final String getDeviceIp = "/getDeviceIp";//get device ip
     }
 

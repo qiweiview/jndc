@@ -18,7 +18,7 @@ JNDC 的核心目标是把本地服务通过 client 注册到 server，再由 se
 分两类入口理解最有效：
 
 - TCP / 隧道链路：client 与 server 的注册、保活、转发
-- HTTP / 管理链路：管理 API、静态前端、域名路由、HTTP 代理
+- HTTP / 管理链路：管理 API、WebSocket、域名路由、HTTP 代理
 
 ## 2. 模块边界
 
@@ -61,7 +61,7 @@ JNDC 的核心目标是把本地服务通过 client 注册到 server，再由 se
 - 端口监听与服务绑定
 - IP 黑白名单和时间规则
 - 管理 API
-- HTTP 路由、代理、静态页面
+- HTTP 路由与代理
 
 ### `jndc_client`
 
@@ -141,6 +141,7 @@ JNDC 的核心目标是把本地服务通过 client 注册到 server，再由 se
 
 - `ServerUrlConstant` 中的路径常量
 - 前端 `request.ts` 的 `/api` 代理约定
+- 前端独立部署时的 `/ws` 反向代理
 - 页面表格 / 表单的数据结构
 
 ## 4. 关键类索引

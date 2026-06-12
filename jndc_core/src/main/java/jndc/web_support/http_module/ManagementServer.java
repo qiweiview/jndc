@@ -11,9 +11,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import jndc.core.NDCApp;
 import jndc.core.NettyComponentConfig;
-import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
-import jndc.utils.LogPrint;
 import jndc.utils.StringUtils4V;
 import jndc.web_support.config.ServeManageConfig;
 import jndc.web_support.core.*;
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -102,29 +99,6 @@ public class ManagementServer implements NDCApp<ServeManageConfig> {
             }
 
         });
-
-        //扫描前端项目目录
-        scanFrontProject(serverConfig.getAdminProjectPath());
-
-
-    }
-
-    /**
-     * 扫描管理页文件
-     */
-    public void scanFrontProject(String runtimeDir) {
-
-
-        log.info("扫描静态资源页面--->" + runtimeDir);
-
-
-        if (!new File(runtimeDir).exists()) {
-            LogPrint.err("静态资源页面不存在--->" + runtimeDir);
-            ApplicationExit.exit();
-        }
-
-        FrontProjectLoader.jndcStaticProject = FrontProjectLoader.loadProject(runtimeDir);
-
     }
 
 }

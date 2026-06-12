@@ -57,9 +57,14 @@ const MainLayout: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
+    const token = localStorage.getItem('auth-token');
+    if (!token) {
+      return;
+    }
+
     // Connect WebSocket
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?auth-token=${encodeURIComponent(token)}`;
     wsClient.connect(wsUrl);
 
     // Listen for notifications

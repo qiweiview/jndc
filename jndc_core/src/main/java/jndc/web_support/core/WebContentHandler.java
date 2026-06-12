@@ -8,9 +8,6 @@ import jndc.core.UniqueBeanManage;
 import jndc.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.util.regex.Matcher;
-
 
 /**
  * 管理端api处理器
@@ -18,58 +15,13 @@ import java.util.regex.Matcher;
 @Slf4j
 public class WebContentHandler extends SimpleChannelInboundHandler<JNDCHttpRequest> {
     public static String NAME = "WEB_CONTENT_HANDLER";
-    private static final String SEPARATOR = Matcher.quoteReplacement(File.separator);
-
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, JNDCHttpRequest jndcHttpRequest) throws Exception {
 
         //get method
         if (HttpMethod.GET.equals(jndcHttpRequest.getMethod())) {
-            //todo GET类型请求
-
-            String fullPathStr = jndcHttpRequest.getFullPath();
-
-            if ("/".equals(fullPathStr)){
-                fullPathStr="/index.html";
-            }
-
-            String s = fullPathStr.replaceAll("/", SEPARATOR);
-
-
-            //静态资源
-            FrontProjectLoader jndcStaticProject = FrontProjectLoader.jndcStaticProject;
-
-            if (jndcStaticProject==null){
-                //todo 资源未找到
-                channelHandlerContext.writeAndFlush(HttpResponseBuilder.notFoundResponse());
-                return;
-            }
-
-            //查找静态资源
-            FrontProjectLoader.InnerFileDescription file = jndcStaticProject.findFile(s);
-            if (file == null) {
-                channelHandlerContext.writeAndFlush(HttpResponseBuilder.notFoundResponse());
-                return;
-            }
-
-            byte[] fileData = file.getData();
-            
-            // Handle conditional requests
-            String ifNoneMatch = jndcHttpRequest.getStringHeader(HttpHeaderNames.IF_NONE_MATCH);
-            if (ifNoneMatch != null) {
-                String etag = "\"" + Integer.toHexString(fileData.hashCode()) + "\"";
-                if (etag.equals(ifNoneMatch)) {
-                    // Resource hasn't changed, send 304 Not Modified
-                    FullHttpResponse notModifiedResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_MODIFIED);
-                    notModifiedResponse.headers().set(HttpHeaderNames.ETAG, etag);
-                    channelHandlerContext.writeAndFlush(notModifiedResponse);
-                    return;
-                }
-            }
-
-            // Send the full response
-            FullHttpResponse fullHttpResponse = HttpResponseBuilder.fileResponse(fileData, file.getFileType());
+            FullHttpResponse fullHttpResponse = HttpResponseBuilder.notFoundResponse();
             channelHandlerContext.writeAndFlush(fullHttpResponse);
             return;
         }

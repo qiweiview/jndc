@@ -95,6 +95,7 @@ h2, h3 {
 
 .ant-table-thead > tr > th {
   font-weight: 600;
+  text-align: center !important;
 }
 
 .ant-tag {
