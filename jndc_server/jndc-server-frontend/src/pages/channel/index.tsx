@@ -288,7 +288,7 @@ const ChannelList: React.FC = () => {
                     rowKey="channelId"
                     loading={loading}
                     pagination={false}
-                    scroll={{ x: 900 }}
+                    scroll={{ x: 'max-content' }}
                     locale={{ emptyText: <Empty description="暂无活跃隧道" /> }}
                   />
                 ),
@@ -301,7 +301,7 @@ const ChannelList: React.FC = () => {
                     columns={recordColumns}
                     dataSource={records}
                     rowKey="id"
-                    scroll={{ x: 600 }}
+                    scroll={{ x: 'max-content' }}
                     locale={{ emptyText: <Empty description="暂无断开记录" /> }}
                     pagination={{
                       current: recordPage,
