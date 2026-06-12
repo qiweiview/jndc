@@ -1,0 +1,37 @@
+22:35:32.779 [main] INFO  jndc_server.start.ServerStart - [main,36] - 
+       _   _   _ _____   _____             _____ ______ _______      ________ _____  
+      | | | \ | |  __ \ / ____|           / ____|  ____|  __ \ \    / /  ____|  __ \ 
+      | | |  \| | |  | | |       ______  | (___ | |__  | |__) \ \  / /| |__  | |__) |
+  _   | | | . ` | |  | | |      |______|  \___ \|  __| |  _  / \ \/ / |  __| |  _  / 
+ | |__| | | |\  | |__| | |____            ____) | |____| | \ \  \  /  | |____| | \ \ 
+  \____/  |_| \_|_____/ \_____|          |_____/|______|_|  \_\  \/   |______|_|  \_\
+                                                                                     
+                                                                                     
+22:35:32.780 [main] INFO  jndc_server.start.ServerStart - [main,41] - 读取运行目录： /Users/liuqiwei/.jndc/server
+22:35:32.807 [main] INFO  jndc.core.data_store_support.SQLiteDataStore - [<init>,41] - SQLite 工作目录:jdbc:sqlite:/Users/liuqiwei/.jndc/server/jnc_db.db
+22:35:33.050 [main] INFO  jndc.core.data_store_support.SQLiteDataStore - [initTables,87] - 数据库表初始化完成
+22:35:33.052 [main] INFO  jndc_server.config.JNDCServerConfig - [performParameterVerification,118] - 使用sqlite数据库存储
+22:35:33.314 [main] INFO  jndc.web_support.http_module.ManagementServer - [scanFrontProject,118] - 扫描静态资源页面--->/Users/liuqiwei/IdeaProjects/jndc/jndc_server/jndc-server-backend/target/jndc_server/page
+22:35:33.318 [nioEventLoopGroup-3-1] INFO  jndc.web_support.http_module.ManagementServer - [lambda$start$0,99] - 管理端服务 http:///127.0.0.1:1777 成功
+22:35:33.322 [nioEventLoopGroup-4-1] INFO  jndc_server.core.app.JndcCoreServer - [lambda$start$0,50] - 核心服务: jndc:///127.0.0.1:1181 启动成功
+22:35:33.323 [main] INFO  jndc_server.web_support.http_module.JNDCHttpServer - [loadRouteNotFoundPage,98] - 没有找到配置的404页面,使用默认页面
+22:35:33.323 [nioEventLoopGroup-5-1] INFO  jndc_server.web_support.http_module.JNDCHttpServer - [lambda$start$0,71] - 启动web服务 http:///127.0.0.1:1180 成功
+22:35:43.452 [Thread-1] INFO  jndc_server.start.ServerStart - [lambda$main$0,23] - Good night everyone 
+22:41:52.770 [main] INFO  jndc_server.start.ServerStart - [main,36] - 
+       _   _   _ _____   _____             _____ ______ _______      ________ _____  
+      | | | \ | |  __ \ / ____|           / ____|  ____|  __ \ \    / /  ____|  __ \ 
+      | | |  \| | |  | | |       ______  | (___ | |__  | |__) \ \  / /| |__  | |__) |
+  _   | | | . ` | |  | | |      |______|  \___ \|  __| |  _  / \ \/ / |  __| |  _  / 
+ | |__| | | |\  | |__| | |____            ____) | |____| | \ \  \  /  | |____| | \ \ 
+  \____/  |_| \_|_____/ \_____|          |_____/|______|_|  \_\  \/   |______|_|  \_\
+                                                                                     
+                                                                                     
+22:41:52.772 [main] INFO  jndc_server.start.ServerStart - [main,41] - 读取运行目录： /Users/liuqiwei/.jndc/server
+22:41:52.800 [main] INFO  jndc.core.data_store_support.SQLiteDataStore - [<init>,41] - SQLite 工作目录:jdbc:sqlite:/Users/liuqiwei/.jndc/server/jnc_db.db
+22:41:53.002 [main] INFO  jndc.core.data_store_support.SQLiteDataStore - [initTables,87] - 数据库表初始化完成
+22:41:53.004 [main] INFO  jndc_server.config.JNDCServerConfig - [performParameterVerification,118] - 使用sqlite数据库存储
+22:41:53.275 [main] INFO  jndc.web_support.http_module.ManagementServer - [scanFrontProject,118] - 扫描静态资源页面--->/Users/liuqiwei/IdeaProjects/jndc/jndc_server/jndc-server-backend/target/jndc_server/page
+22:41:53.278 [nioEventLoopGroup-3-1] INFO  jndc.web_support.http_module.ManagementServer - [lambda$start$0,99] - 管理端服务 http:///127.0.0.1:1777 成功
+22:41:53.283 [nioEventLoopGroup-4-1] INFO  jndc_server.core.app.JndcCoreServer - [lambda$start$0,50] - 核心服务: jndc:///127.0.0.1:1081 启动成功
+22:41:53.283 [main] INFO  jndc_server.web_support.http_module.JNDCHttpServer - [loadRouteNotFoundPage,98] - 没有找到配置的404页面,使用默认页面
+22:41:53.283 [nioEventLoopGroup-5-1] INFO  jndc_server.web_support.http_module.JNDCHttpServer - [lambda$start$0,71] - 启动web服务 http:///127.0.0.1:1080 成功
