@@ -12,6 +12,7 @@ import {
   Select,
   message,
   Popconfirm,
+  Empty
 } from 'antd';
 import {
   ReloadOutlined,
@@ -20,6 +21,8 @@ import {
   PauseCircleOutlined,
   DeleteOutlined,
   LinkOutlined,
+  ClockCircleOutlined,
+  UndoOutlined
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
@@ -183,7 +186,7 @@ const PortList: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'default'}>
+        <Tag color={status === 1 ? 'success' : 'default'} bordered={false}>
           {status === 1 ? '已绑定' : '未绑定'}
         </Tag>
       ),
@@ -209,13 +212,15 @@ const PortList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 220,
+      width: 260,
       fixed: 'right' as const,
       render: (_, record) => (
-        <Space>
+        <Space size="middle">
           {record.status === 0 ? (
             <Button
               type="link"
+              size="small"
+              style={{ padding: 0 }}
               icon={<LinkOutlined />}
               onClick={() => {
                 setCurrentPort(record);
@@ -226,23 +231,31 @@ const PortList: React.FC = () => {
             </Button>
           ) : (
             <>
-              <Button
-                type="link"
-                icon={<PauseCircleOutlined />}
-                onClick={() => handleStopBind(record.id)}
+              <Popconfirm
+                title="停止绑定"
+                description="确定要停止此端口的绑定吗？"
+                onConfirm={() => handleStopBind(record.id)}
               >
-                停止
-              </Button>
-              <Button
-                type="link"
-                onClick={() => handleResetBind(record.id)}
+                <Button type="text" danger size="small" style={{ padding: 0 }} icon={<PauseCircleOutlined />}>
+                  停止
+                </Button>
+              </Popconfirm>
+              <Popconfirm
+                title="重置绑定"
+                description="确定要重置此端口绑定吗？"
+                onConfirm={() => handleResetBind(record.id)}
               >
-                重置
-              </Button>
+                <Button type="text" danger size="small" style={{ padding: 0 }} icon={<UndoOutlined />}>
+                  重置
+                </Button>
+              </Popconfirm>
             </>
           )}
           <Button
             type="link"
+            size="small"
+            style={{ padding: 0 }}
+            icon={<ClockCircleOutlined />}
             onClick={() => {
               setCurrentPort(record);
               editForm.setFieldsValue({
@@ -256,10 +269,11 @@ const PortList: React.FC = () => {
             时间
           </Button>
           <Popconfirm
-            title="确定删除此端口监听？"
+            title="确定删除"
+            description="确定删除此端口监听吗？"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="text" danger size="small" style={{ padding: 0 }} icon={<DeleteOutlined />}>
               删除
             </Button>
           </Popconfirm>
@@ -272,7 +286,9 @@ const PortList: React.FC = () => {
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
         <Card
-          title="端口监听"
+          title={<span style={{ fontSize: 16, fontWeight: 600 }}>端口监听</span>}
+          bordered={false}
+          style={{ borderRadius: 12 }}
           extra={
             <Space>
               <Input
@@ -280,7 +296,8 @@ const PortList: React.FC = () => {
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 250 }}
+                allowClear
+                style={{ width: 240 }}
               />
               <Button
                 type="primary"
@@ -302,6 +319,7 @@ const PortList: React.FC = () => {
             loading={loading}
             pagination={false}
             scroll={{ x: 900 }}
+            locale={{ emptyText: <Empty description="暂无监听端口" /> }}
           />
         </Card>
       </motion.div>
@@ -315,8 +333,10 @@ const PortList: React.FC = () => {
           createForm.resetFields();
         }}
         onOk={() => createForm.submit()}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={createForm} onFinish={handleCreate} layout="vertical">
+        <Form form={createForm} onFinish={handleCreate} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="port"
             label="监听端口"
@@ -325,7 +345,7 @@ const PortList: React.FC = () => {
             <Input type="number" placeholder="请输入端口号" />
           </Form.Item>
           <Form.Item name="timeRange" label="时间范围（可选）">
-            <TimePicker.RangePicker format="HH:mm" />
+            <TimePicker.RangePicker format="HH:mm" style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
@@ -339,8 +359,10 @@ const PortList: React.FC = () => {
           bindForm.resetFields();
         }}
         onOk={() => bindForm.submit()}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={bindForm} onFinish={handleBind} layout="vertical">
+        <Form form={bindForm} onFinish={handleBind} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="routeTo"
             label="选择服务"
@@ -369,14 +391,16 @@ const PortList: React.FC = () => {
           editForm.resetFields();
         }}
         onOk={() => editForm.submit()}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={editForm} onFinish={handleEditTimeRange} layout="vertical">
+        <Form form={editForm} onFinish={handleEditTimeRange} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="timeRange"
             label="时间范围"
             rules={[{ required: true, message: '请选择时间范围' }]}
           >
-            <TimePicker.RangePicker format="HH:mm" />
+            <TimePicker.RangePicker format="HH:mm" style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>

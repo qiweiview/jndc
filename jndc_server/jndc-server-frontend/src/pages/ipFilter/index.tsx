@@ -11,13 +11,14 @@ import {
   Tabs,
   message,
   Popconfirm,
+  Empty
 } from 'antd';
 import {
-  ReloadOutlined,
   PlusOutlined,
   DeleteOutlined,
   ClearOutlined,
   GlobalOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
@@ -40,6 +41,7 @@ const IpFilter: React.FC = () => {
   const [addBlackModalVisible, setAddBlackModalVisible] = useState(false);
   const [addWhiteModalVisible, setAddWhiteModalVisible] = useState(false);
   const [currentDeviceIp, setCurrentDeviceIp] = useState('');
+  const [activeTabKey, setActiveTabKey] = useState('blacklist');
 
   const [blackForm] = Form.useForm();
   const [whiteForm] = Form.useForm();
@@ -217,12 +219,13 @@ const IpFilter: React.FC = () => {
     {
       title: '操作',
       key: 'action',
+      width: 120,
       render: (_, record) => (
         <Popconfirm
           title="确定删除此规则？"
           onConfirm={() => handleDeleteRule(record.id)}
         >
-          <Button type="link" danger icon={<DeleteOutlined />}>
+          <Button type="text" danger size="small" style={{ padding: 0 }} icon={<DeleteOutlined />}>
             删除
           </Button>
         </Popconfirm>
@@ -258,137 +261,152 @@ const IpFilter: React.FC = () => {
     },
   ];
 
+  const renderTabBarExtraContent = () => {
+    switch (activeTabKey) {
+      case 'blacklist':
+        return (
+          <Space>
+            <Button
+              danger
+              icon={<PlusOutlined />}
+              onClick={() => setAddBlackModalVisible(true)}
+            >
+              添加黑名单
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={() => fetchBlacklist()}>刷新</Button>
+          </Space>
+        );
+      case 'whitelist':
+        return (
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setAddWhiteModalVisible(true)}
+            >
+              添加白名单
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={() => fetchWhitelist()}>刷新</Button>
+          </Space>
+        );
+      case 'blocked':
+      case 'released':
+        return (
+          <Space>
+            <Button
+              danger
+              icon={<ClearOutlined />}
+              onClick={() => handleClearRecords()}
+            >
+              清空记录
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={() => activeTabKey === 'blocked' ? fetchBlockRecords() : fetchReleaseRecords()}>刷新</Button>
+          </Space>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
         <Card
-          title="IP访问管控"
+          title={<span style={{ fontSize: 16, fontWeight: 600 }}>IP访问管控</span>}
+          bordered={false}
+          style={{ borderRadius: 12 }}
           extra={
             currentDeviceIp && (
               <Space>
-                <span>当前设备IP: <Tag color="blue">{currentDeviceIp}</Tag></span>
+                <span style={{ color: '#646A73' }}>当前设备IP: <Tag color="blue" bordered={false}>{currentDeviceIp}</Tag></span>
                 <Button
+                  size="small"
                   icon={<GlobalOutlined />}
                   onClick={handleAddCurrentIpToWhitelist}
                 >
-                  添加到白名单
+                  加白名单
                 </Button>
               </Space>
             )
           }
         >
           <Tabs
-            defaultActiveKey="blacklist"
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
+            tabBarExtraContent={renderTabBarExtraContent()}
             items={[
               {
                 key: 'blacklist',
                 label: `黑名单 (${blacklistTotal})`,
                 children: (
-                  <>
-                    <div style={{ marginBottom: 16 }}>
-                      <Button
-                        type="primary"
-                        danger
-                        icon={<PlusOutlined />}
-                        onClick={() => setAddBlackModalVisible(true)}
-                      >
-                        添加黑名单
-                      </Button>
-                    </div>
-                    <Table
-                      columns={ruleColumns}
-                      dataSource={blacklist}
-                      rowKey="id"
-                      loading={loading}
-                      pagination={{
-                        total: blacklistTotal,
-                        pageSize: 10,
-                        onChange: fetchBlacklist,
-                      }}
-                    />
-                  </>
+                  <Table
+                    columns={ruleColumns}
+                    dataSource={blacklist}
+                    rowKey="id"
+                    loading={loading}
+                    locale={{ emptyText: <Empty description="暂无黑名单规则" /> }}
+                    pagination={{
+                      total: blacklistTotal,
+                      pageSize: 10,
+                      onChange: fetchBlacklist,
+                      showSizeChanger: false,
+                    }}
+                  />
                 ),
               },
               {
                 key: 'whitelist',
                 label: `白名单 (${whitelistTotal})`,
                 children: (
-                  <>
-                    <div style={{ marginBottom: 16 }}>
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => setAddWhiteModalVisible(true)}
-                      >
-                        添加白名单
-                      </Button>
-                    </div>
-                    <Table
-                      columns={ruleColumns}
-                      dataSource={whitelist}
-                      rowKey="id"
-                      loading={loading}
-                      pagination={{
-                        total: whitelistTotal,
-                        pageSize: 10,
-                        onChange: fetchWhitelist,
-                      }}
-                    />
-                  </>
+                  <Table
+                    columns={ruleColumns}
+                    dataSource={whitelist}
+                    rowKey="id"
+                    loading={loading}
+                    locale={{ emptyText: <Empty description="暂无白名单规则" /> }}
+                    pagination={{
+                      total: whitelistTotal,
+                      pageSize: 10,
+                      onChange: fetchWhitelist,
+                      showSizeChanger: false,
+                    }}
+                  />
                 ),
               },
               {
                 key: 'blocked',
                 label: `阻止记录 (${blockRecordsTotal})`,
                 children: (
-                  <>
-                    <div style={{ marginBottom: 16 }}>
-                      <Button
-                        danger
-                        icon={<ClearOutlined />}
-                        onClick={() => handleClearRecords()}
-                      >
-                        清空记录
-                      </Button>
-                    </div>
-                    <Table
-                      columns={recordColumns}
-                      dataSource={blockRecords}
-                      rowKey="id"
-                      pagination={{
-                        total: blockRecordsTotal,
-                        pageSize: 10,
-                        onChange: fetchBlockRecords,
-                      }}
-                    />
-                  </>
+                  <Table
+                    columns={recordColumns}
+                    dataSource={blockRecords}
+                    rowKey="id"
+                    locale={{ emptyText: <Empty description="暂无阻止记录" /> }}
+                    pagination={{
+                      total: blockRecordsTotal,
+                      pageSize: 10,
+                      onChange: fetchBlockRecords,
+                      showSizeChanger: false,
+                    }}
+                  />
                 ),
               },
               {
                 key: 'released',
                 label: `允许记录 (${releaseRecordsTotal})`,
                 children: (
-                  <>
-                    <div style={{ marginBottom: 16 }}>
-                      <Button
-                        danger
-                        icon={<ClearOutlined />}
-                        onClick={() => handleClearRecords()}
-                      >
-                        清空记录
-                      </Button>
-                    </div>
-                    <Table
-                      columns={recordColumns}
-                      dataSource={releaseRecords}
-                      rowKey="id"
-                      pagination={{
-                        total: releaseRecordsTotal,
-                        pageSize: 10,
-                        onChange: fetchReleaseRecords,
-                      }}
-                    />
-                  </>
+                  <Table
+                    columns={recordColumns}
+                    dataSource={releaseRecords}
+                    rowKey="id"
+                    locale={{ emptyText: <Empty description="暂无允许记录" /> }}
+                    pagination={{
+                      total: releaseRecordsTotal,
+                      pageSize: 10,
+                      onChange: fetchReleaseRecords,
+                      showSizeChanger: false,
+                    }}
+                  />
                 ),
               },
             ]}
@@ -405,8 +423,10 @@ const IpFilter: React.FC = () => {
           blackForm.resetFields();
         }}
         onOk={() => blackForm.submit()}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={blackForm} onFinish={handleAddToBlacklist} layout="vertical">
+        <Form form={blackForm} onFinish={handleAddToBlacklist} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="ip"
             label="IP地址"
@@ -426,8 +446,10 @@ const IpFilter: React.FC = () => {
           whiteForm.resetFields();
         }}
         onOk={() => whiteForm.submit()}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={whiteForm} onFinish={handleAddToWhitelist} layout="vertical">
+        <Form form={whiteForm} onFinish={handleAddToWhitelist} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="ip"
             label="IP地址"

@@ -12,6 +12,7 @@ import {
   InputNumber,
   message,
   Popconfirm,
+  Empty
 } from 'antd';
 import {
   ReloadOutlined,
@@ -157,8 +158,8 @@ const HttpApp: React.FC = () => {
       key: 'routeType',
       render: (type: number) => {
         const option = routeTypeOptions.find((o) => o.value === type);
-        const colorMap: Record<number, string> = { 1: 'blue', 2: 'orange', 3: 'green' };
-        return <Tag color={colorMap[type]}>{option?.label}</Tag>;
+        const colorMap: Record<number, string> = { 1: 'processing', 2: 'warning', 3: 'success' };
+        return <Tag color={colorMap[type] || 'default'} bordered={false}>{option?.label}</Tag>;
       },
     },
     {
@@ -188,9 +189,11 @@ const HttpApp: React.FC = () => {
       width: 150,
       fixed: 'right' as const,
       render: (_, record) => (
-        <Space>
+        <Space size="middle">
           <Button
             type="link"
+            size="small"
+            style={{ padding: 0 }}
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
@@ -200,7 +203,7 @@ const HttpApp: React.FC = () => {
             title="确定删除此路由规则？"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button type="link" danger icon={<DeleteOutlined />}>
+            <Button type="text" danger size="small" style={{ padding: 0 }} icon={<DeleteOutlined />}>
               删除
             </Button>
           </Popconfirm>
@@ -215,7 +218,9 @@ const HttpApp: React.FC = () => {
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
         <Card
-          title="HTTP应用 - 域名路由"
+          title={<span style={{ fontSize: 16, fontWeight: 600 }}>HTTP应用 - 域名路由</span>}
+          bordered={false}
+          style={{ borderRadius: 12 }}
           extra={
             <Space>
               <Input
@@ -223,6 +228,7 @@ const HttpApp: React.FC = () => {
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
+                allowClear
                 style={{ width: 250 }}
               />
               <Button
@@ -244,11 +250,13 @@ const HttpApp: React.FC = () => {
             rowKey="id"
             loading={loading}
             scroll={{ x: 800 }}
+            locale={{ emptyText: <Empty description="暂无路由规则" /> }}
             pagination={{
               current: currentPage,
               total,
               pageSize: 10,
               onChange: fetchRules,
+              showSizeChanger: false,
             }}
           />
         </Card>
@@ -263,8 +271,10 @@ const HttpApp: React.FC = () => {
         }}
         onOk={() => form.submit()}
         width={600}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
       >
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
+        <Form form={form} onFinish={handleSubmit} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
             name="hostKeyword"
             label="域名关键词"

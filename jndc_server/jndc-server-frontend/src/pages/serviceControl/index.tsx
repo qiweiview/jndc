@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Empty, Input, InputNumber, Select, Space, Table, Tag, message } from 'antd';
-import { PlusOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -130,6 +130,7 @@ const ServiceControl: React.FC = () => {
         <Input
           value={record.serviceName}
           disabled={!editable}
+          placeholder="如 web-ui"
           onChange={(event) => updateService(index, { serviceName: event.target.value })}
         />
       ),
@@ -141,6 +142,7 @@ const ServiceControl: React.FC = () => {
         <Input
           value={record.serviceIp}
           disabled={!editable}
+          placeholder="如 127.0.0.1"
           onChange={(event) => updateService(index, { serviceIp: event.target.value })}
         />
       ),
@@ -156,6 +158,7 @@ const ServiceControl: React.FC = () => {
           style={{ width: '100%' }}
           value={record.servicePort}
           disabled={!editable}
+          placeholder="8080"
           onChange={(value) => updateService(index, { servicePort: Number(value ?? 0) })}
         />
       ),
@@ -167,17 +170,21 @@ const ServiceControl: React.FC = () => {
         <Input
           value={record.description}
           disabled={!editable}
+          placeholder="服务描述"
           onChange={(event) => updateService(index, { description: event.target.value })}
         />
       ),
     },
     {
       title: '操作',
-      width: 96,
+      width: 80,
       render: (_, __, index) => (
         <Button
           danger
-          type="link"
+          type="text"
+          size="small"
+          style={{ padding: 0 }}
+          icon={<DeleteOutlined />}
           disabled={!editable}
           onClick={() => setTargetServices((current) => current.filter((_, currentIndex) => currentIndex !== index))}
         >
@@ -198,12 +205,14 @@ const ServiceControl: React.FC = () => {
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
         <Card
-          title="全授权服务管控"
+          title={<span style={{ fontSize: 16, fontWeight: 600 }}>全授权服务管控</span>}
+          bordered={false}
+          style={{ borderRadius: 12 }}
           extra={
             <Space>
               <Select
                 placeholder="选择客户端"
-                style={{ width: 420 }}
+                style={{ width: 360 }}
                 value={selectedClientId || undefined}
                 options={channelOptions}
                 onChange={(value) => setSearchParams({ clientId: value })}
@@ -220,20 +229,26 @@ const ServiceControl: React.FC = () => {
           }
         >
           {!selectedClientId || !detail ? (
-            <Empty description="请选择一个客户端" />
+            <Empty description="请在右上角选择一个需要管控的客户端" />
           ) : (
-            <Space direction="vertical" size={16} style={{ width: '100%' }}>
-              <Space>
-                <Tag color={detail.online ? 'green' : 'red'}>{detail.online ? '在线' : '离线'}</Tag>
-                <Tag color={detail.authMode === FULL_AUTHORIZED ? 'blue' : 'default'}>
-                  {detail.authMode === FULL_AUTHORIZED ? 'FULL_AUTHORIZED' : 'SELF_MANAGED'}
-                </Tag>
-                {!editable && <Tag color="orange">仅在线且全授权 client 可编辑</Tag>}
-              </Space>
+            <Space direction="vertical" size={24} style={{ width: '100%' }}>
+              <div style={{ padding: '0 8px' }}>
+                <Space>
+                  <span style={{ color: '#646A73' }}>客户端状态：</span>
+                  <Tag color={detail.online ? 'success' : 'error'} bordered={false}>
+                    {detail.online ? '在线' : '离线'}
+                  </Tag>
+                  <Tag color={detail.authMode === FULL_AUTHORIZED ? 'processing' : 'default'} bordered={false}>
+                    {detail.authMode === FULL_AUTHORIZED ? 'FULL_AUTHORIZED' : 'SELF_MANAGED'}
+                  </Tag>
+                  {!editable && <Tag color="warning" bordered={false}>仅在线且处于全授权模式的客户端可编辑目标服务</Tag>}
+                </Space>
+              </div>
 
               <Card
                 size="small"
-                title="目标服务清单"
+                title={<span style={{ fontWeight: 600 }}>目标服务清单</span>}
+                style={{ borderRadius: 8, borderColor: '#EFF0F1', boxShadow: 'none' }}
                 extra={
                   <Space>
                     <Button
@@ -241,10 +256,10 @@ const ServiceControl: React.FC = () => {
                       disabled={!editable}
                       onClick={() => setTargetServices((current) => [...current, createEmptyService()])}
                     >
-                      新增
+                      新增服务
                     </Button>
                     <Button type="primary" icon={<SaveOutlined />} loading={saving} disabled={!editable} onClick={handleSave}>
-                      保存
+                      保存清单
                     </Button>
                   </Space>
                 }
@@ -255,16 +270,22 @@ const ServiceControl: React.FC = () => {
                   dataSource={targetServices}
                   loading={loading}
                   pagination={false}
+                  locale={{ emptyText: <Empty description="暂无目标服务" /> }}
                 />
               </Card>
 
-              <Card size="small" title="当前实际在线清单">
+              <Card
+                size="small"
+                title={<span style={{ fontWeight: 600 }}>当前实际在线清单</span>}
+                style={{ borderRadius: 8, borderColor: '#EFF0F1', boxShadow: 'none' }}
+              >
                 <Table<ServiceDescription>
                   rowKey={(record) => `${record.serviceIp}-${record.servicePort}`}
                   columns={actualColumns}
                   dataSource={detail.actualServices ?? []}
                   loading={loading}
                   pagination={false}
+                  locale={{ emptyText: <Empty description="客户端当前无实际上报的在线服务" /> }}
                 />
               </Card>
             </Space>

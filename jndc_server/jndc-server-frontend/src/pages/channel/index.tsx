@@ -9,21 +9,20 @@ import {
   Modal,
   message,
   Tabs,
+  Popconfirm,
+  Empty
 } from 'antd';
 import {
   ReloadOutlined,
   SearchOutlined,
-  HeartOutlined,
-  DisconnectOutlined,
   DeleteOutlined,
-  ControlOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
 import { channelApi } from '../../api/channel';
 import { ChannelContext, ChannelRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
-import { slideUpVariants, staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
+import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,6 +34,7 @@ const ChannelList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [recordPage, setRecordPage] = useState(1);
+  const [activeTabKey, setActiveTabKey] = useState('active');
 
   const fetchChannels = useCallback(async () => {
     setLoading(true);
@@ -82,26 +82,12 @@ const ChannelList: React.FC = () => {
     }
   };
 
-  const handleCloseChannel = (channelId: string) => {
-    Modal.confirm({
-      title: '确认关闭',
-      content: `确定要关闭隧道 ${channelId} 吗？`,
-      onOk: async () => {
-        try {
-          await channelApi.closeChannelByServer(channelId);
-          message.success('隧道已关闭');
-          fetchChannels();
-        } catch (error) {
-          // Error handled by interceptor
-        }
-      },
-    });
-  };
-
   const handleClearRecords = () => {
     Modal.confirm({
       title: '确认清空',
-      content: '确定要清空所有断开记录吗？',
+      content: '确定要清空所有断开记录吗？此操作无法恢复。',
+      okText: '清空',
+      okButtonProps: { danger: true },
       onOk: async () => {
         try {
           await channelApi.clearChannelRecord();
@@ -160,7 +146,7 @@ const ChannelList: React.FC = () => {
       dataIndex: 'connected',
       key: 'connected',
       render: (connected: boolean) => (
-        <Tag color={connected ? 'green' : 'red'}>
+        <Tag color={connected ? 'success' : 'default'} bordered={false}>
           {connected ? '已连接' : '已断开'}
         </Tag>
       ),
@@ -170,7 +156,7 @@ const ChannelList: React.FC = () => {
       dataIndex: 'authMode',
       key: 'authMode',
       render: (authMode: number) => (
-        <Tag color={authMode === 1 ? 'blue' : 'default'}>
+        <Tag color={authMode === 1 ? 'processing' : 'default'} bordered={false}>
           {authMode === 1 ? 'FULL_AUTHORIZED' : 'SELF_MANAGED'}
         </Tag>
       ),
@@ -178,13 +164,14 @@ const ChannelList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 260,
+      width: 180,
       fixed: 'right' as const,
       render: (_, record) => (
-        <Space>
+        <Space size="middle">
           <Button
             type="link"
-            icon={<ControlOutlined />}
+            size="small"
+            style={{ padding: 0 }}
             disabled={!record.connected || record.authMode !== 1}
             onClick={() => navigate(`/management/serviceControl?clientId=${record.clientId}`)}
           >
@@ -192,19 +179,29 @@ const ChannelList: React.FC = () => {
           </Button>
           <Button
             type="link"
-            icon={<HeartOutlined />}
+            size="small"
+            style={{ padding: 0 }}
             onClick={() => handleSendHeartbeat(record.channelId)}
           >
             心跳
           </Button>
-          <Button
-            type="link"
-            danger
-            icon={<DisconnectOutlined />}
-            onClick={() => handleCloseChannel(record.channelId)}
+          <Popconfirm
+            title="确认断开"
+            description={`确定要断开隧道 ${record.channelId} 吗？`}
+            onConfirm={async () => {
+              try {
+                await channelApi.closeChannelByServer(record.channelId);
+                message.success('隧道已关闭');
+                fetchChannels();
+              } catch (error) {
+                // Error handled by interceptor
+              }
+            }}
           >
-            断开
-          </Button>
+            <Button type="text" danger size="small" style={{ padding: 0 }}>
+              断开
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -243,35 +240,48 @@ const ChannelList: React.FC = () => {
     },
   ];
 
+  const tabBarExtra = activeTabKey === 'active' ? (
+    <Space>
+      <Input
+        placeholder="搜索隧道ID或IP"
+        prefix={<SearchOutlined />}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        allowClear
+        style={{ width: 240 }}
+      />
+      <Button icon={<ReloadOutlined />} onClick={fetchChannels}>
+        刷新
+      </Button>
+    </Space>
+  ) : (
+    <Space>
+      <Button
+        danger
+        icon={<DeleteOutlined />}
+        onClick={handleClearRecords}
+      >
+        清空记录
+      </Button>
+      <Button icon={<ReloadOutlined />} onClick={() => fetchRecords(1)}>
+        刷新
+      </Button>
+    </Space>
+  );
+
   return (
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
-        <Tabs
-          defaultActiveKey="active"
-          items={[
-            {
-              key: 'active',
-              label: '活跃隧道',
-              children: (
-                <Card
-                  extra={
-                    <Space>
-                      <Input
-                        placeholder="搜索隧道ID或IP"
-                        prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: 250 }}
-                      />
-                      <Button
-                        icon={<ReloadOutlined />}
-                        onClick={fetchChannels}
-                      >
-                        刷新
-                      </Button>
-                    </Space>
-                  }
-                >
+        <Card bordered={false} style={{ borderRadius: 12 }}>
+          <Tabs
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
+            tabBarExtraContent={tabBarExtra}
+            items={[
+              {
+                key: 'active',
+                label: '活跃隧道',
+                children: (
                   <Table
                     columns={channelColumns}
                     dataSource={filteredChannels}
@@ -279,42 +289,33 @@ const ChannelList: React.FC = () => {
                     loading={loading}
                     pagination={false}
                     scroll={{ x: 900 }}
+                    locale={{ emptyText: <Empty description="暂无活跃隧道" /> }}
                   />
-                </Card>
-              ),
-            },
-            {
-              key: 'history',
-              label: '断开记录',
-              children: (
-                <Card
-                  extra={
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={handleClearRecords}
-                    >
-                      清空记录
-                    </Button>
-                  }
-                >
+                ),
+              },
+              {
+                key: 'history',
+                label: '断开记录',
+                children: (
                   <Table
                     columns={recordColumns}
                     dataSource={records}
                     rowKey="id"
                     scroll={{ x: 600 }}
+                    locale={{ emptyText: <Empty description="暂无断开记录" /> }}
                     pagination={{
                       current: recordPage,
                       total: recordsTotal,
                       pageSize: 10,
                       onChange: fetchRecords,
+                      showSizeChanger: false,
                     }}
                   />
-                </Card>
-              ),
-            },
-          ]}
-        />
+                ),
+              },
+            ]}
+          />
+        </Card>
       </motion.div>
     </motion.div>
   );

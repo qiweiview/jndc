@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Table, Card, Button, Space, Input, Tag } from 'antd';
+import { Table, Card, Button, Space, Input, Tag, Empty } from 'antd';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
@@ -37,8 +37,8 @@ const ServiceList: React.FC = () => {
     (s) =>
       s.serviceName.includes(searchText) ||
       s.serviceIp.includes(searchText) ||
-      s.clientIp.includes(searchText) ||
-      s.clientId.includes(searchText)
+      (s.clientIp ?? '').includes(searchText) ||
+      (s.clientId ?? '').includes(searchText)
   );
 
   const columns: ColumnsType<ServiceDescription> = [
@@ -71,7 +71,7 @@ const ServiceList: React.FC = () => {
     {
       title: '状态',
       key: 'status',
-      render: () => <Tag color="green">在线</Tag>,
+      render: () => <Tag color="success" bordered={false}>在线</Tag>,
     },
   ];
 
@@ -79,7 +79,9 @@ const ServiceList: React.FC = () => {
     <motion.div variants={staggerContainerVariants} initial="initial" animate="animate">
       <motion.div variants={staggerItemVariants}>
         <Card
-          title="服务注册信息"
+          title={<span style={{ fontSize: 16, fontWeight: 600 }}>服务注册信息</span>}
+          bordered={false}
+          style={{ borderRadius: 12 }}
           extra={
             <Space>
               <Input
@@ -87,7 +89,8 @@ const ServiceList: React.FC = () => {
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 300 }}
+                allowClear
+                style={{ width: 260 }}
               />
               <Button icon={<ReloadOutlined />} onClick={fetchServices}>
                 刷新
@@ -101,6 +104,8 @@ const ServiceList: React.FC = () => {
             rowKey={(record) => `${record.clientId}-${record.serviceIp}-${record.servicePort}`}
             loading={loading}
             pagination={false}
+            scroll={{ x: 800 }}
+            locale={{ emptyText: <Empty description="暂无注册服务" /> }}
           />
         </Card>
       </motion.div>
