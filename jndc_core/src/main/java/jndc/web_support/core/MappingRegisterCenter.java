@@ -2,6 +2,7 @@ package jndc.web_support.core;
 
 import jndc.utils.JSONUtils;
 import jndc.web_support.model.dto.ResponseMessage;
+import jndc.web_support.utils.UriUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -41,7 +42,7 @@ public class MappingRegisterCenter {
     }
 
     public byte[] invokeMapping(JNDCHttpRequest jndcHttpRequest) {
-        String fullPath = jndcHttpRequest.getFullPath();
+        String fullPath = UriUtils.normalizeRequestPath(jndcHttpRequest.getFullPath());
         MappingMethodDescription mappingMethodDescription = mappingMap.get(fullPath);
         if (mappingMethodDescription == null) {
             return null;

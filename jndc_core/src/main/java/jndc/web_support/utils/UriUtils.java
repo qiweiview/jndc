@@ -1,5 +1,7 @@
 package jndc.web_support.utils;
 
+import jndc.utils.StringUtils4V;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +50,19 @@ public class UriUtils {
             parseResult.put(key, value);
         }
         return parseResult;
+    }
+
+    public static String normalizeRequestPath(String path) {
+        if (StringUtils4V.isBlank(path)) {
+            return path;
+        }
+        if ("/api".equals(path)) {
+            return "/";
+        }
+        if (path.startsWith("/api/")) {
+            return path.substring(4);
+        }
+        return path;
     }
 
     public static class ParseResult {

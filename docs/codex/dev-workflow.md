@@ -57,8 +57,8 @@ pnpm build
 
 当前 `vite.config.ts` 实际开发端口是 `5173`，并代理：
 
-- `/api/*` -> `http://localhost:777/*`
-- `/ws` -> `ws://localhost:777/ws`
+- `/api/*` -> `http://localhost:1777/*`
+- `/ws` -> `ws://localhost:1777/ws`
 
 ## 4. 启动顺序
 
@@ -70,7 +70,7 @@ pnpm build
 
 典型联调端口：
 
-- 管理 API：`777`
+- 管理 API：`1777`
 - TCP 隧道：`1081`
 - HTTP 服务：`1080`
 - Vite Dev Server：`5173`
@@ -151,5 +151,4 @@ cd jndc_server/jndc-server-backend/target/jndc_server/bin
 ## 8. 当前已知不一致
 
 - 旧说明里出现过前端端口 `778`，代码实际是 `5173`
-- 部分模板配置仍使用旧端口 `81` / `80`
 - 运行时以 `~/.jndc` 为准，不以仓库内模板和旧 README 为准

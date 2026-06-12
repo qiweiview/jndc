@@ -1,18 +1,18 @@
 secrete: "your-secret-key-here" # 服务端密钥，用于客户端认证，请务必修改为安全的密钥
 loglevel: "info" # 日志级别，可选值：debug, info, warn, error
 serverIp: "your-server-ip" # 服务端监听IP地址
-serverPort: "81" # 服务端监听端口
+serverPort: "1081" # 服务端监听端口
 autoReleaseTimeOut: 600000 # 客户端空闲超时自动断开时间（毫秒）
 authMode: 0 # 授权模式：0=SELF_MANAGED(自管理), 1=FULL_AUTHORIZED(全授权受服务端控制)
 
 clientServiceDescriptions: # 客户端服务配置列表
   - serviceName: "example-service" # 服务名称
     serviceIp: "example.com" # 服务域名或IP
-    servicePort: "80" # 服务端口
+    servicePort: "8080" # 服务端口
     serviceEnable: false # 是否启用该服务
 
 manageConfig: # 管理控制台配置
-  managementApiPort: 777 # 管理API端口
+  managementApiPort: 1777 # 管理API端口
   useSsl: false # 是否启用SSL加密
   jksPath: "path/to/your/certificate.jks" # SSL证书路径
   jksPass: "your-jks-password" # SSL证书密码

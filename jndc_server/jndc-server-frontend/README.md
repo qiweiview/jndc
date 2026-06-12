@@ -28,7 +28,7 @@
 # 安装依赖
 pnpm install
 
-# 启动开发服务器 (端口: 778)
+# 启动开发服务器 (端口: 5173)
 pnpm dev
 
 # 构建生产版本
@@ -42,8 +42,8 @@ pnpm preview
 
 开发模式下，API 请求会自动代理到后端服务：
 
-- `/api/*` → `http://localhost:777/*`
-- `/ws` → `ws://localhost:777/ws`
+- `/api/*` → `http://localhost:1777/*`
+- `/ws` → `ws://localhost:1777/ws`
 
 ## 项目结构
 

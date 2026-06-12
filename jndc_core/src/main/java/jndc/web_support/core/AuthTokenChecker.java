@@ -44,13 +44,14 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
         if (requestPath == null) {
             requestPath = fullHttpRequest.uri();
         }
+        requestPath = UriUtils.normalizeRequestPath(requestPath);
         String s = fullHttpRequest.headers().get(HttpHeaderNames.UPGRADE);
         if ("websocket".equals(s)) {
             //websocket
             verificationToken(parseResult.getQueryMap().get(AUTH_TOKEN), channelHandlerContext);
 
             //reset uri
-            fullHttpRequest.setUri(parseResult.getReduceUri());
+            fullHttpRequest.setUri(requestPath);
 
         } else {
             //base http

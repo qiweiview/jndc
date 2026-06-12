@@ -5,12 +5,12 @@ secrete: "your-secret-key-here"
 loglevel: "info"
 
 # 服务端基础配置
-servicePort: 81 # JNDC服务端监听端口
+servicePort: 1081 # JNDC服务端监听端口
 bindIp: "127.0.0.1" # JNDC服务端绑定IP地址
 
 # 管理后台配置
 manageConfig:
-  managementApiPort: 777 # 管理后台API服务端口
+  managementApiPort: 1777 # 管理后台API服务端口
   useSsl: false # 是否启用SSL加密
   jksPath: "path/to/your/certificate.jks" # SSL证书路径
   jksPass: "your_jks_password" # SSL证书密码
@@ -20,7 +20,7 @@ manageConfig:
 # Web服务配置
 webConfig:
   notFoundPage: "path/to/your/404.html" # 404错误页面路径
-  httpPort: 80 # HTTP服务端口
+  httpPort: 1080 # HTTP服务端口
   useSsl: false # 是否启用SSL加密
   jksPath: "path/to/your/certificate.jks" # SSL证书路径
   jksPass: "your_jks_password" # SSL证书密码

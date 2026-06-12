@@ -74,11 +74,11 @@ blackList: # ip access blacklist
 #- "192.168.1.1"
 whiteList: # whitelist
 #- "192.168.1.2"
-servicePort: 81 # jndc server running listening port
+servicePort: 1081 # jndc server running listening port
 bindIp: "127.0.0.1" # jndc server running ip
 
 manageConfig: # management-side api service
-  managementApiPort: 777 #Management api port
+  managementApiPort: 1777 #Management api port
   useSsl: false # Whether to use ssl
   jksPath: "/xx.jks" #jks certificate address
   jksPass: "xxx" # jks certificate password
@@ -87,7 +87,7 @@ manageConfig: # management-side api service
 
 webConfig: # http web service
   notFoundPage: "/404.html"
-  httpPort: 80 # http application port
+  httpPort: 1080 # http application port
   useSsl: false # Whether to use ssl
   jksPath: "/xx.jks" #jks certificate address
   jksPass: "ddd" # jks certificate password
@@ -98,13 +98,13 @@ webConfig: # http web service
 secrete: "xxx1" # Server secret, it is very important to change it before use
 loglevel: "info" # log print level
 serverIp: "127.0.0.1" # Server running listening ip
-serverPort: "81" # server running port
+serverPort: "1081" # server running port
 openGui: false
 autoReleaseTimeOut: 600000 # Client auto disconnect time (milliseconds)
 clientServiceDescriptions: # register service
   - serviceName: "xx"
     serviceIp: "xx.com"
-    servicePort: "80"
+    servicePort: "8080"
     serviceEnable: true
 ````
 
@@ -120,6 +120,5 @@ clientServiceDescriptions: # register service
 * Thanks to jetbrains for supporting this open source project
 * [OpenSourceSupport](https://jb.gg/OpenSourceSupport)
 ![jetbrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_ga=2.159595956.84150952.1649035676-1273448.1647342519&_gl=1*1v0d1hp*_ga*MTI3MzQ0OC4xNjQ3MzQyNTE5*_ga_V0XZL7QHEB*MTY0OTAzNTY3NS4xLjEuMTY0OTAzODA2Ni42MA..)
-
 
 

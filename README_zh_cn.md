@@ -76,11 +76,11 @@ blackList: # ip访问黑名单
 #- "192.168.1.1"
 whiteList: # 白名单
 #- "192.168.1.2"
-servicePort: 81 # jndc服务端运行监听端口
+servicePort: 1081 # jndc服务端运行监听端口
 bindIp: "127.0.0.1" # jndc服务端运行ip
 
 manageConfig: # 管理端api服务
-  managementApiPort: 777 #管理api端口
+  managementApiPort: 1777 #管理api端口
   useSsl: false # 是否使用ssl
   jksPath: "/xx.jks" #jks 证书地址
   jksPass: "xxx" # jks 证书密码
@@ -89,7 +89,7 @@ manageConfig: # 管理端api服务
 
 webConfig: # http web服务
   notFoundPage: "/404.html"
-  httpPort: 80 # http应用端口
+  httpPort: 1080 # http应用端口
   useSsl: false # 是否使用ssl
   jksPath: "/xx.jks" #jks 证书地址
   jksPass: "ddd" # jks 证书密码
@@ -100,13 +100,13 @@ webConfig: # http web服务
 secrete: "xxx1" # 服务端密钥，很重要务必在使用前更改
 loglevel: "info" # 日志打印等级
 serverIp: "127.0.0.1" # 服务端运行监听ip
-serverPort: "81" # 服务端运行端口
+serverPort: "1081" # 服务端运行端口
 openGui: false
 autoReleaseTimeOut: 600000 # 客户端自动断开时间（毫秒）
 clientServiceDescriptions: # 注册服务
   - serviceName: "xx"
     serviceIp: "xx.com"
-    servicePort: "80"
+    servicePort: "8080"
     serviceEnable: true
 ```
 
@@ -122,6 +122,5 @@ clientServiceDescriptions: # 注册服务
 * Thanks to jetbrains for supporting this open source project
 * [OpenSourceSupport](https://jb.gg/OpenSourceSupport)
 ![jetbrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_ga=2.159595956.84150952.1649035676-1273448.1647342519&_gl=1*1v0d1hp*_ga*MTI3MzQ0OC4xNjQ3MzQyNTE5*_ga_V0XZL7QHEB*MTY0OTAzNTY3NS4xLjEuMTY0OTAzODA2Ni42MA..)
-
 
 
