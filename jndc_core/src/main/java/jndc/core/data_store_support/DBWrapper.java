@@ -118,10 +118,13 @@ public class DBWrapper<T> implements DBOperationI<T> {
      * @param annotation
      */
     private void markAsKey(Field x, DSKey annotation) {
-        primaryName = x.getName();
+        String fieldName = x.getName();
+        primaryName = fieldName;
+        x.setAccessible(true);
         String name = annotation.name();
         if (name.length() > 0) {
             primaryName = name;
+            aliasMap.put(name, fieldName);
         }
         primaryFile = x;
 

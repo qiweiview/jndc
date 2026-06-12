@@ -6,10 +6,41 @@ import {
   DateRangeEditParams,
 } from '../types';
 
+type BackendServerPortBind = {
+  id: string;
+  port: number;
+  routeTo?: string | null;
+  portEnable?: number;
+  enableDateRange?: string | null;
+  createTime?: string;
+};
+
+function normalizeServerPortBind(port: BackendServerPortBind): ServerPortBind {
+  const enableDateRange = port.enableDateRange?.trim();
+  const [timeRangeStart, timeRangeEnd] =
+    enableDateRange && enableDateRange.includes('-')
+      ? enableDateRange.split('-', 2).map((item) => item.trim())
+      : [undefined, undefined];
+
+  return {
+    id: port.id,
+    port: port.port,
+    routeTo: port.routeTo,
+    status: port.portEnable ?? 0,
+    portEnable: port.portEnable ?? 0,
+    enableDateRange: port.enableDateRange,
+    timeRangeStart,
+    timeRangeEnd,
+    createTime: port.createTime,
+  };
+}
+
 export const portApi = {
   // 获取端口列表
   getServerPortList: (port?: number) => {
-    return request.post<any, ServerPortBind[]>('/getServerPortList', { port });
+    return request
+      .post<any, BackendServerPortBind[]>('/getServerPortList', { port })
+      .then((data) => data.map(normalizeServerPortBind));
   },
 
   // 创建端口监听
@@ -28,17 +59,17 @@ export const portApi = {
   },
 
   // 停止服务绑定
-  stopServiceBind: (id: number) => {
+  stopServiceBind: (id: string) => {
     return request.post<any, void>('/stopServiceBind', { id });
   },
 
   // 删除端口绑定记录
-  deleteServiceBindRecord: (id: number) => {
+  deleteServiceBindRecord: (id: string) => {
     return request.post<any, void>('/deleteServiceBindRecord', { id });
   },
 
   // 重置绑定记录
-  resetBindRecord: (id: number) => {
+  resetBindRecord: (id: string) => {
     return request.post<any, void>('/resetBindRecord', { id });
   },
 };

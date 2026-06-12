@@ -485,7 +485,11 @@ public class ServerManageMapping {
 
                     tcpServiceDescriptions.forEach(service -> {
                         //todo 这里的y是 上下文中注册的服务
-                        if (service.getId().equals(channelContextVO.getServiceId())) {//find the service from contextHolder
+                        boolean matchedByServiceId = channelContextVO.getServiceId() != null
+                                && channelContextVO.getServiceId().equals(service.getId());
+                        boolean matchedByRouteTo = channelContextVO.getRouteTo() != null
+                                && channelContextVO.getRouteTo().equals(service.getRouteTo());
+                        if (matchedByServiceId || matchedByRouteTo) {//find the service from contextHolder
 
 
                             //设置服务路由路径

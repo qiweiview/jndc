@@ -60,6 +60,7 @@ export interface ChannelRecord {
 
 // 服务相关
 export interface ServiceDescription {
+  id?: string;
   serviceName: string;
   serviceIp: string;
   servicePort: number;
@@ -78,13 +79,15 @@ export interface ControlledServiceState {
 
 // 端口绑定相关
 export interface ServerPortBind {
-  id: number;
+  id: string;
   port: number;
-  routeTo: string;
-  status: number; // 0: 未绑定, 1: 已绑定
-  timeRangeStart: string;
-  timeRangeEnd: string;
-  createTime: string;
+  routeTo?: string | null;
+  status: number; // 0: 未绑定, 1: 已绑定, 2: 绑定中
+  portEnable?: number;
+  enableDateRange?: string | null;
+  timeRangeStart?: string;
+  timeRangeEnd?: string;
+  createTime?: string;
 }
 
 export interface CreatePortParams {
@@ -94,12 +97,13 @@ export interface CreatePortParams {
 }
 
 export interface ServiceBindParams {
-  id: number;
-  routeTo: string;
+  id: string;
+  serviceId?: string;
+  routeTo?: string;
 }
 
 export interface DateRangeEditParams {
-  id: number;
+  id: string;
   timeRangeStart: string;
   timeRangeEnd: string;
 }

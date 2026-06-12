@@ -47,6 +47,10 @@ const PortList: React.FC = () => {
   const [bindForm] = Form.useForm();
   const [editForm] = Form.useForm();
 
+  const buildRouteTo = useCallback((service: ServiceDescription) => {
+    return `${service.clientId}->${service.serviceIp}:${service.servicePort}`;
+  }, []);
+
   const fetchPorts = useCallback(async () => {
     setLoading(true);
     try {
@@ -92,12 +96,20 @@ const PortList: React.FC = () => {
     }
   };
 
-  const handleBind = async (values: { routeTo: string }) => {
+  const handleBind = async (values: { serviceKey: string }) => {
     if (!currentPort) return;
+    const selectedService = services.find(
+      (service) => (service.id ?? buildRouteTo(service)) === values.serviceKey
+    );
+    if (!selectedService) {
+      message.error('未找到要绑定的服务');
+      return;
+    }
     try {
       await portApi.doServiceBind({
         id: currentPort.id,
-        routeTo: values.routeTo,
+        serviceId: selectedService.id,
+        routeTo: buildRouteTo(selectedService),
       });
       message.success('服务绑定成功');
       setBindModalVisible(false);
@@ -125,7 +137,7 @@ const PortList: React.FC = () => {
     }
   };
 
-  const handleStopBind = async (id: number) => {
+  const handleStopBind = async (id: string) => {
     try {
       await portApi.stopServiceBind(id);
       message.success('已停止绑定');
@@ -135,7 +147,7 @@ const PortList: React.FC = () => {
     }
   };
 
-  const handleResetBind = async (id: number) => {
+  const handleResetBind = async (id: string) => {
     try {
       await portApi.resetBindRecord(id);
       message.success('已重置绑定');
@@ -145,7 +157,7 @@ const PortList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await portApi.deleteServiceBindRecord(id);
       message.success('已删除');
@@ -185,11 +197,11 @@ const PortList: React.FC = () => {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'success' : 'default'} bordered={false}>
-          {status === 1 ? '已绑定' : '未绑定'}
-        </Tag>
-      ),
+      render: (status: number) => {
+        const color = status === 1 ? 'success' : status === 2 ? 'processing' : 'default';
+        const text = status === 1 ? '已绑定' : status === 2 ? '绑定中' : '未绑定';
+        return <Tag color={color} bordered={false}>{text}</Tag>;
+      },
     },
     {
       title: '时间范围',
@@ -207,7 +219,7 @@ const PortList: React.FC = () => {
       key: 'createTime',
       width: 180,
       ellipsis: true,
-      render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
+      render: (text?: string) => (text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'),
     },
     {
       title: '操作',
@@ -216,7 +228,7 @@ const PortList: React.FC = () => {
       fixed: 'right' as const,
       render: (_, record) => (
         <Space size="middle">
-          {record.status === 0 ? (
+          {record.status !== 1 ? (
             <Button
               type="link"
               size="small"
@@ -364,7 +376,7 @@ const PortList: React.FC = () => {
       >
         <Form form={bindForm} onFinish={handleBind} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
-            name="routeTo"
+            name="serviceKey"
             label="选择服务"
             rules={[{ required: true, message: '请选择要绑定的服务' }]}
           >
@@ -372,7 +384,7 @@ const PortList: React.FC = () => {
               {services.map((s) => (
                 <Select.Option
                   key={`${s.clientId}-${s.serviceIp}-${s.servicePort}`}
-                  value={`${s.serviceIp}:${s.servicePort}`}
+                  value={s.id ?? buildRouteTo(s)}
                 >
                   {s.serviceName} ({s.serviceIp}:{s.servicePort})
                 </Select.Option>
