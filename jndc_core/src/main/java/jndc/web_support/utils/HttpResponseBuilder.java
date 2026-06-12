@@ -5,7 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 
 public class HttpResponseBuilder {
-    private static final byte[] notFoundModel = "<html><body>file not be found,maybe you want go to <a href=\"./index.html\">home page</a></body><html>".getBytes();
+    private static final byte[] notFoundModel = "<html><body>file not be found</body><html>".getBytes();
 
     private static final String TEXT_PLAIN = "text/plain;charset=utf-8";
 
