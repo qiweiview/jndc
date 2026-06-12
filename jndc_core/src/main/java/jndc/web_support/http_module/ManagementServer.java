@@ -14,6 +14,7 @@ import jndc.core.NettyComponentConfig;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.LogPrint;
+import jndc.utils.StringUtils4V;
 import jndc.web_support.config.ServeManageConfig;
 import jndc.web_support.core.*;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,9 @@ public class ManagementServer implements NDCApp<ServeManageConfig> {
 
         //部署端口
         int manageCenterPort = serverConfig.getManagementApiPort();
-        InetAddress localInetAddress = InetUtils.localInetAddress;
+        InetAddress localInetAddress = StringUtils4V.isBlank(serverConfig.getBindIp())
+                ? InetUtils.localInetAddress
+                : InetUtils.getByStringIpAddress(serverConfig.getBindIp());
         InetSocketAddress inetSocketAddress = new InetSocketAddress(localInetAddress, manageCenterPort);
 
 

@@ -16,8 +16,10 @@ import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerServiceDescription;
+import jndc_server.databases_object.ClientAuthRecord;
 import jndc_server.databases_object.ServerPortBind;
 import lombok.extern.slf4j.Slf4j;
+import jndc.utils.StringUtils4V;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -143,6 +145,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //registerServiceProvider
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ChannelHandlerContextHolder contextHolder = ndcServerConfigCenter.getContextHolder(channelHandlerContext);
+        if (contextHolder == null) {
+            channelHandlerContext.close();
+            throw new RuntimeException("隧道未建立，拒绝注销服务");
+        }
 
         //获取要注销服务列表
         List<TcpServiceDescription> tcpServiceDescriptions = registrationMessage.getTcpServiceDescriptions();
@@ -151,7 +158,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         List<ServerServiceDescription> serverServiceDescriptions = ServerServiceDescription.ofArray(tcpServiceDescriptions);
 
         //移除对应服务
-        ndcServerConfigCenter.removeServiceByChannelId(registrationMessage.getChannelId(), serverServiceDescriptions);
+        ndcServerConfigCenter.removeServiceByChannelId(contextHolder.getClientId(), serverServiceDescriptions);
     }
 
     /**
@@ -178,10 +185,15 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //获取注册中心
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ChannelHandlerContextHolder contextHolder = ndcServerConfigCenter.getContextHolder(channelHandlerContext);
+        if (contextHolder == null) {
+            channelHandlerContext.close();
+            throw new RuntimeException("隧道未建立，拒绝注册服务");
+        }
 
 
         //服务端唯一Id
-        String channelId = registrationMessage.getChannelId();
+        String channelId = contextHolder.getClientId();
 
 
         //提取注册服务集合
@@ -231,6 +243,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         }
         /* -------------------- 鉴权 -------------------- */
 
+        verifyClientIdentity(openChannelMessage);
+
 
         //获取注册中心
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
@@ -263,10 +277,37 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
      *
      * @param registrationMessage
      */
-    private void handleHeartBeatFromClient(OpenChannelMessage registrationMessage) {
+    private void handleHeartBeatFromClient(ChannelHandlerContext channelHandlerContext) {
         NDCServerConfigCenter ndcServerConfigCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ChannelHandlerContextHolder holder = ndcServerConfigCenter.getContextHolder(channelHandlerContext);
+        if (holder == null) {
+            return;
+        }
         //刷新心跳时间
-        ndcServerConfigCenter.refreshHeartBeatTimeStamp(registrationMessage.getChannelId());
+        ndcServerConfigCenter.refreshHeartBeatTimeStamp(holder.getClientId());
+    }
+
+    private void verifyClientIdentity(OpenChannelMessage openChannelMessage) {
+        if (openChannelMessage == null || StringUtils4V.isBlank(openChannelMessage.getChannelId())) {
+            throw new RuntimeException("clientId 缺失");
+        }
+        if (StringUtils4V.isBlank(openChannelMessage.getClientAuthKey())) {
+            throw new RuntimeException("clientAuthKey 缺失");
+        }
+
+        DBWrapper<ClientAuthRecord> dbWrapper = DBWrapper.getDBWrapper(ClientAuthRecord.class);
+        ClientAuthRecord clientAuthRecord = dbWrapper.customQuerySingle("select * from client_auth_record where client_id=?", openChannelMessage.getChannelId());
+        if (clientAuthRecord == null) {
+            clientAuthRecord = new ClientAuthRecord();
+            clientAuthRecord.setClientId(openChannelMessage.getChannelId());
+            clientAuthRecord.setClientAuthKey(openChannelMessage.getClientAuthKey());
+            dbWrapper.insert(clientAuthRecord);
+            return;
+        }
+
+        if (!openChannelMessage.getClientAuthKey().equals(clientAuthRecord.getClientAuthKey())) {
+            throw new RuntimeException("clientAuthKey 校验失败");
+        }
     }
 
     @Override
@@ -277,8 +318,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             switch (type) {
                 case NDCMessageProtocol.CHANNEL_HEART_BEAT:
                     log.debug("get heart beat");
-                    OpenChannelMessage registrationMessage = ndcMessageProtocol.getObject(OpenChannelMessage.class);
-                    handleHeartBeatFromClient(registrationMessage);
+                    handleHeartBeatFromClient(channelHandlerContext);
                     break;
 
                 case NDCMessageProtocol.TCP_DATA:

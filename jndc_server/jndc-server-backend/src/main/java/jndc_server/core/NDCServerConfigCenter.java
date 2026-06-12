@@ -99,6 +99,22 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     }
 
+    public ChannelHandlerContextHolder getContextHolder(ChannelHandlerContext context) {
+        if (context == null) {
+            return null;
+        }
+        for (ChannelHandlerContextHolder holder : channelHandlerContextHolderMap.values()) {
+            if (holder.checkSame(context)) {
+                return holder;
+            }
+        }
+        return null;
+    }
+
+    public ChannelHandlerContextHolder getContextHolder(String clientId) {
+        return channelHandlerContextHolderMap.get(clientId);
+    }
+
 
     /**
      * 取消服务上下文描述

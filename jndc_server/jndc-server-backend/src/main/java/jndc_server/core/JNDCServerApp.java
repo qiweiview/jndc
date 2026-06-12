@@ -41,6 +41,7 @@ public class JNDCServerApp {
 
         JNDCServerConfig jndcServerConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         ServeManageConfig manageConfig = jndcServerConfig.getManageConfig();
+        manageConfig.setBindIp(jndcServerConfig.getBindIp());
 
         //处理静态项目地址（前端产物随项目构建，放在分发根目录下）
         String appDir = new File(System.getProperty("user.dir")).getParent();

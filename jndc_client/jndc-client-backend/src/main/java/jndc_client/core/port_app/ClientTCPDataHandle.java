@@ -1,6 +1,8 @@
 package jndc_client.core.port_app;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import jndc.core.NDCMessageProtocol;
@@ -20,6 +22,10 @@ import java.util.UUID;
 @Slf4j
 public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
+    private static final int MAX_PENDING_BUFFER_COUNT = 128;
+
+    private static final int MAX_PENDING_BUFFER_BYTES = 1024 * 1024;
+
     private final String tId = UUID.randomUUID().toString();
 
     private long createTime;
@@ -38,9 +44,18 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     // 连接建立前缓存的待发送数据
     private final List<ByteBuf> pendingBuffers = new ArrayList<>();
 
+    private volatile int pendingBufferBytes;
 
-    public ClientTCPDataHandle(NDCMessageProtocol messageModel) {
+    private volatile ChannelFuture connectFuture;
+
+    private final Runnable releaseCallback;
+
+    private volatile boolean interruptSent = false;
+
+
+    public ClientTCPDataHandle(NDCMessageProtocol messageModel, Runnable releaseCallback) {
         this.messageModel = messageModel;
+        this.releaseCallback = releaseCallback;
         this.createTime = System.currentTimeMillis();
     }
 
@@ -61,6 +76,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
                 channelHandlerContext.writeAndFlush(buf);
             }
             pendingBuffers.clear();
+            pendingBufferBytes = 0;
         }
     }
 
@@ -92,7 +108,16 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
                     // 双重检查：可能在等待锁期间连接已建立
                     channelHandlerContext.writeAndFlush(byteBuf);
                 } else {
+                    int nextBytes = pendingBufferBytes + byteBuf.readableBytes();
+                    if (pendingBuffers.size() >= MAX_PENDING_BUFFER_COUNT || nextBytes > MAX_PENDING_BUFFER_BYTES) {
+                        log.error("pending buffers overflow, drop local forward connection " + tId);
+                        ReferenceCountUtil.release(byteBuf);
+                        notifyRemoteConnectionInterrupted();
+                        releaseRelatedResources();
+                        return;
+                    }
                     pendingBuffers.add(byteBuf);
+                    pendingBufferBytes = nextBytes;
                 }
             }
         }
@@ -134,10 +159,7 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
 
         //发送中断消息给服务端
-        NDCMessageProtocol copy = messageModel.copy();
-        copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
-        copy.setData(NDCMessageProtocol.BLANK);
-        UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
+        notifyRemoteConnectionInterrupted();
 
         //释放本地连接
         releaseRelatedResources();
@@ -157,11 +179,36 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
      * 释放本地连接
      */
     public void releaseRelatedResources() {
+        if (released) {
+            return;
+        }
         released = true;
+        if (connectFuture != null && !connectFuture.isDone()) {
+            connectFuture.cancel(true);
+        }
         if (channelHandlerContext != null) {
             //关闭到本地服务的连接
             channelHandlerContext.close();
             channelHandlerContext = null;
         }
+        synchronized (pendingBuffers) {
+            pendingBuffers.forEach(ReferenceCountUtil::release);
+            pendingBuffers.clear();
+            pendingBufferBytes = 0;
+        }
+        if (releaseCallback != null) {
+            releaseCallback.run();
+        }
+    }
+
+    public void notifyRemoteConnectionInterrupted() {
+        if (interruptSent) {
+            return;
+        }
+        interruptSent = true;
+        NDCMessageProtocol copy = messageModel.copy();
+        copy.setType(NDCMessageProtocol.CONNECTION_INTERRUPTED);
+        copy.setData(NDCMessageProtocol.BLANK);
+        UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(copy);
     }
 }

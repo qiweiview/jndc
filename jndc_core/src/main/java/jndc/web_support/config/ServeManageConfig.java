@@ -16,6 +16,8 @@ import java.io.File;
 @Data
 public class ServeManageConfig {
 
+    private String bindIp;
+
     //管理页面api 端口
     private int managementApiPort;
 

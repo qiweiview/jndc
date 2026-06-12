@@ -168,4 +168,29 @@ public class JNDCClientConfig {
         }
 
     }
+
+    public void loadClientAuthKey() {
+        File file = new File(ClientDirectManager.authKeyPath);
+        if (file.exists()) {
+            try {
+                ClientStart.CLIENT_AUTH_KEY = FileUtils.readFileToString(file, ID_CHARSET).trim();
+            } catch (IOException e) {
+                log.error("load client auth key fail,cause " + e);
+                ApplicationExit.exit();
+            }
+        } else {
+            ClientStart.CLIENT_AUTH_KEY = UUIDSimple.id() + UUIDSimple.id();
+            try {
+                FileUtils.writeStringToFile(file, ClientStart.CLIENT_AUTH_KEY, ID_CHARSET);
+            } catch (IOException e) {
+                log.error("create client auth key fail,cause " + e);
+                ApplicationExit.exit();
+            }
+        }
+
+        if (ClientStart.CLIENT_AUTH_KEY == null || "".equals(ClientStart.CLIENT_AUTH_KEY.trim())) {
+            log.error("client auth key is blank");
+            ApplicationExit.exit();
+        }
+    }
 }

@@ -21,11 +21,71 @@ import jndc_server.web_support.utils.ServerUrlConstant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * singleton， thread unsafe
  */
 public class ServerHttpManageMapping {
+
+    private static final Pattern HOST_KEYWORD_PATTERN = Pattern.compile("^[A-Za-z0-9_-]{1,50}$");
+
+    private ResponseMessage validateAndNormalizeRule(HostRouteDTO hostRouteDTO, HttpHostRoute httpHostRoute) {
+        ResponseMessage responseMessage = new ResponseMessage();
+        if (hostRouteDTO == null) {
+            responseMessage.error();
+            responseMessage.setMessage("请求参数不能为空");
+            return responseMessage;
+        }
+
+        if (StringUtils4V.isBlank(hostRouteDTO.getHostKeyWord())) {
+            responseMessage.error();
+            responseMessage.setMessage("包含字符不能为空");
+            return responseMessage;
+        }
+
+        if (!HOST_KEYWORD_PATTERN.matcher(hostRouteDTO.getHostKeyWord()).matches()) {
+            responseMessage.error();
+            responseMessage.setMessage("路由键仅支持字母、数字、下划线和短横线");
+            return responseMessage;
+        }
+
+        if (hostRouteDTO.getRouteType() < 0 || hostRouteDTO.getRouteType() > 2) {
+            responseMessage.error();
+            responseMessage.setMessage("不支持路由类型");
+            return responseMessage;
+        }
+
+        if (!("http://".equals(hostRouteDTO.getForwardProtocol()) || "https://".equals(hostRouteDTO.getForwardProtocol()))) {
+            responseMessage.error();
+            responseMessage.setMessage("不支持协议类型");
+            return responseMessage;
+        }
+
+        String fixedResponse = hostRouteDTO.getFixedResponse();
+        if (fixedResponse == null) {
+            fixedResponse = "";
+            hostRouteDTO.setFixedResponse(fixedResponse);
+            httpHostRoute.setFixedResponse(fixedResponse);
+        }
+
+        if (fixedResponse.length() > 10000) {
+            responseMessage.error();
+            responseMessage.setMessage("固定内容长度超出限制" + fixedResponse.length());
+            return responseMessage;
+        }
+
+        if (httpHostRoute.forwardType()) {
+            if (hostRouteDTO.getForwardPort() < 1 || hostRouteDTO.getForwardPort() > 65535) {
+                responseMessage.error();
+                responseMessage.setMessage("转发端口不合法");
+                return responseMessage;
+            }
+            httpHostRoute.setForwardHost("127.0.0.1");
+        }
+
+        return null;
+    }
 
 
     @WebMapping(path = ServerUrlConstant.ServerHttp.saveHostRouteRule)
@@ -34,30 +94,12 @@ public class ServerHttpManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         HostRouteDTO hostRouteDTO = JSONUtils.str2Object(s, HostRouteDTO.class);
-        if (StringUtils4V.isBlank( hostRouteDTO.getHostKeyWord())){
-            responseMessage.error();
-            responseMessage.setMessage("包含字符不能为空");
-            return responseMessage;
-        }
         HttpHostRoute httpHostRoute = HttpHostRoute.of(hostRouteDTO);
         httpHostRoute.setId(UUIDSimple.id());
 
-        if (!("http://".equals(hostRouteDTO.getForwardProtocol())||"https://".equals(hostRouteDTO.getForwardProtocol()))) {
-            responseMessage.error();
-            responseMessage.setMessage("不支持协议类型");
-            return responseMessage;
-        }
-
-        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
-            responseMessage.error();
-            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
-            return responseMessage;
-        }
-
-        if (hostRouteDTO.getFixedResponse().length() > 10000) {
-            responseMessage.error();
-            responseMessage.setMessage("固定内容长度超出限制" + hostRouteDTO.getFixedResponse().length());
-            return responseMessage;
+        ResponseMessage validation = validateAndNormalizeRule(hostRouteDTO, httpHostRoute);
+        if (validation != null) {
+            return validation;
         }
 
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
@@ -67,13 +109,6 @@ public class ServerHttpManageMapping {
             responseMessage.setMessage("关键字\"" + httpHostRoute.getHostKeyWord() + "\" 已存在");
             return responseMessage;
         }
-
-
-
-        if (httpHostRoute.forwardType()){
-            httpHostRoute.setForwardHost("127.0.0.1");
-        }
-
         dbWrapper.insert(httpHostRoute);
         HostRouterComponent hostRouterComponent = UniqueBeanManage.getBean(HostRouterComponent.class);
         hostRouterComponent.addRule(httpHostRoute);
@@ -120,18 +155,9 @@ public class ServerHttpManageMapping {
 
         newRule.setId(oldRule.getId());
 
-
-
-        if (hostRouteDTO.getHostKeyWord().length() > 50 ) {
-            responseMessage.error();
-            responseMessage.setMessage("路由键值长度超出限制："+hostRouteDTO.getHostKeyWord().length());
-            return responseMessage;
-        }
-
-        if (hostRouteDTO.getFixedResponse().length() > 10000) {
-            responseMessage.error();
-            responseMessage.setMessage("固定内容长度超出限制" + hostRouteDTO.getFixedResponse().length());
-            return responseMessage;
+        ResponseMessage validation = validateAndNormalizeRule(hostRouteDTO, newRule);
+        if (validation != null) {
+            return validation;
         }
 
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
@@ -183,14 +209,20 @@ public class ServerHttpManageMapping {
         HostRouteDTO hostRouteDTO = JSONUtils.str2Object(s, HostRouteDTO.class);
 
         DBWrapper<HttpHostRoute> dbWrapper = DBWrapper.getDBWrapper(HttpHostRoute.class);
-        String condition;
-        if (StringUtil.isNullOrEmpty(hostRouteDTO.getHostKeyWord())) {
-            condition = "";
-        } else {
-            condition = "and (hostKeyWord like '%" + hostRouteDTO.getHostKeyWord() + "%' or forwardPort=" + hostRouteDTO.getHostKeyWord() + ")";
+        StringBuilder sqlBuilder = new StringBuilder("select * from http_host_route where 1=1");
+        List<Object> params = new ArrayList<>();
+        if (!StringUtil.isNullOrEmpty(hostRouteDTO.getHostKeyWord())) {
+            if (hostRouteDTO.getHostKeyWord().matches("\\d+")) {
+                sqlBuilder.append(" and (host_key_word like ? or forward_port=?)");
+                params.add("%" + hostRouteDTO.getHostKeyWord() + "%");
+                params.add(Integer.parseInt(hostRouteDTO.getHostKeyWord()));
+            } else {
+                sqlBuilder.append(" and host_key_word like ?");
+                params.add("%" + hostRouteDTO.getHostKeyWord() + "%");
+            }
         }
         String order = " order by host_key_word";
-        PageResult<HttpHostRoute> httpHostRoutePageResult = dbWrapper.customQueryByPage("select * from http_host_route where 1=1 " + condition + order, hostRouteDTO.getPage(), hostRouteDTO.getRows());
+        PageResult<HttpHostRoute> httpHostRoutePageResult = dbWrapper.customQueryByPage(sqlBuilder.toString() + order, hostRouteDTO.getPage(), hostRouteDTO.getRows(), params.toArray(new Object[0]));
 
 
         List<HttpHostRouteVO> httpHostRouteVOS = new ArrayList<>();

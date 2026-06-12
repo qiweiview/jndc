@@ -13,17 +13,19 @@ public class BlockValueFeature<T> {
         LogPrint.debug("complete by value: "+t);
         data = t;
         synchronized (this) {
-            this.notify();
+            this.notifyAll();
         }
     }
 
     public T get(Integer second) {
         synchronized (this) {
             try {
-                if (second>0){
-                    this.wait(second * 1000);
-                }else {
-                    this.wait();
+                if (data == null) {
+                    if (second>0){
+                        this.wait(second * 1000);
+                    }else {
+                        this.wait();
+                    }
                 }
                 LogPrint.debug("return value: "+data);
                 T t2=data;

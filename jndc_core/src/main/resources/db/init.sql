@@ -51,3 +51,10 @@ CREATE TABLE IF NOT EXISTS "server_port_bind"
     "route_to"          text(255),
     PRIMARY KEY ("id")
 );
+
+CREATE TABLE IF NOT EXISTS "client_auth_record"
+(
+    "client_id"       text(255) NOT NULL,
+    "client_auth_key" text(255) NOT NULL,
+    PRIMARY KEY ("client_id")
+);

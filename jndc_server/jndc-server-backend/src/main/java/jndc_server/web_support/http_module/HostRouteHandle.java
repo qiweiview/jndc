@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import jndc.core.UniqueBeanManage;
 import jndc.web_support.core.JNDCHttpRequest;
+import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.web_support.model.d_o.HttpHostRoute;
 import jndc_server.web_support.utils.HttpResponseBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -48,15 +49,23 @@ public class HostRouteHandle extends SimpleChannelInboundHandler<FullHttpRequest
             if (httpHostRoute.forwardType()) {
                 //todo 转发
 
-                //从连接器池中获取访问客户端
-                LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
-                new JNDCHttpRequest(fullHttpRequest.copy());
-                fullHttpResponse = liteHttpProxy.forward(httpHostRoute, fullHttpRequest.retain());
-                if (fullHttpResponse == null) {
-                    //todo 超时的直接断开
-                    channelHandlerContext.close();
-                    return;
-                }
+                final FullHttpRequest requestCopy = fullHttpRequest.copy();
+                AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
+                asynchronousEventCenter.systemRunningJob(() -> {
+                    try {
+                        LiteHttpProxy liteHttpProxy = LiteHttpProxyPool.getLiteHttpProxy();
+                        FullHttpResponse response = liteHttpProxy.forward(httpHostRoute, requestCopy);
+                        if (response == null) {
+                            channelHandlerContext.close();
+                            return;
+                        }
+                        channelHandlerContext.writeAndFlush(response);
+                    } catch (Exception e) {
+                        log.error("http route forward fail: " + e.getMessage(), e);
+                        channelHandlerContext.close();
+                    }
+                });
+                return;
             }
 
         } else {

@@ -82,7 +82,14 @@ public class ClientServiceProvider implements Serializable {
      * @param clientTag          连接标识
      */
     private void startInnerBootstrap(NDCMessageProtocol ndcMessageProtocol, String clientTag) {
-        ClientTCPDataHandle clientTCPDataHandle = new ClientTCPDataHandle(ndcMessageProtocol);
+        final ClientTCPDataHandle[] handleRef = new ClientTCPDataHandle[1];
+        ClientTCPDataHandle clientTCPDataHandle = new ClientTCPDataHandle(ndcMessageProtocol, () -> {
+            ClientTCPDataHandle currentHandle = handleRef[0];
+            if (currentHandle != null) {
+                faceTCPMap.remove(clientTag, currentHandle);
+            }
+        });
+        handleRef[0] = clientTCPDataHandle;
 
         Bootstrap b = new Bootstrap();
         ChannelInitializer channelInitializer = new ChannelInitializer() {
@@ -100,6 +107,7 @@ public class ClientServiceProvider implements Serializable {
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(serviceIp);
         InetSocketAddress inetSocketAddress = new InetSocketAddress(byStringIpAddress, port);
         ChannelFuture connect = b.connect(inetSocketAddress);
+        clientTCPDataHandle.setConnectFuture(connect);
 
         // 预注册到 map，避免重复创建
         faceTCPMap.put(clientTag, clientTCPDataHandle);
@@ -115,6 +123,7 @@ public class ClientServiceProvider implements Serializable {
                 log.error("connect to " + inetSocketAddress + " fail: " + future.cause());
                 // 连接失败，清理 handle
                 faceTCPMap.remove(clientTag);
+                clientTCPDataHandle.notifyRemoteConnectionInterrupted();
                 clientTCPDataHandle.releaseRelatedResources();
             }
         });

@@ -15,5 +15,7 @@ public class OpenChannelMessage implements Serializable {
 
     private String channelId;
 
+    private String clientAuthKey;
+
 
 }

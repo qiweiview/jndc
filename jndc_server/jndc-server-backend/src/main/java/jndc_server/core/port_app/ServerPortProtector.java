@@ -12,6 +12,7 @@ import jndc.core.NettyComponentConfig;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.utils.UniqueInetTagProducer;
+import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.filter.CustomRulesFilter;
@@ -103,9 +104,10 @@ public class ServerPortProtector {
         eventLoopGroup = NettyComponentConfig.getNioEventLoopGroup();
 
         serverBootstrap = new ServerBootstrap();
+        JNDCServerConfig serverConfig = UniqueBeanManage.getBean(JNDCServerConfig.class);
         serverBootstrap.group(eventLoopGroup)
                 .channel(NioServerSocketChannel.class)//
-                .localAddress(new InetSocketAddress(port))//　
+                .localAddress(new InetSocketAddress(serverConfig.getInetAddress(), port))//　
                 .childHandler(channelInitializer);
 
         try {

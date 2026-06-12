@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.channel.ChannelOption;
 import jndc.core.NettyComponentConfig;
 import jndc.utils.InetUtils;
 import jndc_server.web_support.model.d_o.HttpHostRoute;
@@ -70,6 +71,7 @@ public class LiteHttpProxy {
 
     public FullHttpResponse forward(HttpHostRoute httpHostRoute, FullHttpRequest fullHttpRequest) {
         LiteHttpProxy liteHttpProxy = this;
+        completeFeature = new BlockValueFeature<>();
         ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -86,13 +88,13 @@ public class LiteHttpProxy {
         Bootstrap b = new Bootstrap();
         b.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 .handler(channelInitializer);
         ChannelFuture sync = null;
         try {
             sync = b.connect(InetUtils.getInetAddressByHost(httpHostRoute.getForwardHost()), httpHostRoute.getForwardPort()).sync();
             Channel channel = sync.channel();
             channel.writeAndFlush(fullHttpRequest);
-            completeFeature = new BlockValueFeature<>();
             FullHttpResponse fullHttpResponse = completeFeature.get(10);
             return fullHttpResponse;
         } catch (Exception e) {

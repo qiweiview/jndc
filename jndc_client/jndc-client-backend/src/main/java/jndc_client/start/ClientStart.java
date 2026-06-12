@@ -18,6 +18,8 @@ public class ClientStart {
     //全局id
     public static String CLIENT_ID;
 
+    public static String CLIENT_AUTH_KEY;
+
     public static final YmlParser ymlParser = new YmlParser();
 
     public static void main(String[] args) {
@@ -57,6 +59,7 @@ public class ClientStart {
             }
             jndcClientConfig.performParameterVerification();
             jndcClientConfig.loadClientId();
+            jndcClientConfig.loadClientAuthKey();
             log.info("client time out--->" + jndcClientConfig.getAutoReleaseTimeOut());
         } catch (Exception e) {
             e.printStackTrace();

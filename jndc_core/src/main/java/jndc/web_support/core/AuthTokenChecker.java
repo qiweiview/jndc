@@ -39,10 +39,14 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) throws Exception {
+        UriUtils.ParseResult parseResult = UriUtils.parseUri(fullHttpRequest.uri());
+        String requestPath = parseResult.getReduceUri();
+        if (requestPath == null) {
+            requestPath = fullHttpRequest.uri();
+        }
         String s = fullHttpRequest.headers().get(HttpHeaderNames.UPGRADE);
         if ("websocket".equals(s)) {
             //websocket
-            UriUtils.ParseResult parseResult = UriUtils.parseUri(fullHttpRequest.uri());
             verificationToken(parseResult.getQueryMap().get(AUTH_TOKEN), channelHandlerContext);
 
             //reset uri
@@ -52,10 +56,9 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
             //base http
             HttpMethod method = fullHttpRequest.method();
 
-            String uri = fullHttpRequest.uri();
             if (HttpMethod.POST == method) {
                 //check auth when post
-                if (releaseSet.contains(uri)) {
+                if (releaseSet.contains(requestPath)) {
                     //free set
                     channelHandlerContext.fireChannelRead(fullHttpRequest.retain());
                     return;
@@ -63,7 +66,7 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
 
                 /*验证密码*/
                 String stringHeader = fullHttpRequest.headers().get(AsciiString.of(AUTH_TOKEN));
-//                verificationToken(stringHeader, channelHandlerContext);
+                verificationToken(stringHeader, channelHandlerContext);
             }
 
         }

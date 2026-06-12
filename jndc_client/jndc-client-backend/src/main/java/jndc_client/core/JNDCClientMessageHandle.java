@@ -52,6 +52,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
         OpenChannelMessage openChannelMessage = new OpenChannelMessage();
         openChannelMessage.setChannelId(ClientStart.CLIENT_ID);
         openChannelMessage.setAuth(clientConfig.getSecrete());
+        openChannelMessage.setClientAuthKey(ClientStart.CLIENT_AUTH_KEY);
         byte[] bytes = ObjectSerializableUtils.object2bytes(openChannelMessage);
 
         InetAddress unused = InetAddress.getLocalHost();
