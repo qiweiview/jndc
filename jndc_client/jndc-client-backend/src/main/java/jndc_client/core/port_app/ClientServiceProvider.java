@@ -70,13 +70,8 @@ public class ClientServiceProvider implements Serializable {
             return;
         }
 
-        // 连接已就绪，直接发送数据
-        if (clientTCPDataHandle.getChannelHandlerContext() != null) {
-            clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
-        } else {
-            // 连接尚未建立完成，数据丢弃（极端竞态场景）
-            log.warn("本地连接尚未就绪，丢弃数据: " + client);
-        }
+        // 发送数据（连接未就绪时会自动缓存）
+        clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
     }
 
 
@@ -112,9 +107,9 @@ public class ClientServiceProvider implements Serializable {
         connect.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 log.debug("local app connect success " + byStringIpAddress + ":" + port);
-                // 连接成功，发送首条数据
+                // 连接成功，通过 channel 直接发送首条数据（channelActive 可能尚未触发）
                 if (!Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
-                    clientTCPDataHandle.receiveMessage(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
+                    future.channel().writeAndFlush(Unpooled.copiedBuffer(ndcMessageProtocol.getData()));
                 }
             } else {
                 log.error("connect to " + inetSocketAddress + " fail: " + future.cause());

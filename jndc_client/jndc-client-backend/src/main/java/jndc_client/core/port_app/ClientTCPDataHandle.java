@@ -11,6 +11,8 @@ import jndc_client.core.JNDCClientConfigCenter;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -33,6 +35,9 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
 
     private NDCMessageProtocol messageModel;
 
+    // 连接建立前缓存的待发送数据
+    private final List<ByteBuf> pendingBuffers = new ArrayList<>();
+
 
     public ClientTCPDataHandle(NDCMessageProtocol messageModel) {
         this.messageModel = messageModel;
@@ -43,6 +48,20 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.debug("local app has been active ");
         this.channelHandlerContext = ctx;
+        // 连接建立后，发送所有缓存的数据
+        flushPendingBuffers();
+    }
+
+    /**
+     * 发送所有缓存的待发送数据
+     */
+    private void flushPendingBuffers() {
+        synchronized (pendingBuffers) {
+            for (ByteBuf buf : pendingBuffers) {
+                channelHandlerContext.writeAndFlush(buf);
+            }
+            pendingBuffers.clear();
+        }
     }
 
 
@@ -64,7 +83,19 @@ public class ClientTCPDataHandle extends ChannelInboundHandlerAdapter {
     public void receiveMessage(ByteBuf byteBuf) {
         updateTime();
 
-        channelHandlerContext.writeAndFlush(byteBuf);
+        if (channelHandlerContext != null) {
+            channelHandlerContext.writeAndFlush(byteBuf);
+        } else {
+            // 连接尚未建立，缓存数据
+            synchronized (pendingBuffers) {
+                if (channelHandlerContext != null) {
+                    // 双重检查：可能在等待锁期间连接已建立
+                    channelHandlerContext.writeAndFlush(byteBuf);
+                } else {
+                    pendingBuffers.add(byteBuf);
+                }
+            }
+        }
     }
 
     /**
