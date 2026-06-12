@@ -2,6 +2,7 @@ package jndc_server.core;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import jndc.core.message.OpenChannelMessage;
 import jndc.utils.NettyContextUtils;
 import jndc.utils.UUIDSimple;
 import lombok.Data;
@@ -29,6 +30,8 @@ public class ChannelHandlerContextHolder {
 
     //客户端唯一编号
     private String clientId;
+
+    private int authMode = OpenChannelMessage.SELF_MANAGED;
 
     //远程Ip
     private String contextIp;

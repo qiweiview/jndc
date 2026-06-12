@@ -7,6 +7,7 @@ import {
   SafetyOutlined,
   GlobalOutlined,
   LogoutOutlined,
+  ControlOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,6 +28,11 @@ const menuItems = [
     key: '/management/services',
     icon: <CloudServerOutlined />,
     label: '服务注册信息',
+  },
+  {
+    key: '/management/serviceControl',
+    icon: <ControlOutlined />,
+    label: '服务管控',
   },
   {
     key: '/management/serverPortList',

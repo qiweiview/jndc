@@ -34,6 +34,10 @@ public class ServerUrlConstant {
 
         public static final String getServiceList="/getServiceList";//
 
+        public static final String getClientControlledServiceList="/getClientControlledServiceList";//
+
+        public static final String replaceClientControlledServices="/replaceClientControlledServices";//
+
         public static final String getServerPortList="/getServerPortList";//
 
         public static final String createPortMonitoring="/createPortMonitoring";//

@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,7 @@ public class ServerServiceDescription extends TcpServiceDescription {
     private String bindClientId;
 
     //服务对应的隧道对象（NAT原因，重连后需要更新）
+    @JsonIgnore
     private ChannelHandlerContext belongContext;
 
     //反向引用
@@ -124,6 +126,23 @@ public class ServerServiceDescription extends TcpServiceDescription {
      */
     public void addToServiceReleaseList(ServerPortProtector serverPortProtector) {
         serviceReleaseList.add(serverPortProtector);
+    }
+
+    @JsonIgnore
+    public void resetActiveConnections() {
+        serviceReleaseList.forEach(ServerPortProtector::resetAllConnection);
+    }
+
+    public String getClientId() {
+        return bindClientId;
+    }
+
+    public String getClientIp() {
+        if (belongContext == null || belongContext.channel() == null || belongContext.channel().remoteAddress() == null) {
+            return null;
+        }
+        InetSocketAddress remoteAddress = (InetSocketAddress) belongContext.channel().remoteAddress();
+        return remoteAddress.getHostString();
     }
 
 

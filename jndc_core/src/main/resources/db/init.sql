@@ -56,5 +56,17 @@ CREATE TABLE IF NOT EXISTS "client_auth_record"
 (
     "client_id"       text(255) NOT NULL,
     "client_auth_key" text(255) NOT NULL,
+    "auth_mode"       integer,
     PRIMARY KEY ("client_id")
+);
+
+CREATE TABLE IF NOT EXISTS "client_controlled_service"
+(
+    "id"           text(128) NOT NULL,
+    "client_id"    text(255) NOT NULL,
+    "service_name" text(255),
+    "service_ip"   text(255) NOT NULL,
+    "service_port" integer NOT NULL,
+    "description"  text(255),
+    PRIMARY KEY ("id")
 );

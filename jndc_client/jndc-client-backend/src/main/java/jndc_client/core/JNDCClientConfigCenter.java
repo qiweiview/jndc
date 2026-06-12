@@ -10,6 +10,8 @@ import jndc_client.core.port_app.ClientServiceProvider;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +29,8 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
 
     //store
     private Map<String, ClientServiceProvider> portProtectorMap = new ConcurrentHashMap<>();
+
+    private Map<String, ClientServiceDescription> activeServiceDescriptionMap = new ConcurrentHashMap<>();
 
     private ChannelHandlerContext channelHandlerContext;//A client  holds only one tunnel
 
@@ -126,18 +130,30 @@ public class JNDCClientConfigCenter implements NDCConfigCenter {
         //创建新的服务提供者
         ClientServiceProvider clientServiceProvider = new ClientServiceProvider(x.getServicePort(), x.getServiceIp());
         portProtectorMap.put(clientTag, clientServiceProvider);
+        activeServiceDescriptionMap.put(clientTag, x);
     }
 
     public void destroyService(ClientServiceDescription x) {
         InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
         String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
         ClientServiceProvider remove = portProtectorMap.remove(clientTag);
+        activeServiceDescriptionMap.remove(clientTag);
         if (remove == null) {
             log.error("can not found service " + clientTag + " in local");
             return;
         } else {
             remove.releaseAllRelatedResources();
         }
+    }
+
+    public List<ClientServiceDescription> getActiveServiceDescriptions() {
+        return new ArrayList<>(activeServiceDescriptionMap.values());
+    }
+
+    public boolean hasActiveService(ClientServiceDescription x) {
+        InetAddress byStringIpAddress = InetUtils.getByStringIpAddress(x.getServiceIp());
+        String clientTag = UniqueInetTagProducer.get4Client(byStringIpAddress, x.getServicePort());
+        return activeServiceDescriptionMap.containsKey(clientTag);
     }
 
 

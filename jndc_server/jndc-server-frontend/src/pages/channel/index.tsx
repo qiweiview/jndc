@@ -16,6 +16,7 @@ import {
   HeartOutlined,
   DisconnectOutlined,
   DeleteOutlined,
+  ControlOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
@@ -24,8 +25,10 @@ import { ChannelContext, ChannelRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
 import { slideUpVariants, staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 const ChannelList: React.FC = () => {
+  const navigate = useNavigate();
   const [channels, setChannels] = useState<ChannelContext[]>([]);
   const [records, setRecords] = useState<ChannelRecord[]>([]);
   const [recordsTotal, setRecordsTotal] = useState(0);
@@ -163,12 +166,30 @@ const ChannelList: React.FC = () => {
       ),
     },
     {
+      title: '授权模式',
+      dataIndex: 'authMode',
+      key: 'authMode',
+      render: (authMode: number) => (
+        <Tag color={authMode === 1 ? 'blue' : 'default'}>
+          {authMode === 1 ? 'FULL_AUTHORIZED' : 'SELF_MANAGED'}
+        </Tag>
+      ),
+    },
+    {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 260,
       fixed: 'right' as const,
       render: (_, record) => (
         <Space>
+          <Button
+            type="link"
+            icon={<ControlOutlined />}
+            disabled={!record.connected || record.authMode !== 1}
+            onClick={() => navigate(`/management/serviceControl?clientId=${record.clientId}`)}
+          >
+            管控
+          </Button>
           <Button
             type="link"
             icon={<HeartOutlined />}

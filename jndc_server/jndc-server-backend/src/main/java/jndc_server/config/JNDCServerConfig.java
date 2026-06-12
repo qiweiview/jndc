@@ -113,6 +113,7 @@ public class JNDCServerConfig {
         //数据存储组件
         DataStoreAbstract sqLiteDataStore = new SQLiteDataStore(getRuntimeDir());
         sqLiteDataStore.init();
+        performSchemaMigration(sqLiteDataStore);
         UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
         log.info("使用sqlite数据库存储");
 
@@ -190,6 +191,14 @@ public class JNDCServerConfig {
 
         IpChecker ipChecker = UniqueBeanManage.getBean(IpChecker.class);
         ipChecker.loadRule(blackMap, whiteMap);
+    }
+
+    private void performSchemaMigration(DataStoreAbstract dataStoreAbstract) {
+        try {
+            dataStoreAbstract.execute("alter table client_auth_record add column auth_mode integer", null);
+        } catch (RuntimeException e) {
+            log.debug("skip auth_mode migration: {}", e.getMessage());
+        }
     }
 
     @Override

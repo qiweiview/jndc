@@ -17,12 +17,14 @@ import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerServiceDescription;
 import jndc_server.databases_object.ClientAuthRecord;
+import jndc_server.databases_object.ClientControlledServiceRecord;
 import jndc_server.databases_object.ServerPortBind;
 import lombok.extern.slf4j.Slf4j;
 import jndc.utils.StringUtils4V;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -251,6 +253,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //构建上下文描述对象
         ChannelHandlerContextHolder channelHandlerContextHolder = new ChannelHandlerContextHolder(openChannelMessage.getChannelId());
+        channelHandlerContextHolder.setAuthMode(openChannelMessage.getAuthMode());
 
         //设置上下文,解析上下文基础参数
         channelHandlerContextHolder.setChannelHandlerContextWithParse(channelHandlerContext);
@@ -266,6 +269,13 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         byte[] bytes = ObjectSerializableUtils.object2bytes(response);
         copy.setData(bytes);
         channelHandlerContext.writeAndFlush(copy);
+
+        if (openChannelMessage.getAuthMode() == OpenChannelMessage.FULL_AUTHORIZED) {
+            ndcServerConfigCenter.applyControlledServices(
+                    channelHandlerContextHolder.getClientId(),
+                    loadControlledServices(channelHandlerContextHolder.getClientId())
+            );
+        }
 
         //通知前端刷新列表
 //        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
@@ -301,6 +311,7 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
             clientAuthRecord = new ClientAuthRecord();
             clientAuthRecord.setClientId(openChannelMessage.getChannelId());
             clientAuthRecord.setClientAuthKey(openChannelMessage.getClientAuthKey());
+            clientAuthRecord.setAuthMode(openChannelMessage.getAuthMode());
             dbWrapper.insert(clientAuthRecord);
             return;
         }
@@ -308,6 +319,28 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
         if (!openChannelMessage.getClientAuthKey().equals(clientAuthRecord.getClientAuthKey())) {
             throw new RuntimeException("clientAuthKey 校验失败");
         }
+        clientAuthRecord.setAuthMode(openChannelMessage.getAuthMode());
+        dbWrapper.updateByPrimaryKey(clientAuthRecord);
+    }
+
+    private List<TcpServiceDescription> loadControlledServices(String clientId) {
+        DBWrapper<ClientControlledServiceRecord> dbWrapper = DBWrapper.getDBWrapper(ClientControlledServiceRecord.class);
+        List<ClientControlledServiceRecord> records = dbWrapper.customQuery(
+                "select * from client_controlled_service where client_id=? order by service_name asc, service_ip asc, service_port asc",
+                clientId
+        );
+        if (records == null || records.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return records.stream().map(record -> {
+            TcpServiceDescription tcpServiceDescription = new TcpServiceDescription();
+            tcpServiceDescription.setId(record.getId());
+            tcpServiceDescription.setServiceName(record.getServiceName());
+            tcpServiceDescription.setServiceIp(record.getServiceIp());
+            tcpServiceDescription.setServicePort(record.getServicePort());
+            tcpServiceDescription.setDescription(record.getDescription());
+            return tcpServiceDescription;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -337,6 +370,10 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 case NDCMessageProtocol.SERVICE_UNREGISTER:
                     handleUnRegisterService(channelHandlerContext, ndcMessageProtocol);
+                    break;
+
+                case NDCMessageProtocol.SERVICE_CONTROL_SYNC:
+                    log.warn("unexpected service control sync from client");
                     break;
 
                 case NDCMessageProtocol.CONNECTION_INTERRUPTED:

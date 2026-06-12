@@ -13,4 +13,7 @@ public class ClientAuthRecord {
 
     @DSFiled(name = "client_auth_key")
     private String clientAuthKey;
+
+    @DSFiled(name = "auth_mode")
+    private Integer authMode;
 }

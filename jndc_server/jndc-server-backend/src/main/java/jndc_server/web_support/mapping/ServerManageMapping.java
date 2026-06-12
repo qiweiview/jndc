@@ -4,6 +4,8 @@ package jndc_server.web_support.mapping;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
+import jndc.core.message.OpenChannelMessage;
+import jndc.core.message.TcpServiceDescription;
 import jndc.utils.JSONUtils;
 import jndc.utils.LogPrint;
 import jndc.utils.UUIDSimple;
@@ -18,15 +20,19 @@ import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerServiceDescription;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.core.port_app.ServerPortProtector;
+import jndc_server.databases_object.ClientAuthRecord;
+import jndc_server.databases_object.ClientControlledServiceRecord;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import jndc_server.databases_object.IpFilterRecord;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.databases_object.ServerPortBind;
 import jndc_server.web_support.model.dto.ClearRecordOptionDTO;
+import jndc_server.web_support.model.dto.ControlledServiceReplaceDTO;
 import jndc_server.web_support.model.dto.IpDTO;
 import jndc_server.web_support.model.dto.PageDTO;
 import jndc_server.web_support.model.dto.ServiceBindDTO;
 import jndc_server.web_support.model.vo.ChannelContextVO;
+import jndc_server.web_support.model.vo.ControlledServiceStateVO;
 import jndc_server.web_support.model.vo.DeviceInfo;
 import jndc_server.web_support.model.vo.IpRecordVO;
 import jndc_server.web_support.model.vo.PageListVO;
@@ -38,8 +44,10 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -107,11 +115,14 @@ public class ServerManageMapping {
 
             ChannelContextVO facePortVO = new ChannelContextVO();
 
-            facePortVO.setId(x.getClientId());
-            facePortVO.setSupportServiceNum(x.serviceNum());
-            facePortVO.setChannelClientIp(x.getContextIp());
-            facePortVO.setChannelClientPort(x.getContextPort());
-            facePortVO.setLastHearBeatTimeStamp(x.getLastHearBeatTimeStamp());
+            facePortVO.setChannelId(x.getClientId());
+            facePortVO.setClientId(x.getClientId());
+            facePortVO.setServiceCount(x.serviceNum());
+            facePortVO.setClientIp(x.getContextIp());
+            facePortVO.setClientPort(x.getContextPort());
+            facePortVO.setLastHeartbeat(x.getLastHearBeatTimeStamp());
+            facePortVO.setConnected(true);
+            facePortVO.setAuthMode(x.getAuthMode());
 
             list.add(facePortVO);
         });
@@ -175,7 +186,7 @@ public class ServerManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         ChannelContextVO channelContextVO = JSONUtils.str2Object(s, ChannelContextVO.class);
-        String id = channelContextVO.getId();
+        String id = resolveChannelId(channelContextVO);
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         bean.sendHeartBeat(id);
@@ -196,7 +207,7 @@ public class ServerManageMapping {
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
         ChannelContextVO channelContextVO = JSONUtils.str2Object(s, ChannelContextVO.class);
-        String id = channelContextVO.getId();
+        String id = resolveChannelId(channelContextVO);
 
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
         bean.unRegisterContextHolder(id);
@@ -228,6 +239,149 @@ public class ServerManageMapping {
         }).collect(Collectors.toList());
         return collect;
 
+    }
+
+    @WebMapping(path = ServerUrlConstant.ServerManage.getClientControlledServiceList)
+    public ResponseMessage getClientControlledServiceList(JNDCHttpRequest jndcHttpRequest) {
+        ChannelContextVO channelContextVO = jndcHttpRequest.getObject(ChannelContextVO.class);
+        String clientId = resolveChannelId(channelContextVO);
+        if (clientId == null || "".equals(clientId.trim())) {
+            return ResponseMessage.fail("clientId 不能为空");
+        }
+
+        NDCServerConfigCenter configCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ChannelHandlerContextHolder holder = configCenter.getContextHolder(clientId);
+        ClientAuthRecord clientAuthRecord = DBWrapper.getDBWrapper(ClientAuthRecord.class)
+                .customQuerySingle("select * from client_auth_record where client_id=?", clientId);
+
+        ControlledServiceStateVO stateVO = new ControlledServiceStateVO();
+        stateVO.setClientId(clientId);
+        stateVO.setOnline(holder != null);
+        stateVO.setAuthMode(holder != null ? holder.getAuthMode() : getAuthMode(clientAuthRecord));
+        stateVO.setTargetServices(loadControlledServiceDescriptions(clientId));
+        stateVO.setActualServices(holder == null ? new ArrayList<>() : holder.getTcpServiceDescriptions().stream()
+                .map(this::toTcpServiceDescription)
+                .collect(Collectors.toList()));
+        return ResponseMessage.success(stateVO);
+    }
+
+    @WebMapping(path = ServerUrlConstant.ServerManage.replaceClientControlledServices)
+    public ResponseMessage replaceClientControlledServices(JNDCHttpRequest jndcHttpRequest) {
+        ControlledServiceReplaceDTO replaceDTO = jndcHttpRequest.getObject(ControlledServiceReplaceDTO.class);
+        String clientId = replaceDTO.getClientId();
+        if (clientId == null || "".equals(clientId.trim())) {
+            return ResponseMessage.fail("clientId 不能为空");
+        }
+
+        NDCServerConfigCenter configCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        ChannelHandlerContextHolder holder = configCenter.getContextHolder(clientId);
+        ClientAuthRecord clientAuthRecord = DBWrapper.getDBWrapper(ClientAuthRecord.class)
+                .customQuerySingle("select * from client_auth_record where client_id=?", clientId);
+        int authMode = holder != null ? holder.getAuthMode() : getAuthMode(clientAuthRecord);
+        if (authMode != OpenChannelMessage.FULL_AUTHORIZED) {
+            return ResponseMessage.fail("当前 client 不处于全授权模式");
+        }
+
+        List<TcpServiceDescription> services = replaceDTO.getServices() == null ? new ArrayList<>() : replaceDTO.getServices();
+        ResponseMessage validation = validateControlledServices(services);
+        if (validation != null) {
+            return validation;
+        }
+        persistControlledServices(clientId, services);
+
+        if (holder != null && holder.getAuthMode() == OpenChannelMessage.FULL_AUTHORIZED) {
+            configCenter.applyControlledServices(clientId, services);
+        } else {
+            MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+            messageNotificationCenter.dateRefreshMessage("serviceControl");
+        }
+
+        return new ResponseMessage();
+    }
+
+    private ResponseMessage validateControlledServices(List<TcpServiceDescription> services) {
+        Set<String> serviceKeys = new HashSet<>();
+        for (TcpServiceDescription service : services) {
+            if (service == null) {
+                return ResponseMessage.fail("服务项不能为空");
+            }
+            if (service.getServiceName() == null || "".equals(service.getServiceName().trim())) {
+                return ResponseMessage.fail("服务名称不能为空");
+            }
+            if (service.getServiceIp() == null || "".equals(service.getServiceIp().trim())) {
+                return ResponseMessage.fail("服务IP不能为空");
+            }
+            if (service.getServicePort() <= 0 || service.getServicePort() > 65535) {
+                return ResponseMessage.fail("服务端口不合法");
+            }
+            String serviceKey = service.getServiceIp().trim() + ":" + service.getServicePort();
+            if (!serviceKeys.add(serviceKey)) {
+                return ResponseMessage.fail("存在重复服务: " + serviceKey);
+            }
+        }
+        return null;
+    }
+
+    private void persistControlledServices(String clientId, List<TcpServiceDescription> services) {
+        DBWrapper<ClientControlledServiceRecord> dbWrapper = DBWrapper.getDBWrapper(ClientControlledServiceRecord.class);
+        dbWrapper.customExecute("delete from client_controlled_service where client_id=?", clientId);
+
+        services.forEach(service -> {
+            ClientControlledServiceRecord record = new ClientControlledServiceRecord();
+            record.setId(UUIDSimple.id());
+            record.setClientId(clientId);
+            record.setServiceName(service.getServiceName());
+            record.setServiceIp(service.getServiceIp());
+            record.setServicePort(service.getServicePort());
+            record.setDescription(service.getDescription());
+            dbWrapper.insert(record);
+        });
+    }
+
+    private List<TcpServiceDescription> loadControlledServiceDescriptions(String clientId) {
+        DBWrapper<ClientControlledServiceRecord> dbWrapper = DBWrapper.getDBWrapper(ClientControlledServiceRecord.class);
+        List<ClientControlledServiceRecord> records = dbWrapper.customQuery(
+                "select * from client_controlled_service where client_id=? order by service_name asc, service_ip asc, service_port asc",
+                clientId
+        );
+        return records.stream().map(this::toTcpServiceDescription).collect(Collectors.toList());
+    }
+
+    private TcpServiceDescription toTcpServiceDescription(ClientControlledServiceRecord record) {
+        TcpServiceDescription tcpServiceDescription = new TcpServiceDescription();
+        tcpServiceDescription.setId(record.getId());
+        tcpServiceDescription.setServiceName(record.getServiceName());
+        tcpServiceDescription.setServiceIp(record.getServiceIp());
+        tcpServiceDescription.setServicePort(record.getServicePort());
+        tcpServiceDescription.setDescription(record.getDescription());
+        return tcpServiceDescription;
+    }
+
+    private TcpServiceDescription toTcpServiceDescription(ServerServiceDescription record) {
+        TcpServiceDescription tcpServiceDescription = new TcpServiceDescription();
+        tcpServiceDescription.setId(record.getId());
+        tcpServiceDescription.setServiceName(record.getServiceName());
+        tcpServiceDescription.setServiceIp(record.getServiceIp());
+        tcpServiceDescription.setServicePort(record.getServicePort());
+        tcpServiceDescription.setDescription(record.getDescription());
+        return tcpServiceDescription;
+    }
+
+    private int getAuthMode(ClientAuthRecord clientAuthRecord) {
+        if (clientAuthRecord == null || clientAuthRecord.getAuthMode() == null) {
+            return OpenChannelMessage.SELF_MANAGED;
+        }
+        return clientAuthRecord.getAuthMode();
+    }
+
+    private String resolveChannelId(ChannelContextVO channelContextVO) {
+        if (channelContextVO == null) {
+            return null;
+        }
+        if (channelContextVO.getChannelId() != null && !"".equals(channelContextVO.getChannelId().trim())) {
+            return channelContextVO.getChannelId();
+        }
+        return channelContextVO.getClientId();
     }
 
 

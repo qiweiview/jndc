@@ -46,6 +46,7 @@ export interface ChannelContext {
   serviceCount: number;
   lastHeartbeat: string;
   connected: boolean;
+  authMode: number;
 }
 
 export interface ChannelRecord {
@@ -62,8 +63,17 @@ export interface ServiceDescription {
   serviceName: string;
   serviceIp: string;
   servicePort: number;
+  clientId?: string;
+  clientIp?: string;
+  description?: string;
+}
+
+export interface ControlledServiceState {
   clientId: string;
-  clientIp: string;
+  online: boolean;
+  authMode: number;
+  targetServices: ServiceDescription[];
+  actualServices: ServiceDescription[];
 }
 
 // 端口绑定相关

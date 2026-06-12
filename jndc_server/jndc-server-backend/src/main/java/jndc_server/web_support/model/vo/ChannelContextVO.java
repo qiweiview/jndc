@@ -6,15 +6,21 @@ import lombok.Data;
 @Data
 public class ChannelContextVO {
 
-    private String id;
+    private String channelId;
 
-    private int supportServiceNum;
+    private String clientId;
 
-    private int channelClientPort;
+    private int serviceCount;
 
-    private String channelClientIp;
+    private int clientPort;
 
-    private long lastHearBeatTimeStamp;
+    private String clientIp;
+
+    private long lastHeartbeat;
+
+    private boolean connected;
+
+    private int authMode;
 
 
 }

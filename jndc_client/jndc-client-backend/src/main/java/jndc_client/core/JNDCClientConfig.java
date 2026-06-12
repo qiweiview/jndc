@@ -9,6 +9,7 @@ import jndc.utils.UUIDSimple;
 import jndc.web_support.config.ServeManageConfig;
 import jndc.web_support.core.MappingRegisterCenter;
 import jndc.web_support.utils.AuthUtils;
+import jndc.core.message.OpenChannelMessage;
 import jndc_client.start.ClientStart;
 import jndc_client.web_support.mapping.ManageMapping;
 import lombok.Data;
@@ -46,6 +47,8 @@ public class JNDCClientConfig {
 
     //十分钟超时断开
     private long autoReleaseTimeOut = 10 * 60 * 1000;
+
+    private int authMode = OpenChannelMessage.SELF_MANAGED;
 
     private List<ClientServiceDescription> clientServiceDescriptions;//service list
 

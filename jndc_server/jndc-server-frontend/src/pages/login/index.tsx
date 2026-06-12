@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message } from 'antd';
+import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -29,49 +29,71 @@ const Login: React.FC = () => {
   };
 
   return (
-    <motion.div
-      className="login-container"
-      variants={fadeVariants}
-      initial="initial"
-      animate="animate"
-    >
-      <motion.div className="login-cloud">
-        <img src="/cloud.jpg" alt="" />
+    <div className="login-container">
+      <motion.div 
+        className="login-left"
+        variants={fadeVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="login-left-content">
+          <motion.div variants={slideUpVariants} initial="initial" animate="animate">
+            <h1 className="login-slogan">连接每一次沟通</h1>
+            <p className="login-sub-slogan">高效、稳定、安全的内网穿透管理平台</p>
+          </motion.div>
+          <motion.div className="login-image-wrapper" variants={fadeVariants} initial="initial" animate="animate" transition={{ delay: 0.2 }}>
+            <img src="/cloud.jpg" alt="Cloud" className="login-cloud-img" />
+          </motion.div>
+        </div>
       </motion.div>
 
-      <motion.div variants={slideUpVariants} initial="initial" animate="animate">
-        <Card title="JNDC 内网穿透管理系统" className="login-card">
-          <Form
-            name="login"
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            size="large"
-          >
-            <Form.Item
-              name="name"
-              rules={[{ required: true, message: '请输入用户名' }]}
+      <motion.div 
+        className="login-right"
+        variants={fadeVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="login-form-container">
+          <motion.div variants={slideUpVariants} initial="initial" animate="animate" transition={{ delay: 0.1 }}>
+            <div className="login-header">
+              <h2>欢迎登录 JNDC</h2>
+              <p>请使用您的管理员账号登录</p>
+            </div>
+            
+            <Form
+              name="login"
+              initialValues={{ remember: true }}
+              onFinish={onFinish}
+              size="large"
+              layout="vertical"
+              className="login-form"
             >
-              <Input prefix={<UserOutlined />} placeholder="用户名" />
-            </Form.Item>
+              <Form.Item
+                name="name"
+                rules={[{ required: true, message: '请输入用户名' }]}
+              >
+                <Input prefix={<UserOutlined />} placeholder="用户名" />
+              </Form.Item>
 
-            <Form.Item
-              name="passWord"
-              rules={[{ required: true, message: '请输入密码' }]}
-            >
-              <Input.Password prefix={<LockOutlined />} placeholder="密码" />
-            </Form.Item>
+              <Form.Item
+                name="passWord"
+                rules={[{ required: true, message: '请输入密码' }]}
+              >
+                <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+              </Form.Item>
 
-            <Form.Item style={{ marginBottom: 0 }}>
-              <Button type="primary" htmlType="submit" loading={loading} block>
-                登 录
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+              <Form.Item style={{ marginBottom: 0 }}>
+                <Button type="primary" htmlType="submit" loading={loading} block className="login-btn">
+                  登 录
+                </Button>
+              </Form.Item>
+            </Form>
+          </motion.div>
+        </div>
+        
+        <div className="login-brand">NO DISTANCE CONNECTION</div>
       </motion.div>
-
-      <div className="login-brand">NO DISTANCE CONNECTION</div>
-    </motion.div>
+    </div>
   );
 };
 

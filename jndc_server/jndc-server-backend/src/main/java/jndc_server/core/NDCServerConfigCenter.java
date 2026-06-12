@@ -5,14 +5,21 @@ import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
+import jndc.core.message.OpenChannelMessage;
+import jndc.core.message.ServiceControlMessage;
+import jndc.core.message.TcpServiceDescription;
 import jndc.utils.InetUtils;
+import jndc.utils.ObjectSerializableUtils;
 import jndc.utils.UUIDSimple;
+import jndc.web_support.core.MessageNotificationCenter;
 import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,6 +120,93 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
     public ChannelHandlerContextHolder getContextHolder(String clientId) {
         return channelHandlerContextHolderMap.get(clientId);
+    }
+
+    public boolean isClientFullAuthorized(String clientId) {
+        ChannelHandlerContextHolder holder = channelHandlerContextHolderMap.get(clientId);
+        return holder != null && holder.getAuthMode() == OpenChannelMessage.FULL_AUTHORIZED;
+    }
+
+    public void applyControlledServices(String clientId, List<TcpServiceDescription> tcpServiceDescriptions) {
+        ChannelHandlerContextHolder holder = channelHandlerContextHolderMap.get(clientId);
+        if (holder == null) {
+            log.info("client {} offline, skip controlled service sync", clientId);
+            return;
+        }
+        if (holder.getAuthMode() != OpenChannelMessage.FULL_AUTHORIZED) {
+            log.info("client {} is not full authorized, skip controlled service sync", clientId);
+            return;
+        }
+
+        List<TcpServiceDescription> targetServices = tcpServiceDescriptions == null ? Collections.emptyList() : tcpServiceDescriptions;
+        closeAffectedConnections(holder, targetServices);
+        sendServiceControlSync(holder, targetServices);
+
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        messageNotificationCenter.dateRefreshMessage("serviceControl");
+        messageNotificationCenter.dateRefreshMessage("services");
+    }
+
+    private void closeAffectedConnections(ChannelHandlerContextHolder holder, List<TcpServiceDescription> targetServices) {
+        Map<String, ServerServiceDescription> currentMap = new HashMap<>();
+        List<ServerServiceDescription> currentServices = holder.getTcpServiceDescriptions();
+        if (currentServices != null) {
+            currentServices.forEach(service -> currentMap.put(buildServiceKey(service), service));
+        }
+
+        Map<String, TcpServiceDescription> targetMap = new HashMap<>();
+        targetServices.forEach(service -> targetMap.put(buildServiceKey(service), service));
+
+        currentMap.forEach((key, currentService) -> {
+            TcpServiceDescription targetService = targetMap.get(key);
+            if (targetService == null || isServiceDefinitionChanged(currentService, targetService)) {
+                currentService.resetActiveConnections();
+            }
+        });
+    }
+
+    private boolean isServiceDefinitionChanged(ServerServiceDescription currentService, TcpServiceDescription targetService) {
+        if (targetService == null) {
+            return true;
+        }
+        if (!safeEquals(currentService.getServiceName(), targetService.getServiceName())) {
+            return true;
+        }
+        if (!safeEquals(currentService.getDescription(), targetService.getDescription())) {
+            return true;
+        }
+        if (!safeEquals(currentService.getServiceIp(), targetService.getServiceIp())) {
+            return true;
+        }
+        return currentService.getServicePort() != targetService.getServicePort();
+    }
+
+    private boolean safeEquals(Object left, Object right) {
+        if (left == null) {
+            return right == null;
+        }
+        return left.equals(right);
+    }
+
+    private String buildServiceKey(TcpServiceDescription service) {
+        return service.getServiceIp() + ":" + service.getServicePort();
+    }
+
+    private void sendServiceControlSync(ChannelHandlerContextHolder holder, List<TcpServiceDescription> targetServices) {
+        ServiceControlMessage serviceControlMessage = new ServiceControlMessage();
+        serviceControlMessage.setClientId(holder.getClientId());
+        serviceControlMessage.setTcpServiceDescriptions(targetServices);
+
+        NDCMessageProtocol protocol = NDCMessageProtocol.of(
+                InetUtils.localInetAddress,
+                InetUtils.localInetAddress,
+                NDCMessageProtocol.UN_USED_PORT,
+                NDCMessageProtocol.UN_USED_PORT,
+                NDCMessageProtocol.UN_USED_PORT,
+                NDCMessageProtocol.SERVICE_CONTROL_SYNC
+        );
+        protocol.setData(ObjectSerializableUtils.object2bytes(serviceControlMessage));
+        holder.getChannelHandlerContext().writeAndFlush(protocol);
     }
 
 
