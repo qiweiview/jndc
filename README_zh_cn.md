@@ -124,10 +124,7 @@ clientServiceDescriptions: # 注册服务
 ## 小结
 * 如若有好的功能需求，或代码存在的bug欢迎在issue里提出
 
-## 开发计划
-* http证书配置支持
-* 流量监控
-* 查询语法优化
+
 
 ## supporting
 * Thanks to jetbrains for supporting this open source project

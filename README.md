@@ -122,10 +122,6 @@ Client config no longer contains `manageConfig`. Use the server management front
 ## Summary
 * If you have good functional requirements, or bugs in the code, please submit them in the issue
 
-## Development Plan
-* http certificate configuration support
-* data monitoring
-* Query syntax optimization
 
 ## supporting
 * Thanks to jetbrains for supporting this open source project
