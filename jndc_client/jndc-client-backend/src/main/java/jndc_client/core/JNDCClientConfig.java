@@ -121,7 +121,7 @@ public class JNDCClientConfig {
 
     /**
      * 装在本地客户端id
-     */K k
+     */
     public void loadClientId() {
         File file = new File(ClientDirectManager.idPath);
         if (file.exists()) {
