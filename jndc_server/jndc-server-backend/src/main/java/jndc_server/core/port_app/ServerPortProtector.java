@@ -62,6 +62,12 @@ public class ServerPortProtector {
      * @param dateRange
      */
     public void parseEnableDateRange(String dateRange) {
+        if (dateRange == null || dateRange.trim().isEmpty()) {
+            startDatePoint = LocalTime.parse("00:00:00");
+            endDatePoint = LocalTime.parse("23:59:59");
+            log.info("empty enable date range for port {}, fallback to all-day availability", port);
+            return;
+        }
         try {
             String[] split = dateRange.split(",");
             String startString = split[0];

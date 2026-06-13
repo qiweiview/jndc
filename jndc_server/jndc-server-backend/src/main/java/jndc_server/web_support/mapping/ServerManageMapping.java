@@ -524,7 +524,11 @@ public class ServerManageMapping {
 
         byte[] body = jndcHttpRequest.getBody();
         String s = new String(body);
-        ServerPortBind channelContextVO = JSONUtils.str2Object(s, ServerPortBind.class);
+        ServiceBindDTO createPortDTO = JSONUtils.str2Object(s, ServiceBindDTO.class);
+
+        ServerPortBind channelContextVO = new ServerPortBind();
+        channelContextVO.setPort(createPortDTO.getPort());
+        channelContextVO.setEnableDateRange(resolveEnableDateRange(createPortDTO));
 
 
         DBWrapper<ServerPortBind> dbWrapper = DBWrapper.getDBWrapper(ServerPortBind.class);
@@ -679,7 +683,7 @@ public class ServerManageMapping {
 
         if (serverPortBindContext != null) {
             ServerPortProtector serverPortProtector = serverPortBindContext.getServerPortProtector();
-            serverPortProtector.parseEnableDateRange(channelContextVO.getEnableDateRange());
+            serverPortProtector.parseEnableDateRange(resolveEnableDateRange(channelContextVO));
 
             //reset all connection
             serverPortProtector.resetAllConnection();
@@ -689,12 +693,20 @@ public class ServerManageMapping {
         }
 
         //do db info update
-        serverPortBind.setEnableDateRange(channelContextVO.getEnableDateRange());
+        serverPortBind.setEnableDateRange(resolveEnableDateRange(channelContextVO));
         serverPortBind.setName(channelContextVO.getRemark());
         dbWrapper.updateByPrimaryKey(serverPortBind);
 
         return responseMessage;
 
+    }
+
+    private String resolveEnableDateRange(ServiceBindDTO serviceBindDTO) {
+        String enableDateRange = serviceBindDTO.resolveEnableDateRange();
+        if (enableDateRange == null || enableDateRange.trim().isEmpty()) {
+            return "00:00:00,23:59:59";
+        }
+        return enableDateRange;
     }
 
 

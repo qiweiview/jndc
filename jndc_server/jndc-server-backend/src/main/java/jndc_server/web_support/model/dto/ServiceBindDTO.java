@@ -5,6 +5,8 @@ public class ServiceBindDTO {
 
     private String remark;
 
+    private int port;
+
     private String serverPortId;
 
     private String serviceId;
@@ -13,15 +15,22 @@ public class ServiceBindDTO {
 
     private String enableDateRange;
 
+    private String timeRangeStart;
+
+    private String timeRangeEnd;
+
     @Override
     public String toString() {
         return "ServiceBindDTO{" +
                 "id='" + id + '\'' +
                 ", remark='" + remark + '\'' +
+                ", port=" + port +
                 ", serverPortId='" + serverPortId + '\'' +
                 ", serviceId='" + serviceId + '\'' +
                 ", routeTo='" + routeTo + '\'' +
                 ", enableDateRange='" + enableDateRange + '\'' +
+                ", timeRangeStart='" + timeRangeStart + '\'' +
+                ", timeRangeEnd='" + timeRangeEnd + '\'' +
                 '}';
     }
 
@@ -39,6 +48,14 @@ public class ServiceBindDTO {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public String getEnableDateRange() {
@@ -71,5 +88,32 @@ public class ServiceBindDTO {
 
     public void setRouteTo(String routeTo) {
         this.routeTo = routeTo;
+    }
+
+    public String getTimeRangeStart() {
+        return timeRangeStart;
+    }
+
+    public void setTimeRangeStart(String timeRangeStart) {
+        this.timeRangeStart = timeRangeStart;
+    }
+
+    public String getTimeRangeEnd() {
+        return timeRangeEnd;
+    }
+
+    public void setTimeRangeEnd(String timeRangeEnd) {
+        this.timeRangeEnd = timeRangeEnd;
+    }
+
+    public String resolveEnableDateRange() {
+        if (enableDateRange != null && !enableDateRange.trim().isEmpty()) {
+            return enableDateRange.trim();
+        }
+        if (timeRangeStart != null && !timeRangeStart.trim().isEmpty()
+                && timeRangeEnd != null && !timeRangeEnd.trim().isEmpty()) {
+            return timeRangeStart.trim() + "," + timeRangeEnd.trim();
+        }
+        return null;
     }
 }

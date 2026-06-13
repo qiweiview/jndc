@@ -53,15 +53,18 @@ public class ClientServiceProvider implements Serializable {
     public void receiveMessage(NDCMessageProtocol ndcMessageProtocol) {
         InetAddress remoteInetAddress = ndcMessageProtocol.getRemoteAddress();
         int remotePort = ndcMessageProtocol.getRemotePort();
+        String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
 
         //can replace with Arrays.compare in jdk 9
         if (Arrays.equals(NDCMessageProtocol.ACTIVE_MESSAGE, ndcMessageProtocol.getData())) {
             log.debug("get active message");
+            if (!faceTCPMap.containsKey(client)) {
+                startInnerBootstrap(ndcMessageProtocol, client);
+            }
             return;
         }
 
         //哈希表路由
-        String client = UniqueInetTagProducer.get4Client(remoteInetAddress, remotePort);
         ClientTCPDataHandle clientTCPDataHandle = faceTCPMap.get(client);
         if (clientTCPDataHandle == null) {
             log.debug("start local netty client for:" + client);

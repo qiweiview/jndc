@@ -17,9 +17,14 @@ type BackendServerPortBind = {
 
 function normalizeServerPortBind(port: BackendServerPortBind): ServerPortBind {
   const enableDateRange = port.enableDateRange?.trim();
+  const separator = enableDateRange?.includes(',')
+    ? ','
+    : enableDateRange?.includes('-')
+      ? '-'
+      : undefined;
   const [timeRangeStart, timeRangeEnd] =
-    enableDateRange && enableDateRange.includes('-')
-      ? enableDateRange.split('-', 2).map((item) => item.trim())
+    enableDateRange && separator
+      ? enableDateRange.split(separator, 2).map((item) => item.trim())
       : [undefined, undefined];
 
   return {
