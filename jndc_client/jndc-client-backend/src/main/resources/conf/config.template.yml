@@ -10,11 +10,3 @@ clientServiceDescriptions: # 客户端服务配置列表
     serviceIp: "example.com" # 服务域名或IP
     servicePort: "8080" # 服务端口
     serviceEnable: false # 是否启用该服务
-
-manageConfig: # 管理控制台配置
-  managementApiPort: 1777 # 管理API端口
-  useSsl: false # 是否启用SSL加密
-  jksPath: "path/to/your/certificate.jks" # SSL证书路径
-  jksPass: "your-jks-password" # SSL证书密码
-  loginName: "admin" # 管理控制台登录用户名
-  loginPassWord: "your-password" # 管理控制台登录密码

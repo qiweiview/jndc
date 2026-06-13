@@ -10,6 +10,7 @@
 * The application is built with the Client/Server architecture. Through the idea of "service registration", the local client side provides local services to the server side, and the server side manages and exposes the corresponding services
 * The application core is supported by the ndc private protocol, providing "transmission data encryption", "ip black and white list", "client visualization", "service port timing", "domain name routing" functions
 * Build and runtime now require JDK 21. Configure `JAVA_HOME` to a JDK 21 installation before running Maven or the startup scripts.
+* The management UI is server-side only. The client no longer provides a standalone management console or client-side management API.
 * Project source code directory structure
 ```
 - jndc
@@ -100,14 +101,16 @@ secrete: "xxx1" # Server secret, it is very important to change it before use
 loglevel: "info" # log print level
 serverIp: "127.0.0.1" # Server running listening ip
 serverPort: "1081" # server running port
-openGui: false
 autoReleaseTimeOut: 600000 # Client auto disconnect time (milliseconds)
+authMode: 0 # 0=SELF_MANAGED, 1=FULL_AUTHORIZED
 clientServiceDescriptions: # register service
   - serviceName: "xx"
     serviceIp: "xx.com"
     servicePort: "8080"
     serviceEnable: true
 ````
+
+Client config no longer contains `manageConfig`. Use the server management frontend and API for management operations.
 
 ## Summary
 * If you have good functional requirements, or bugs in the code, please submit them in the issue
@@ -121,4 +124,3 @@ clientServiceDescriptions: # register service
 * Thanks to jetbrains for supporting this open source project
 * [OpenSourceSupport](https://jb.gg/OpenSourceSupport)
 ![jetbrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_ga=2.159595956.84150952.1649035676-1273448.1647342519&_gl=1*1v0d1hp*_ga*MTI3MzQ0OC4xNjQ3MzQyNTE5*_ga_V0XZL7QHEB*MTY0OTAzNTY3NS4xLjEuMTY0OTAzODA2Ni42MA..)
-

@@ -6,12 +6,8 @@ import jndc.utils.AESUtils;
 import jndc.utils.ApplicationExit;
 import jndc.utils.InetUtils;
 import jndc.utils.UUIDSimple;
-import jndc.web_support.config.ServeManageConfig;
-import jndc.web_support.core.MappingRegisterCenter;
-import jndc.web_support.utils.AuthUtils;
 import jndc.core.message.OpenChannelMessage;
 import jndc_client.start.ClientStart;
-import jndc_client.web_support.mapping.ManageMapping;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -42,9 +38,6 @@ public class JNDCClientConfig {
 
     private int serverPort;
 
-    //管理api配置
-    private ServeManageConfig manageConfig;
-
     //十分钟超时断开
     private long autoReleaseTimeOut = 10 * 60 * 1000;
 
@@ -67,20 +60,8 @@ public class JNDCClientConfig {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(getLoglevel()));
 
-        //设置登录用户名密码
-        AuthUtils.name = manageConfig.getLoginName();
-        AuthUtils.passWord = manageConfig.getLoginPassWord();
-
         //set secrete
         AESUtils.setKey(secrete.getBytes());
-
-
-        //web 映射
-        MappingRegisterCenter mappingRegisterCenter = new MappingRegisterCenter();
-        mappingRegisterCenter.registerMapping(new ManageMapping());
-
-        UniqueBeanManage.registerBean(mappingRegisterCenter);
-
 
         //注册实例：客户端配置中心
         UniqueBeanManage.registerBean(new JNDCClientConfigCenter());
@@ -196,5 +177,12 @@ public class JNDCClientConfig {
             log.error("client auth key is blank");
             ApplicationExit.exit();
         }
+    }
+
+    /**
+     * Ignore legacy client-side management config so existing config files
+     * continue to parse after the management console removal.
+     */
+    public void setManageConfig(Map<String, Object> unusedManageConfig) {
     }
 }

@@ -185,21 +185,7 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
             return;
         }
 
-        //get service list by config file
         List<ClientServiceDescription> clientServiceDescriptions = clientConfig.getClientServiceDescriptions();
-
-//不再单独注册管理页面
-//        final boolean[] addPage = {true};
-//        clientServiceDescriptions.forEach(x -> {
-//            if (ClientHttpManagement.CLIENT_MANAGEMENT.equals(x.getServiceName())) {
-//                addPage[0] = false;
-//            }
-//        });
-//        //添加管理页面到注册服务
-//        if (addPage[0]) {
-//            clientServiceDescriptions.add(ClientHttpManagement.DEPLOY_PORT);
-//        }
-
         startRegister(clientServiceDescriptions);
         log.info("注册完成...");
     }
