@@ -28,12 +28,14 @@ import jndc_server.databases_object.ChannelContextCloseRecord;
 import jndc_server.databases_object.IpFilterRecord;
 import jndc_server.databases_object.IpFilterRule4V;
 import jndc_server.databases_object.ServerPortBind;
+import jndc_server.web_support.model.dto.ChannelTrafficTrendDTO;
 import jndc_server.web_support.model.dto.ClearRecordOptionDTO;
 import jndc_server.web_support.model.dto.ControlledServiceReplaceDTO;
 import jndc_server.web_support.model.dto.IpDTO;
 import jndc_server.web_support.model.dto.PageDTO;
 import jndc_server.web_support.model.dto.ServiceBindDTO;
 import jndc_server.web_support.model.vo.ChannelContextVO;
+import jndc_server.web_support.model.vo.ChannelTrafficTrendVO;
 import jndc_server.web_support.model.vo.ControlledServiceStateVO;
 import jndc_server.web_support.model.vo.DeviceInfo;
 import jndc_server.web_support.model.vo.IpRecordVO;
@@ -198,6 +200,16 @@ public class ServerManageMapping {
                 "select * from channel_context_record where client_id=? order by time_stamp desc limit 10",
                 clientId
         );
+    }
+
+    @WebMapping(path = ServerUrlConstant.ServerManage.getChannelTrafficTrend)
+    public ChannelTrafficTrendVO getChannelTrafficTrend(JNDCHttpRequest jndcHttpRequest) {
+        ChannelTrafficTrendDTO trendDTO = jndcHttpRequest.getObject(ChannelTrafficTrendDTO.class);
+        TCPDataFlowAnalysisCenter trafficAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
+        if (trendDTO == null) {
+            return trafficAnalysisCenter.getTrafficTrend(null, null);
+        }
+        return trafficAnalysisCenter.getTrafficTrend(trendDTO.getClientId(), trendDTO.getRange());
     }
 
 

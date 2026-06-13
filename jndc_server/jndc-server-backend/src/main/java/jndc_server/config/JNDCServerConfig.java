@@ -219,6 +219,7 @@ public class JNDCServerConfig {
         addClientAuthColumn(dataStoreAbstract, "disk_free_bytes", "bigint");
         addClientAuthColumn(dataStoreAbstract, "client_to_server_bytes", "bigint");
         addClientAuthColumn(dataStoreAbstract, "server_to_client_bytes", "bigint");
+        ensureTrafficTrendTable(dataStoreAbstract);
     }
 
     private void addClientAuthColumn(DataStoreAbstract dataStoreAbstract, String columnName, String columnType) {
@@ -240,6 +241,26 @@ public class JNDCServerConfig {
             );
         } catch (RuntimeException e) {
             log.debug("skip channel_context_record.{} migration: {}", columnName, e.getMessage());
+        }
+    }
+
+    private void ensureTrafficTrendTable(DataStoreAbstract dataStoreAbstract) {
+        try {
+            dataStoreAbstract.execute(
+                    "CREATE TABLE IF NOT EXISTS client_traffic_trend_record (" +
+                            "id text(255) NOT NULL," +
+                            "client_id text(255) NOT NULL," +
+                            "bucket_type text(32) NOT NULL," +
+                            "bucket_start_at bigint NOT NULL," +
+                            "client_to_server_bytes bigint," +
+                            "server_to_client_bytes bigint," +
+                            "updated_at bigint," +
+                            "PRIMARY KEY (id)" +
+                            ")",
+                    null
+            );
+        } catch (RuntimeException e) {
+            log.debug("skip client_traffic_trend_record migration: {}", e.getMessage());
         }
     }
 

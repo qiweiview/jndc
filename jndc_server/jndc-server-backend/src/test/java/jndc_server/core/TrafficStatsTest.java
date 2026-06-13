@@ -6,14 +6,20 @@ import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.DataStoreAbstract;
 import jndc.core.data_store_support.SQLiteDataStore;
 import jndc_server.databases_object.ClientAuthRecord;
+import jndc_server.databases_object.ClientTrafficTrendRecord;
 import jndc_server.web_support.mapping.ServerManageMapping;
 import jndc_server.web_support.model.vo.ChannelContextVO;
+import jndc_server.web_support.model.vo.ChannelTrafficTrendVO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +125,102 @@ public class TrafficStatsTest {
         assertEquals(nowMillis + 1, online.getTrafficUpdatedAt());
     }
 
+    @Test
+    public void shouldPersistTrafficIntoTrendBuckets() throws Exception {
+        registerDataStore();
+        TCPDataFlowAnalysisCenter analysisCenter = registerAnalysisCenter();
+
+        long t1 = timeOf(2026, 6, 10, 10, 5);
+        long t2 = timeOf(2026, 6, 10, 11, 15);
+        long t3 = timeOf(2026, 6, 12, 9, 0);
+        long t4 = timeOf(2026, 7, 2, 8, 0);
+
+        analysisCenter.analyse("client-a", messageOfSize(100), TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER, t1);
+        analysisCenter.analyse("client-a", messageOfSize(40), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, t1 + 1);
+        analysisCenter.analyse("client-a", messageOfSize(200), TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER, t2);
+        analysisCenter.analyse("client-a", messageOfSize(80), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, t3);
+        analysisCenter.analyse("client-a", messageOfSize(160), TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER, t4);
+
+        DBWrapper<ClientTrafficTrendRecord> dbWrapper = DBWrapper.getDBWrapper(ClientTrafficTrendRecord.class);
+
+        ClientTrafficTrendRecord hour10 = dbWrapper.customQuerySingle(
+                "select * from client_traffic_trend_record where id=?",
+                "client-a_HOUR_" + truncateToHour(t1)
+        );
+        assertEquals(100L, hour10.getClientToServerBytes().longValue());
+        assertEquals(40L, hour10.getServerToClientBytes().longValue());
+
+        ClientTrafficTrendRecord day0610 = dbWrapper.customQuerySingle(
+                "select * from client_traffic_trend_record where id=?",
+                "client-a_DAY_" + truncateToDay(t1)
+        );
+        assertEquals(300L, day0610.getClientToServerBytes().longValue());
+        assertEquals(40L, day0610.getServerToClientBytes().longValue());
+
+        ClientTrafficTrendRecord month06 = dbWrapper.customQuerySingle(
+                "select * from client_traffic_trend_record where id=?",
+                "client-a_MONTH_" + truncateToMonth(t1)
+        );
+        assertEquals(300L, month06.getClientToServerBytes().longValue());
+        assertEquals(120L, month06.getServerToClientBytes().longValue());
+
+        ClientTrafficTrendRecord month07 = dbWrapper.customQuerySingle(
+                "select * from client_traffic_trend_record where id=?",
+                "client-a_MONTH_" + truncateToMonth(t4)
+        );
+        assertEquals(160L, month07.getClientToServerBytes().longValue());
+        assertEquals(0L, month07.getServerToClientBytes().longValue());
+    }
+
+    @Test
+    public void shouldReturnZeroFilledTrafficTrendSeries() throws Exception {
+        registerDataStore();
+        TCPDataFlowAnalysisCenter analysisCenter = registerAnalysisCenter();
+
+        long now = timeOf(2026, 7, 15, 10, 0);
+        long hourBucket = truncateToHour(now);
+        long yesterdayBucket = truncateToDay(now - ChronoUnit.DAYS.getDuration().toMillis());
+        long monthBucket = truncateToMonth(now);
+
+        analysisCenter.analyse("client-a", messageOfSize(120), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, monthBucket + 24 * 60 * 60 * 1000);
+        analysisCenter.analyse("client-a", messageOfSize(60), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, yesterdayBucket + 2 * 60 * 60 * 1000);
+        analysisCenter.analyse("client-a", messageOfSize(90), TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER, hourBucket + 5 * 60 * 1000);
+
+        ChannelTrafficTrendVO trend24hour = analysisCenter.getTrafficTrend("client-a", "24hour", now);
+        assertEquals("24hour", trend24hour.getRange());
+        assertEquals("hour", trend24hour.getBucketUnit());
+        assertEquals(24, trend24hour.getPoints().size());
+        assertEquals(hourBucket, trend24hour.getPoints().get(23).getTimestamp());
+        assertEquals(90L, trend24hour.getPoints().get(23).getClientToServerBytes());
+        assertEquals(0L, trend24hour.getPoints().get(23).getServerToClientBytes());
+
+        ChannelTrafficTrendVO trend7day = analysisCenter.getTrafficTrend("client-a", "7day", now);
+        assertEquals(7, trend7day.getPoints().size());
+        assertEquals(truncateToDay(now), trend7day.getPoints().get(6).getTimestamp());
+        assertEquals(yesterdayBucket, trend7day.getPoints().get(5).getTimestamp());
+        assertEquals(60L, trend7day.getPoints().get(5).getServerToClientBytes());
+
+        ChannelTrafficTrendVO trend1month = analysisCenter.getTrafficTrend("client-a", "1month", now);
+        assertEquals(30, trend1month.getPoints().size());
+        assertEquals(truncateToDay(now), trend1month.getPoints().get(29).getTimestamp());
+        assertEquals(0L, trend1month.getPoints().get(29).getServerToClientBytes());
+        assertEquals(90L, trend1month.getPoints().get(29).getTotalBytes());
+        assertEquals(120L, findPointByTimestamp(trend1month, monthBucket + 24 * 60 * 60 * 1000).getServerToClientBytes());
+        assertEquals(120L, findPointByTimestamp(trend1month, monthBucket + 24 * 60 * 60 * 1000).getTotalBytes());
+
+        ChannelTrafficTrendVO trend1year = analysisCenter.getTrafficTrend("client-a", "1year", now);
+        assertEquals(12, trend1year.getPoints().size());
+        assertEquals("month", trend1year.getBucketUnit());
+        assertEquals(monthBucket, trend1year.getPoints().get(11).getTimestamp());
+        assertEquals(90L, trend1year.getPoints().get(11).getClientToServerBytes());
+        assertEquals(180L, trend1year.getPoints().get(11).getServerToClientBytes());
+
+        ChannelTrafficTrendVO emptyTrend = analysisCenter.getTrafficTrend("missing-client", "24hour", now);
+        assertEquals(24, emptyTrend.getPoints().size());
+        assertEquals(0L, emptyTrend.getPoints().get(0).getTotalBytes());
+        assertEquals(0L, emptyTrend.getPoints().get(23).getTotalBytes());
+    }
+
     private TCPDataFlowAnalysisCenter registerAnalysisCenter() {
         TCPDataFlowAnalysisCenter analysisCenter = new TCPDataFlowAnalysisCenter(new ImmediateAsynchronousEventCenter());
         UniqueBeanManage.registerBean(analysisCenter);
@@ -162,6 +264,46 @@ public class TrafficStatsTest {
         field.setAccessible(true);
         Map<?, ?> map = (Map<?, ?>) field.get(null);
         map.clear();
+    }
+
+    private long timeOf(int year, int month, int day, int hour, int minute) {
+        return ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    private long truncateToHour(long millis) {
+        return Instant.ofEpochMilli(millis)
+                .atZone(ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.HOURS)
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    private long truncateToDay(long millis) {
+        return Instant.ofEpochMilli(millis)
+                .atZone(ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.DAYS)
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    private long truncateToMonth(long millis) {
+        return Instant.ofEpochMilli(millis)
+                .atZone(ZoneId.systemDefault())
+                .withDayOfMonth(1)
+                .truncatedTo(ChronoUnit.DAYS)
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    private jndc_server.web_support.model.vo.ChannelTrafficTrendPointVO findPointByTimestamp(ChannelTrafficTrendVO trend, long timestamp) {
+        for (jndc_server.web_support.model.vo.ChannelTrafficTrendPointVO point : trend.getPoints()) {
+            if (point.getTimestamp() == timestamp) {
+                return point;
+            }
+        }
+        throw new AssertionError("point not found: " + timestamp);
     }
 
     private static class ImmediateAsynchronousEventCenter extends AsynchronousEventCenter {

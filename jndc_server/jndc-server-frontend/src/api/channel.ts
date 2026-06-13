@@ -1,5 +1,5 @@
 import request from '../utils/request';
-import { ChannelContext, ChannelRecord } from '../types';
+import { ChannelContext, ChannelRecord, ChannelTrafficTrendResult, TrafficTrendRange } from '../types';
 
 export const channelApi = {
   // 获取设备/隧道列表
@@ -10,6 +10,11 @@ export const channelApi = {
   // 获取某个设备最近断开记录
   getRecentChannelRecordByClientId: (clientId: string) => {
     return request.post<any, ChannelRecord[]>('/getRecentChannelRecordByClientId', { clientId });
+  },
+
+  // 获取隧道流量趋势
+  getChannelTrafficTrend: (clientId: string, range: TrafficTrendRange) => {
+    return request.post<any, ChannelTrafficTrendResult>('/getChannelTrafficTrend', { clientId, range });
   },
 
   // 发送心跳

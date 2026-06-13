@@ -76,6 +76,18 @@ CREATE TABLE IF NOT EXISTS "client_auth_record"
     PRIMARY KEY ("client_id")
 );
 
+CREATE TABLE IF NOT EXISTS "client_traffic_trend_record"
+(
+    "id"                     text(255) NOT NULL,
+    "client_id"              text(255) NOT NULL,
+    "bucket_type"            text(32)  NOT NULL,
+    "bucket_start_at"        bigint    NOT NULL,
+    "client_to_server_bytes" bigint,
+    "server_to_client_bytes" bigint,
+    "updated_at"             bigint,
+    PRIMARY KEY ("id")
+);
+
 CREATE TABLE IF NOT EXISTS "client_controlled_service"
 (
     "id"           text(128) NOT NULL,
