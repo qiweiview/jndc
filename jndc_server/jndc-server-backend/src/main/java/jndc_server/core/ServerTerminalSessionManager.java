@@ -135,8 +135,14 @@ public class ServerTerminalSessionManager {
             return;
         }
         if (clientSessionMap.containsKey(clientId)) {
-            sendBrowserError(channel, sessionId, "当前设备已有活动终端会话");
-            return;
+            String oldSessionId = clientSessionMap.get(clientId);
+            log.info("force close old session {} for client {}", oldSessionId, clientId);
+            sendTerminalControlMessage(clientId, terminalMessage(TerminalControlMessage.ACTION_CLOSE, oldSessionId, clientId));
+            Channel oldChannel = sessionChannelMap.get(oldSessionId);
+            if (oldChannel != null) {
+                sendBrowserError(oldChannel, oldSessionId, "已有新连接接管该设备的终端会话");
+            }
+            cleanupSession(oldSessionId);
         }
 
         NDCServerConfigCenter configCenter = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
