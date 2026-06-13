@@ -57,7 +57,6 @@ const TerminalPage: React.FC = () => {
   const socketRef = useRef<WebSocket | null>(null);
   const sessionIdRef = useRef<string>('');
   const currentClientIdRef = useRef<string>('');
-  const reconnectTokenRef = useRef(0);
 
   const eligibleChannels = useMemo(
     () => channels.filter((item) => item.online && item.authMode === FULL_AUTHORIZED),
@@ -68,6 +67,8 @@ const TerminalPage: React.FC = () => {
     () => channels.find((item) => item.clientId === selectedClientId) ?? null,
     [channels, selectedClientId]
   );
+  const selectedChannelOnline = selectedChannel?.online ?? false;
+  const selectedChannelAuthMode = selectedChannel?.authMode ?? 0;
 
   const channelOptions = useMemo(
     () =>
@@ -81,6 +82,31 @@ const TerminalPage: React.FC = () => {
   const resetTerminalView = useCallback(() => {
     terminalRef.current?.clear();
     terminalRef.current?.write('\x1b[2J\x1b[H');
+  }, []);
+
+  const safeFitAndFocus = useCallback(() => {
+    const terminal = terminalRef.current;
+    const fitAddon = fitAddonRef.current;
+    const root = terminalRootRef.current;
+    if (!terminal || !fitAddon || !root || !root.isConnected) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      const latestTerminal = terminalRef.current;
+      const latestFitAddon = fitAddonRef.current;
+      const latestRoot = terminalRootRef.current;
+      if (!latestTerminal || !latestFitAddon || !latestRoot || !latestRoot.isConnected) {
+        return;
+      }
+
+      try {
+        latestFitAddon.fit();
+        latestTerminal.focus();
+      } catch (error) {
+        console.warn('xterm fit skipped:', error);
+      }
+    });
   }, []);
 
   const closeSocket = useCallback((notifyServer: boolean) => {
@@ -105,18 +131,42 @@ const TerminalPage: React.FC = () => {
     const socket = socketRef.current;
     const terminal = terminalRef.current;
     const fitAddon = fitAddonRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN || !terminal || !fitAddon || !sessionIdRef.current) {
+    const root = terminalRootRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN || !terminal || !fitAddon || !sessionIdRef.current || !root) {
       return;
     }
 
-    fitAddon.fit();
-    const payload: TerminalSocketRequest = {
-      event: 'terminal.resize',
-      sessionId: sessionIdRef.current,
-      cols: terminal.cols,
-      rows: terminal.rows,
-    };
-    socket.send(JSON.stringify(payload));
+    window.requestAnimationFrame(() => {
+      const latestSocket = socketRef.current;
+      const latestTerminal = terminalRef.current;
+      const latestFitAddon = fitAddonRef.current;
+      const latestRoot = terminalRootRef.current;
+      if (
+        !latestSocket ||
+        latestSocket.readyState !== WebSocket.OPEN ||
+        !latestTerminal ||
+        !latestFitAddon ||
+        !latestRoot ||
+        !sessionIdRef.current
+      ) {
+        return;
+      }
+
+      try {
+        latestFitAddon.fit();
+      } catch (error) {
+        console.warn('xterm resize fit skipped:', error);
+        return;
+      }
+
+      const payload: TerminalSocketRequest = {
+        event: 'terminal.resize',
+        sessionId: sessionIdRef.current,
+        cols: latestTerminal.cols,
+        rows: latestTerminal.rows,
+      };
+      latestSocket.send(JSON.stringify(payload));
+    });
   }, []);
 
   const fetchChannels = useCallback(async () => {
@@ -158,11 +208,11 @@ const TerminalPage: React.FC = () => {
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
     terminal.open(terminalRootRef.current!);
-    fitAddon.fit();
     terminal.writeln('JNDC Remote Terminal');
     terminal.writeln('');
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
+    safeFitAndFocus();
 
     const disposable = terminal.onData((data) => {
       const socket = socketRef.current;
@@ -191,22 +241,22 @@ const TerminalPage: React.FC = () => {
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [sendResize]);
+  }, [safeFitAndFocus, sendResize]);
 
   const connectTerminal = useCallback(() => {
-    if (!selectedClientId || !selectedChannel) {
+    if (!selectedClientId) {
       setStatus('idle');
       setStatusMessage('请选择一个在线且处于 FULL_AUTHORIZED 的客户端');
       return;
     }
 
-    if (!selectedChannel.online) {
+    if (!selectedChannelOnline) {
       setStatus('offline');
       setStatusMessage('当前客户端已离线，无法建立终端会话');
       return;
     }
 
-    if (selectedChannel.authMode !== FULL_AUTHORIZED) {
+    if (selectedChannelAuthMode !== FULL_AUTHORIZED) {
       setStatus('forbidden');
       setStatusMessage('仅 FULL_AUTHORIZED 客户端允许打开远程终端');
       return;
@@ -236,9 +286,8 @@ const TerminalPage: React.FC = () => {
     setStatusMessage(`正在连接 ${selectedClientId}`);
 
     socket.onopen = () => {
-      const fitAddon = fitAddonRef.current;
       const terminal = terminalRef.current;
-      fitAddon?.fit();
+      safeFitAndFocus();
       const payload: TerminalSocketRequest = {
         event: 'terminal.open',
         sessionId: sessionIdRef.current,
@@ -261,6 +310,7 @@ const TerminalPage: React.FC = () => {
         setShellType(message.shellType || '');
         terminalRef.current?.writeln(`${message.shellType || 'shell'} ready`);
         terminalRef.current?.write('\r\n');
+        safeFitAndFocus();
         sendResize();
         return;
       }
@@ -305,7 +355,7 @@ const TerminalPage: React.FC = () => {
       setStatus('error');
       setStatusMessage('terminal websocket 连接失败');
     };
-  }, [closeSocket, selectedChannel, selectedClientId, sendResize]);
+  }, [closeSocket, selectedChannelAuthMode, selectedChannelOnline, selectedClientId, sendResize]);
 
   useEffect(() => {
     connectTerminal();
@@ -345,10 +395,7 @@ const TerminalPage: React.FC = () => {
               <Space>
                 <Button
                   icon={<ReloadOutlined />}
-                  onClick={() => {
-                    reconnectTokenRef.current += 1;
-                    connectTerminal();
-                  }}
+                  onClick={connectTerminal}
                 >
                   重连
                 </Button>
@@ -387,7 +434,11 @@ const TerminalPage: React.FC = () => {
                 message={statusMessage}
               />
               <div className="terminal-surface">
-                <div ref={terminalRootRef} className="terminal-shell" />
+                <div
+                  ref={terminalRootRef}
+                  className="terminal-shell"
+                  onClick={() => terminalRef.current?.focus()}
+                />
               </div>
               <Typography.Text type="secondary">
                 v1 使用流式 shell 会话，不保证 `vim`、`top`、`less` 等全屏 TUI 正常工作。

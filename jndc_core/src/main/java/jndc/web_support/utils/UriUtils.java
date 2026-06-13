@@ -14,41 +14,32 @@ public class UriUtils {
     public static ParseResult parseUri(String uri) {
         ParseResult parseResult = new ParseResult();
         parseResult.setFullUri(uri);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        char[] chars = uri.toCharArray();
-
-        boolean validString = false;
-        String key = "";
-        String value;
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '?') {
-                parseResult.setReduceUri(new String(Arrays.copyOfRange(chars, 0, i)));
-                validString = true;
-                continue;
-            }
-            if (!validString) {
-                continue;
-            }
-
-            if (chars[i] == '=' && "".equals(key)) {
-                key = stringBuilder.toString();
-                stringBuilder.setLength(0);
-            } else if (chars[i] == '&') {
-                if ("".equals(key)) {
-                    stringBuilder.setLength(0);
-                    continue;
-                }
-                value = stringBuilder.toString();
-                stringBuilder.setLength(0);
-                parseResult.put(decodeQueryPart(key), decodeQueryPart(value));
-            } else {
-                stringBuilder.append(chars[i]);
-            }
+        int queryIndex = uri.indexOf('?');
+        if (queryIndex < 0) {
+            parseResult.setReduceUri(uri);
+            return parseResult;
         }
 
-        if (stringBuilder.length() > 0) {
-            value = stringBuilder.toString();
+        parseResult.setReduceUri(uri.substring(0, queryIndex));
+        String queryString = uri.substring(queryIndex + 1);
+        if (StringUtils4V.isBlank(queryString)) {
+            return parseResult;
+        }
+
+        String[] pairs = queryString.split("&");
+        for (String pair : pairs) {
+            if (StringUtils4V.isBlank(pair)) {
+                continue;
+            }
+
+            int equalIndex = pair.indexOf('=');
+            if (equalIndex < 0) {
+                parseResult.put(decodeQueryPart(pair), "");
+                continue;
+            }
+
+            String key = pair.substring(0, equalIndex);
+            String value = pair.substring(equalIndex + 1);
             parseResult.put(decodeQueryPart(key), decodeQueryPart(value));
         }
         return parseResult;
