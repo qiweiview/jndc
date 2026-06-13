@@ -4,6 +4,13 @@
 
 ## [中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
 
+## Usage Boundary
+JNDC is a community-maintained intranet tunneling and proxy project. It can expose internal services, forward traffic, and concentrate management capability on the server side, so unsafe deployment may create material security risk.
+
+Before using it in a company or production-like environment, you should complete your own security review, access control design, network isolation, audit logging, secrets management, backup, and rollback planning. This repository does not provide any SLA, security certification, compliance commitment, or fitness guarantee for a specific environment.
+
+This repository remains licensed under Apache-2.0. The project does not add field-of-use restrictions beyond the license. Read [DISCLAIMER.md](https://github.com/qiweiview/jndc/blob/master/DISCLAIMER.md), [SUPPORT.md](https://github.com/qiweiview/jndc/blob/master/SUPPORT.md), and [SECURITY.md](https://github.com/qiweiview/jndc/blob/master/SECURITY.md) before deployment.
+
 
 ## Project Introduction
 * "J NDC" is the abbreviation of "java no distance connection", which is intended to provide an easy-to-use visual intranet penetration application. The application is written based on java netty.
@@ -121,6 +128,18 @@ Client config no longer contains `manageConfig`. Use the server management front
 
 ## Summary
 * If you have good functional requirements, or bugs in the code, please submit them in the issue
+
+## Safety Notes
+* Do not expose the management API or web entrypoint directly to the public Internet without independent authentication, transport protection, and network-layer restrictions.
+* Change all default or template secrets before any real deployment, and rotate credentials if they were ever shared in plaintext.
+* Treat `FULL_AUTHORIZED`, remote management features, and any tunnel or proxy capability as privileged operations that require explicit internal approval.
+* If you are a beginner or evaluating the project for enterprise use, start in an isolated test environment instead of a production network.
+
+## License And Policy
+* License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+* Risk and warranty boundary: [DISCLAIMER.md](https://github.com/qiweiview/jndc/blob/master/DISCLAIMER.md)
+* Community support policy: [SUPPORT.md](https://github.com/qiweiview/jndc/blob/master/SUPPORT.md)
+* Security reporting policy: [SECURITY.md](https://github.com/qiweiview/jndc/blob/master/SECURITY.md)
 
 
 ## supporting

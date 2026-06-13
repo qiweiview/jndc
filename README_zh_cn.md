@@ -4,6 +4,13 @@
 
 ## [English Document](https://github.com/qiweiview/jndc/blob/master/README.md)
 
+## 使用边界
+JNDC 是一个社区维护的内网穿透与代理项目。它具备内网服务暴露、流量转发、服务端集中管理等能力，若部署方式不当，可能带来明显的安全风险。
+
+如果你准备将它用于企业环境或类生产环境，请先自行完成安全评估、权限设计、网络隔离、审计留痕、密钥管理、备份与回滚方案设计。本仓库不提供 SLA、不提供安全合规背书，也不保证适用于任何特定业务环境。
+
+本仓库继续采用 Apache-2.0 许可证，不额外增加与开源许可证冲突的使用领域限制。部署前请先阅读 [DISCLAIMER.md](https://github.com/qiweiview/jndc/blob/master/DISCLAIMER.md)、[SUPPORT.md](https://github.com/qiweiview/jndc/blob/master/SUPPORT.md) 和 [SECURITY.md](https://github.com/qiweiview/jndc/blob/master/SECURITY.md)。
+
 
 
 ## 项目介绍
@@ -123,6 +130,18 @@ clientServiceDescriptions: # 注册服务
 
 ## 小结
 * 如若有好的功能需求，或代码存在的bug欢迎在issue里提出
+
+## 安全提示
+* 不要在缺少独立鉴权、传输保护和网络层访问控制的情况下，直接将管理 API 或 Web 入口暴露到公网。
+* 任何模板中的密钥、密码、证书路径都应在实际部署前替换，若曾经以明文共享，应立即轮换。
+* `FULL_AUTHORIZED`、远程管理能力、隧道与代理能力都应视为高权限能力，需要明确审批和最小权限控制。
+* 如果你是新手，或正在评估企业使用，请先在隔离测试环境验证，不要直接进入生产网络。
+
+## 许可证与策略
+* 许可证：[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+* 风险与免责边界：[DISCLAIMER.md](https://github.com/qiweiview/jndc/blob/master/DISCLAIMER.md)
+* 社区支持策略：[SUPPORT.md](https://github.com/qiweiview/jndc/blob/master/SUPPORT.md)
+* 安全漏洞报告策略：[SECURITY.md](https://github.com/qiweiview/jndc/blob/master/SECURITY.md)
 
 
 
