@@ -18,6 +18,11 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       const result = await authApi.login(values);
+      if (!result?.token || result.token === '403') {
+        useAuthStore.getState().logout();
+        message.error('用户名或密码错误');
+        return;
+      }
       setToken(result.token);
       message.success('登录成功');
       navigate('/management/channel');

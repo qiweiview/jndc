@@ -13,7 +13,7 @@ const request = axios.create({
 request.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth-token');
-    if (token) {
+    if (token && token !== '403') {
       config.headers['auth-token'] = token;
     }
     return config;
@@ -46,6 +46,10 @@ request.interceptors.response.use(
       localStorage.removeItem('auth-token');
       window.location.href = '/login';
       message.error('登录已过期，请重新登录');
+    } else if (error.response?.status === 403) {
+      localStorage.removeItem('auth-token');
+      window.location.href = '/login';
+      message.error('登录凭证无效，请重新登录');
     } else {
       message.error(error.message || '网络错误');
     }

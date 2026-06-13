@@ -66,7 +66,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const token = localStorage.getItem('auth-token');
 
-  if (!isAuthenticated && !token) {
+  if ((!isAuthenticated && !token) || token === '403') {
     return <Navigate to="/login" replace />;
   }
 

@@ -7,12 +7,16 @@ class WebSocketClient {
   private reconnectTimer: number | null = null;
   private listeners: Map<string, Set<WsCallback>> = new Map();
   private globalListeners: Set<WsCallback> = new Set();
+  private lastUrl: string | null = null;
+  private manualClose = false;
 
   connect(url: string) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return;
     }
 
+    this.lastUrl = url;
+    this.manualClose = false;
     this.ws = new WebSocket(url);
 
     this.ws.onopen = () => {
@@ -41,7 +45,10 @@ class WebSocketClient {
 
     this.ws.onclose = () => {
       console.log('WebSocket disconnected');
-      this.reconnect();
+      this.ws = null;
+      if (!this.manualClose) {
+        this.reconnect();
+      }
     };
 
     this.ws.onerror = (error) => {
@@ -55,8 +62,8 @@ class WebSocketClient {
     }
     this.reconnectTimer = window.setTimeout(() => {
       this.reconnectTimer = null;
-      if (this.ws?.url) {
-        this.connect(this.ws.url);
+      if (this.lastUrl) {
+        this.connect(this.lastUrl);
       }
     }, 3000);
   }
@@ -83,6 +90,7 @@ class WebSocketClient {
   }
 
   disconnect() {
+    this.manualClose = true;
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;

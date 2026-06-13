@@ -7,13 +7,9 @@ import {
   Input,
   Select,
   Tag,
-  Modal,
   message,
   Popconfirm,
   Empty,
-  Descriptions,
-  Row,
-  Col
 } from 'antd';
 import {
   ReloadOutlined,
@@ -25,61 +21,9 @@ import { channelApi } from '../../api/channel';
 import { ChannelContext, ChannelRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
 import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
-import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-
-const formatDateTime = (value?: number) => {
-  if (!value || value <= 0) {
-    return '--';
-  }
-  return dayjs(value).format('YYYY-MM-DD HH:mm:ss');
-};
-
-const formatBytes = (value?: number, zeroText = '--') => {
-  if (value === undefined || value === null || value < 0) {
-    return '--';
-  }
-  if (value === 0) {
-    return zeroText;
-  }
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let size = value;
-  let unitIndex = 0;
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex += 1;
-  }
-  return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
-};
-
-const formatTrafficBytes = (value?: number) => formatBytes(value, '0 B');
-
-const formatBandwidth = (value?: number) => `${formatTrafficBytes(value)}/s`;
-
-const formatTrafficSummary = (bandwidth?: number, totalBytes?: number) => (
-  `${formatBandwidth(bandwidth)} / ${formatTrafficBytes(totalBytes)}`
-);
-
-const formatOs = (record: ChannelContext) => {
-  const parts = [record.osName, record.osVersion].filter(Boolean);
-  return parts.length > 0 ? parts.join(' ') : '--';
-};
-
-const formatCpu = (record: ChannelContext) => {
-  if (!record.cpuModel) {
-    return '--';
-  }
-  return record.cpuLogicalCores > 0
-    ? `${record.cpuModel} / ${record.cpuLogicalCores} 线程`
-    : record.cpuModel;
-};
-
-const formatDisk = (record: ChannelContext) => {
-  if (!record.diskTotalBytes) {
-    return '--';
-  }
-  return `${formatBytes(record.diskFreeBytes)} 可用 / ${formatBytes(record.diskTotalBytes)}`;
-};
+import ChannelDetailModal from './components/ChannelDetailModal';
+import { formatDateTime, formatTrafficSummary } from './utils';
 
 const ChannelList: React.FC = () => {
   const navigate = useNavigate();
@@ -306,33 +250,6 @@ const ChannelList: React.FC = () => {
     },
   ];
 
-  const recordColumns: ColumnsType<ChannelRecord> = [
-    {
-      title: '断开时间',
-      dataIndex: 'timeStamp',
-      key: 'timeStamp',
-      width: 160,
-      render: (value: number) => formatDateTime(value),
-    },
-    {
-      title: '客户端IP',
-      dataIndex: 'ip',
-      key: 'ip',
-    },
-    {
-      title: '端口',
-      dataIndex: 'port',
-      key: 'port',
-      width: 80,
-    },
-    {
-      title: '原因',
-      dataIndex: 'disconnectReason',
-      key: 'disconnectReason',
-      render: (value: string) => value || '--',
-    },
-  ];
-
   const toolbar = (
     <Space>
       <Select
@@ -379,96 +296,13 @@ const ChannelList: React.FC = () => {
           />
         </Card>
       </motion.div>
-
-      <Modal
-        title={currentRecord ? `设备详情 - ${currentRecord.clientId}` : "设备详情"}
+      <ChannelDetailModal
         open={detailVisible}
+        record={currentRecord}
+        recentRecords={recentRecords}
+        recentRecordsLoading={recentRecordsLoading}
         onCancel={() => setDetailVisible(false)}
-        footer={null}
-        width={1100}
-      >
-        <Row gutter={24}>
-          <Col span={11}>
-            <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 16 }}>设备基本信息</div>
-            {currentRecord && (
-              <Descriptions 
-                bordered 
-                column={1} 
-                size="small" 
-                style={{ marginBottom: 16 }}
-                labelStyle={{ width: 110, whiteSpace: 'nowrap' }}
-              >
-                <Descriptions.Item label="状态">
-                  <Tag color={currentRecord.online ? 'success' : 'default'} bordered={false}>
-                    {currentRecord.online ? '在线' : '离线'}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="隧道ID">
-                  <span style={{ wordBreak: 'break-all' }}>{currentRecord.channelId}</span>
-                </Descriptions.Item>
-                <Descriptions.Item label="客户端IP">{currentRecord.clientIp}:{currentRecord.clientPort}</Descriptions.Item>
-                <Descriptions.Item label="服务数">{currentRecord.serviceCount}</Descriptions.Item>
-                <Descriptions.Item label="授权模式">
-                  <Tag color={currentRecord.authMode === 1 ? 'processing' : 'default'} bordered={false}>
-                    {currentRecord.authMode === 1 ? 'FULL_AUTHORIZED' : 'SELF_MANAGED'}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="最后在线时间">{formatDateTime(currentRecord.lastSeenAt)}</Descriptions.Item>
-                <Descriptions.Item label="最后离线时间">{formatDateTime(currentRecord.lastOfflineAt)}</Descriptions.Item>
-                <Descriptions.Item label="操作系统">{formatOs(currentRecord)}</Descriptions.Item>
-                <Descriptions.Item label="CPU">{formatCpu(currentRecord)}</Descriptions.Item>
-                <Descriptions.Item label="GPU">
-                  {currentRecord.gpuNames?.length ? currentRecord.gpuNames.join(', ') : '--'}
-                </Descriptions.Item>
-                <Descriptions.Item label="总内存">{formatBytes(currentRecord.memoryTotalBytes)}</Descriptions.Item>
-                <Descriptions.Item label="磁盘总量">{formatBytes(currentRecord.diskTotalBytes)}</Descriptions.Item>
-                <Descriptions.Item label="磁盘可用">{formatBytes(currentRecord.diskFreeBytes)}</Descriptions.Item>
-              </Descriptions>
-            )}
-            {currentRecord && (
-              <>
-                <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 16 }}>流量统计</div>
-                <Descriptions
-                  bordered
-                  column={1}
-                  size="small"
-                  style={{ marginBottom: 16 }}
-                  labelStyle={{ width: 150, whiteSpace: 'nowrap' }}
-                >
-                  <Descriptions.Item label="client -> server 当前带宽">
-                    {formatBandwidth(currentRecord.clientToServerBandwidth)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="server -> client 当前带宽">
-                    {formatBandwidth(currentRecord.serverToClientBandwidth)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="client -> server 累计流量">
-                    {formatTrafficBytes(currentRecord.clientToServerBytes)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="server -> client 累计流量">
-                    {formatTrafficBytes(currentRecord.serverToClientBytes)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="最近更新时间">
-                    {formatDateTime(currentRecord.trafficUpdatedAt)}
-                  </Descriptions.Item>
-                </Descriptions>
-              </>
-            )}
-          </Col>
-          <Col span={13}>
-            <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 16 }}>最近断开记录</div>
-            <Table
-              columns={recordColumns}
-              dataSource={recentRecords}
-              rowKey="id"
-              size="small"
-              loading={recentRecordsLoading}
-              pagination={false}
-              locale={{ emptyText: <Empty description="暂无断开记录" /> }}
-              scroll={{ y: 500 }}
-            />
-          </Col>
-        </Row>
-      </Modal>
+      />
     </motion.div>
   );
 };
