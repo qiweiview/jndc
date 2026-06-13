@@ -68,7 +68,7 @@ public class ClientTerminalSessionManager {
             return;
         }
 
-        String shellType = OSUtils.isLinux() ? "/bin/sh" : "cmd.exe";
+        String shellType = resolveShellType();
         try {
             Process process = terminalProcessFactory.start(shellType, new File(PathUtils.getClientWorkspace()));
             TerminalSession session = new TerminalSession(message.getSessionId(), message.getClientId(), shellType, process);
@@ -87,7 +87,10 @@ public class ClientTerminalSessionManager {
             return;
         }
         try {
-            session.writeInput(message.getData() == null ? "" : message.getData());
+            String inputData = message.getData() == null ? "" : message.getData();
+            // xterm sends \r for Enter, but non-pty shell needs \n
+            inputData = inputData.replace("\r", "\n");
+            session.writeInput(inputData);
         } catch (IOException e) {
             log.error("write terminal input failed", e);
             sendError(session.sessionId, session.clientId, "write terminal input failed: " + e.getMessage());
@@ -130,8 +133,12 @@ public class ClientTerminalSessionManager {
 
     private TerminalSession requireActiveSession(String sessionId, String clientId) {
         TerminalSession session = activeSession;
-        if (session == null || !session.sessionId.equals(sessionId)) {
-            sendError(sessionId, clientId, "terminal session not found");
+        if (session == null) {
+            sendError(sessionId, clientId, "terminal session not found (activeSession is null)");
+            return null;
+        }
+        if (!session.sessionId.equals(sessionId)) {
+            sendError(sessionId, clientId, "terminal session not found (sessionId mismatch: expected " + session.sessionId + " but got " + sessionId + ")");
             return null;
         }
         return session;
@@ -183,6 +190,10 @@ public class ClientTerminalSessionManager {
         );
         protocol.setData(ObjectSerializableUtils.object2bytes(terminalControlMessage));
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(protocol);
+    }
+
+    static String resolveShellType() {
+        return OSUtils.isWindows() ? "cmd.exe" : "/bin/sh";
     }
 
     interface TerminalProcessFactory {
@@ -268,7 +279,12 @@ public class ClientTerminalSessionManager {
 
         @Override
         public Process start(String shellType, File workingDirectory) throws IOException {
-            ProcessBuilder processBuilder = new ProcessBuilder(shellType);
+            ProcessBuilder processBuilder;
+            if (shellType.contains("sh") || shellType.contains("bash")) {
+                processBuilder = new ProcessBuilder(shellType, "-i");
+            } else {
+                processBuilder = new ProcessBuilder(shellType);
+            }
             processBuilder.directory(workingDirectory);
             processBuilder.redirectErrorStream(true);
             return processBuilder.start();

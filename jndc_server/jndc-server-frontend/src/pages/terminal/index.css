@@ -18,6 +18,7 @@
 }
 
 .terminal-surface {
+  height: 65vh;
   min-height: 480px;
   border-radius: 12px;
   overflow: hidden;
@@ -29,8 +30,9 @@
 }
 
 .terminal-shell {
-  min-height: 480px;
+  height: 100%;
   padding: 16px;
+  box-sizing: border-box;
 }
 
 .terminal-shell .xterm-viewport {
@@ -38,8 +40,8 @@
 }
 
 @media (max-width: 768px) {
-  .terminal-surface,
-  .terminal-shell {
+  .terminal-surface {
+    height: 60vh;
     min-height: 360px;
   }
 }

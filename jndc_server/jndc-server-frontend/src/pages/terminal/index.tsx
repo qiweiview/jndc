@@ -45,6 +45,7 @@ const TerminalPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [channels, setChannels] = useState<ChannelContext[]>([]);
   const [loading, setLoading] = useState(false);
+  const [channelsReady, setChannelsReady] = useState(false);
   const [status, setStatus] = useState<TerminalStatus>('idle');
   const [statusMessage, setStatusMessage] = useState('请选择一个在线且处于 FULL_AUTHORIZED 的客户端');
   const [shellType, setShellType] = useState('');
@@ -57,6 +58,9 @@ const TerminalPage: React.FC = () => {
   const socketRef = useRef<WebSocket | null>(null);
   const sessionIdRef = useRef<string>('');
   const currentClientIdRef = useRef<string>('');
+  const channelsRef = useRef<ChannelContext[]>([]);
+
+  channelsRef.current = channels;
 
   const eligibleChannels = useMemo(
     () => channels.filter((item) => item.online && item.authMode === FULL_AUTHORIZED),
@@ -174,6 +178,7 @@ const TerminalPage: React.FC = () => {
     try {
       const data = await channelApi.getServerChannelTable();
       setChannels(data);
+      setChannelsReady(true);
       if (!selectedClientId) {
         const preferred = data.find((item) => item.online && item.authMode === FULL_AUTHORIZED);
         if (preferred) {
@@ -204,6 +209,7 @@ const TerminalPage: React.FC = () => {
         selectionBackground: 'rgba(108, 182, 255, 0.28)',
       },
       scrollback: 2000,
+      convertEol: true,
     });
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
@@ -243,20 +249,27 @@ const TerminalPage: React.FC = () => {
     };
   }, [safeFitAndFocus, sendResize]);
 
-  const connectTerminal = useCallback(() => {
-    if (!selectedClientId) {
+  const connectTerminal = useCallback((clientId?: string) => {
+    const targetClientId = clientId ?? currentClientIdRef.current;
+    if (!targetClientId) {
       setStatus('idle');
       setStatusMessage('请选择一个在线且处于 FULL_AUTHORIZED 的客户端');
       return;
     }
 
-    if (!selectedChannelOnline) {
+    // Read latest channel state from ref to avoid dependency on channels state
+    const latestChannels = channelsRef.current;
+    const channel = latestChannels.find((item) => item.clientId === targetClientId) ?? null;
+    const isOnline = channel?.online ?? false;
+    const authMode = channel?.authMode ?? 0;
+
+    if (!isOnline) {
       setStatus('offline');
       setStatusMessage('当前客户端已离线，无法建立终端会话');
       return;
     }
 
-    if (selectedChannelAuthMode !== FULL_AUTHORIZED) {
+    if (authMode !== FULL_AUTHORIZED) {
       setStatus('forbidden');
       setStatusMessage('仅 FULL_AUTHORIZED 客户端允许打开远程终端');
       return;
@@ -265,7 +278,7 @@ const TerminalPage: React.FC = () => {
     closeSocket(false);
     terminalRef.current?.clear();
     terminalRef.current?.write('\x1b[2J\x1b[H');
-    terminalRef.current?.writeln(`connecting to ${selectedClientId} ...`);
+    terminalRef.current?.writeln(`connecting to ${targetClientId} ...`);
 
     const token = localStorage.getItem('auth-token');
     if (!token || token === '403') {
@@ -280,10 +293,10 @@ const TerminalPage: React.FC = () => {
     );
     socketRef.current = socket;
     sessionIdRef.current = createSessionId();
-    currentClientIdRef.current = selectedClientId;
+    currentClientIdRef.current = targetClientId;
     setShellType('');
     setStatus('connecting');
-    setStatusMessage(`正在连接 ${selectedClientId}`);
+    setStatusMessage(`正在连接 ${targetClientId}`);
 
     socket.onopen = () => {
       const terminal = terminalRef.current;
@@ -291,7 +304,7 @@ const TerminalPage: React.FC = () => {
       const payload: TerminalSocketRequest = {
         event: 'terminal.open',
         sessionId: sessionIdRef.current,
-        clientId: selectedClientId,
+        clientId: targetClientId,
         cols: terminal?.cols,
         rows: terminal?.rows,
       };
@@ -306,7 +319,7 @@ const TerminalPage: React.FC = () => {
 
       if (message.event === 'terminal.ready') {
         setStatus('connected');
-        setStatusMessage(`已连接到 ${selectedClientId}`);
+        setStatusMessage(`已连接到 ${targetClientId}`);
         setShellType(message.shellType || '');
         terminalRef.current?.writeln(`${message.shellType || 'shell'} ready`);
         terminalRef.current?.write('\r\n');
@@ -346,7 +359,7 @@ const TerminalPage: React.FC = () => {
       }
       if (sessionIdRef.current) {
         setStatus((prev) => (prev === 'connected' || prev === 'connecting' ? 'closed' : prev));
-        setStatusMessage((prev) => (prev === `已连接到 ${selectedClientId}` ? '终端连接已关闭' : prev));
+        setStatusMessage((prev) => (prev === `已连接到 ${targetClientId}` ? '终端连接已关闭' : prev));
         sessionIdRef.current = '';
       }
     };
@@ -355,15 +368,20 @@ const TerminalPage: React.FC = () => {
       setStatus('error');
       setStatusMessage('terminal websocket 连接失败');
     };
-  }, [closeSocket, selectedChannelAuthMode, selectedChannelOnline, selectedClientId, sendResize]);
+  }, [closeSocket, sendResize, safeFitAndFocus]);
 
+  // Auto-connect when selectedClientId changes AND channels have been loaded at least once.
+  // channelsReady only transitions false→true once, so it won't cause repeated reconnections.
   useEffect(() => {
-    connectTerminal();
+    if (selectedClientId && channelsReady) {
+      connectTerminal(selectedClientId);
+    }
     return () => {
       closeSocket(true);
       sessionIdRef.current = '';
     };
-  }, [connectTerminal, closeSocket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClientId, channelsReady]);
 
   useEffect(() => {
     return () => {
@@ -395,7 +413,7 @@ const TerminalPage: React.FC = () => {
               <Space>
                 <Button
                   icon={<ReloadOutlined />}
-                  onClick={connectTerminal}
+                  onClick={() => connectTerminal()}
                 >
                   重连
                 </Button>
