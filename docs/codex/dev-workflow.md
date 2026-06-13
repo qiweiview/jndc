@@ -97,6 +97,7 @@ nginx 反向代理最少需要保证：
 部署脚本源码目录：
 
 - `jndc_server/jndc-server-backend/src/main/resources/bin/`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/`
 
 关键文件：
 
@@ -107,6 +108,8 @@ nginx 反向代理最少需要保证：
 - `status.sh`
 - `jndc.env`
 - `jndc-server.service`
+- `jndc.ps1`
+- `jndc.bat`
 
 开发模式常用命令：
 
@@ -117,6 +120,25 @@ cd jndc_server/jndc-server-backend/target/jndc_server/bin
 ./jndc.sh restart --dev
 ./jndc.sh status
 ./jndc.sh logs -f
+```
+
+```bash
+cd jndc_client/jndc-client-backend/target/jndc_client/bin
+./jndc.sh start --dev
+./jndc.sh stop
+./jndc.sh restart --dev
+./jndc.sh status
+./jndc.sh logs -f
+```
+
+Windows 下可在 `target/jndc_client/bin` 使用：
+
+```bat
+startup.bat
+shutdown.bat
+restart.bat --dev
+status.bat
+jndc.bat logs
 ```
 
 ## 7. 做完不同类型改动后怎么验

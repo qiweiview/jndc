@@ -101,6 +101,13 @@ pnpm build
 - `jndc_server/jndc-server-backend/src/main/resources/bin/shutdown.sh`
 - `jndc_server/jndc-server-backend/src/main/resources/bin/restart.sh`
 - `jndc_server/jndc-server-backend/src/main/resources/bin/status.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/jndc.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/startup.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/shutdown.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/restart.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/status.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/jndc.ps1`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/jndc.bat`
 
 ## 5. 已知陷阱
 
@@ -122,7 +129,8 @@ pnpm build
   - 确认 `~/.jndc/server/conf/config.yml` 与 `~/.jndc/client/conf/config.yml` 可被当前代码读取
   - 若联调管理前端，确认 nginx 或开发代理把 `/api` 和 `/ws` 转到 `1777`
 - 脚本 / 部署改动：
-  - 检查 `jndc.sh`、包装脚本、`jndc.env`、`jndc-server.service` 的路径和变量是否一致
+  - 检查 `jndc.sh`、包装脚本、`jndc.env` 的路径和变量是否一致
+  - 若改的是 server 部署，额外检查 `jndc-server.service`
 
 ## 7. 文档分工
 

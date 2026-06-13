@@ -119,6 +119,7 @@
 先读：
 
 - `jndc_server/jndc-server-backend/src/main/resources/bin/jndc.sh`
+- `jndc_client/jndc-client-backend/src/main/resources/bin/jndc.sh`
 - `startup.sh`
 - `shutdown.sh`
 - `restart.sh`
@@ -137,6 +138,7 @@
 - dev / prod 自动检测依赖路径中是否包含 `/target/` 或 `/build/`
 - 默认 `JAVA_HOME` 在 dev / prod 下不同
 - `CLASSPATH`、`PID_FILE`、日志路径是否一起更新
+- Windows 包装脚本是否仍正确委托到 `jndc.ps1`
 
 最低验证：
 
