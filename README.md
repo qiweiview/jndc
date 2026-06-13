@@ -72,12 +72,19 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ````yaml
 secrete: "xxx" # Server secret, very important, be sure to change it before use
 loglevel: "info"
-blackList: # ip access blacklist
-#- "192.168.1.1"
-whiteList: # whitelist
-#- "192.168.1.2"
 servicePort: 1081 # jndc server running listening port
 bindIp: "127.0.0.1" # jndc server running ip
+
+cleanupConfig: # runtime data cleanup
+  enabled: true
+  runIntervalHours: 24
+  channelRecordRetentionDays: 30
+  ipFilterRecordRetentionDays: 30
+  trafficTrendMinuteRetentionDays: 3
+  trafficTrendHourRetentionDays: 14
+  trafficTrendDayRetentionDays: 90
+  trafficTrendMonthRetentionDays: 1095
+  vacuumAfterCleanup: true
 
 manageConfig: # management-side api service
   managementApiPort: 1777 #Management api port
@@ -88,7 +95,7 @@ manageConfig: # management-side api service
   loginPassWord: "xxx" # login password
 
 webConfig: # http web service
-  notFoundPage: "/404.html"
+  notFoundPage: "path/to/your/404.html"
   httpPort: 1080 # http application port
   useSsl: false # Whether to use ssl
   jksPath: "/xx.jks" #jks certificate address

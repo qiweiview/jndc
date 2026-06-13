@@ -74,12 +74,19 @@ public static final int AUTO_UNPACK_LENGTH = 5 * 1024 * 1024
 ```yaml
 secrete: "xxx" # 服务端密钥，非常重要务必在使用前更改
 loglevel: "info"
-blackList: # ip访问黑名单
-#- "192.168.1.1"
-whiteList: # 白名单
-#- "192.168.1.2"
 servicePort: 1081 # jndc服务端运行监听端口
 bindIp: "127.0.0.1" # jndc服务端运行ip
+
+cleanupConfig: # 运行时数据清理配置
+  enabled: true
+  runIntervalHours: 24
+  channelRecordRetentionDays: 30
+  ipFilterRecordRetentionDays: 30
+  trafficTrendMinuteRetentionDays: 3
+  trafficTrendHourRetentionDays: 14
+  trafficTrendDayRetentionDays: 90
+  trafficTrendMonthRetentionDays: 1095
+  vacuumAfterCleanup: true
 
 manageConfig: # 管理端api服务
   managementApiPort: 1777 #管理api端口
@@ -90,7 +97,7 @@ manageConfig: # 管理端api服务
   loginPassWord: "xxx" # 登录密码
 
 webConfig: # http web服务
-  notFoundPage: "/404.html"
+  notFoundPage: "path/to/your/404.html"
   httpPort: 1080 # http应用端口
   useSsl: false # 是否使用ssl
   jksPath: "/xx.jks" #jks 证书地址
