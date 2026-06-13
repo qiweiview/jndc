@@ -22,7 +22,9 @@ import { ChannelContext, ChannelRecord } from '../../types';
 import { wsClient } from '../../utils/websocket';
 import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
 import { useNavigate } from 'react-router-dom';
-import ChannelDetailModal from './components/ChannelDetailModal';
+import ChannelInfoModal from './components/ChannelInfoModal';
+import ChannelTrafficModal from './components/ChannelTrafficModal';
+import ChannelRecordsModal from './components/ChannelRecordsModal';
 import { formatDateTime, formatTrafficSummary } from './utils';
 
 const ChannelList: React.FC = () => {
@@ -31,10 +33,28 @@ const ChannelList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'online' | 'offline'>('all');
-  const [detailVisible, setDetailVisible] = useState(false);
+  const [infoVisible, setInfoVisible] = useState(false);
+  const [trafficVisible, setTrafficVisible] = useState(false);
+  const [recordsVisible, setRecordsVisible] = useState(false);
   const [currentRecord, setCurrentRecord] = useState<ChannelContext | null>(null);
   const [recentRecords, setRecentRecords] = useState<ChannelRecord[]>([]);
   const [recentRecordsLoading, setRecentRecordsLoading] = useState(false);
+
+  const handleOpenInfo = (record: ChannelContext) => {
+    setCurrentRecord(record);
+    setInfoVisible(true);
+  };
+
+  const handleOpenTraffic = (record: ChannelContext) => {
+    setCurrentRecord(record);
+    setTrafficVisible(true);
+  };
+
+  const handleOpenRecords = async (record: ChannelContext) => {
+    setCurrentRecord(record);
+    setRecordsVisible(true);
+    await fetchRecentRecords(record.clientId);
+  };
 
   const fetchChannels = useCallback(async () => {
     setLoading(true);
@@ -73,7 +93,7 @@ const ChannelList: React.FC = () => {
 
     const unsub = wsClient.onPageRefresh('channel', () => {
       fetchChannels();
-      if (detailVisible && currentRecord?.clientId) {
+      if (recordsVisible && currentRecord?.clientId) {
         fetchRecentRecords(currentRecord.clientId);
       }
     });
@@ -82,17 +102,17 @@ const ChannelList: React.FC = () => {
       window.clearInterval(timer);
       unsub();
     };
-  }, [currentRecord?.clientId, detailVisible, fetchChannels, fetchRecentRecords]);
+  }, [currentRecord?.clientId, recordsVisible, fetchChannels, fetchRecentRecords]);
 
   useEffect(() => {
-    if (!detailVisible || !currentRecord?.clientId) {
+    if ((!infoVisible && !trafficVisible && !recordsVisible) || !currentRecord?.clientId) {
       return;
     }
     const latestRecord = channels.find((channel) => channel.clientId === currentRecord.clientId);
     if (latestRecord && latestRecord !== currentRecord) {
       setCurrentRecord(latestRecord);
     }
-  }, [channels, currentRecord, detailVisible]);
+  }, [channels, currentRecord, infoVisible, trafficVisible, recordsVisible]);
 
   const handleSendHeartbeat = async (channelId: string) => {
     try {
@@ -193,7 +213,7 @@ const ChannelList: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 180,
+      width: 280,
       fixed: 'right' as const,
       render: (_, record) => (
         <Space size="middle">
@@ -201,13 +221,25 @@ const ChannelList: React.FC = () => {
             type="link"
             size="small"
             style={{ padding: 0 }}
-            onClick={async () => {
-              setCurrentRecord(record);
-              setDetailVisible(true);
-              await fetchRecentRecords(record.clientId);
-            }}
+            onClick={() => handleOpenInfo(record)}
           >
-            详情
+            信息
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            style={{ padding: 0 }}
+            onClick={() => handleOpenTraffic(record)}
+          >
+            流量
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            style={{ padding: 0 }}
+            onClick={() => handleOpenRecords(record)}
+          >
+            记录
           </Button>
           <Button
             type="link"
@@ -296,12 +328,22 @@ const ChannelList: React.FC = () => {
           />
         </Card>
       </motion.div>
-      <ChannelDetailModal
-        open={detailVisible}
+      <ChannelInfoModal
+        open={infoVisible}
+        record={currentRecord}
+        onCancel={() => setInfoVisible(false)}
+      />
+      <ChannelTrafficModal
+        open={trafficVisible}
+        record={currentRecord}
+        onCancel={() => setTrafficVisible(false)}
+      />
+      <ChannelRecordsModal
+        open={recordsVisible}
         record={currentRecord}
         recentRecords={recentRecords}
         recentRecordsLoading={recentRecordsLoading}
-        onCancel={() => setDetailVisible(false)}
+        onCancel={() => setRecordsVisible(false)}
       />
     </motion.div>
   );

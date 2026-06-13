@@ -330,7 +330,7 @@ const PortList: React.FC = () => {
             rowKey="id"
             loading={loading}
             pagination={false}
-            scroll={{ x: 900 }}
+            scroll={{ x: 'max-content' }}
             locale={{ emptyText: <Empty description="暂无监听端口" /> }}
           />
         </Card>
