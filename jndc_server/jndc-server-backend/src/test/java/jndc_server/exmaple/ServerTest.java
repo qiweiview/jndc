@@ -7,11 +7,13 @@ import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.JNDCServerApp;
 import jndc_server.web_support.http_module.ServerRuntimeConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 @Slf4j
+@Ignore("manual integration bootstrap")
 public class ServerTest {
 
 

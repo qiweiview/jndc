@@ -8,12 +8,14 @@ import jndc_client.core.ClientDirectManager;
 import jndc_client.core.JNDCClientConfig;
 import jndc_client.core.JNDClientApp;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 
 
 @Slf4j
+@Ignore("manual integration bootstrap")
 public class ClientTest {
 
     @Test

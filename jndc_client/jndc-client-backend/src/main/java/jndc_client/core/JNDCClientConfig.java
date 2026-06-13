@@ -84,6 +84,7 @@ public class JNDCClientConfig {
 
         //注册实例：客户端配置中心
         UniqueBeanManage.registerBean(new JNDCClientConfigCenter());
+        UniqueBeanManage.registerBean(new ClientTerminalSessionManager());
 
         //初始化定时器
         initClientScheduled();

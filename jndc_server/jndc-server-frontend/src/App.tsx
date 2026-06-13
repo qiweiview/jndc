@@ -12,6 +12,7 @@ import PortList from './pages/port';
 import IpFilter from './pages/ipFilter';
 import HttpApp from './pages/httpApp';
 import ServiceControl from './pages/serviceControl';
+import TerminalPage from './pages/terminal';
 import { useAuthStore } from './stores/auth';
 
 const appTheme: ThemeConfig = {
@@ -92,6 +93,7 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="channel" element={<ChannelList />} />
           <Route path="services" element={<ServiceList />} />
           <Route path="serviceControl" element={<ServiceControl />} />
+          <Route path="terminal" element={<TerminalPage />} />
           <Route path="serverPortList" element={<PortList />} />
           <Route path="ipFilter" element={<IpFilter />} />
           <Route path="httpApp" element={<HttpApp />} />

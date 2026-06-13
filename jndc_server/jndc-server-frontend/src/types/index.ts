@@ -188,3 +188,31 @@ export interface WsMessage {
   type: number;
   data: string;
 }
+
+export type TerminalSocketEvent =
+  | 'terminal.open'
+  | 'terminal.input'
+  | 'terminal.resize'
+  | 'terminal.close'
+  | 'terminal.ready'
+  | 'terminal.output'
+  | 'terminal.exit'
+  | 'terminal.error';
+
+export interface TerminalSocketRequest {
+  event: 'terminal.open' | 'terminal.input' | 'terminal.resize' | 'terminal.close';
+  sessionId: string;
+  clientId?: string;
+  data?: string;
+  cols?: number;
+  rows?: number;
+}
+
+export interface TerminalSocketResponse {
+  event: 'terminal.ready' | 'terminal.output' | 'terminal.exit' | 'terminal.error';
+  sessionId: string;
+  data?: string;
+  exitCode?: number;
+  message?: string;
+  shellType?: string;
+}

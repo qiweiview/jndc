@@ -9,6 +9,7 @@ import jndc.core.data_store_support.DBWrapper;
 import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
+import jndc.core.message.TerminalControlMessage;
 import jndc.core.message.TcpServiceDescription;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
@@ -16,6 +17,7 @@ import jndc.utils.ObjectSerializableUtils;
 import jndc_server.config.JNDCServerConfig;
 import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
+import jndc_server.core.ServerTerminalSessionManager;
 import jndc_server.core.ServerServiceDescription;
 import jndc_server.databases_object.ClientAuthRecord;
 import jndc_server.databases_object.ClientControlledServiceRecord;
@@ -377,6 +379,11 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
                 case NDCMessageProtocol.SERVICE_CONTROL_SYNC:
                     log.warn("unexpected service control sync from client");
+                    break;
+
+                case NDCMessageProtocol.TERMINAL_CONTROL:
+                    UniqueBeanManage.getBean(ServerTerminalSessionManager.class)
+                            .handleClientMessage(ndcMessageProtocol.getObject(TerminalControlMessage.class));
                     break;
 
                 case NDCMessageProtocol.CONNECTION_INTERRUPTED:

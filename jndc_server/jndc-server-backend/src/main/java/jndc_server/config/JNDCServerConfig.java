@@ -14,6 +14,7 @@ import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.RuntimeDataCleanupService;
 import jndc_server.core.ScheduledTaskCenter;
+import jndc_server.core.ServerTerminalSessionManager;
 import jndc_server.core.TCPDataFlowAnalysisCenter;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.databases_object.IpFilterRule4V;
@@ -22,6 +23,7 @@ import jndc_server.web_support.mapping.DevelopDebugMapping;
 import jndc_server.web_support.mapping.ServerHttpManageMapping;
 import jndc_server.web_support.mapping.ServerManageMapping;
 import jndc_server.web_support.utils.AuthUtils;
+import jndc_server.web_support.websocket.ServerWebSocketDispatcher;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -132,6 +134,8 @@ public class JNDCServerConfig {
 
         //websocket消息通知中心
         UniqueBeanManage.registerBean(new MessageNotificationCenter());
+        UniqueBeanManage.registerBean(new ServerTerminalSessionManager());
+        UniqueBeanManage.registerBean(jndc.web_support.core.WebSocketEventDispatcher.class, new ServerWebSocketDispatcher());
 
         //定时执行
         UniqueBeanManage.registerBean(new ScheduledTaskCenter());

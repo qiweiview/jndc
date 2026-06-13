@@ -10,6 +10,7 @@ import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.ServiceControlMessage;
+import jndc.core.message.TerminalControlMessage;
 import jndc.core.message.TcpServiceDescription;
 import jndc.core.message.UserError;
 import jndc.exception.SecreteDecodeFailException;
@@ -388,6 +389,11 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
                     handleServiceControlSync(ndcMessageProtocol);
                     break;
 
+                case NDCMessageProtocol.TERMINAL_CONTROL:
+                    UniqueBeanManage.getBean(ClientTerminalSessionManager.class)
+                            .handle(ndcMessageProtocol.getObject(TerminalControlMessage.class));
+                    break;
+
                 case NDCMessageProtocol.CONNECTION_INTERRUPTED:
                     log.debug("interrupt connection " + ndcMessageProtocol);
                     UniqueBeanManage.getBean(JNDCClientConfigCenter.class).shutDownClientServiceProvider(ndcMessageProtocol);
@@ -431,6 +437,9 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (UniqueBeanManage.hasBean(ClientTerminalSessionManager.class)) {
+            UniqueBeanManage.getBean(ClientTerminalSessionManager.class).closeActiveSessionForDisconnect();
+        }
         if (reConnectTag) {
             log.debug("client connection interrupted, will restart on 5 second later");
             // TimeUnit.SECONDS.sleep(5);

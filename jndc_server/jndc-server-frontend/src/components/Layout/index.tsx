@@ -8,6 +8,7 @@ import {
   GlobalOutlined,
   LogoutOutlined,
   ControlOutlined,
+  CodeOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,6 +34,11 @@ const menuItems = [
     key: '/management/serviceControl',
     icon: <ControlOutlined />,
     label: '服务管控',
+  },
+  {
+    key: '/management/terminal',
+    icon: <CodeOutlined />,
+    label: '远程终端',
   },
   {
     key: '/management/serverPortList',
@@ -64,7 +70,7 @@ const MainLayout: React.FC = () => {
 
     // Connect WebSocket
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws?auth-token=${encodeURIComponent(token)}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws?mode=notify&auth-token=${encodeURIComponent(token)}`;
     wsClient.connect(wsUrl);
 
     // Listen for notifications

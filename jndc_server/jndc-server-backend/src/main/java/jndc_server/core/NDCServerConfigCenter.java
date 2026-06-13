@@ -155,6 +155,9 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         clientAuthRecord.setLastSeenAt(holder.getLastHearBeatTimeStamp());
         clientAuthRecord.setLastOfflineAt(System.currentTimeMillis());
         dbWrapper.updateByPrimaryKey(clientAuthRecord);
+        if (UniqueBeanManage.hasBean(ServerTerminalSessionManager.class)) {
+            UniqueBeanManage.getBean(ServerTerminalSessionManager.class).handleClientOffline(holder.getClientId());
+        }
         notifyChannelRefresh();
     }
 

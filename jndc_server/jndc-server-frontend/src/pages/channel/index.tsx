@@ -246,6 +246,15 @@ const ChannelList: React.FC = () => {
             size="small"
             style={{ padding: 0 }}
             disabled={!record.online || record.authMode !== 1}
+            onClick={() => navigate(`/management/terminal?clientId=${record.clientId}`)}
+          >
+            终端
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            style={{ padding: 0 }}
+            disabled={!record.online || record.authMode !== 1}
             onClick={() => navigate(`/management/serviceControl?clientId=${record.clientId}`)}
           >
             管控
