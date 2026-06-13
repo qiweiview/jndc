@@ -150,6 +150,13 @@ public class TrafficStatsTest {
         assertEquals(100L, hour10.getClientToServerBytes().longValue());
         assertEquals(40L, hour10.getServerToClientBytes().longValue());
 
+        ClientTrafficTrendRecord minute1005 = dbWrapper.customQuerySingle(
+                "select * from client_traffic_trend_record where id=?",
+                "client-a_MINUTE_" + truncateToMinute(t1)
+        );
+        assertEquals(100L, minute1005.getClientToServerBytes().longValue());
+        assertEquals(40L, minute1005.getServerToClientBytes().longValue());
+
         ClientTrafficTrendRecord day0610 = dbWrapper.customQuerySingle(
                 "select * from client_traffic_trend_record where id=?",
                 "client-a_DAY_" + truncateToDay(t1)
@@ -177,7 +184,8 @@ public class TrafficStatsTest {
         registerDataStore();
         TCPDataFlowAnalysisCenter analysisCenter = registerAnalysisCenter();
 
-        long now = timeOf(2026, 7, 15, 10, 0);
+        long now = timeOf(2026, 7, 15, 10, 10);
+        long minuteBucket = truncateToMinute(now);
         long hourBucket = truncateToHour(now);
         long yesterdayBucket = truncateToDay(now - ChronoUnit.DAYS.getDuration().toMillis());
         long monthBucket = truncateToMonth(now);
@@ -185,6 +193,15 @@ public class TrafficStatsTest {
         analysisCenter.analyse("client-a", messageOfSize(120), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, monthBucket + 24 * 60 * 60 * 1000);
         analysisCenter.analyse("client-a", messageOfSize(60), TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT, yesterdayBucket + 2 * 60 * 60 * 1000);
         analysisCenter.analyse("client-a", messageOfSize(90), TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER, hourBucket + 5 * 60 * 1000);
+
+        ChannelTrafficTrendVO trend1hour = analysisCenter.getTrafficTrend("client-a", "1hour", now);
+        assertEquals("1hour", trend1hour.getRange());
+        assertEquals("minute", trend1hour.getBucketUnit());
+        assertEquals(60, trend1hour.getPoints().size());
+        assertEquals(minuteBucket, trend1hour.getPoints().get(59).getTimestamp());
+        assertEquals(0L, trend1hour.getPoints().get(59).getTotalBytes());
+        assertEquals(90L, findPointByTimestamp(trend1hour, hourBucket + 5 * 60 * 1000).getClientToServerBytes());
+        assertEquals(90L, findPointByTimestamp(trend1hour, hourBucket + 5 * 60 * 1000).getTotalBytes());
 
         ChannelTrafficTrendVO trend24hour = analysisCenter.getTrafficTrend("client-a", "24hour", now);
         assertEquals("24hour", trend24hour.getRange());
@@ -276,6 +293,14 @@ public class TrafficStatsTest {
         return Instant.ofEpochMilli(millis)
                 .atZone(ZoneId.systemDefault())
                 .truncatedTo(ChronoUnit.HOURS)
+                .toInstant()
+                .toEpochMilli();
+    }
+
+    private long truncateToMinute(long millis) {
+        return Instant.ofEpochMilli(millis)
+                .atZone(ZoneId.systemDefault())
+                .truncatedTo(ChronoUnit.MINUTES)
                 .toInstant()
                 .toEpochMilli();
     }

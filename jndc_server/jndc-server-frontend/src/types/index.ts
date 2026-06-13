@@ -65,7 +65,7 @@ export interface ChannelContext {
   trafficUpdatedAt: number;
 }
 
-export type TrafficTrendRange = '24hour' | '7day' | '1month' | '1year';
+export type TrafficTrendRange = '1hour' | '24hour' | '7day' | '1month' | '1year';
 
 export interface ChannelTrafficTrendPoint {
   timestamp: number;
@@ -76,7 +76,7 @@ export interface ChannelTrafficTrendPoint {
 
 export interface ChannelTrafficTrendResult {
   range: TrafficTrendRange;
-  bucketUnit: 'hour' | 'day' | 'month';
+  bucketUnit: 'minute' | 'hour' | 'day' | 'month';
   points: ChannelTrafficTrendPoint[];
 }
 

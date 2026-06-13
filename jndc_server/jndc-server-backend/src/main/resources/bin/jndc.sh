@@ -32,7 +32,8 @@ LOG_DIR="${APP_HOME}/logs"
 CONF_DIR="${APP_HOME}/conf"
 LIB_DIR="${APP_HOME}/lib"
 PID_FILE="${APP_HOME}/bin/.app.pid"
-LOG_FILE="${LOG_DIR}/server.out"
+LOG_FILE="${LOG_DIR}/bootstrap.out"
+APP_LOG_FILE="${LOG_DIR}/info.operationLog"
 
 # ---- 加载环境配置 (可选) ----
 ENV_FILE="${APP_HOME}/bin/jndc.env"
@@ -96,6 +97,30 @@ JVM_OPTS_STR="$(build_jvm_opts)"
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 die() { echo "[ERROR] $*" >&2; exit 1; }
+
+rotate_bootstrap_log() {
+  local max_size=$((5 * 1024 * 1024))
+  local keep_files=5
+  [ -f "$LOG_FILE" ] || return 0
+
+  local current_size
+  current_size="$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)"
+  if [ "${current_size:-0}" -lt "$max_size" ]; then
+    return 0
+  fi
+
+  local rotated
+  rotated="${LOG_DIR}/bootstrap.$(date '+%Y%m%d%H%M%S').out"
+  mv "$LOG_FILE" "$rotated"
+
+  local count=0
+  while IFS= read -r file; do
+    count=$((count + 1))
+    if [ "$count" -gt "$keep_files" ]; then
+      rm -f "$file"
+    fi
+  done < <(find "$LOG_DIR" -maxdepth 1 -type f -name 'bootstrap.*.out' | sort -r)
+}
 
 banner() {
   cat <<'EOF'
@@ -171,12 +196,14 @@ do_start() {
   preflight "$java_cmd"
 
   mkdir -p "$LOG_DIR"
+  rotate_bootstrap_log
 
   log "启动中..."
   log "  主类:    $APP_MAIN"
   log "  JVM:     $JVM_OPTS_STR"
   log "  Classpath: $CLASSPATH"
-  log "  日志:    $LOG_FILE"
+  log "  业务日志: $APP_LOG_FILE"
+  log "  引导日志: $LOG_FILE"
 
   # 后台启动，输出重定向到日志
   nohup "$java_cmd" \
@@ -270,13 +297,17 @@ do_status() {
 }
 
 do_logs() {
-  if [ ! -f "$LOG_FILE" ]; then
-    die "日志文件不存在: $LOG_FILE"
+  local target_log="$APP_LOG_FILE"
+  if [ ! -f "$target_log" ]; then
+    target_log="$LOG_FILE"
+  fi
+  if [ ! -f "$target_log" ]; then
+    die "日志文件不存在: $APP_LOG_FILE 或 $LOG_FILE"
   fi
   if [ "${1:-}" = "-f" ]; then
-    tail -f "$LOG_FILE"
+    tail -f "$target_log"
   else
-    tail -50 "$LOG_FILE"
+    tail -50 "$target_log"
   fi
 }
 

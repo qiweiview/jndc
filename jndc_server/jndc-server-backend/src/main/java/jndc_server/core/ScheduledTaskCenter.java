@@ -30,6 +30,17 @@ public class ScheduledTaskCenter {
         }, 0, 5, TimeUnit.MINUTES);
 
 
+        RuntimeDataCleanupService runtimeDataCleanupService = UniqueBeanManage.getBean(RuntimeDataCleanupService.class);
+        AsynchronousEventCenter asynchronousEventCenter = UniqueBeanManage.getBean(AsynchronousEventCenter.class);
+        if (runtimeDataCleanupService != null && asynchronousEventCenter != null) {
+            asynchronousEventCenter.dbJob(runtimeDataCleanupService::cleanupExpiredData);
+            long intervalHours = runtimeDataCleanupService.getRunIntervalHours();
+            eventLoopGroup.scheduleWithFixedDelay(() -> {
+                asynchronousEventCenter.dbJob(runtimeDataCleanupService::cleanupExpiredData);
+            }, intervalHours, intervalHours, TimeUnit.HOURS);
+        }
+
+
     }
 
 }

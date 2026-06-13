@@ -35,6 +35,8 @@ public class TCPDataFlowAnalysisCenter {
 
     private static final long FLUSH_INTERVAL_MILLIS = 1000L;
 
+    private static final String BUCKET_TYPE_MINUTE = "MINUTE";
+
     private static final String BUCKET_TYPE_HOUR = "HOUR";
 
     private static final String BUCKET_TYPE_DAY = "DAY";
@@ -272,6 +274,10 @@ public class TCPDataFlowAnalysisCenter {
         result.setPoints(points);
     }
 
+    private static long truncateToMinute(long millis) {
+        return toTime(millis).truncatedTo(ChronoUnit.MINUTES).toInstant().toEpochMilli();
+    }
+
     private static long truncateToHour(long millis) {
         return toTime(millis).truncatedTo(ChronoUnit.HOURS).toInstant().toEpochMilli();
     }
@@ -332,6 +338,7 @@ public class TCPDataFlowAnalysisCenter {
                 return;
             }
 
+            addTrendDelta(BUCKET_TYPE_MINUTE, truncateToMinute(nowMillis), direction, bytes, nowMillis);
             addTrendDelta(BUCKET_TYPE_HOUR, truncateToHour(nowMillis), direction, bytes, nowMillis);
             addTrendDelta(BUCKET_TYPE_DAY, truncateToDay(nowMillis), direction, bytes, nowMillis);
             addTrendDelta(BUCKET_TYPE_MONTH, truncateToMonth(nowMillis), direction, bytes, nowMillis);
@@ -471,6 +478,9 @@ public class TCPDataFlowAnalysisCenter {
         }
 
         static TrendRangeDefinition of(String range) {
+            if ("1hour".equals(range)) {
+                return new TrendRangeDefinition("1hour", BUCKET_TYPE_MINUTE, "minute", 60);
+            }
             if ("7day".equals(range)) {
                 return new TrendRangeDefinition("7day", BUCKET_TYPE_DAY, "day", 7);
             }
@@ -490,6 +500,12 @@ public class TCPDataFlowAnalysisCenter {
             if ("day".equals(bucketUnit)) {
                 return truncateDayStart(nowMillis) - (pointCount - 1) * ChronoUnit.DAYS.getDuration().toMillis();
             }
+            if ("hour".equals(bucketUnit)) {
+                return truncateHourStart(nowMillis) - (pointCount - 1) * ChronoUnit.HOURS.getDuration().toMillis();
+            }
+            if ("minute".equals(bucketUnit)) {
+                return truncateMinuteStart(nowMillis) - (pointCount - 1) * ChronoUnit.MINUTES.getDuration().toMillis();
+            }
             return truncateHourStart(nowMillis) - (pointCount - 1) * ChronoUnit.HOURS.getDuration().toMillis();
         }
 
@@ -500,7 +516,21 @@ public class TCPDataFlowAnalysisCenter {
             if ("day".equals(bucketUnit)) {
                 return bucketStartAt + ChronoUnit.DAYS.getDuration().toMillis();
             }
+            if ("hour".equals(bucketUnit)) {
+                return bucketStartAt + ChronoUnit.HOURS.getDuration().toMillis();
+            }
+            if ("minute".equals(bucketUnit)) {
+                return bucketStartAt + ChronoUnit.MINUTES.getDuration().toMillis();
+            }
             return bucketStartAt + ChronoUnit.HOURS.getDuration().toMillis();
+        }
+
+        private long truncateMinuteStart(long nowMillis) {
+            return Instant.ofEpochMilli(nowMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .truncatedTo(ChronoUnit.MINUTES)
+                    .toInstant()
+                    .toEpochMilli();
         }
 
         private long truncateHourStart(long nowMillis) {

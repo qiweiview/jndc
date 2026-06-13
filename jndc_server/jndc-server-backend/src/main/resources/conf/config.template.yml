@@ -8,6 +8,18 @@ loglevel: "info"
 servicePort: 1081 # JNDC服务端监听端口
 bindIp: "127.0.0.1" # JNDC服务端绑定IP地址
 
+# 运行时数据清理配置
+cleanupConfig:
+  enabled: true # 是否开启SQLite数据清理
+  runIntervalHours: 24 # 清理任务执行周期（小时）
+  channelRecordRetentionDays: 30 # 断连记录保留天数
+  ipFilterRecordRetentionDays: 30 # IP过滤命中记录保留天数
+  trafficTrendMinuteRetentionDays: 3 # 分钟级流量趋势保留天数
+  trafficTrendHourRetentionDays: 14 # 小时级流量趋势保留天数
+  trafficTrendDayRetentionDays: 90 # 天级流量趋势保留天数
+  trafficTrendMonthRetentionDays: 1095 # 月级流量趋势保留天数（约3年）
+  vacuumAfterCleanup: true # 清理后压缩SQLite文件
+
 # 管理后台配置
 manageConfig:
   managementApiPort: 1777 # 管理后台API服务端口

@@ -93,6 +93,31 @@ public abstract class DataStoreAbstract {
         }
     }
 
+    /**
+     * 执行更新语句，并返回影响行数
+     *
+     * @param sql
+     * @param objects
+     * @return
+     */
+    public int executeUpdate(String sql, Object[] objects) {
+        try (PreparedStatement preparedStatement = getConnection().prepareStatement(sql)) {
+
+            if (objects == null) {
+                objects = new Object[0];
+            }
+            for (int i = 0; i < objects.length; i++) {
+                preparedStatement.setObject(i + 1, objects[i]);
+            }
+            log.debug("sql 打印" + preparedStatement.toString());
+            return preparedStatement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+            log.error(sqlException.toString());
+            throw new RuntimeException("execute error: " + sqlException);
+        }
+    }
+
 
     /**
      * 查询

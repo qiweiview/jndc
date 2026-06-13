@@ -13,6 +13,7 @@ interface ChannelTrafficModalProps {
 }
 
 const RANGE_OPTIONS: { label: string; value: TrafficTrendRange }[] = [
+  { label: '1 Hour', value: '1hour' },
   { label: '24 Hour', value: '24hour' },
   { label: '7 Day', value: '7day' },
   { label: '1 Month', value: '1month' },
@@ -20,8 +21,8 @@ const RANGE_OPTIONS: { label: string; value: TrafficTrendRange }[] = [
 ];
 
 const EMPTY_TREND: ChannelTrafficTrendResult = {
-  range: '24hour',
-  bucketUnit: 'hour',
+  range: '1hour',
+  bucketUnit: 'minute',
   points: [],
 };
 
@@ -32,19 +33,22 @@ const formatXAxisLabel = (timestamp: number, bucketUnit: ChannelTrafficTrendResu
   if (bucketUnit === 'day') {
     return dayjs(timestamp).format('MM-DD');
   }
-  return dayjs(timestamp).format('MM-DD HH:00');
+  if (bucketUnit === 'hour') {
+    return dayjs(timestamp).format('MM-DD HH:00');
+  }
+  return dayjs(timestamp).format('HH:mm');
 };
 
 const ChannelTrafficModal: React.FC<ChannelTrafficModalProps> = ({ open, record, onCancel }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
   const chartInstanceRef = useRef<echarts.ECharts | null>(null);
-  const [range, setRange] = useState<TrafficTrendRange>('24hour');
+  const [range, setRange] = useState<TrafficTrendRange>('1hour');
   const [trend, setTrend] = useState<ChannelTrafficTrendResult>(EMPTY_TREND);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) {
-      setRange('24hour');
+      setRange('1hour');
       setTrend(EMPTY_TREND);
     }
   }, [open]);

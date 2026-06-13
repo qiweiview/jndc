@@ -12,6 +12,7 @@ import jndc.web_support.core.MappingRegisterCenter;
 import jndc.web_support.core.MessageNotificationCenter;
 import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.NDCServerConfigCenter;
+import jndc_server.core.RuntimeDataCleanupService;
 import jndc_server.core.ScheduledTaskCenter;
 import jndc_server.core.TCPDataFlowAnalysisCenter;
 import jndc_server.core.filter.IpChecker;
@@ -45,6 +46,9 @@ public class JNDCServerConfig {
     //日志等级
     private String loglevel;
 
+    //运行时数据清理配置
+    private DataCleanupConfig cleanupConfig = new DataCleanupConfig();
+
 
     //核心服务端口
     private int servicePort;
@@ -77,6 +81,9 @@ public class JNDCServerConfig {
      * 参数校验
      */
     public void performParameterVerification() {
+        if (cleanupConfig == null) {
+            cleanupConfig = new DataCleanupConfig();
+        }
         inetAddress = InetUtils.getByStringIpAddress(bindIp);
         inetSocketAddress = new InetSocketAddress(inetAddress, servicePort);
         httpInetSocketAddress = new InetSocketAddress(inetAddress, webConfig.getHttpPort());
@@ -115,6 +122,7 @@ public class JNDCServerConfig {
         sqLiteDataStore.init();
         performSchemaMigration(sqLiteDataStore);
         UniqueBeanManage.registerBean(DataStoreAbstract.class, sqLiteDataStore);
+        UniqueBeanManage.registerBean(new RuntimeDataCleanupService(this, sqLiteDataStore));
         log.info("使用sqlite数据库存储");
 
 
@@ -220,6 +228,7 @@ public class JNDCServerConfig {
         addClientAuthColumn(dataStoreAbstract, "client_to_server_bytes", "bigint");
         addClientAuthColumn(dataStoreAbstract, "server_to_client_bytes", "bigint");
         ensureTrafficTrendTable(dataStoreAbstract);
+        ensureMaintenanceIndexes(dataStoreAbstract);
     }
 
     private void addClientAuthColumn(DataStoreAbstract dataStoreAbstract, String columnName, String columnType) {
@@ -261,6 +270,37 @@ public class JNDCServerConfig {
             );
         } catch (RuntimeException e) {
             log.debug("skip client_traffic_trend_record migration: {}", e.getMessage());
+        }
+    }
+
+    private void ensureMaintenanceIndexes(DataStoreAbstract dataStoreAbstract) {
+        createIndexIfAbsent(
+                dataStoreAbstract,
+                "create index if not exists idx_channel_context_record_time_stamp on channel_context_record(time_stamp)"
+        );
+        createIndexIfAbsent(
+                dataStoreAbstract,
+                "create index if not exists idx_channel_context_record_client_time on channel_context_record(client_id, time_stamp)"
+        );
+        createIndexIfAbsent(
+                dataStoreAbstract,
+                "create index if not exists idx_ip_filter_record_type_time on ip_filter_record(record_type, time_stamp)"
+        );
+        createIndexIfAbsent(
+                dataStoreAbstract,
+                "create index if not exists idx_client_traffic_trend_bucket_time on client_traffic_trend_record(bucket_type, bucket_start_at)"
+        );
+        createIndexIfAbsent(
+                dataStoreAbstract,
+                "create index if not exists idx_client_traffic_trend_client_bucket_time on client_traffic_trend_record(client_id, bucket_type, bucket_start_at)"
+        );
+    }
+
+    private void createIndexIfAbsent(DataStoreAbstract dataStoreAbstract, String sql) {
+        try {
+            dataStoreAbstract.execute(sql, null);
+        } catch (RuntimeException e) {
+            log.debug("skip index migration: {}", e.getMessage());
         }
     }
 

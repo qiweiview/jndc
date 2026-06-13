@@ -98,3 +98,18 @@ CREATE TABLE IF NOT EXISTS "client_controlled_service"
     "description"  text(255),
     PRIMARY KEY ("id")
 );
+
+CREATE INDEX IF NOT EXISTS "idx_channel_context_record_time_stamp"
+    ON "channel_context_record" ("time_stamp");
+
+CREATE INDEX IF NOT EXISTS "idx_channel_context_record_client_time"
+    ON "channel_context_record" ("client_id", "time_stamp");
+
+CREATE INDEX IF NOT EXISTS "idx_ip_filter_record_type_time"
+    ON "ip_filter_record" ("record_type", "time_stamp");
+
+CREATE INDEX IF NOT EXISTS "idx_client_traffic_trend_bucket_time"
+    ON "client_traffic_trend_record" ("bucket_type", "bucket_start_at");
+
+CREATE INDEX IF NOT EXISTS "idx_client_traffic_trend_client_bucket_time"
+    ON "client_traffic_trend_record" ("client_id", "bucket_type", "bucket_start_at");
