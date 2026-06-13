@@ -113,14 +113,6 @@ public class JNDCClientConfig {
         UniqueBeanManage.registerBean(this);
 
 
-    /*   //应用场景不多，后续版本将废弃gui
-        if (isOpenGui()) {
-            GuiLogAppender.printIntoGui = true;
-            new Thread(() -> {
-                new GuiStart().start();
-                log.info("init gui");
-            }).start();
-        }*/
 
         init();
 

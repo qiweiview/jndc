@@ -102,13 +102,13 @@ function Get-Pid {
 }
 
 function Test-Running {
-    $pid = Get-Pid
-    if (-not $pid) {
+    $appPid = Get-Pid
+    if (-not $appPid) {
         return $false
     }
 
     try {
-        Get-Process -Id $pid -ErrorAction Stop | Out-Null
+        Get-Process -Id $appPid -ErrorAction Stop | Out-Null
         return $true
     } catch {
         return $false
@@ -140,13 +140,14 @@ function Find-Java {
         return $command.Source
     }
 
-    Fail "未找到 JDK $JavaRequiredMajor+，请设置 JAVA_HOME 或将 java.exe 加入 PATH"
+    Fail "JDK $JavaRequiredMajor+ not found. Set JAVA_HOME or add java.exe to PATH."
 }
 
 function Get-JavaMajorVersion {
     param([string]$JavaCommand)
 
-    $versionLine = (& $JavaCommand -version 2>&1 | Select-Object -First 1)
+    $versionOutput = & cmd.exe /d /c ('"{0}" -version 2>&1' -f $JavaCommand)
+    $versionLine = $versionOutput | Select-Object -First 1
     if (-not $versionLine) {
         return $null
     }
@@ -173,34 +174,34 @@ function Require-RuntimeConfig {
         New-Item -ItemType Directory -Force -Path $runtimeConfDir | Out-Null
     }
 
-    Fail "缺少运行配置: $RuntimeConfigFile，请先参考 $TemplateConfigFile 创建 config.yml"
+    Fail "Missing runtime config: $RuntimeConfigFile. Create config.yml from $TemplateConfigFile first."
 }
 
 function Preflight {
     param([string]$JavaCommand)
 
     if (-not (Test-Path $JavaCommand)) {
-        Fail "Java 不存在: $JavaCommand"
+        Fail "Java not found: $JavaCommand"
     }
     if (-not (Test-Path $LibDir)) {
-        Fail "lib 目录不存在: $LibDir"
+        Fail "lib directory not found: $LibDir"
     }
     if (-not (Test-Path $ConfDir)) {
-        Fail "conf 目录不存在: $ConfDir"
+        Fail "conf directory not found: $ConfDir"
     }
 
     Require-RuntimeConfig
 
     $majorVersion = Get-JavaMajorVersion -JavaCommand $JavaCommand
     if (-not $majorVersion) {
-        Fail "无法解析 Java 版本，请检查 $JavaCommand"
+        Fail "Cannot parse Java version: $JavaCommand"
     }
     if ($majorVersion -lt $JavaRequiredMajor) {
-        Fail "检测到 Java $majorVersion，JNDC 需要 JDK $JavaRequiredMajor+。请调整 JAVA_HOME 或 PATH。"
+        Fail "Detected Java $majorVersion, but JNDC requires JDK $JavaRequiredMajor+."
     }
 
     if (-not (Get-ChildItem -Path (Join-Path $LibDir "jndc_client*.jar") -ErrorAction SilentlyContinue)) {
-        Fail "未找到 jndc_client.jar，请先执行 mvn package"
+        Fail "jndc_client.jar not found. Run mvn package first."
     }
 }
 
@@ -230,10 +231,10 @@ function Rotate-BootstrapLog {
 function Build-JavaArgs {
     param([string]$RunMode)
 
-    $classpath = "$ConfDir;$LibDir\*"
+    $classpath = "{0};{1}" -f $ConfDir, (Join-Path $LibDir "*")
     $args = @(
-        "-Dapp.home=$AppHome",
-        "-Dapp.mode=$RunMode",
+        ("-Dapp.home={0}" -f $AppHome),
+        ("-Dapp.mode={0}" -f $RunMode),
         $env:JVM_XMS,
         $env:JVM_XMX,
         $env:JVM_METASPACE
@@ -241,7 +242,7 @@ function Build-JavaArgs {
 
     if ($env:GC_LOG -eq "true") {
         $gcLogFile = Join-Path $LogDir "gc.log"
-        $args += "-Xlog:gc*:file=$($gcLogFile):time,uptime,level,tags:filecount=5,filesize=10M"
+        $args += ("-Xlog:gc*:file={0}:time,uptime,level,tags:filecount=5,filesize=10M" -f $gcLogFile)
     }
 
     if ($env:JVM_OPTS) {
@@ -253,18 +254,14 @@ function Build-JavaArgs {
 }
 
 function Show-Banner {
-    Write-Host "       __  _   _ ____   ____ ____"
-    Write-Host "      |  \| | | |  _ \ / ___/ ___|"
-    Write-Host "      | | | | | | | | | |  | |"
-    Write-Host "      | |\  | |_| | |_| |__| |___"
-    Write-Host "      |_| \_|\___/|____/\____\____|  Client"
-    Write-Host "  模式: $RunMode  |  版本: $(Get-Date -Format 'yyyyMMdd')"
+    Write-Host 'JNDC Client'
+    Write-Host ("Mode: {0} | Version: {1}" -f $RunMode, (Get-Date -Format 'yyyyMMdd'))
     Write-Host ""
 }
 
 function Do-Start {
     if (Test-Running) {
-        Write-Info "客户端已在运行 (PID: $(Get-Pid))"
+        Write-Info ("Client already running (PID: {0})" -f (Get-Pid))
         return
     }
 
@@ -275,11 +272,11 @@ function Do-Start {
     Rotate-BootstrapLog
     Show-Banner
 
-    Write-Info "启动中..."
-    Write-Info "  主类:      $AppMain"
-    Write-Info "  运行配置:  $RuntimeConfigFile"
-    Write-Info "  业务日志:  $AppLogFile"
-    Write-Info "  引导日志:  $BootstrapOutFile"
+    Write-Info "Starting..."
+    Write-Info ("  Main class:    {0}" -f $AppMain)
+    Write-Info ("  Runtime config:{0}{1}" -f ' ', $RuntimeConfigFile)
+    Write-Info ("  App log:       {0}" -f $AppLogFile)
+    Write-Info ("  Bootstrap log: {0}" -f $BootstrapOutFile)
 
     $javaArgs = Build-JavaArgs -RunMode $RunMode
     $process = Start-Process -FilePath $javaCommand `
@@ -295,10 +292,10 @@ function Do-Start {
 
     try {
         Get-Process -Id $process.Id -ErrorAction Stop | Out-Null
-        Write-Info "启动成功 (PID: $($process.Id))"
+        Write-Info ("Started successfully (PID: {0})" -f $process.Id)
     } catch {
         Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
-        Fail "启动失败，进程已退出。查看日志: $BootstrapOutFile / $BootstrapErrFile"
+        Fail "Startup failed. Check logs: $BootstrapOutFile / $BootstrapErrFile"
     }
 }
 
@@ -306,56 +303,56 @@ function Do-Stop {
     param([bool]$ForceStop)
 
     if (-not (Test-Running)) {
-        Write-Info "客户端未运行"
+        Write-Info "Client is not running"
         Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
         return
     }
 
-    $pid = Get-Pid
+    $appPid = Get-Pid
     $timeout = [int]$env:SHUTDOWN_TIMEOUT
 
     if ($ForceStop) {
-        Write-Info "强制停止 (PID: $pid)"
-        Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+        Write-Info ("Force stopping (PID: {0})" -f $appPid)
+        Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue
         Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
-        Write-Info "已停止"
+        Write-Info "Stopped"
         return
     }
 
-    Write-Info "停止中 (PID: $pid, 超时: ${timeout}s)..."
-    Stop-Process -Id $pid -ErrorAction SilentlyContinue
+    Write-Info ("Stopping (PID: {0}, timeout: {1}s)..." -f $appPid, $timeout)
+    Stop-Process -Id $appPid -ErrorAction SilentlyContinue
 
     for ($elapsed = 0; $elapsed -lt $timeout; $elapsed++) {
         if (-not (Test-Running)) {
             Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
-            Write-Info "已停止 (${elapsed}s)"
+            Write-Info ("Stopped ({0}s)" -f $elapsed)
             return
         }
         Start-Sleep -Seconds 1
         if ((($elapsed + 1) % 5) -eq 0) {
-            Write-Info ("  等待中... ({0}/{1}s)" -f ($elapsed + 1), $timeout)
+            Write-Info ("  Waiting... ({0}/{1}s)" -f ($elapsed + 1), $timeout)
         }
     }
 
-    Write-Info "停止超时，执行强制终止"
-    Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+    Write-Info "Stop timed out. Forcing process termination."
+    Stop-Process -Id $appPid -Force -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 1
     Remove-Item -Path $PidFile -Force -ErrorAction SilentlyContinue
-    Write-Info "已强制停止"
+    Write-Info "Stopped"
 }
 
 function Do-Status {
     if (-not (Test-Running)) {
-        Write-Host "$AppName 未运行"
+        Write-Host "$AppName is not running"
         if (Test-Path $PidFile) {
-            Write-Host "  提示: 发现残留 PID 文件: $PidFile"
+            Write-Host "  Stale PID file found: $PidFile"
         }
         exit 1
     }
 
-    $pid = Get-Pid
-    $process = Get-Process -Id $pid -ErrorAction Stop
-    Write-Host "$AppName 正在运行 (PID: $pid)"
+    $appPid = Get-Pid
+    $process = Get-Process -Id $appPid -ErrorAction Stop
+    Write-Host "$AppName is running (PID: $appPid)"
     Write-Host ""
     $process | Select-Object Id, ProcessName, StartTime, CPU, WorkingSet | Format-List
 }
@@ -368,7 +365,7 @@ function Do-Logs {
         $target = $BootstrapOutFile
     }
     if (-not (Test-Path $target)) {
-        Fail "日志文件不存在: $AppLogFile 或 $BootstrapOutFile"
+        Fail "Log file not found: $AppLogFile or $BootstrapOutFile"
     }
 
     if ($FollowLog) {
@@ -381,22 +378,22 @@ function Do-Logs {
 
 function Show-Help {
     @"
-JNDC Client 管理脚本
+JNDC Client management script
 
-用法:
+Usage:
   .\jndc.ps1 <command> [options]
 
-命令:
-  start   [--dev]     启动客户端
-  stop    [--force]   停止客户端
-  restart [--dev]     重启客户端
-  status              查看运行状态
-  logs    [-f]        查看日志
-  help                显示帮助
+Commands:
+  start   [--dev]     Start client
+  stop    [--force]   Stop client
+  restart [--dev]     Restart client
+  status              Show status
+  logs    [-f]        Show logs
+  help                Show help
 
-运行前置:
-  运行配置读取自: $RuntimeConfigFile
-  若文件不存在，请参考: $TemplateConfigFile
+Runtime config:
+  Read from: $RuntimeConfigFile
+  If missing, create it from: $TemplateConfigFile
 "@ | Write-Host
 }
 
@@ -437,7 +434,7 @@ switch ($Command) {
         Show-Help
     }
     default {
-        Write-Host "未知命令: $Command"
+        Write-Host "Unknown command: $Command"
         Show-Help
         exit 1
     }
