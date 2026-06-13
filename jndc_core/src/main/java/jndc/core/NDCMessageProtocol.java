@@ -75,6 +75,8 @@ public class NDCMessageProtocol {
 
     public static final byte SERVICE_CONTROL_SYNC = 0X0B;//服务控制同步数据包
 
+    public static final byte TERMINAL_CONTROL = 0X0C;//远程终端控制数据包
+
 
     /*--------------------- static variable ---------------------*/
     public static final int UN_USED_PORT = 0;//the single package length

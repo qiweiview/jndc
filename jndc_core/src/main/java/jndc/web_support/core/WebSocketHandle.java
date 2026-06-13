@@ -17,6 +17,11 @@ public class WebSocketHandle extends SimpleChannelInboundHandler<TextWebSocketFr
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, TextWebSocketFrame textWebSocketFrame) throws Exception {
         LogPrint.info("channelRead0" + textWebSocketFrame);
+        if (UniqueBeanManage.hasBean(WebSocketEventDispatcher.class)) {
+            UniqueBeanManage.getBean(WebSocketEventDispatcher.class)
+                    .handleTextFrame(channelHandlerContext, textWebSocketFrame.text());
+            return;
+        }
         channelHandlerContext.writeAndFlush(textWebSocketFrame.retain());
     }
 
@@ -25,10 +30,21 @@ public class WebSocketHandle extends SimpleChannelInboundHandler<TextWebSocketFr
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             Channel channel = ctx.channel();
+            if (UniqueBeanManage.hasBean(WebSocketEventDispatcher.class)) {
+                UniqueBeanManage.getBean(WebSocketEventDispatcher.class).afterHandshake(channel);
+                return;
+            }
             MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
-            //通道注册
             messageNotificationCenter.websocketRegister(channel);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (UniqueBeanManage.hasBean(WebSocketEventDispatcher.class)) {
+            UniqueBeanManage.getBean(WebSocketEventDispatcher.class).handleChannelInactive(ctx);
+        }
+        super.channelInactive(ctx);
     }
 
     @Override

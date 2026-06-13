@@ -23,6 +23,10 @@ public class UniqueBeanManage {
         return (T) o;
     }
 
+    public static boolean hasBean(Class tClass) {
+        return map.containsKey(tClass);
+    }
+
 
 
 

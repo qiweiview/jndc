@@ -49,6 +49,11 @@ public class AuthTokenChecker extends SimpleChannelInboundHandler<FullHttpReques
         if ("websocket".equals(s)) {
             //websocket
             verificationToken(parseResult.getQueryMap().get(AUTH_TOKEN), channelHandlerContext);
+            String mode = parseResult.getQueryMap().get("mode");
+            if (mode == null || "".equals(mode.trim())) {
+                mode = "notify";
+            }
+            channelHandlerContext.channel().attr(WebSocketChannelAttrs.MODE).set(mode);
 
             //reset uri
             fullHttpRequest.setUri(requestPath);
