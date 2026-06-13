@@ -68,7 +68,7 @@ public class ClientTerminalSessionManager {
             return;
         }
 
-        String shellType = OSUtils.isLinux() ? "/bin/sh" : "cmd.exe";
+        String shellType = resolveShellType();
         try {
             Process process = terminalProcessFactory.start(shellType, new File(PathUtils.getClientWorkspace()));
             TerminalSession session = new TerminalSession(message.getSessionId(), message.getClientId(), shellType, process);
@@ -183,6 +183,10 @@ public class ClientTerminalSessionManager {
         );
         protocol.setData(ObjectSerializableUtils.object2bytes(terminalControlMessage));
         UniqueBeanManage.getBean(JNDCClientConfigCenter.class).addMessageToSendQueue(protocol);
+    }
+
+    static String resolveShellType() {
+        return OSUtils.isWindows() ? "cmd.exe" : "/bin/sh";
     }
 
     interface TerminalProcessFactory {

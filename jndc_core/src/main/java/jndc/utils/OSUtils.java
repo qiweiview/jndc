@@ -3,15 +3,18 @@ package jndc.utils;
 public class OSUtils {
     private static volatile String os;
 
-
-    public static boolean isLinux() {
+    private static String getOs() {
         if (os == null) {
             os = System.getProperty("os.name");
         }
+        return os.toLowerCase();
+    }
 
-        if (os.toLowerCase().indexOf("win") != -1) {
-            return false;
-        }
-        return true;
+    public static boolean isLinux() {
+        return !isWindows();
+    }
+
+    public static boolean isWindows() {
+        return getOs().indexOf("win") != -1;
     }
 }

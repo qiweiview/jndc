@@ -101,6 +101,12 @@ public class ClientTerminalSessionManagerTest {
         assertEquals("terminal session already active", error.getMessage());
     }
 
+    @Test
+    public void shouldUsePlatformShellType() {
+        String expected = jndc.utils.OSUtils.isWindows() ? "cmd.exe" : "/bin/sh";
+        assertEquals(expected, ClientTerminalSessionManager.resolveShellType());
+    }
+
     private TerminalControlMessage message(String action, String sessionId, String clientId, String data) {
         TerminalControlMessage message = new TerminalControlMessage();
         message.setAction(action);
