@@ -4,6 +4,7 @@ package jndc_server.web_support.mapping;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
 import jndc.core.data_store_support.PageResult;
+import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.TcpServiceDescription;
 import jndc.utils.JSONUtils;
@@ -18,6 +19,7 @@ import jndc_server.core.AsynchronousEventCenter;
 import jndc_server.core.ChannelHandlerContextHolder;
 import jndc_server.core.NDCServerConfigCenter;
 import jndc_server.core.ServerServiceDescription;
+import jndc_server.core.TCPDataFlowAnalysisCenter;
 import jndc_server.core.filter.IpChecker;
 import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ClientAuthRecord;
@@ -48,6 +50,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -100,34 +103,58 @@ public class ServerManageMapping {
     }
 
     /**
-     * get the active channel list
+     * get the device channel list
      *
      * @param jndcHttpRequest
      * @return
      */
     @WebMapping(path = ServerUrlConstant.ServerManage.getServerChannelTable)
     public List<ChannelContextVO> getServerChannelTable(JNDCHttpRequest jndcHttpRequest) {
-
-        List<ChannelContextVO> list = new ArrayList<>();
         NDCServerConfigCenter bean = UniqueBeanManage.getBean(NDCServerConfigCenter.class);
+        TCPDataFlowAnalysisCenter trafficAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
+        Map<String, ChannelContextVO> channelMap = new HashMap<>();
+        Map<String, ClientAuthRecord> clientRecordMap = new HashMap<>();
+
+        DBWrapper<ClientAuthRecord> dbWrapper = DBWrapper.getDBWrapper(ClientAuthRecord.class);
+        List<ClientAuthRecord> clientAuthRecords = dbWrapper.customQuery("select * from client_auth_record");
+        clientAuthRecords.forEach(record -> {
+            clientRecordMap.put(record.getClientId(), record);
+            ChannelContextVO channelContextVO = toChannelContext(record);
+            applyTraffic(channelContextVO, record, trafficAnalysisCenter.getTrafficSnapshot(record.getClientId(), false));
+            channelMap.put(record.getClientId(), channelContextVO);
+        });
+
         List<ChannelHandlerContextHolder> channelHandlerContextHolders = bean.getChannelHandlerContextHolders();
         channelHandlerContextHolders.forEach(x -> {
-
-            ChannelContextVO facePortVO = new ChannelContextVO();
-
+            ChannelContextVO facePortVO = channelMap.get(x.getClientId());
+            if (facePortVO == null) {
+                facePortVO = new ChannelContextVO();
+            }
             facePortVO.setChannelId(x.getClientId());
             facePortVO.setClientId(x.getClientId());
             facePortVO.setServiceCount(x.serviceNum());
             facePortVO.setClientIp(x.getContextIp());
             facePortVO.setClientPort(x.getContextPort());
             facePortVO.setLastHeartbeat(x.getLastHearBeatTimeStamp());
+            facePortVO.setLastSeenAt(x.getLastHearBeatTimeStamp());
+            facePortVO.setLastOfflineAt(0L);
             facePortVO.setConnected(true);
+            facePortVO.setOnline(true);
             facePortVO.setAuthMode(x.getAuthMode());
-
-            list.add(facePortVO);
+            applyTraffic(
+                    facePortVO,
+                    clientRecordMap.get(x.getClientId()),
+                    trafficAnalysisCenter.getTrafficSnapshot(x.getClientId(), true)
+            );
+            channelMap.put(x.getClientId(), facePortVO);
         });
 
-
+        List<ChannelContextVO> list = new ArrayList<>(channelMap.values());
+        list.sort(Comparator
+                .comparing(ChannelContextVO::isOnline)
+                .reversed()
+                .thenComparing(ChannelContextVO::getLastSeenAt, Comparator.reverseOrder())
+                .thenComparing(ChannelContextVO::getClientId, Comparator.nullsLast(String::compareTo)));
         return list;
 
     }
@@ -156,6 +183,21 @@ public class ServerManageMapping {
         channelContextCloseRecordPageListVO.setTotal(channelContextCloseRecordPageResult.getTotal());
 
         return channelContextCloseRecordPageListVO;
+    }
+
+    @WebMapping(path = ServerUrlConstant.ServerManage.getRecentChannelRecordByClientId)
+    public List<ChannelContextCloseRecord> getRecentChannelRecordByClientId(JNDCHttpRequest jndcHttpRequest) {
+        ChannelContextVO channelContextVO = jndcHttpRequest.getObject(ChannelContextVO.class);
+        String clientId = resolveChannelId(channelContextVO);
+        if (clientId == null || "".equals(clientId.trim())) {
+            return new ArrayList<>();
+        }
+
+        DBWrapper<ChannelContextCloseRecord> dbWrapper = DBWrapper.getDBWrapper(ChannelContextCloseRecord.class);
+        return dbWrapper.customQuery(
+                "select * from channel_context_record where client_id=? order by time_stamp desc limit 10",
+                clientId
+        );
     }
 
 
@@ -372,6 +414,58 @@ public class ServerManageMapping {
             return OpenChannelMessage.SELF_MANAGED;
         }
         return clientAuthRecord.getAuthMode();
+    }
+
+    private ChannelContextVO toChannelContext(ClientAuthRecord clientAuthRecord) {
+        ChannelContextVO channelContextVO = new ChannelContextVO();
+        channelContextVO.setChannelId(clientAuthRecord.getClientId());
+        channelContextVO.setClientId(clientAuthRecord.getClientId());
+        channelContextVO.setServiceCount(0);
+        channelContextVO.setClientIp(defaultString(clientAuthRecord.getLastClientIp()));
+        channelContextVO.setClientPort(clientAuthRecord.getLastClientPort() == null ? 0 : clientAuthRecord.getLastClientPort());
+        channelContextVO.setLastHeartbeat(clientAuthRecord.getLastSeenAt() == null ? 0L : clientAuthRecord.getLastSeenAt());
+        channelContextVO.setLastSeenAt(clientAuthRecord.getLastSeenAt() == null ? 0L : clientAuthRecord.getLastSeenAt());
+        channelContextVO.setLastOfflineAt(clientAuthRecord.getLastOfflineAt() == null ? 0L : clientAuthRecord.getLastOfflineAt());
+        channelContextVO.setConnected(false);
+        channelContextVO.setOnline(false);
+        channelContextVO.setAuthMode(getAuthMode(clientAuthRecord));
+
+        DeviceSummary deviceSummary = clientAuthRecord.toDeviceSummary();
+        channelContextVO.setOsName(defaultString(deviceSummary.getOsName()));
+        channelContextVO.setOsVersion(defaultString(deviceSummary.getOsVersion()));
+        channelContextVO.setCpuModel(defaultString(deviceSummary.getCpuModel()));
+        channelContextVO.setCpuLogicalCores(deviceSummary.getCpuLogicalCores());
+        channelContextVO.setGpuNames(deviceSummary.getGpuNames());
+        channelContextVO.setMemoryTotalBytes(deviceSummary.getMemoryTotalBytes());
+        channelContextVO.setDiskTotalBytes(deviceSummary.getDiskTotalBytes());
+        channelContextVO.setDiskFreeBytes(deviceSummary.getDiskFreeBytes());
+        channelContextVO.setClientToServerBytes(defaultLong(clientAuthRecord.getClientToServerBytes()));
+        channelContextVO.setServerToClientBytes(defaultLong(clientAuthRecord.getServerToClientBytes()));
+        channelContextVO.setClientToServerBandwidth(0L);
+        channelContextVO.setServerToClientBandwidth(0L);
+        channelContextVO.setTrafficUpdatedAt(0L);
+        return channelContextVO;
+    }
+
+    private void applyTraffic(ChannelContextVO channelContextVO, ClientAuthRecord clientAuthRecord, TCPDataFlowAnalysisCenter.TrafficSnapshot trafficSnapshot) {
+        long persistedClientToServer = clientAuthRecord == null ? 0L : defaultLong(clientAuthRecord.getClientToServerBytes());
+        long persistedServerToClient = clientAuthRecord == null ? 0L : defaultLong(clientAuthRecord.getServerToClientBytes());
+        TCPDataFlowAnalysisCenter.TrafficSnapshot snapshot = trafficSnapshot == null
+                ? TCPDataFlowAnalysisCenter.TrafficSnapshot.empty()
+                : trafficSnapshot;
+        channelContextVO.setClientToServerBytes(persistedClientToServer + snapshot.getPendingClientToServerBytes());
+        channelContextVO.setServerToClientBytes(persistedServerToClient + snapshot.getPendingServerToClientBytes());
+        channelContextVO.setClientToServerBandwidth(snapshot.getClientToServerBandwidth());
+        channelContextVO.setServerToClientBandwidth(snapshot.getServerToClientBandwidth());
+        channelContextVO.setTrafficUpdatedAt(snapshot.getTrafficUpdatedAt());
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value;
+    }
+
+    private long defaultLong(Long value) {
+        return value == null ? 0L : value;
     }
 
     private String resolveChannelId(ChannelContextVO channelContextVO) {

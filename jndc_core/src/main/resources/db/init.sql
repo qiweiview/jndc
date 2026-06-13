@@ -1,10 +1,12 @@
 CREATE TABLE IF NOT EXISTS "channel_context_record"
 (
-    "id"         text(128) NOT NULL,
-    "ip"         text(255),
-    "channel_id" text(255),
-    "port"       integer,
-    "time_stamp" bigint,
+    "id"                text(128) NOT NULL,
+    "client_id"         text(255),
+    "ip"                text(255),
+    "channel_id"        text(255),
+    "port"              integer,
+    "time_stamp"        bigint,
+    "disconnect_reason" text(255),
     PRIMARY KEY ("id")
 );
 
@@ -54,9 +56,23 @@ CREATE TABLE IF NOT EXISTS "server_port_bind"
 
 CREATE TABLE IF NOT EXISTS "client_auth_record"
 (
-    "client_id"       text(255) NOT NULL,
-    "client_auth_key" text(255) NOT NULL,
-    "auth_mode"       integer,
+    "client_id"          text(255) NOT NULL,
+    "client_auth_key"    text(255) NOT NULL,
+    "auth_mode"          integer,
+    "last_client_ip"     text(255),
+    "last_client_port"   integer,
+    "last_seen_at"       bigint,
+    "last_offline_at"    bigint,
+    "os_name"            text(255),
+    "os_version"         text(255),
+    "cpu_model"          text(255),
+    "cpu_logical_cores"  integer,
+    "gpu_names"          text(2000),
+    "memory_total_bytes" bigint,
+    "disk_total_bytes"   bigint,
+    "disk_free_bytes"    bigint,
+    "client_to_server_bytes" bigint,
+    "server_to_client_bytes" bigint,
     PRIMARY KEY ("client_id")
 );
 

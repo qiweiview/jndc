@@ -1,0 +1,18 @@
+.service-control-table .ant-table-thead > tr > th {
+  text-align: left !important;
+}
+
+.service-control-table .ant-input,
+.service-control-table .ant-input-number {
+  background-color: #F7F9FC !important;
+  border-color: transparent !important;
+}
+
+.service-control-table .ant-input:focus,
+.service-control-table .ant-input:hover,
+.service-control-table .ant-input-number:focus,
+.service-control-table .ant-input-number:hover,
+.service-control-table .ant-input-number-focused {
+  background-color: #FFFFFF !important;
+  border-color: var(--color-primary) !important;
+}

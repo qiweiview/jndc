@@ -28,6 +28,8 @@ public class ChannelHandlerContextHolder {
     //心跳超时时间 5分钟
     private static final long HEART_BEAT_TIME_OUT = 5 * 60 * 1000;
 
+    private String disconnectReason;
+
     //客户端唯一编号
     private String clientId;
 
@@ -131,6 +133,7 @@ public class ChannelHandlerContextHolder {
 
         //解析上下文基础信息
         parseBaseInfo();
+        refreshHeartBeatTimeStamp();
     }
 
 

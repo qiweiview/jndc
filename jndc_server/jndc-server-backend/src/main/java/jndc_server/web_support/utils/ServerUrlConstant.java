@@ -24,6 +24,8 @@ public class ServerUrlConstant {
 
         public static final String getChannelRecord = "/getChannelRecord";//
 
+        public static final String getRecentChannelRecordByClientId = "/getRecentChannelRecordByClientId";//
+
         public static final String clearChannelRecord = "/clearChannelRecord";//
 
         public static final String sendHeartBeat = "/sendHeartBeat";//

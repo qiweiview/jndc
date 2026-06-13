@@ -5,6 +5,7 @@ import jndc.core.NDCConfigCenter;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
+import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.ServiceControlMessage;
 import jndc.core.message.TcpServiceDescription;
@@ -14,6 +15,7 @@ import jndc.utils.UUIDSimple;
 import jndc.web_support.core.MessageNotificationCenter;
 import jndc_server.core.port_app.ServerPortProtector;
 import jndc_server.databases_object.ChannelContextCloseRecord;
+import jndc_server.databases_object.ClientAuthRecord;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -30,6 +32,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class NDCServerConfigCenter implements NDCConfigCenter {
+
+    public static final String DISCONNECT_REASON_CHANNEL_INACTIVE = "CHANNEL_INACTIVE";
+    public static final String DISCONNECT_REASON_SERVER_CLOSED = "SERVER_CLOSED";
+    public static final String DISCONNECT_REASON_HEARTBEAT_TIMEOUT = "HEARTBEAT_TIMEOUT";
 
 
     //客户端唯一编号作为key
@@ -56,6 +62,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             log.error("无法获取对应客户端上下文描述对象：" + channelId);
         } else {
             channelHandlerContextHolder.removeTcpServiceDescriptions(serverServiceDescriptions);
+            notifyChannelRefresh();
         }
     }
 
@@ -76,6 +83,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         } else {
             //向上下文中添加服务
             channelHandlerContextHolder.addTcpServiceDescriptions(serverServiceDescriptions);
+            notifyChannelRefresh();
         }
 
     }
@@ -104,6 +112,74 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
         }
 
 
+    }
+
+    public void syncClientOnline(ChannelHandlerContextHolder holder, DeviceSummary deviceSummary) {
+        if (holder == null) {
+            return;
+        }
+        DBWrapper<ClientAuthRecord> dbWrapper = DBWrapper.getDBWrapper(ClientAuthRecord.class);
+        ClientAuthRecord clientAuthRecord = loadOrCreateClientRecord(dbWrapper, holder.getClientId());
+        clientAuthRecord.setAuthMode(holder.getAuthMode());
+        clientAuthRecord.setLastClientIp(holder.getContextIp());
+        clientAuthRecord.setLastClientPort(holder.getContextPort());
+        clientAuthRecord.setLastSeenAt(holder.getLastHearBeatTimeStamp());
+        clientAuthRecord.setLastOfflineAt(null);
+        clientAuthRecord.applyDeviceSummary(deviceSummary);
+        dbWrapper.updateByPrimaryKey(clientAuthRecord);
+        notifyChannelRefresh();
+    }
+
+    public void syncClientOffline(ChannelHandlerContextHolder holder) {
+        if (holder == null) {
+            return;
+        }
+        DBWrapper<ClientAuthRecord> dbWrapper = DBWrapper.getDBWrapper(ClientAuthRecord.class);
+        ClientAuthRecord clientAuthRecord = dbWrapper.customQuerySingle(
+                "select * from client_auth_record where client_id=?",
+                holder.getClientId()
+        );
+        if (clientAuthRecord == null) {
+            clientAuthRecord = new ClientAuthRecord();
+            clientAuthRecord.setClientId(holder.getClientId());
+            clientAuthRecord.setClientAuthKey("");
+            dbWrapper.insert(clientAuthRecord);
+            clientAuthRecord = dbWrapper.customQuerySingle(
+                    "select * from client_auth_record where client_id=?",
+                    holder.getClientId()
+            );
+        }
+        clientAuthRecord.setAuthMode(holder.getAuthMode());
+        clientAuthRecord.setLastClientIp(holder.getContextIp());
+        clientAuthRecord.setLastClientPort(holder.getContextPort());
+        clientAuthRecord.setLastSeenAt(holder.getLastHearBeatTimeStamp());
+        clientAuthRecord.setLastOfflineAt(System.currentTimeMillis());
+        dbWrapper.updateByPrimaryKey(clientAuthRecord);
+        notifyChannelRefresh();
+    }
+
+    private ClientAuthRecord loadOrCreateClientRecord(DBWrapper<ClientAuthRecord> dbWrapper, String clientId) {
+        ClientAuthRecord clientAuthRecord = dbWrapper.customQuerySingle(
+                "select * from client_auth_record where client_id=?",
+                clientId
+        );
+        if (clientAuthRecord != null) {
+            return clientAuthRecord;
+        }
+
+        clientAuthRecord = new ClientAuthRecord();
+        clientAuthRecord.setClientId(clientId);
+        clientAuthRecord.setClientAuthKey("");
+        dbWrapper.insert(clientAuthRecord);
+        return dbWrapper.customQuerySingle("select * from client_auth_record where client_id=?", clientId);
+    }
+
+    private void notifyChannelRefresh() {
+        MessageNotificationCenter messageNotificationCenter = UniqueBeanManage.getBean(MessageNotificationCenter.class);
+        if (messageNotificationCenter != null) {
+            messageNotificationCenter.dateRefreshMessage("channel");
+            messageNotificationCenter.dateRefreshMessage("serviceControl");
+        }
     }
 
     public ChannelHandlerContextHolder getContextHolder(ChannelHandlerContext context) {
@@ -238,6 +314,10 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
                 //释放上下文描述对象
                 if (remove != null) {
+                    if (remove.getDisconnectReason() == null || "".equals(remove.getDisconnectReason().trim())) {
+                        remove.setDisconnectReason(DISCONNECT_REASON_CHANNEL_INACTIVE);
+                    }
+                    syncClientOffline(remove);
                     remove.releaseRelatedResources();
                 }
 
@@ -287,6 +367,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
             log.error("未匹配到隧道:" + id);
             throw new RuntimeException("未匹配到隧道");
         } else {
+            channelHandlerContextHolder.setDisconnectReason(DISCONNECT_REASON_SERVER_CLOSED);
             channelHandlerContextHolder.getChannelHandlerContext().close();
         }
     }
@@ -386,6 +467,7 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
     public void checkChannelHealthy() {
         channelHandlerContextHolderMap.forEach((k, v) -> {
             if (v.checkUnreachable()) {
+                v.setDisconnectReason(DISCONNECT_REASON_HEARTBEAT_TIMEOUT);
                 v.getChannelHandlerContext().close();
             }
         });
@@ -427,22 +509,31 @@ public class NDCServerConfigCenter implements NDCConfigCenter {
 
         //异步执行中心
         TCPDataFlowAnalysisCenter TCPDataFlowAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
-        TCPDataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), TCPDataFlowAnalysisCenter.METHOD_REQUEST);
+        TCPDataFlowAnalysisCenter.analyse(
+                tcpServiceDescription.getBindClientId(),
+                ndcMessageProtocol.copyWithData(),
+                TCPDataFlowAnalysisCenter.DIRECTION_SERVER_TO_CLIENT
+        );
     }
 
 
     @Override
     public void addMessageToReceiveQueue(NDCMessageProtocol ndcMessageProtocol) {
-        //异步执行中心
-        TCPDataFlowAnalysisCenter TCPDataFlowAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
-        TCPDataFlowAnalysisCenter.analyse(ndcMessageProtocol.copyWithData(), TCPDataFlowAnalysisCenter.METHOD_RESPONSE);
-
         int serverPort = ndcMessageProtocol.getServerPort();
         AsynchronousEventCenter.ServerPortBindContext serverPortBindContext = tcpRouter.get(serverPort);
         if (serverPortBindContext == null) {
             //todo drop message
             log.info("drop the message cause the port" + serverPort + "has not be listened");
         } else {
+            ServerServiceDescription serverServiceDescription = serverPortBindContext.getServerServiceDescription();
+            if (serverServiceDescription != null) {
+                TCPDataFlowAnalysisCenter TCPDataFlowAnalysisCenter = UniqueBeanManage.getBean(TCPDataFlowAnalysisCenter.class);
+                TCPDataFlowAnalysisCenter.analyse(
+                        serverServiceDescription.getBindClientId(),
+                        ndcMessageProtocol.copyWithData(),
+                        TCPDataFlowAnalysisCenter.DIRECTION_CLIENT_TO_SERVER
+                );
+            }
             serverPortBindContext.receiveMessage(ndcMessageProtocol);
         }
     }

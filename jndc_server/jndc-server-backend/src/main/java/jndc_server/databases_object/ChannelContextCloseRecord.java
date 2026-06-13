@@ -13,6 +13,8 @@ public class ChannelContextCloseRecord {
     @DSKey
     private String id;
 
+    @DSFiled(name = "client_id")
+    private String clientId;
 
     @DSFiled(name = "channel_id")
     private String channelId;
@@ -24,11 +26,16 @@ public class ChannelContextCloseRecord {
     @DSFiled(name = "time_stamp")
     private long timeStamp;
 
+    @DSFiled(name = "disconnect_reason")
+    private String disconnectReason;
+
     public static ChannelContextCloseRecord of(ChannelHandlerContextHolder value) {
         ChannelContextCloseRecord channelContextCloseRecord = new ChannelContextCloseRecord();
+        channelContextCloseRecord.setClientId(value.getClientId());
         channelContextCloseRecord.setChannelId(value.getClientId());
         channelContextCloseRecord.setIp(value.getContextIp());
         channelContextCloseRecord.setPort(value.getContextPort());
+        channelContextCloseRecord.setDisconnectReason(value.getDisconnectReason());
         return channelContextCloseRecord;
     }
 

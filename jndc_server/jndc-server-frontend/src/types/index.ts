@@ -44,18 +44,35 @@ export interface ChannelContext {
   clientIp: string;
   clientPort: number;
   serviceCount: number;
-  lastHeartbeat: string;
+  lastHeartbeat: number;
   connected: boolean;
+  online: boolean;
   authMode: number;
+  lastSeenAt: number;
+  lastOfflineAt: number;
+  osName: string;
+  osVersion: string;
+  cpuModel: string;
+  cpuLogicalCores: number;
+  gpuNames: string[];
+  memoryTotalBytes: number;
+  diskTotalBytes: number;
+  diskFreeBytes: number;
+  clientToServerBytes: number;
+  serverToClientBytes: number;
+  clientToServerBandwidth: number;
+  serverToClientBandwidth: number;
+  trafficUpdatedAt: number;
 }
 
 export interface ChannelRecord {
-  id: number;
+  id: string;
   channelId: string;
   clientId: string;
-  clientIp: string;
-  disconnectTime: string;
-  reason: string;
+  ip: string;
+  port: number;
+  timeStamp: number;
+  disconnectReason: string;
 }
 
 // 服务相关

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Card, Empty, Input, InputNumber, Select, Space, Table, Tag, message } from 'antd';
-import { PlusOutlined, ReloadOutlined, SaveOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Card, Empty, Input, InputNumber, Select, Space, Table, Tag, message, Modal, Form } from 'antd';
+import { PlusOutlined, ReloadOutlined, SaveOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -9,15 +9,11 @@ import { serviceControlApi } from '../../api/serviceControl';
 import { ChannelContext, ControlledServiceState, ServiceDescription } from '../../types';
 import { wsClient } from '../../utils/websocket';
 import { staggerContainerVariants, staggerItemVariants } from '../../utils/motion';
+import './index.css';
 
 const FULL_AUTHORIZED = 1;
 
-const createEmptyService = (): ServiceDescription => ({
-  serviceName: '',
-  serviceIp: '',
-  servicePort: 0,
-  description: '',
-});
+
 
 const ServiceControl: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,6 +22,9 @@ const ServiceControl: React.FC = () => {
   const [targetServices, setTargetServices] = useState<ServiceDescription[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [form] = Form.useForm();
 
   const selectedClientId = searchParams.get('clientId') ?? '';
 
@@ -33,7 +32,7 @@ const ServiceControl: React.FC = () => {
     const data = await channelApi.getServerChannelTable();
     setChannels(data);
     if (!selectedClientId) {
-      const preferred = data.find((item) => item.connected && item.authMode === FULL_AUTHORIZED);
+      const preferred = data.find((item) => item.online && item.authMode === FULL_AUTHORIZED);
       if (preferred) {
         setSearchParams({ clientId: preferred.clientId });
       }
@@ -79,15 +78,25 @@ const ServiceControl: React.FC = () => {
     () =>
       channels.map((item) => ({
         value: item.clientId,
-        label: `${item.clientId} (${item.clientIp}:${item.clientPort})`,
+        label: `${item.clientId} [${item.online ? '在线' : '离线'}] (${item.clientIp || '--'}:${item.clientPort || 0})`,
       })),
     [channels]
   );
 
-  const updateService = (index: number, patch: Partial<ServiceDescription>) => {
-    setTargetServices((current) =>
-      current.map((item, currentIndex) => (currentIndex === index ? { ...item, ...patch } : item))
-    );
+  const handleModalOk = async () => {
+    try {
+      const values = await form.validateFields();
+      setTargetServices((current) => {
+        if (editingIndex !== null) {
+          return current.map((item, idx) => (idx === editingIndex ? { ...item, ...values } : item));
+        } else {
+          return [...current, values as ServiceDescription];
+        }
+      });
+      setModalVisible(false);
+    } catch (e) {
+      // validate failed
+    }
   };
 
   const handleSave = async () => {
@@ -126,79 +135,63 @@ const ServiceControl: React.FC = () => {
     {
       title: '服务名称',
       dataIndex: 'serviceName',
-      render: (_, record, index) => (
-        <Input
-          value={record.serviceName}
-          disabled={!editable}
-          placeholder="如 web-ui"
-          onChange={(event) => updateService(index, { serviceName: event.target.value })}
-        />
-      ),
+      width: '25%',
     },
     {
       title: '服务IP',
       dataIndex: 'serviceIp',
-      render: (_, record, index) => (
-        <Input
-          value={record.serviceIp}
-          disabled={!editable}
-          placeholder="如 127.0.0.1"
-          onChange={(event) => updateService(index, { serviceIp: event.target.value })}
-        />
-      ),
+      width: '25%',
     },
     {
       title: '服务端口',
       dataIndex: 'servicePort',
       width: 140,
-      render: (_, record, index) => (
-        <InputNumber
-          min={1}
-          max={65535}
-          style={{ width: '100%' }}
-          value={record.servicePort}
-          disabled={!editable}
-          placeholder="8080"
-          onChange={(value) => updateService(index, { servicePort: Number(value ?? 0) })}
-        />
-      ),
     },
     {
       title: '描述',
       dataIndex: 'description',
-      render: (_, record, index) => (
-        <Input
-          value={record.description}
-          disabled={!editable}
-          placeholder="服务描述"
-          onChange={(event) => updateService(index, { description: event.target.value })}
-        />
-      ),
     },
     {
       title: '操作',
-      width: 80,
+      width: 140,
       fixed: 'right' as const,
-      render: (_, __, index) => (
-        <Button
-          danger
-          type="text"
-          size="small"
-          style={{ padding: 0 }}
-          icon={<DeleteOutlined />}
-          disabled={!editable}
-          onClick={() => setTargetServices((current) => current.filter((_, currentIndex) => currentIndex !== index))}
-        >
-          删除
-        </Button>
+      align: 'center',
+      render: (_, record, index) => (
+        <Space>
+          <Button
+            type="text"
+            size="small"
+            style={{ padding: 0 }}
+            icon={<EditOutlined />}
+            disabled={!editable}
+            onClick={() => {
+              setEditingIndex(index);
+              form.setFieldsValue(record);
+              setModalVisible(true);
+            }}
+          >
+            编辑
+          </Button>
+          <Button
+            danger
+            type="text"
+            size="small"
+            style={{ padding: 0 }}
+            icon={<DeleteOutlined />}
+            disabled={!editable}
+            onClick={() => setTargetServices((current) => current.filter((_, currentIndex) => currentIndex !== index))}
+          >
+            删除
+          </Button>
+        </Space>
       ),
     },
   ];
 
   const actualColumns: ColumnsType<ServiceDescription> = [
-    { title: '服务名称', dataIndex: 'serviceName' },
-    { title: '服务IP', dataIndex: 'serviceIp' },
-    { title: '服务端口', dataIndex: 'servicePort', width: 120 },
+    { title: '服务名称', dataIndex: 'serviceName', width: '25%' },
+    { title: '服务IP', dataIndex: 'serviceIp', width: '25%' },
+    { title: '服务端口', dataIndex: 'servicePort', width: 140 },
     { title: '描述', dataIndex: 'description' },
   ];
 
@@ -247,7 +240,6 @@ const ServiceControl: React.FC = () => {
               </div>
 
               <Card
-                size="small"
                 title={<span style={{ fontWeight: 600 }}>目标服务清单</span>}
                 style={{ borderRadius: 8, borderColor: '#EFF0F1', boxShadow: 'none' }}
                 extra={
@@ -255,7 +247,11 @@ const ServiceControl: React.FC = () => {
                     <Button
                       icon={<PlusOutlined />}
                       disabled={!editable}
-                      onClick={() => setTargetServices((current) => [...current, createEmptyService()])}
+                      onClick={() => {
+                        setEditingIndex(null);
+                        form.resetFields();
+                        setModalVisible(true);
+                      }}
                     >
                       新增服务
                     </Button>
@@ -266,6 +262,8 @@ const ServiceControl: React.FC = () => {
                 }
               >
                 <Table<ServiceDescription>
+                  className="service-control-table"
+                  size="middle"
                   rowKey={(_, index) => `${selectedClientId}-target-${index}`}
                   columns={targetColumns}
                   dataSource={targetServices}
@@ -277,11 +275,12 @@ const ServiceControl: React.FC = () => {
               </Card>
 
               <Card
-                size="small"
                 title={<span style={{ fontWeight: 600 }}>当前实际在线清单</span>}
                 style={{ borderRadius: 8, borderColor: '#EFF0F1', boxShadow: 'none' }}
               >
                 <Table<ServiceDescription>
+                  className="service-control-table"
+                  size="middle"
                   rowKey={(record) => `${record.serviceIp}-${record.servicePort}`}
                   columns={actualColumns}
                   dataSource={detail.actualServices ?? []}
@@ -294,6 +293,46 @@ const ServiceControl: React.FC = () => {
           )}
         </Card>
       </motion.div>
+
+      {/* Add/Edit Modal */}
+      <Modal
+        title={editingIndex !== null ? '编辑目标服务' : '新增目标服务'}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={handleModalOk}
+        destroyOnClose
+        style={{ borderRadius: 12 }}
+      >
+        <Form form={form} layout="vertical" style={{ marginTop: 20 }}>
+          <Form.Item
+            name="serviceName"
+            label="服务名称"
+            rules={[{ required: true, message: '请输入服务名称' }]}
+          >
+            <Input placeholder="如 web-ui" />
+          </Form.Item>
+          <Form.Item
+            name="serviceIp"
+            label="服务IP"
+            rules={[{ required: true, message: '请输入服务IP' }]}
+          >
+            <Input placeholder="如 127.0.0.1" />
+          </Form.Item>
+          <Form.Item
+            name="servicePort"
+            label="服务端口"
+            rules={[{ required: true, message: '请输入服务端口' }]}
+          >
+            <InputNumber min={1} max={65535} style={{ width: '100%' }} placeholder="8080" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="描述"
+          >
+            <Input placeholder="服务描述" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </motion.div>
   );
 };

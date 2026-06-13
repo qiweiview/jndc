@@ -1,5 +1,6 @@
 package jndc.core.message;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.io.Serializable;
  * 隧道开通消息
  */
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OpenChannelMessage implements Serializable {
     private static final long serialVersionUID = 7315766480559203141L;
 
@@ -22,5 +24,7 @@ public class OpenChannelMessage implements Serializable {
     private String clientAuthKey;
 
     private int authMode = SELF_MANAGED;
+
+    private DeviceSummary deviceSummary;
 
 }

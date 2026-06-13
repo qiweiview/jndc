@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
 import jndc.core.data_store_support.DBWrapper;
+import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.TcpServiceDescription;
@@ -260,6 +261,8 @@ public class JNDCServerMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
         //向注册中心注册上下文
         ndcServerConfigCenter.registerServiceProvider(channelHandlerContextHolder);
+        DeviceSummary deviceSummary = openChannelMessage.getDeviceSummary();
+        ndcServerConfigCenter.syncClientOnline(channelHandlerContextHolder, deviceSummary);
 
 
         //发送响应

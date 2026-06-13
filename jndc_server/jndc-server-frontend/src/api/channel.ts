@@ -1,20 +1,15 @@
 import request from '../utils/request';
-import { ChannelContext, ChannelRecord, PaginationParams, PageListVO } from '../types';
+import { ChannelContext, ChannelRecord } from '../types';
 
 export const channelApi = {
-  // 获取活跃隧道列表
+  // 获取设备/隧道列表
   getServerChannelTable: () => {
     return request.post<any, ChannelContext[]>('/getServerChannelTable');
   },
 
-  // 获取隧道断开记录
-  getChannelRecord: (params: PaginationParams) => {
-    return request.post<any, PageListVO<ChannelRecord>>('/getChannelRecord', params);
-  },
-
-  // 清空隧道断开记录
-  clearChannelRecord: () => {
-    return request.post<any, void>('/clearChannelRecord');
+  // 获取某个设备最近断开记录
+  getRecentChannelRecordByClientId: (clientId: string) => {
+    return request.post<any, ChannelRecord[]>('/getRecentChannelRecordByClientId', { clientId });
   },
 
   // 发送心跳

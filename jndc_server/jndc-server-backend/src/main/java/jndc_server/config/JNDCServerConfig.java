@@ -194,10 +194,52 @@ public class JNDCServerConfig {
     }
 
     private void performSchemaMigration(DataStoreAbstract dataStoreAbstract) {
+        addChannelRecordColumn(dataStoreAbstract, "client_id", "text(255)");
+        addChannelRecordColumn(dataStoreAbstract, "disconnect_reason", "text(255)");
         try {
-            dataStoreAbstract.execute("alter table client_auth_record add column auth_mode integer", null);
+            dataStoreAbstract.execute(
+                    "delete from channel_context_record where client_id is null or client_id=''",
+                    null
+            );
         } catch (RuntimeException e) {
-            log.debug("skip auth_mode migration: {}", e.getMessage());
+            log.debug("skip channel_context_record cleanup: {}", e.getMessage());
+        }
+        addClientAuthColumn(dataStoreAbstract, "auth_mode", "integer");
+        addClientAuthColumn(dataStoreAbstract, "last_client_ip", "text(255)");
+        addClientAuthColumn(dataStoreAbstract, "last_client_port", "integer");
+        addClientAuthColumn(dataStoreAbstract, "last_seen_at", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "last_offline_at", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "os_name", "text(255)");
+        addClientAuthColumn(dataStoreAbstract, "os_version", "text(255)");
+        addClientAuthColumn(dataStoreAbstract, "cpu_model", "text(255)");
+        addClientAuthColumn(dataStoreAbstract, "cpu_logical_cores", "integer");
+        addClientAuthColumn(dataStoreAbstract, "gpu_names", "text(2000)");
+        addClientAuthColumn(dataStoreAbstract, "memory_total_bytes", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "disk_total_bytes", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "disk_free_bytes", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "client_to_server_bytes", "bigint");
+        addClientAuthColumn(dataStoreAbstract, "server_to_client_bytes", "bigint");
+    }
+
+    private void addClientAuthColumn(DataStoreAbstract dataStoreAbstract, String columnName, String columnType) {
+        try {
+            dataStoreAbstract.execute(
+                    "alter table client_auth_record add column " + columnName + " " + columnType,
+                    null
+            );
+        } catch (RuntimeException e) {
+            log.debug("skip {} migration: {}", columnName, e.getMessage());
+        }
+    }
+
+    private void addChannelRecordColumn(DataStoreAbstract dataStoreAbstract, String columnName, String columnType) {
+        try {
+            dataStoreAbstract.execute(
+                    "alter table channel_context_record add column " + columnName + " " + columnType,
+                    null
+            );
+        } catch (RuntimeException e) {
+            log.debug("skip channel_context_record.{} migration: {}", columnName, e.getMessage());
         }
     }
 

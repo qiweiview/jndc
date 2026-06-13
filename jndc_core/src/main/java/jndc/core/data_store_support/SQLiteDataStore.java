@@ -82,7 +82,13 @@ public class SQLiteDataStore extends DataStoreAbstract {
                 sql = sb.toString();
             }
             try (Statement stmt = getConnection().createStatement()) {
-                stmt.execute(sql);
+                for (String statement : sql.split(";")) {
+                    String trimmed = statement.trim();
+                    if ("".equals(trimmed)) {
+                        continue;
+                    }
+                    stmt.execute(trimmed);
+                }
             }
             log.info("数据库表初始化完成");
         } catch (Exception e) {

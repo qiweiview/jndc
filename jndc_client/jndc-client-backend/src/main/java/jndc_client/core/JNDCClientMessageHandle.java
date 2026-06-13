@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
 import jndc.core.NDCMessageProtocol;
 import jndc.core.UniqueBeanManage;
+import jndc.core.message.DeviceSummary;
 import jndc.core.message.OpenChannelMessage;
 import jndc.core.message.RegistrationMessage;
 import jndc.core.message.ServiceControlMessage;
@@ -53,12 +54,14 @@ public class JNDCClientMessageHandle extends SimpleChannelInboundHandler<NDCMess
 
     private void sendChannelOpenChannelMessage() throws Exception {
         JNDCClientConfig clientConfig = UniqueBeanManage.getBean(JNDCClientConfig.class);
+        DeviceSummary deviceSummary = DeviceSummaryCollector.collect();
 
         OpenChannelMessage openChannelMessage = new OpenChannelMessage();
         openChannelMessage.setChannelId(ClientStart.CLIENT_ID);
         openChannelMessage.setAuth(clientConfig.getSecrete());
         openChannelMessage.setClientAuthKey(ClientStart.CLIENT_AUTH_KEY);
         openChannelMessage.setAuthMode(clientConfig.getAuthMode());
+        openChannelMessage.setDeviceSummary(deviceSummary);
         byte[] bytes = ObjectSerializableUtils.object2bytes(openChannelMessage);
 
         InetAddress unused = InetAddress.getLocalHost();
