@@ -43,14 +43,15 @@
 ### 工具链
 
 ```bash
-# JDK 8
-/Users/liuqiwei/data/jdk1.8.0/Contents/Home/bin/java
+# JDK 21
+export JAVA_HOME=/path/to/jdk-21
+export PATH="$JAVA_HOME/bin:$PATH"
 
 # Maven
 /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn
 ```
 
-- Java 构建和运行按 JDK 8 处理，不要假设 JDK 11+。
+- Java 构建和运行统一按 JDK 21 处理。
 - 前端优先使用 `pnpm`，不要切回 `npm`。
 - 设备已有 `uv`，不要全局安装 Python 依赖。
 

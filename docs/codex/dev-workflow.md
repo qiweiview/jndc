@@ -3,8 +3,9 @@
 ## 1. 本地工具链
 
 ```bash
-# JDK 8
-/Users/liuqiwei/data/jdk1.8.0/Contents/Home/bin/java
+# JDK 21
+export JAVA_HOME=/path/to/jdk-21
+export PATH="$JAVA_HOME/bin:$PATH"
 
 # Maven
 /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn
@@ -12,7 +13,7 @@
 
 约束：
 
-- Java 相关构建、运行默认按 JDK 8 处理
+- Java 相关构建、运行统一按 JDK 21 处理
 - 前端优先 `pnpm`
 - Python 工具优先 `uv`
 
@@ -36,6 +37,8 @@
 
 ```bash
 cd /Users/liuqiwei/IdeaProjects/jndc
+export JAVA_HOME=/path/to/jdk-21
+export PATH="$JAVA_HOME/bin:$PATH"
 /Applications/IntelliJ IDEA.app/Contents/plugins/maven/lib/maven3/bin/mvn test
 ```
 

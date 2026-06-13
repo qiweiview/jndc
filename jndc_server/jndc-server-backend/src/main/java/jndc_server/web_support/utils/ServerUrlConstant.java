@@ -71,5 +71,7 @@ public class ServerUrlConstant {
         public static final String getCurrentDeviceIp="/getCurrentDeviceIp";//获取当前设备IP
 
         public static final String clearIpRecord="/clearIpRecord";//清空ip记录
+
+        public static final String getServerRuntimeInfo="/getServerRuntimeInfo";//获取服务端运行信息
     }
 }

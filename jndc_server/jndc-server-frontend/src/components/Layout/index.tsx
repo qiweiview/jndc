@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Button, message } from 'antd';
 import {
   ApiOutlined,
@@ -9,6 +9,8 @@ import {
   LogoutOutlined,
   ControlOutlined,
   CodeOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,12 +57,18 @@ const menuItems = [
     icon: <GlobalOutlined />,
     label: 'HTTP应用',
   },
+  {
+    key: '/management/serverInfo',
+    icon: <DesktopOutlined />,
+    label: '服务端运行信息',
+  },
 ];
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useAuthStore((state) => state.logout);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('auth-token');
@@ -102,8 +110,14 @@ const MainLayout: React.FC = () => {
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         style={{ display: 'contents' }}
       >
-        <Sider width={224} className="main-sider">
-          <div className="logo">JNDC</div>
+        <Sider
+          width={224}
+          className="main-sider"
+          collapsible
+          collapsed={collapsed}
+          trigger={null}
+        >
+          <div className="logo">{collapsed ? 'J' : 'JNDC'}</div>
           <Menu
             mode="inline"
             selectedKeys={[location.pathname]}
@@ -122,7 +136,15 @@ const MainLayout: React.FC = () => {
         >
           <Header className="main-header">
             <div className="header-content">
-              <h2>JNDC 内网穿透管理系统</h2>
+              <div className="header-left">
+                <Button
+                  type="text"
+                  icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  className="collapse-trigger"
+                />
+                <h2>JNDC 内网穿透管理系统</h2>
+              </div>
               <Button
                 type="text"
                 icon={<LogoutOutlined />}

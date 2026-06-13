@@ -52,7 +52,7 @@ public class ClientTerminalSessionManagerTest {
         assertEquals(TerminalControlMessage.ACTION_OPEN, openAck.getAction());
 
         manager.handle(message(TerminalControlMessage.ACTION_INPUT, "session-a", "client-a", "pwd\r"));
-        assertEquals("pwd\r", process.stdinContent());
+        assertEquals("pwd\n", process.stdinContent());
 
         process.pushOutput("hello\n");
         TerminalControlMessage output = waitForMessage(tunnel, TerminalControlMessage.ACTION_OUTPUT);

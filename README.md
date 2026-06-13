@@ -1,5 +1,5 @@
 ![J NDC](https://s1.ax1x.com/2020/11/04/B6HETJ.png)
-![jdk12](https://img.shields.io/badge/jdk-8-orange.svg)
+![jdk21](https://img.shields.io/badge/jdk-21-orange.svg)
 
 
 ## [中文文档](https://github.com/qiweiview/jndc/blob/master/README_zh_cn.md)
@@ -9,6 +9,7 @@
 * "J NDC" is the abbreviation of "java no distance connection", which is intended to provide an easy-to-use visual intranet penetration application. The application is written based on java netty.
 * The application is built with the Client/Server architecture. Through the idea of "service registration", the local client side provides local services to the server side, and the server side manages and exposes the corresponding services
 * The application core is supported by the ndc private protocol, providing "transmission data encryption", "ip black and white list", "client visualization", "service port timing", "domain name routing" functions
+* Build and runtime now require JDK 21. Configure `JAVA_HOME` to a JDK 21 installation before running Maven or the startup scripts.
 * Project source code directory structure
 ```
 - jndc
@@ -120,5 +121,4 @@ clientServiceDescriptions: # register service
 * Thanks to jetbrains for supporting this open source project
 * [OpenSourceSupport](https://jb.gg/OpenSourceSupport)
 ![jetbrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png?_ga=2.159595956.84150952.1649035676-1273448.1647342519&_gl=1*1v0d1hp*_ga*MTI3MzQ0OC4xNjQ3MzQyNTE5*_ga_V0XZL7QHEB*MTY0OTAzNTY3NS4xLjEuMTY0OTAzODA2Ni42MA..)
-
 

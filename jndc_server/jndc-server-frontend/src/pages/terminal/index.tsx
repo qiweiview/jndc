@@ -59,6 +59,7 @@ const TerminalPage: React.FC = () => {
   const sessionIdRef = useRef<string>('');
   const currentClientIdRef = useRef<string>('');
   const channelsRef = useRef<ChannelContext[]>([]);
+  const connectionNonceRef = useRef(0);
 
   channelsRef.current = channels;
 
@@ -82,6 +83,7 @@ const TerminalPage: React.FC = () => {
       })),
     [eligibleChannels]
   );
+  const shouldRenderTerminal = Boolean(selectedClientId) || eligibleChannels.length > 0;
 
   const resetTerminalView = useCallback(() => {
     terminalRef.current?.clear();
@@ -131,6 +133,16 @@ const TerminalPage: React.FC = () => {
     socket.close();
   }, []);
 
+  const closeTerminalSession = useCallback((notifyServer: boolean, message = '终端会话已关闭') => {
+    connectionNonceRef.current += 1;
+    closeSocket(notifyServer);
+    sessionIdRef.current = '';
+    currentClientIdRef.current = '';
+    setShellType('');
+    setStatus('closed');
+    setStatusMessage(message);
+  }, [closeSocket]);
+
   const sendResize = useCallback(() => {
     const socket = socketRef.current;
     const terminal = terminalRef.current;
@@ -179,16 +191,10 @@ const TerminalPage: React.FC = () => {
       const data = await channelApi.getServerChannelTable();
       setChannels(data);
       setChannelsReady(true);
-      if (!selectedClientId) {
-        const preferred = data.find((item) => item.online && item.authMode === FULL_AUTHORIZED);
-        if (preferred) {
-          setSearchParams({ clientId: preferred.clientId });
-        }
-      }
     } finally {
       setLoading(false);
     }
-  }, [selectedClientId, setSearchParams]);
+  }, []);
 
   useEffect(() => {
     fetchChannels();
@@ -197,6 +203,11 @@ const TerminalPage: React.FC = () => {
   }, [fetchChannels]);
 
   useEffect(() => {
+    if (!shouldRenderTerminal || !terminalRootRef.current) {
+      return;
+    }
+
+    const terminalRoot = terminalRootRef.current;
     const terminal = new Terminal({
       cursorBlink: true,
       fontFamily: '"SFMono-Regular", "JetBrains Mono", "Fira Code", monospace',
@@ -213,7 +224,7 @@ const TerminalPage: React.FC = () => {
     });
     const fitAddon = new FitAddon();
     terminal.loadAddon(fitAddon);
-    terminal.open(terminalRootRef.current!);
+    terminal.open(terminalRoot);
     terminal.writeln('JNDC Remote Terminal');
     terminal.writeln('');
     terminalRef.current = terminal;
@@ -236,7 +247,7 @@ const TerminalPage: React.FC = () => {
     const resizeObserver = new ResizeObserver(() => {
       sendResize();
     });
-    resizeObserver.observe(terminalRootRef.current!);
+    resizeObserver.observe(terminalRoot);
     resizeObserverRef.current = resizeObserver;
 
     return () => {
@@ -247,10 +258,10 @@ const TerminalPage: React.FC = () => {
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-  }, [safeFitAndFocus, sendResize]);
+  }, [safeFitAndFocus, sendResize, shouldRenderTerminal]);
 
   const connectTerminal = useCallback((clientId?: string) => {
-    const targetClientId = clientId ?? currentClientIdRef.current;
+    const targetClientId = clientId ?? selectedClientId ?? currentClientIdRef.current;
     if (!targetClientId) {
       setStatus('idle');
       setStatusMessage('请选择一个在线且处于 FULL_AUTHORIZED 的客户端');
@@ -274,6 +285,9 @@ const TerminalPage: React.FC = () => {
       setStatusMessage('仅 FULL_AUTHORIZED 客户端允许打开远程终端');
       return;
     }
+
+    connectionNonceRef.current += 1;
+    const connectionNonce = connectionNonceRef.current;
 
     closeSocket(false);
     terminalRef.current?.clear();
@@ -299,6 +313,9 @@ const TerminalPage: React.FC = () => {
     setStatusMessage(`正在连接 ${targetClientId}`);
 
     socket.onopen = () => {
+      if (socketRef.current !== socket || connectionNonceRef.current !== connectionNonce) {
+        return;
+      }
       const terminal = terminalRef.current;
       safeFitAndFocus();
       const payload: TerminalSocketRequest = {
@@ -312,6 +329,9 @@ const TerminalPage: React.FC = () => {
     };
 
     socket.onmessage = (event) => {
+      if (socketRef.current !== socket || connectionNonceRef.current !== connectionNonce) {
+        return;
+      }
       const message: TerminalSocketResponse = JSON.parse(event.data);
       if (message.sessionId !== sessionIdRef.current) {
         return;
@@ -338,6 +358,7 @@ const TerminalPage: React.FC = () => {
         setStatusMessage(`终端会话已结束，exit code ${message.exitCode ?? 0}`);
         terminalRef.current?.write(`\r\n[session closed: ${message.exitCode ?? 0}]\r\n`);
         sessionIdRef.current = '';
+        currentClientIdRef.current = '';
         closeSocket(false);
         return;
       }
@@ -349,11 +370,15 @@ const TerminalPage: React.FC = () => {
         setStatusMessage(errorMessage);
         terminalRef.current?.write(`\r\n[error] ${errorMessage}\r\n`);
         sessionIdRef.current = '';
+        currentClientIdRef.current = '';
         closeSocket(false);
       }
     };
 
     socket.onclose = () => {
+      if (connectionNonceRef.current !== connectionNonce) {
+        return;
+      }
       if (socketRef.current === socket) {
         socketRef.current = null;
       }
@@ -361,32 +386,78 @@ const TerminalPage: React.FC = () => {
         setStatus((prev) => (prev === 'connected' || prev === 'connecting' ? 'closed' : prev));
         setStatusMessage((prev) => (prev === `已连接到 ${targetClientId}` ? '终端连接已关闭' : prev));
         sessionIdRef.current = '';
+        currentClientIdRef.current = '';
       }
     };
 
     socket.onerror = () => {
+      if (socketRef.current !== socket || connectionNonceRef.current !== connectionNonce) {
+        return;
+      }
       setStatus('error');
       setStatusMessage('terminal websocket 连接失败');
     };
-  }, [closeSocket, sendResize, safeFitAndFocus]);
+  }, [closeSocket, selectedClientId, sendResize, safeFitAndFocus]);
 
-  // Auto-connect when selectedClientId changes AND channels have been loaded at least once.
-  // channelsReady only transitions false→true once, so it won't cause repeated reconnections.
   useEffect(() => {
-    if (selectedClientId && channelsReady) {
-      connectTerminal(selectedClientId);
+    if (!channelsReady) {
+      return;
     }
-    return () => {
-      closeSocket(true);
-      sessionIdRef.current = '';
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClientId, channelsReady]);
+
+    if (!selectedClientId) {
+      if (!sessionIdRef.current) {
+        setStatus('idle');
+        setStatusMessage('请选择一个客户端，然后点击“连接”');
+        setShellType('');
+      }
+      return;
+    }
+
+    if (sessionIdRef.current && currentClientIdRef.current && currentClientIdRef.current !== selectedClientId) {
+      closeTerminalSession(true, `已切换到 ${selectedClientId}，请点击“连接”建立新会话`);
+      resetTerminalView();
+      return;
+    }
+
+    if (sessionIdRef.current || status === 'connecting' || status === 'connected') {
+      return;
+    }
+
+    const channel = channels.find((item) => item.clientId === selectedClientId) ?? null;
+    if (!channel) {
+      setStatus('idle');
+      setStatusMessage('请选择一个在线且处于 FULL_AUTHORIZED 的客户端');
+      return;
+    }
+
+    if (!channel.online) {
+      setStatus('offline');
+      setStatusMessage('当前客户端已离线，无法建立终端会话');
+      return;
+    }
+
+    if (channel.authMode !== FULL_AUTHORIZED) {
+      setStatus('forbidden');
+      setStatusMessage('仅 FULL_AUTHORIZED 客户端允许打开远程终端');
+      return;
+    }
+
+    setStatus('idle');
+    setStatusMessage(`客户端 ${selectedClientId} 已就绪，点击“连接”开始终端会话`);
+  }, [
+    channels,
+    channelsReady,
+    closeTerminalSession,
+    resetTerminalView,
+    selectedClientId,
+  ]);
 
   useEffect(() => {
     return () => {
+      connectionNonceRef.current += 1;
       closeSocket(true);
       sessionIdRef.current = '';
+      currentClientIdRef.current = '';
     };
   }, [closeSocket]);
 
@@ -413,14 +484,18 @@ const TerminalPage: React.FC = () => {
               <Space>
                 <Button
                   icon={<ReloadOutlined />}
-                  onClick={() => connectTerminal()}
+                  onClick={() => connectTerminal(selectedClientId || undefined)}
                 >
-                  重连
+                  连接
                 </Button>
                 <Button icon={<ClearOutlined />} onClick={resetTerminalView}>
                   清屏
                 </Button>
-                <Button danger icon={<CloseCircleOutlined />} onClick={() => closeSocket(true)}>
+                <Button
+                  danger
+                  icon={<CloseCircleOutlined />}
+                  onClick={() => closeTerminalSession(true)}
+                >
                   关闭会话
                 </Button>
               </Space>
@@ -458,9 +533,6 @@ const TerminalPage: React.FC = () => {
                   onClick={() => terminalRef.current?.focus()}
                 />
               </div>
-              <Typography.Text type="secondary">
-                v1 使用流式 shell 会话，不保证 `vim`、`top`、`less` 等全屏 TUI 正常工作。
-              </Typography.Text>
             </Space>
           )}
         </Card>

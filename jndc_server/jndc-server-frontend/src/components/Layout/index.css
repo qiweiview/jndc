@@ -61,6 +61,28 @@
   color: var(--color-text);
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.collapse-trigger {
+  font-size: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.collapse-trigger:hover {
+  background: var(--color-bg-layout) !important;
+  color: var(--color-primary) !important;
+}
+
 .main-content {
   margin: var(--content-padding);
   min-height: 280px;

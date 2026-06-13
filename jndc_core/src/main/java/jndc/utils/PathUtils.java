@@ -1,6 +1,5 @@
 package jndc.utils;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 
 public class PathUtils {
@@ -47,11 +46,6 @@ public class PathUtils {
         }
     }
 
-    public static String getDesktopPath() {
-        return getDesktopPath(File.separator);
-    }
-
-
     /**
      * 从多个地址中获取至少一个有效地址
      *
@@ -87,15 +81,6 @@ public class PathUtils {
         return RUN_TIME_PATH;
 
     }
-
-
-    public static String getDesktopPath(String singleDir) {
-        FileSystemView fsv = FileSystemView.getFileSystemView();
-        File com = fsv.getHomeDirectory();
-        String Desktop = com.getPath();
-        return Desktop + File.separator + singleDir + File.separator;
-    }
-
     public static String systemPath2JavaPackagePath(String systemPath) {
         String s = systemPath.replaceAll("/", ".").replaceAll("\\\\", ".");
         return s;

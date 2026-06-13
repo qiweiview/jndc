@@ -13,6 +13,7 @@ import IpFilter from './pages/ipFilter';
 import HttpApp from './pages/httpApp';
 import ServiceControl from './pages/serviceControl';
 import TerminalPage from './pages/terminal';
+import ServerInfo from './pages/serverInfo';
 import { useAuthStore } from './stores/auth';
 
 const appTheme: ThemeConfig = {
@@ -97,6 +98,7 @@ const AnimatedRoutes: React.FC = () => {
           <Route path="serverPortList" element={<PortList />} />
           <Route path="ipFilter" element={<IpFilter />} />
           <Route path="httpApp" element={<HttpApp />} />
+          <Route path="serverInfo" element={<ServerInfo />} />
         </Route>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />

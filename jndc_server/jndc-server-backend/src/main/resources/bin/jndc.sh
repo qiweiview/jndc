@@ -22,6 +22,7 @@ set -euo pipefail
 # ---- 应用元信息 ----
 APP_NAME="jndc-server"
 APP_MAIN="jndc_server.start.ServerStart"
+JAVA_REQUIRED_MAJOR=21
 
 # ---- 路径推导 ----
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -56,14 +57,12 @@ RUN_MODE="$(detect_mode)"
 
 # ---- 按模式设置默认值 ----
 if [ "$RUN_MODE" = "prod" ]; then
-  JAVA_HOME="${JAVA_HOME:-/usr/local/jdk8}"
   SHUTDOWN_TIMEOUT="${SHUTDOWN_TIMEOUT:-30}"
   : "${JVM_XMS:=-Xms512m}"
   : "${JVM_XMX:=-Xmx1024m}"
   : "${JVM_METASPACE:=-XX:MaxMetaspaceSize=256m}"
   : "${GC_LOG:=true}"
 else
-  JAVA_HOME="${JAVA_HOME:-/Users/liuqiwei/data/jdk1.8.0/Contents/Home}"
   SHUTDOWN_TIMEOUT="${SHUTDOWN_TIMEOUT:-10}"
   : "${JVM_XMS:=-Xms128m}"
   : "${JVM_XMX:=-Xmx256m}"
@@ -71,17 +70,14 @@ else
   : "${GC_LOG:=false}"
 fi
 
-JAVA_BIN="${JAVA_HOME}/bin/java"
 CLASSPATH="${CONF_DIR}:${LIB_DIR}/*"
 
 # ---- 构建 JVM 参数 ----
 build_jvm_opts() {
   local opts="${JVM_XMS} ${JVM_XMX} ${JVM_METASPACE}"
-  # GC 日志 (JDK8)
+  # GC 日志 (JDK 21)
   if [ "$GC_LOG" = "true" ]; then
-    opts="$opts -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps"
-    opts="$opts -Xloggc:${LOG_DIR}/gc.log"
-    opts="$opts -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=10m"
+    opts="$opts -Xlog:gc*:file=${LOG_DIR}/gc.log:time,uptime,level,tags:filecount=5,filesize=10M"
   fi
   # 用户自定义
   opts="$opts ${JVM_OPTS:-}"
@@ -136,13 +132,19 @@ EOF
 
 # ---- 探测 Java ----
 find_java() {
-  if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_BIN" ]; then
-    echo "$JAVA_BIN"; return
+  if [ -n "${JAVA_HOME:-}" ]; then
+    local explicit_java="${JAVA_HOME}/bin/java"
+    [ -x "$explicit_java" ] && echo "$explicit_java" && return
   fi
   local candidates=(
-    "/usr/local/jdk8/bin/java"
-    "/data/jdk8/bin/java"
-    "/Users/liuqiwei/data/jdk1.8.0/Contents/Home/bin/java"
+    "/usr/lib/jvm/java-21-openjdk/bin/java"
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java"
+    "/usr/lib/jvm/temurin-21-jdk/bin/java"
+    "/usr/lib/jvm/jdk-21/bin/java"
+    "/usr/local/jdk21/bin/java"
+    "/opt/homebrew/opt/openjdk@21/bin/java"
+    "/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home/bin/java"
+    "/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home/bin/java"
   )
   for c in "${candidates[@]}"; do
     [ -x "$c" ] && echo "$c" && return
@@ -150,7 +152,12 @@ find_java() {
   if command -v java &>/dev/null; then
     command -v java; return
   fi
-  die "未找到 Java，请设置 JAVA_HOME"
+  die "未找到 JDK ${JAVA_REQUIRED_MAJOR}+，请设置 JAVA_HOME 或将 java 加入 PATH"
+}
+
+java_major_version() {
+  local java_cmd="$1"
+  "$java_cmd" -version 2>&1 | awk -F '"' '/version/ {print $2; exit}' | awk -F. '{if ($1 == 1) print $2; else print $1}'
 }
 
 # ---- 读取 PID ----
@@ -172,6 +179,12 @@ preflight() {
   [ -d "$LIB_DIR" ]  || die "lib 目录不存在: $LIB_DIR"
   local ver
   ver="$("$java_cmd" -version 2>&1 | head -1)"
+  local major_version
+  major_version="$(java_major_version "$java_cmd")"
+  [ -n "$major_version" ] || die "无法解析 Java 版本: $ver"
+  if [ "$major_version" -lt "$JAVA_REQUIRED_MAJOR" ]; then
+    die "检测到 Java ${major_version}，JNDC 需要 JDK ${JAVA_REQUIRED_MAJOR}+。请调整 JAVA_HOME 或 PATH。"
+  fi
   log "Java: $ver"
   # 检查核心 JAR
   if ! ls "$LIB_DIR"/jndc_server*.jar &>/dev/null; then

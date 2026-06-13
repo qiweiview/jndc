@@ -36,6 +36,7 @@ import jndc_server.web_support.model.dto.PageDTO;
 import jndc_server.web_support.model.dto.ServiceBindDTO;
 import jndc_server.web_support.model.vo.ChannelContextVO;
 import jndc_server.web_support.model.vo.ChannelTrafficTrendVO;
+import jndc_server.web_support.model.vo.ServerRuntimeInfoVO;
 import jndc_server.web_support.model.vo.ControlledServiceStateVO;
 import jndc_server.web_support.model.vo.DeviceInfo;
 import jndc_server.web_support.model.vo.IpRecordVO;
@@ -1051,7 +1052,29 @@ public class ServerManageMapping {
 
         LogPrint.info(pageDTO);
         return deviceInfo;
-
     }
 
+    /**
+     * get server runtime config info
+     *
+     * @param jndcHttpRequest
+     * @return
+     */
+    @WebMapping(path = ServerUrlConstant.ServerManage.getServerRuntimeInfo)
+    public ServerRuntimeInfoVO getServerRuntimeInfo(JNDCHttpRequest jndcHttpRequest) {
+        jndc_server.config.JNDCServerConfig config = UniqueBeanManage.getBean(jndc_server.config.JNDCServerConfig.class);
+        ServerRuntimeInfoVO vo = new ServerRuntimeInfoVO();
+        if (config != null) {
+            vo.setBindIp(config.getBindIp());
+            vo.setServicePort(config.getServicePort());
+            vo.setSecrete(config.getSecrete());
+            if (config.getManageConfig() != null) {
+                vo.setManagementApiPort(config.getManageConfig().getManagementApiPort());
+            }
+            if (config.getWebConfig() != null) {
+                vo.setHttpPort(config.getWebConfig().getHttpPort());
+            }
+        }
+        return vo;
+    }
 }

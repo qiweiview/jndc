@@ -3,7 +3,7 @@
 #
 #  部署步骤:
 #    1. 将 jndc-server 目录拷贝到 /data/app/
-#    2. 编辑 jndc.env 配置 JAVA_HOME 等
+#    2. 安装 JDK 21，并编辑 jndc.env 配置 JAVA_HOME 等
 #    3. sudo cp jndc-server.service /etc/systemd/system/
 #    4. sudo systemctl daemon-reload
 #    5. sudo systemctl enable jndc-server
