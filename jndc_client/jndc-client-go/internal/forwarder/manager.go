@@ -229,6 +229,7 @@ type localConnection struct {
 	mu            sync.Mutex
 	conn          net.Conn
 	dialing       bool
+	flushing      bool
 	released      bool
 	interruptSent bool
 	lastActive    time.Time
@@ -261,9 +262,9 @@ func (c *localConnection) ensureDial(initialData []byte) {
 		}
 	}
 	if c.conn != nil || c.dialing {
-		conn := c.conn
+		shouldFlush := c.conn != nil && len(c.pending) > 0
 		c.mu.Unlock()
-		if conn != nil && len(initialData) > 0 {
+		if shouldFlush {
 			c.flushPending()
 		}
 		return
@@ -303,22 +304,41 @@ func (c *localConnection) dial() {
 }
 
 func (c *localConnection) flushPending() {
-	c.mu.Lock()
-	if c.conn == nil || c.released {
-		c.mu.Unlock()
-		return
-	}
-	conn := c.conn
-	pending := c.pending
-	c.pending = nil
-	c.pendingBytes = 0
-	c.mu.Unlock()
+	for {
+		c.mu.Lock()
+		if c.conn == nil || c.released || len(c.pending) == 0 {
+			c.mu.Unlock()
+			return
+		}
+		if c.flushing {
+			c.mu.Unlock()
+			return
+		}
 
-	for _, chunk := range pending {
-		if _, err := conn.Write(chunk); err != nil {
-			c.provider.logger.Error("write pending buffer failed", "remoteKey", c.remoteKey, "err", err)
-			c.notifyInterrupted()
-			c.release(false)
+		c.flushing = true
+		conn := c.conn
+		pending := c.pending
+		c.pending = nil
+		c.pendingBytes = 0
+		c.mu.Unlock()
+
+		for _, chunk := range pending {
+			if _, err := conn.Write(chunk); err != nil {
+				c.provider.logger.Error("write pending buffer failed", "remoteKey", c.remoteKey, "err", err)
+				c.mu.Lock()
+				c.flushing = false
+				c.mu.Unlock()
+				c.notifyInterrupted()
+				c.release(false)
+				return
+			}
+		}
+
+		c.mu.Lock()
+		c.flushing = false
+		shouldContinue := c.conn == conn && !c.released && len(c.pending) > 0
+		c.mu.Unlock()
+		if !shouldContinue {
 			return
 		}
 	}
@@ -352,9 +372,6 @@ func (c *localConnection) readLoop() {
 }
 
 func (c *localConnection) bufferLocked(data []byte) bool {
-	if c.conn != nil {
-		return true
-	}
 	nextBytes := c.pendingBytes + len(data)
 	if len(c.pending) >= maxPendingBufferCount || nextBytes > maxPendingBufferBytes {
 		return false
