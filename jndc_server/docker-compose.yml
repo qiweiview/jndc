@@ -1,0 +1,37 @@
+name: jndc-server-stack
+
+services:
+  jndc-server:
+    build:
+      context: ..
+      dockerfile: jndc_server/jndc-server-backend/Dockerfile
+    image: jndc-server:latest
+    container_name: jndc-server
+    restart: unless-stopped
+    environment:
+      JNDC_RUNTIME_HOME: /opt/jndc/runtime-home
+      JVM_XMS: -Xms512m
+      JVM_XMX: -Xmx1024m
+      JVM_METASPACE: -XX:MaxMetaspaceSize=256m
+      GC_LOG: "true"
+    ports:
+      - "1081:1081"
+      - "1777:1777"
+      - "1080:1080"
+    volumes:
+      - ./docker/server/runtime-home:/opt/jndc/runtime-home
+
+  jndc-server-frontend:
+    build:
+      context: ./jndc-server-frontend
+      dockerfile: Dockerfile
+    image: jndc-server-frontend:latest
+    container_name: jndc-server-frontend
+    restart: unless-stopped
+    depends_on:
+      - jndc-server
+    environment:
+      JNDC_SERVER_HOST: jndc-server
+      JNDC_SERVER_MANAGEMENT_PORT: 1777
+    ports:
+      - "6689:80"

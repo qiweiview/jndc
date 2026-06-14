@@ -63,6 +63,25 @@ pnpm build
 - `/api/*` -> `http://localhost:1777/*`
 - `/ws` -> `ws://localhost:1777/ws`
 
+### Docker
+
+```bash
+cd /Users/liuqiwei/IdeaProjects/jndc/jndc_server
+docker compose up -d --build
+docker compose logs -f jndc-server
+docker compose logs -f jndc-server-frontend
+docker compose down
+```
+
+约束：
+
+- Compose 文件位于 `jndc_server/docker-compose.yml`
+- `jndc-server` 镜像会在容器内以 JDK 21 运行
+- `jndc-server` 容器把运行时目录挂载到 `jndc_server/docker/server/runtime-home`
+- 首次启动若缺少配置，会自动生成 `runtime-home/.jndc/server/conf/config.yml`
+- 自动生成的 Docker 配置会把 `bindIp` 从模板默认值 `127.0.0.1` 改成 `0.0.0.0`
+- `jndc-server-frontend` 容器默认把 `/api` 和 `/ws` 代理到 `jndc-server:1777`
+
 ## 4. 启动顺序
 
 推荐顺序：
@@ -168,6 +187,7 @@ jndc.bat logs
 - 检查包装脚本是否仍委托到 `jndc.sh`
 - 检查 `JAVA_HOME`、`APP_HOME`、`CONF_DIR`、`LIB_DIR`、`PID_FILE` 等路径是否自洽
 - 检查 dev / prod 模式判断是否仍成立
+- 如果新增或修改 Docker 支持，执行 `docker compose config`
 
 ## 8. 当前已知不一致
 
