@@ -10,6 +10,9 @@ services:
     restart: unless-stopped
     environment:
       JNDC_RUNTIME_HOME: /opt/jndc/runtime-home
+      JNDC_SERVER_SECRET: ${JNDC_SERVER_SECRET:-change-this-secret}
+      JNDC_ADMIN_USERNAME: ${JNDC_ADMIN_USERNAME:-admin}
+      JNDC_ADMIN_PASSWORD: ${JNDC_ADMIN_PASSWORD:-admin123456}
       JVM_XMS: -Xms512m
       JVM_XMX: -Xmx1024m
       JVM_METASPACE: -XX:MaxMetaspaceSize=256m

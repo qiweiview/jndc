@@ -80,6 +80,8 @@ docker compose down
 - `jndc-server` 容器把运行时目录挂载到 `jndc_server/docker/server/runtime-home`
 - 首次启动若缺少配置，会自动生成 `runtime-home/.jndc/server/conf/config.yml`
 - 自动生成的 Docker 配置会把 `bindIp` 从模板默认值 `127.0.0.1` 改成 `0.0.0.0`
+- 首次生成配置时，会把 `JNDC_SERVER_SECRET`、`JNDC_ADMIN_USERNAME`、`JNDC_ADMIN_PASSWORD` 写入配置文件
+- 这些环境变量只在配置文件不存在时生效；若要改已落盘的账号密码，请直接修改挂载目录中的 `config.yml`
 - `jndc-server-frontend` 容器默认把 `/api` 和 `/ws` 代理到 `jndc-server:1777`
 
 ## 4. 启动顺序
