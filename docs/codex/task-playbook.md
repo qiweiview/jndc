@@ -119,7 +119,7 @@
 先读：
 
 - `jndc_server/jndc-server-backend/src/main/resources/bin/jndc.sh`
-- `jndc_client/jndc-client-backend/src/main/resources/bin/jndc.sh`
+- `jndc_client/jndc-client-java/src/main/resources/bin/jndc.sh`
 - `startup.sh`
 - `shutdown.sh`
 - `restart.sh`

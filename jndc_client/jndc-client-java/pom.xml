@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jndc-client-backend</artifactId>
+    <artifactId>jndc-client-java</artifactId>
 
 
     <dependencies>

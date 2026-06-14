@@ -14,7 +14,7 @@
     <artifactId>jndc_client</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>jndc-client-backend</module>
+        <module>jndc-client-java</module>
 <!--        <module>jndc-client-frontend</module>-->
     </modules>
 

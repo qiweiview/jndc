@@ -27,7 +27,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 仓库内模板：
 
 - `jndc_server/jndc-server-backend/src/main/resources/conf/config.template.yml`
-- `jndc_client/jndc-client-backend/src/main/resources/conf/config.template.yml`
+- `jndc_client/jndc-client-java/src/main/resources/conf/config.template.yml`
 
 仓库内 `config.yml` 和模板主要用于打包资源、参考示例，不应替代 `~/.jndc` 作为运行真相。
 
@@ -97,7 +97,7 @@ nginx 反向代理最少需要保证：
 部署脚本源码目录：
 
 - `jndc_server/jndc-server-backend/src/main/resources/bin/`
-- `jndc_client/jndc-client-backend/src/main/resources/bin/`
+- `jndc_client/jndc-client-java/src/main/resources/bin/`
 
 关键文件：
 
@@ -123,7 +123,7 @@ cd jndc_server/jndc-server-backend/target/jndc_server/bin
 ```
 
 ```bash
-cd jndc_client/jndc-client-backend/target/jndc_client/bin
+cd jndc_client/jndc-client-java/target/jndc_client/bin
 ./jndc.sh start --dev
 ./jndc.sh stop
 ./jndc.sh restart --dev
